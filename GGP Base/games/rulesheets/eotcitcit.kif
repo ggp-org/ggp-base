@@ -1,0 +1,144 @@
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Eotcitcit
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(role white)
+(role black)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(init (cell 1 1 b))
+(init (cell 1 2 b))
+(init (cell 1 3 b))
+(init (cell 2 1 b))
+(init (cell 2 2 b))
+(init (cell 2 3 b))
+(init (cell 3 1 b))
+(init (cell 3 2 b))
+(init (cell 3 3 b))
+(init (step 1))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(<= (next (cell ?j ?k x))
+(true (cell ?j ?k b))
+(does white (mark ?j ?k))
+(does black (mark ?m ?n))
+(or (distinct ?j ?m) (distinct ?k ?n)))
+
+(<= (next (cell ?m ?n o))
+(true (cell ?m ?n b))
+(does white (mark ?j ?k))
+(does black (mark ?m ?n))
+(or (distinct ?j ?m) (distinct ?k ?n)))
+
+(<= (next (cell ?m ?n b))
+(true (cell ?m ?n b))
+(does white (mark ?m ?n))
+(does black (mark ?m ?n)))
+
+(<= (next (cell ?p ?q b))
+(true (cell ?p ?q b))
+(does white (mark ?j ?k))
+(does black (mark ?m ?n))
+(or (distinct ?j ?p) (distinct ?k ?q))
+(or (distinct ?m ?p) (distinct ?n ?q)))
+
+(<= (next (cell ?m ?n ?w))
+(true (cell ?m ?n ?w))
+(distinct ?w b))
+
+
+(<= (next (step ?y))
+(true (step ?x))
+(succ ?x ?y))
+
+
+(succ 1 2)
+(succ 2 3)
+(succ 3 4)
+(succ 4 5)
+(succ 5 6)
+(succ 6 7)
+
+
+(<= (row ?m ?x)
+(true (cell ?m 1 ?x))
+(true (cell ?m 2 ?x))
+(true (cell ?m 3 ?x)))
+
+(<= (column ?n ?x)
+(true (cell 1 ?n ?x))
+(true (cell 2 ?n ?x))
+(true (cell 3 ?n ?x)))
+
+(<= (diagonal ?x)
+(true (cell 1 1 ?x))
+(true (cell 2 2 ?x))
+(true (cell 3 3 ?x)))
+
+(<= (diagonal ?x)
+(true (cell 1 3 ?x))
+(true (cell 2 2 ?x))
+(true (cell 3 1 ?x)))
+
+(<= (line ?x) (row ?m ?x))
+(<= (line ?x) (column ?m ?x))
+(<= (line ?x) (diagonal ?x))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(<= (legal white (mark ?x ?y))
+(true (cell ?x ?y b)))
+
+(<= (legal black (mark ?x ?y))
+(true (cell ?x ?y b)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(<= (goal white 50)
+(line x)
+(line o))
+
+(<= (goal white 100)
+(line o)
+(not (line x)))
+
+(<= (goal white 0)
+(not (line o))
+(line x))
+
+(<= (goal white 50)
+(not (line x))
+(not (line o)))
+
+(<= (goal black 50)
+(line x)
+(line o))
+
+(<= (goal black 100)
+(not (line o))
+(line x))
+
+(<= (goal black 0)
+(line o)
+(not (line x)))
+
+(<= (goal black 50)
+(not (line x))
+(not (line o)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(<= terminal
+(true (step 7)))
+
+(<= terminal
+(line x))
+
+(<= (terminal)
+(line o))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

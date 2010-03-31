@@ -1,0 +1,249 @@
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Blocks World (two instances, played in parallel)
+;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; ROLE Relations
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+  (role robot)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; INIT Relations
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+  (init (clear b1))
+  (init (clear c1))
+  (init (on c1 a1))
+  (init (table a1))
+  (init (table b1))
+
+  (init (clear b2))
+  (init (clear c2))
+  (init (on c2 a2))
+  (init (table a2))
+  (init (table b2))
+
+  (init (step 1))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; LEGAL Relations
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+  (<= (legal robot (do ss ?x1 ?y1 ?x2 ?y2))
+      (partOfGame1 ?x1)
+      (partOfGame1 ?y1)
+      (partOfGame2 ?x2)
+      (partOfGame2 ?y2)
+      (legalStack ?x1 ?y1)
+      (legalStack ?x2 ?y2))
+  (<= (legal robot (do su ?x1 ?y1 ?x2 ?y2))
+      (partOfGame1 ?x1)
+      (partOfGame1 ?y1)
+      (partOfGame2 ?x2)
+      (partOfGame2 ?y2)
+      (legalStack ?x1 ?y1)
+      (legalUnstack ?x2 ?y2))
+  (<= (legal robot (do us ?x1 ?y1 ?x2 ?y2))
+      (partOfGame1 ?x1)
+      (partOfGame1 ?y1)
+      (partOfGame2 ?x2)
+      (partOfGame2 ?y2)
+      (legalUnstack ?x1 ?y1)
+      (legalStack ?x2 ?y2))
+  (<= (legal robot (do uu ?x1 ?y1 ?x2 ?y2))
+      (partOfGame1 ?x1)
+      (partOfGame1 ?y1)
+      (partOfGame2 ?x2)
+      (partOfGame2 ?y2)
+      (legalUnstack ?x1 ?y1)
+      (legalUnstack ?x2 ?y2))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; NEXT Relations
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+  (<= (next (on ?x ?y))
+      (does robot (do ?move ?x ?y ?d1 ?d2))
+      (game1Stack ?move))
+  (<= (next (on ?x ?y))
+      (partOfGame1 ?x)
+      (partOfGame1 ?y)
+      (does robot (do ?move ?u ?v ?d1 ?d2))
+      (game1Stack ?move)
+      (true (on ?x ?y)))
+  (<= (next (table ?x))
+      (partOfGame1 ?x)
+      (does robot (do ?move ?u ?v ?d1 ?d2))
+      (game1Stack ?move)
+      (true (table ?x))
+      (distinct ?u ?x))
+  (<= (next (clear ?y))
+      (partOfGame1 ?y)
+      (does robot (do ?move ?u ?v ?d1 ?d2))
+      (game1Stack ?move)
+      (true (clear ?y))
+      (distinct ?v ?y))
+
+  (<= (next (on ?x ?y))
+      (partOfGame1 ?x)
+      (partOfGame1 ?y)
+      (does robot (do ?move ?u ?v ?d1 ?d2))
+      (game1Unstack ?move)
+      (true (on ?x ?y))
+      (distinct ?u ?x))
+  (<= (next (table ?x))
+      (does robot (do ?move ?x ?y ?d1 ?d2))
+      (game1Unstack ?move))
+  (<= (next (table ?x))
+      (partOfGame1 ?x)
+      (does robot (do ?move ?u ?v ?d1 ?d2))
+      (game1Unstack ?move)
+      (true (table ?x)))
+  (<= (next (clear ?y))
+      (does robot (do ?move ?x ?y ?d1 ?d2))
+      (game1Unstack ?move))
+  (<= (next (clear ?x))
+      (partOfGame1 ?x)
+      (does robot (do ?move ?u ?v ?d1 ?d2))
+      (game1Unstack ?move)
+      (true (clear ?x)))
+
+  (<= (next (on ?x ?y))
+      (does robot (do ?move ?d1 ?d2 ?x ?y))
+      (game2Stack ?move))
+  (<= (next (on ?x ?y))
+      (partOfGame2 ?x)
+      (partOfGame2 ?y)
+      (does robot (do ?move ?d1 ?d2 ?u ?v))
+      (game2Stack ?move)
+      (true (on ?x ?y)))
+  (<= (next (table ?x))
+      (partOfGame2 ?x)
+      (does robot (do ?move ?d1 ?d2 ?u ?v))
+      (game2Stack ?move)
+      (true (table ?x))
+      (distinct ?u ?x))
+  (<= (next (clear ?y))
+      (partOfGame2 ?y)
+      (does robot (do ?move ?d1 ?d2 ?u ?v))
+      (game2Stack ?move)
+      (true (clear ?y))
+      (distinct ?v ?y))
+
+  (<= (next (on ?x ?y))
+      (partOfGame2 ?x)
+      (partOfGame2 ?y)
+      (does robot (do ?move ?d1 ?d2 ?u ?v))
+      (game2Unstack ?move)
+      (true (on ?x ?y))
+      (distinct ?u ?x))
+  (<= (next (table ?x))
+      (does robot (do ?move ?d1 ?d2 ?x ?y))
+      (game2Unstack ?move))
+  (<= (next (table ?x))
+      (partOfGame2 ?x)
+      (does robot (do ?move ?d1 ?d2 ?u ?v))
+      (game2Unstack ?move)
+      (true (table ?x)))
+  (<= (next (clear ?y))
+      (does robot (do ?move ?d1 ?d2 ?x ?y))
+      (game2Unstack ?move))
+  (<= (next (clear ?x))
+      (partOfGame2 ?x)
+      (does robot (do ?move ?d1 ?d2 ?u ?v))
+      (game2Unstack ?move)
+      (true (clear ?x)))
+
+  (<= (next (step ?y))
+      (true (step ?x))
+      (succ ?x ?y))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; GOAL Relations
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+  (<= (goal robot 100)
+      game1-100  
+      game2-100)
+
+  (<= (goal robot 50)
+      game1-100  
+      game2-0)
+  (<= (goal robot 50)
+      game1-0  
+      game2-100)
+
+  (<= (goal robot 0)
+      game1-0
+      game2-0)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; TERMINAL Relations
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+  (<= terminal
+      (true (step 4)))
+
+  (<= terminal
+      (true (on a1 b1))
+      (true (on b1 c1))
+      (true (on a2 b2))
+      (true (on b2 c2)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; View Definitions
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(<= (legalStack ?x ?y)
+    (true (clear ?x))
+    (true (table ?x))
+    (true (clear ?y))
+    (distinct ?x ?y))
+(<= (legalUnstack ?x ?y)
+    (true (clear ?x))
+    (true (on ?x ?y)))
+
+(<= game1-100
+    (true (on a1 b1))
+    (true (on b1 c1)))
+(<= game1-0
+    (not (true (on a1 b1))))
+(<= game1-0
+    (not (true (on b1 c1))))
+    
+(<= game2-100
+    (true (on a2 b2))
+    (true (on b2 c2)))
+(<= game2-0
+    (not (true (on a2 b2))))
+(<= game2-0
+    (not (true (on b2 c2))))
+    
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Static Relations
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+  (succ 1 2)
+  (succ 2 3)
+  (succ 3 4)
+
+  (partOfGame1 a1)
+  (partOfGame1 b1)
+  (partOfGame1 c1)
+  
+  (partOfGame2 a2)
+  (partOfGame2 b2)
+  (partOfGame2 c2)
+
+  (game1Stack   ss)
+  (game1Stack   su)
+  (game1Unstack us)
+  (game1Unstack uu)
+  
+  (game2Stack   ss)
+  (game2Unstack su)
+  (game2Stack   us)
+  (game2Unstack uu)

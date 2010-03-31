@@ -1,0 +1,356 @@
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Tictactoe
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Roles
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(role xplayer)
+(role oplayer)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Initial State
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(init (cell1 1 1 b))
+(init (cell1 1 2 b))
+(init (cell1 1 3 b))
+(init (cell1 2 1 b))
+(init (cell1 2 2 b))
+(init (cell1 2 3 b))
+(init (cell1 3 1 b))
+(init (cell1 3 2 b))
+(init (cell1 3 3 b))
+(init (control xplayer))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Dynamic Components
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; Cell
+(<= (next (cell1 ?m ?n ?x))
+(does ?p (mark2 ?x2 ?y2))
+(true (cell1 ?m ?n ?x)))
+
+(<= (next (cell1 ?m ?n x))
+(does xplayer (mark1 ?m ?n))
+(true (cell1 ?m ?n b)))
+
+(<= (next (cell1 ?m ?n o))
+(does oplayer (mark1 ?m ?n))
+(true (cell1 ?m ?n b)))
+
+(<= (next (cell1 ?m ?n ?w))
+(true (cell1 ?m ?n ?w))
+(distinct ?w b))
+
+(<= (next (cell1 ?m ?n b))
+(does ?w (mark1 ?j ?k))
+(true (cell1 ?m ?n b))
+(or (distinct ?m ?j) (distinct ?n ?k)))
+
+(<= (next (control xplayer))
+(true (control oplayer)))
+
+(<= (next (control oplayer))
+(true (control xplayer)))
+
+
+(<= (row1 ?m ?x)
+(true (cell1 ?m 1 ?x))
+(true (cell1 ?m 2 ?x))
+(true (cell1 ?m 3 ?x)))
+
+(<= (column1 ?n ?x)
+(true (cell1 1 ?n ?x))
+(true (cell1 2 ?n ?x))
+(true (cell1 3 ?n ?x)))
+
+(<= (diagonal1 ?x)
+(true (cell1 1 1 ?x))
+(true (cell1 2 2 ?x))
+(true (cell1 3 3 ?x)))
+
+(<= (diagonal1 ?x)
+(true (cell1 1 3 ?x))
+(true (cell1 2 2 ?x))
+(true (cell1 3 1 ?x)))
+
+
+(<= (line1 ?x) (row1 ?m ?x))
+(<= (line1 ?x) (column1 ?m ?x))
+(<= (line1 ?x) (diagonal1 ?x))
+
+
+(<= open1
+(true (cell1 ?m ?n b)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(<= (legal ?w (mark1 ?x ?y))
+(true (cell1 ?x ?y b))
+(true (control ?w))
+(not terminal1))
+
+(<= (legal xplayer noop)
+(true (control oplayer)))
+
+(<= (legal oplayer noop)
+(true (control xplayer)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(<= (goal xplayer 100)
+(line1 x)
+(line2 x))
+
+(<= (goal xplayer 75)
+(not (line1 x))
+(not (line1 o))
+(not open1)
+(line2 x))
+
+(<= (goal xplayer 75)
+(line1 x)
+(not (line2 x))
+(not (line2 o))
+(not open2))
+
+(<= (goal xplayer 50)
+(not (line1 x))
+(not (line1 o))
+(not open1)
+(not (line2 x))
+(not (line2 o))
+(not open2))
+
+(<= (goal xplayer 50)
+(line1 x)
+(line2 o))
+
+(<= (goal xplayer 50)
+(line2 x)
+(line1 o))
+
+(<= (goal xplayer 25)
+(not (line1 x))
+(not (line1 o))
+(not open1)
+(line2 o))
+
+(<= (goal xplayer 25)
+(line1 o)
+(not (line2 x))
+(not (line2 o))
+(not open2))
+
+(<= (goal xplayer 0)
+(line1 o)
+(line2 o))
+
+(<= (goal oplayer 100)
+(line1 o)
+(line2 o))
+
+(<= (goal oplayer 75)
+(not (line1 x))
+(not (line1 o))
+(not open1)
+(line2 o))
+
+(<= (goal oplayer 75)
+(line1 o)
+(not (line2 x))
+(not (line2 o))
+(not open2))
+
+(<= (goal oplayer 50)
+(line1 o)
+(line2 x))
+
+(<= (goal oplayer 50)
+(line1 x)
+(line2 o))
+
+(<= (goal oplayer 50)
+(not (line1 x))
+(not (line1 o))
+(not open1)
+(not (line2 x))
+(not (line2 o))
+(not open2))
+
+(<= (goal oplayer 25)
+(not (line1 x))
+(not (line1 o))
+(not open1)
+(line2 x))
+
+(<= (goal oplayer 25)
+(line1 x)
+(not (line2 x))
+(not (line2 o))
+(not open2))
+
+(<= (goal oplayer 0)
+(line1 x)
+(line2 x))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(<= terminal
+terminal1
+terminal2)
+
+(<= terminal1
+(line1 x))
+
+(<= terminal1
+(line1 o))
+
+(<= terminal1
+(not open1))
+
+(<= terminal2
+(line2 x))
+
+(<= terminal2
+(line2 o))
+
+(<= terminal2
+(not open2))
+
+;;   (<= terminal
+;;       (line1 x)
+;;       (line2 x))
+;;
+;;   (<= terminal
+;;       (line1 o)
+;;       (line2 o))
+;;
+;;   (<= terminal
+;;       (line1 x)
+;;       (line2 o))
+;;
+;;   (<= terminal
+;;       (line1 o)
+;;       (line2 x))
+;;
+;;   (<= terminal
+;;       (not open1)
+;;       (not open2))
+;;
+;;   (<= terminal
+;;       (not open1)
+;;       (line2 x))
+;;
+;;   (<= terminal
+;;       (not open1)
+;;       (line2 o))
+;;
+;;   (<= terminal
+;;       (line1 x)
+;;       (not open2))
+;;
+;;   (<= terminal
+;;       (line1 o)
+;;       (not open2))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Tictactoe
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Roles
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Initial State
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(init (cell2 1 1 b))
+(init (cell2 1 2 b))
+(init (cell2 1 3 b))
+(init (cell2 2 1 b))
+(init (cell2 2 2 b))
+(init (cell2 2 3 b))
+(init (cell2 3 1 b))
+(init (cell2 3 2 b))
+(init (cell2 3 3 b))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Dynamic Components
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; Cell
+(<= (next (cell2 ?m ?n ?x))
+(does ?p (mark1 ?x1 ?y1))
+(true (cell2 ?m ?n ?x)))
+
+(<= (next (cell2 ?m ?n x))
+(does xplayer (mark2 ?m ?n))
+(true (cell2 ?m ?n b)))
+
+(<= (next (cell2 ?m ?n o))
+(does oplayer (mark2 ?m ?n))
+(true (cell2 ?m ?n b)))
+
+(<= (next (cell2 ?m ?n ?w))
+(true (cell2 ?m ?n ?w))
+(distinct ?w b))
+
+(<= (next (cell2 ?m ?n b))
+(does ?w (mark2 ?j ?k))
+(true (cell2 ?m ?n b))
+(or (distinct ?m ?j) (distinct ?n ?k)))
+
+(<= (row2 ?m ?x)
+(true (cell2 ?m 1 ?x))
+(true (cell2 ?m 2 ?x))
+(true (cell2 ?m 3 ?x)))
+
+(<= (column2 ?n ?x)
+(true (cell2 1 ?n ?x))
+(true (cell2 2 ?n ?x))
+(true (cell2 3 ?n ?x)))
+
+(<= (diagonal2 ?x)
+(true (cell2 1 1 ?x))
+(true (cell2 2 2 ?x))
+(true (cell2 3 3 ?x)))
+
+(<= (diagonal2 ?x)
+(true (cell2 1 3 ?x))
+(true (cell2 2 2 ?x))
+(true (cell2 3 1 ?x)))
+
+
+(<= (line2 ?x) (row2 ?m ?x))
+(<= (line2 ?x) (column2 ?m ?x))
+(<= (line2 ?x) (diagonal2 ?x))
+
+
+(<= open2
+(true (cell2 ?m ?n b)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(<= (legal ?w (mark2 ?x ?y))
+(true (cell2 ?x ?y b))
+(true (control ?w))
+(not terminal2))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+

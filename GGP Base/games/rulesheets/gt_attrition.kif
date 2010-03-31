@@ -1,0 +1,150 @@
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;;  Game Theory: Simplified War of Attrition (a variant of the Dollar Auction)
+;;;
+;;;  A two player game with alternating play. Each player starts with 16 points.
+;;;  On their turn, a player may either choose to end the game, or spend one point
+;;;  in order to "lay claim to the prize" (as long as they have a point to spend).
+;;;  When the game is ended, the player who last "laid claim to the prize" gets
+;;;  a prize consisting of five points.
+;;;
+;;;  Scores are equal to a player's total points multiplied by five, so that
+;;;  the maximum score a player can achieve is 100.
+;;;
+;;;  Background: http://en.wikipedia.org/wiki/Dollar_auction
+;;;              http://en.wikipedia.org/wiki/War_of_attrition_(game)
+;;;
+;;;  GDL BY: Sam Schreiber (schreib@cs.stanford.edu)
+;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; ROLE Relations
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(role white)
+(role black)
+
+(opponent white black)
+(opponent black white)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; INIT Relations
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(init (score white 80))
+(init (score black 80))
+(init (control white))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; LEGAL Relations
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(<= (legal ?p lay_claim)
+    (role ?p)
+    (true (control ?p))
+    (not (true (score ?p 0))))
+    
+(<= (legal ?p end_game)
+    (role ?p)
+    (true (control ?p)))    
+
+(<= (legal ?p noop)
+    (role ?p)
+    (not (true (control ?p))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; NEXT Relations
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(<= (next (score ?p ?xn))
+    (true (score ?p ?x))
+    (does ?p lay_claim)
+    (succ ?xn ?x))
+
+(<= (next (claim_made_by ?p))
+    (does ?p lay_claim))
+
+(<= (next (gameOver))
+    (does ?p end_game))
+
+(<= (next (score ?p ?x))
+    (true (score ?p ?x))
+    (does ?p noop)
+    (opponent ?p ?q)
+    (not (does ?q end_game)))
+    
+(<= (next (score ?p ?x))
+    (true (score ?p ?x))
+    (does ?p noop)
+    (not (true (claim_made_by ?p)))
+    (does ?q end_game))
+    
+(<= (next (score ?p ?x5))
+    (true (score ?p ?x))
+    (does ?p noop)    
+    (succ ?x ?x1)
+    (succ ?x1 ?x2)
+    (succ ?x2 ?x3)
+    (succ ?x3 ?x4)
+    (succ ?x4 ?x5)
+    (true (claim_made_by ?p))
+    (does ?q end_game))
+
+(<= (next (score ?p ?x))
+    (does ?p end_game)
+    (true (score ?p ?x)))
+
+(<= (next (control ?p))
+    (opponent ?p ?q)
+    (true (control ?q)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; TERMINAL Relations
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(<= terminal
+	(true (gameOver)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; GOAL Relations
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(<= (goal white 0)
+    (not (true (gameOver))))
+
+(<= (goal black 0)
+    (not (true (gameOver))))
+
+(<= (goal white ?x)
+    (true (gameOver))
+    (true (score white ?x)))
+
+(<= (goal black ?x)
+    (true (gameOver))
+    (true (score black ?x)))
+    
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Static Relations
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(succ 0 5)
+(succ 5 10)
+(succ 10 15)
+(succ 15 20)
+(succ 20 25)
+(succ 25 30)
+(succ 30 35)
+(succ 35 40)
+(succ 40 45)
+(succ 45 50)
+(succ 50 55)
+(succ 55 60)
+(succ 60 65)
+(succ 65 70)
+(succ 70 75)
+(succ 75 80)
+(succ 80 85)
+(succ 85 90)
+(succ 90 95)
+(succ 95 100)

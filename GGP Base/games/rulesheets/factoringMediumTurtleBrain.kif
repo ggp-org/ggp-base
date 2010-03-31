@@ -1,0 +1,408 @@
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; factoringTurtleBrain
+;;;
+;;; This game consists of two games of LightsOn played in series: one begins
+;;; after the other finishes. The player is required to win either one of them.
+;;;
+;;; Also, just to mess with you, the player can play an eight puzzle instead,
+;;; although the eight puzzle has NOTHING TO DO with the rest of the game.
+;;; Also, a bunch of legal no-op moves that do NOTHING AT ALL.
+;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; ROLEs
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(role robot)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; INITs
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(init (cell 0 1 1 0))
+(init (cell 0 1 2 0))
+(init (cell 0 2 1 0))
+(init (cell 0 2 2 0))
+
+(init (cell 1 1 1 0))
+(init (cell 1 1 2 0))
+(init (cell 1 2 1 0))
+(init (cell 1 2 2 0))
+
+(init (cell 2 1 1 0))
+(init (cell 2 1 2 0))
+(init (cell 2 2 1 0))
+(init (cell 2 2 2 0))
+
+(init (cell 3 1 1 0))
+(init (cell 3 1 2 0))
+(init (cell 3 2 1 0))
+(init (cell 3 2 2 0))
+
+(init (cell 4 1 1 0))
+(init (cell 4 1 2 0))
+(init (cell 4 2 1 0))
+(init (cell 4 2 2 0))
+
+(init (cell 5 1 1 0))
+(init (cell 5 1 2 0))
+(init (cell 5 2 1 0))
+(init (cell 5 2 2 0))
+
+(init (cell 6 1 1 0))
+(init (cell 6 1 2 0))
+(init (cell 6 2 1 0))
+(init (cell 6 2 2 0))
+
+(init (cell 7 1 1 0))
+(init (cell 7 1 2 0))
+(init (cell 7 2 1 0))
+(init (cell 7 2 2 0))
+
+(init (cell 8 1 1 0))
+(init (cell 8 1 2 0))
+(init (cell 8 2 1 0))
+(init (cell 8 2 2 0))
+
+(init (cell 9 1 1 0))
+(init (cell 9 1 2 0))
+(init (cell 9 2 1 0))
+(init (cell 9 2 2 0))
+
+(init (cell 10 1 1 0))
+(init (cell 10 1 2 0))
+(init (cell 10 2 1 0))
+(init (cell 10 2 2 0))
+
+(init (cell 11 1 1 0))
+(init (cell 11 1 2 0))
+(init (cell 11 2 1 0))
+(init (cell 11 2 2 0))
+
+(init (cell 12 1 1 0))
+(init (cell 12 1 2 0))
+(init (cell 12 2 1 0))
+(init (cell 12 2 2 0))
+
+(init (cell 13 1 1 0))
+(init (cell 13 1 2 0))
+(init (cell 13 2 1 0))
+(init (cell 13 2 2 0))
+
+(init (cell 14 1 1 0))
+(init (cell 14 1 2 0))
+(init (cell 14 2 1 0))
+(init (cell 14 2 2 0))
+
+(init (cell 15 1 1 0))
+(init (cell 15 1 2 0))
+(init (cell 15 2 1 0))
+(init (cell 15 2 2 0))
+
+(init (cell 16 1 1 0))
+(init (cell 16 1 2 0))
+(init (cell 16 2 1 0))
+(init (cell 16 2 2 0))
+
+(init (cell 17 1 1 0))
+(init (cell 17 1 2 0))
+(init (cell 17 2 1 0))
+(init (cell 17 2 2 0))
+
+(init (cell 18 1 1 0))
+(init (cell 18 1 2 0))
+(init (cell 18 2 1 0))
+(init (cell 18 2 2 0))
+
+(init (cell 19 1 1 0))
+(init (cell 19 1 2 0))
+(init (cell 19 2 1 0))
+(init (cell 19 2 2 0))
+
+(init (step 0))
+(init (seriesGame 0))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; LEGALs
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(<= (legal robot (press ?z ?x ?y))
+	(index ?x)
+	(index ?y)
+	(true (seriesGame ?z)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; NEXTs
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(<= (next (cell ?z ?x ?y 4))
+	(does robot (press ?z ?x ?y)))
+
+(<= (next (cell ?z ?x ?y 3))
+	(true (cell ?z ?x ?y 4)))
+
+(<= (next (cell ?z ?x ?y 2))
+	(true (cell ?z ?x ?y 3)))
+
+(<= (next (cell ?z ?x ?y 1))
+	(true (cell ?z ?x ?y 2)))
+
+(<= (next (cell ?z ?x ?y 0))
+	(true (cell ?z ?x ?y 1)))
+
+(<= (next (cell ?z ?x ?y 0))
+	(true (cell ?z ?x ?y 0)))
+
+(<= (next (won ?z))
+    (true (won ?z)))
+
+(<= (next (step ?x))
+    (true (step ?y))
+    (successor ?y ?x))
+
+(<= (next (seriesGame 1))
+    (true (step 4)))
+
+(<= (next (seriesGame 2))
+    (true (step 8)))    
+
+(<= (next (seriesGame 3))
+    (true (step 12)))    
+
+(<= (next (seriesGame 4))
+    (true (step 16)))    
+
+(<= (next (seriesGame 5))
+    (true (step 20)))    
+
+(<= (next (seriesGame 6))
+    (true (step 24)))    
+
+(<= (next (seriesGame 7))
+    (true (step 28)))    
+
+(<= (next (seriesGame 8))
+    (true (step 32)))    
+
+(<= (next (seriesGame 9))
+    (true (step 36)))    
+
+(<= (next (seriesGame 10))
+    (true (step 40)))    
+
+(<= (next (seriesGame 11))
+    (true (step 44)))    
+
+(<= (next (seriesGame 12))
+    (true (step 48)))    
+
+(<= (next (seriesGame 13))
+    (true (step 52)))    
+
+(<= (next (seriesGame 14))
+    (true (step 56)))    
+
+(<= (next (seriesGame 15))
+    (true (step 60)))    
+
+(<= (next (seriesGame 16))
+    (true (step 64)))    
+
+(<= (next (seriesGame 17))
+    (true (step 68)))    
+
+(<= (next (seriesGame 18))
+    (true (step 72)))    
+
+(<= (next (seriesGame 19))
+    (true (step 76)))    
+
+(<= (next (seriesGame 20))
+    (true (step 80)))    
+
+(<= (next (seriesGame ?x))
+    (true (seriesGame ?x))
+    (not (true (step 4)))
+    (not (true (step 8)))
+    (not (true (step 12)))
+    (not (true (step 16)))
+    (not (true (step 20)))
+    (not (true (step 24)))
+    (not (true (step 28)))
+    (not (true (step 32)))
+    (not (true (step 36)))
+    (not (true (step 40)))
+    (not (true (step 44)))
+    (not (true (step 48)))
+    (not (true (step 52)))
+    (not (true (step 56)))
+    (not (true (step 60)))
+    (not (true (step 64)))
+    (not (true (step 68)))
+    (not (true (step 72)))
+    (not (true (step 76)))
+    (not (true (step 80))))
+
+(<= (next (won ?z))
+    (lightsOn ?z))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; TERMINALs
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(<= terminal
+    (true (step 84)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; GOALs
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(<= (goal robot 100)
+	wonAGame)
+(<= (goal robot 0)
+    (not wonAGame))
+    
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; View Rules
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(<= wonAGame
+    (true (won 10)))
+(<= wonAGame
+    (true (won 11)))
+(<= wonAGame
+    (true (won 12)))
+(<= wonAGame
+    (true (won 13)))
+(<= wonAGame
+    (true (won 14)))
+(<= wonAGame
+    (true (won 15)))
+(<= wonAGame
+    (true (won 16)))
+(<= wonAGame
+    (true (won 17)))
+(<= wonAGame
+    (true (won 18)))
+(<= wonAGame
+    (true (won 19)))
+
+(<= (on ?z ?x ?y)
+	(true (cell ?z ?x ?y 1)))
+(<= (on ?z ?x ?y)
+	(true (cell ?z ?x ?y 2)))
+(<= (on ?z ?x ?y)
+	(true (cell ?z ?x ?y 3)))
+(<= (on ?z ?x ?y)
+	(true (cell ?z ?x ?y 4)))
+
+(<= (lightsOn ?z)
+	(on ?z 1 1)
+	(on ?z 1 2)
+	(on ?z 2 1)
+	(on ?z 2 2))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Static Sentences
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(index 1) (index 2)
+
+;;; Step counting
+  (successor 0 1)
+  (successor 1 2)
+  (successor 2 3)
+  (successor 3 4)
+  (successor 4 5)
+  (successor 5 6)
+  (successor 6 7)
+  (successor 7 8)
+  (successor 8 9)
+  (successor 9 10)
+  (successor 10 11)
+  (successor 11 12)
+  (successor 12 13)
+  (successor 13 14)
+  (successor 14 15)
+  (successor 15 16)
+  (successor 16 17)
+  (successor 17 18)
+  (successor 18 19)
+  (successor 19 20)
+  (successor 20 21)
+  (successor 21 22)
+  (successor 22 23)
+  (successor 23 24)
+  (successor 24 25)
+  (successor 25 26)
+  (successor 26 27)
+  (successor 27 28)
+  (successor 28 29)
+  (successor 29 30)
+  (successor 30 31)
+  (successor 31 32)
+  (successor 32 33)
+  (successor 33 34)
+  (successor 34 35)
+  (successor 35 36)
+  (successor 36 37)
+  (successor 37 38)
+  (successor 38 39)
+  (successor 39 40)
+  (successor 40 41)
+  (successor 41 42)
+  (successor 42 43)
+  (successor 43 44)
+  (successor 44 45)
+  (successor 45 46)
+  (successor 46 47)
+  (successor 47 48)
+  (successor 48 49)
+  (successor 49 50)
+  (successor 50 51)
+  (successor 51 52)
+  (successor 52 53)
+  (successor 53 54)
+  (successor 54 55)
+  (successor 55 56)
+  (successor 56 57)
+  (successor 57 58)
+  (successor 58 59)
+  (successor 59 60)
+  (successor 60 61)
+  (successor 61 62)
+  (successor 62 63)
+  (successor 63 64)
+  (successor 64 65)
+  (successor 65 66)
+  (successor 66 67)
+  (successor 67 68)
+  (successor 68 69)
+  (successor 69 70)
+  (successor 70 71)
+  (successor 71 72)
+  (successor 72 73)
+  (successor 73 74)
+  (successor 74 75)
+  (successor 75 76)
+  (successor 76 77)
+  (successor 77 78)
+  (successor 78 79)
+  (successor 79 80)
+  (successor 80 81)
+  (successor 81 82)
+  (successor 82 83)
+  (successor 83 84)
+  (successor 84 85)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Base Tags
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(base seriesGame (z 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19))
+(base step (val 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59 60 61 62 63 64 65 66 67 68 69 70 71 72 73 74 75 76 77 78 79 80 81 82 83 84 85 ) )
+(base cell (z 0 1 2) (x 1 2) (y 1 2) (val 0 1 2 3 4))
+(base won (z 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19))
+

@@ -1,0 +1,155 @@
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Blocks World
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(role lifter)
+(role parker)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+; initially:
+;
+;  g e
+;  b c
+;  d f a
+;
+
+(init (clear g))
+(init (clear e))
+(init (clear a))
+
+(init (on d b))
+(init (on b g))
+(init (on f c))
+(init (on c e))
+
+(init (on table d))
+(init (on table f))
+(init (on table a))
+
+(init (step 1))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+; effects
+
+(<= (next (lifted ?x))
+(does lifter (lift ?x)))
+
+(<= (next (on ?z ?x))
+(true (lifted ?x))
+(does parker (puton ?z)))
+
+(<= (next (clear ?y))
+(true (lifted ?x))
+(true (on ?y ?x))
+(distinct table ?y))
+
+(<= (next (step ?y))
+(true (step ?x))
+(succ ?x ?y))
+
+; frame axioms
+
+(<= (next (on ?x ?y))
+(does lifter (lift ?u))
+(true (on ?x ?y)))
+
+(<= (next (clear ?y))
+(does lifter (lift ?u))
+(true (clear ?y)))
+
+(<= (next (on ?x ?y))
+(true (on ?x ?y))
+(true (lifted ?u))
+(distinct ?y ?u))
+
+(<= (next (clear ?y))
+(does parker (puton ?u))
+(true (clear ?y))
+(distinct ?u ?y))
+
+(succ 1 2)
+(succ 2 3)
+(succ 3 4)
+(succ 4 5)
+(succ 5 6)
+(succ 6 7)
+(succ 7 8)
+(succ 8 9)
+(succ 9 10)
+(succ 10 11)
+(succ 11 12)
+(succ 12 13)
+(succ 13 14)
+(succ 14 15)
+(succ 15 16)
+(succ 16 17)
+(succ 17 18)
+(succ 18 19)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(<= (legal lifter (lift ?x))
+(not any_thing_lifted)
+(true (clear ?x)))
+
+(<= (legal parker (puton ?y))
+(true (lifted ?x))
+(true (clear ?y))
+(distinct ?x ?y))
+
+(<= (legal parker (puton table))
+any_thing_lifted)
+
+(<= (legal lifter noop)
+any_thing_lifted)
+
+(<= (legal parker noop)
+(not any_thing_lifted))
+
+(<= any_thing_lifted
+(true (lifted ?x)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(<= (tower1 lifter)
+(true (on e d))
+(true (on table e)))
+(<= (tower1 parker)
+(true (on g f))
+(true (on table g)))
+(<= tower2
+(true (on b a))
+(true (on c b))
+(true (on table c)))
+
+(<= (goal ?player 100)
+(tower1 ?player)
+tower2)
+
+(<= (goal ?player 75)
+(role ?player)
+(not (tower1 ?player))
+tower2)
+
+(<= (goal ?player 25)
+(tower1 ?player)
+(not tower2))
+
+(<= (goal ?player 0)
+(role ?player)
+(not (tower1 ?player))
+(not tower2))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(<= terminal
+(true (step 19)))
+
+(<= terminal
+tower2)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

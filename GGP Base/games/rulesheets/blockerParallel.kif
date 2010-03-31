@@ -1,0 +1,222 @@
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Blocker (two instances, played simultaneously)
+;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; ROLE Relations
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(role crosser)
+(role blocker)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; INIT Relations
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(init (cell1 1 1 b))
+(init (cell1 1 2 b))
+(init (cell1 1 3 b))
+(init (cell1 1 4 b))
+(init (cell1 2 1 b))
+(init (cell1 2 2 b))
+(init (cell1 2 3 b))
+(init (cell1 2 4 b))
+(init (cell1 3 1 b))
+(init (cell1 3 2 b))
+(init (cell1 3 3 b))
+(init (cell1 3 4 b))
+(init (cell1 4 1 b))
+(init (cell1 4 2 b))
+(init (cell1 4 3 b))
+(init (cell1 4 4 b))
+
+(init (cell2 1 1 b))
+(init (cell2 1 2 b))
+(init (cell2 1 3 b))
+(init (cell2 1 4 b))
+(init (cell2 2 1 b))
+(init (cell2 2 2 b))
+(init (cell2 2 3 b))
+(init (cell2 2 4 b))
+(init (cell2 3 1 b))
+(init (cell2 3 2 b))
+(init (cell2 3 3 b))
+(init (cell2 3 4 b))
+(init (cell2 4 1 b))
+(init (cell2 4 2 b))
+(init (cell2 4 3 b))
+(init (cell2 4 4 b))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; LEGAL Relations
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(<= (legal ?who (mark ?x1 ?y1 ?x2 ?y2))
+    (role ?who)
+    (true (cell1 ?x1 ?y1 b))
+    (true (cell2 ?x2 ?y2 b)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; NEXT Relations
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(<= (next (cell1 ?x1 ?y1 blk))
+    (does blocker (mark ?x1 ?y1 ?x2 ?y2)))
+
+(<= (next (cell1 ?xC1 ?yC1 crosser)) 
+    (does crosser (mark ?xC1 ?yC1 ?xC2 ?yC2))
+    (does blocker (mark ?xB1 ?yB1 ?xB2 ?yB2))
+    (distinctCell ?xC1 ?yC1 ?xB1 ?yB1))
+
+(<= (next (cell1 ?x ?y ?mark))
+    (true (cell1 ?x ?y ?mark))
+    (does blocker (mark ?xB1 ?yB1 ?xB2 ?yB2))
+    (does crosser (mark ?xC1 ?yC1 ?xC2 ?yC2))
+    (distinctCell ?x ?y ?xB1 ?yB1)
+    (distinctCell ?x ?y ?xC1 ?yC1))
+
+(<= (next (cell2 ?x2 ?y2 blk))
+    (does blocker (mark ?x1 ?y1 ?x2 ?y2)))
+
+(<= (next (cell2 ?xC2 ?yC2 crosser)) 
+    (does crosser (mark ?xC1 ?yC1 ?xC2 ?yC2))
+    (does blocker (mark ?xB1 ?yB1 ?xB2 ?yB2))
+    (distinctCell ?xC2 ?yC2 ?xB2 ?yB2))
+
+(<= (next (cell2 ?x ?y ?mark))
+    (true (cell2 ?x ?y ?mark))
+    (does blocker (mark ?xB1 ?yB1 ?xB2 ?yB2))
+    (does crosser (mark ?xC1 ?yC1 ?xC2 ?yC2))
+    (distinctCell ?x ?y ?xB2 ?yB2)
+    (distinctCell ?x ?y ?xC2 ?yC2))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; TERMINAL Relations
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(<= terminal
+    bridge1)
+(<= terminal
+    bridge2)
+
+(<= terminal
+    (not open1))
+(<= terminal
+    (not open2))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; GOAL Relations
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(<= (goal blocker 100)
+    goalBlocker1-100
+    goalBlocker2-100)
+    
+(<= (goal blocker 50)
+    goalBlocker1-100
+    goalBlocker2-0)
+(<= (goal blocker 50)
+    goalBlocker1-0
+    goalBlocker2-100)
+
+(<= (goal blocker 0)
+    goalBlocker1-0
+    goalBlocker2-0)
+    
+(<= (goal crosser 100)
+    goalCrosser1-100
+    goalCrosser2-100)
+
+(<= (goal crosser 50)
+    goalCrosser1-100
+    goalCrosser2-0)
+(<= (goal crosser 50)
+    goalCrosser1-0
+    goalCrosser2-100)
+
+(<= (goal crosser 0)
+    goalCrosser1-0
+    goalCrosser2-0)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; View Definitions
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(<= bridge1
+    (true (cell1 1 ?a crosser))
+    (cont ?a ?b)
+    (true (cell1 2 ?b crosser))
+    (cont ?b ?c)
+    (true (cell1 3 ?c crosser))
+    (cont ?c ?d)
+    (true (cell1 4 ?d crosser)))
+(<= bridge2
+    (true (cell2 1 ?a crosser))
+    (cont ?a ?b)
+    (true (cell2 2 ?b crosser))
+    (cont ?b ?c)
+    (true (cell2 3 ?c crosser))
+    (cont ?c ?d)
+    (true (cell2 4 ?d crosser)))
+
+(<= open1
+    (true (cell1 ?m ?n b)))
+(<= open2
+    (true (cell2 ?m ?n b)))
+
+(<= (distinctCell ?x1 ?y1 ?x2 ?y2)   
+    (cell ?x1 ?y1)
+    (cell ?x2 ?y2)
+    (distinct ?x1 ?x2))
+(<= (distinctCell ?x1 ?y1 ?x2 ?y2)   
+    (cell ?x1 ?y1)
+    (cell ?x2 ?y2)
+    (distinct ?y1 ?y2))
+
+(<= goalBlocker1-100
+    (not bridge1)
+    (not open1))
+(<= goalBlocker1-0
+    bridge1)
+(<= goalBlocker1-0
+    open1)
+
+(<= goalBlocker2-100
+    (not bridge2)
+    (not open2))
+(<= goalBlocker2-0
+    bridge2)
+(<= goalBlocker2-0
+    open2)
+
+(<= goalCrosser1-100
+    bridge1)
+(<= goalCrosser1-0
+    (not bridge1))
+
+(<= goalCrosser2-100
+    bridge2)
+(<= goalCrosser2-0
+    (not bridge2))
+        
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Static Relations
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(cont 1 1)
+(cont 2 2)
+(cont 3 3)
+(cont 4 4)
+(cont 1 2)
+(cont 2 3)
+(cont 3 4)
+(cont 2 1)
+(cont 3 2)
+(cont 4 3)
+
+(cell 1 1) (cell 2 1) (cell 3 1) (cell 4 1)
+(cell 1 2) (cell 2 2) (cell 3 2) (cell 4 2)
+(cell 1 3) (cell 2 3) (cell 3 3) (cell 4 3)
+(cell 1 4) (cell 2 4) (cell 3 4) (cell 4 4)

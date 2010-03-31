@@ -1,0 +1,334 @@
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;
+;                      Twisty Passages
+;
+; Author: David Haley <dhaley@cs.stanford.edu>
+;
+; A game to test recognition of identical states as well
+; as reasoning about rules.
+;
+; The game has a very large state space, but a completely
+; obvious solution: always go straight.
+;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+
+;;;;;;;;;;;;;;;;;
+;; Game Agents ;;
+;;;;;;;;;;;;;;;;;
+
+(role walker)
+
+;;;;;;;;;;;;;;;;;;;
+;; Initial State ;;
+;;;;;;;;;;;;;;;;;;;
+
+(init (room a))
+(init (step 1))
+
+
+;;;;;;;;;;;;;;;;;
+;; Legal moves ;;
+;;;;;;;;;;;;;;;;;
+
+(<= (legal walker (walk ?x ?y))
+    (direction ?x)
+    (direction ?y)
+    )
+
+;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Walkable Directions ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;
+(direction west)
+(direction northwest)
+(direction north)
+(direction northeast)
+(direction east)
+(direction southeast)
+(direction south)
+(direction southwest)
+
+; Throw in some more to make the branching factor nasty
+(direction southwest1)
+(direction southwest2)
+(direction southwest3)
+(direction southwest4)
+
+; The 'right' direction
+(direction straight)
+
+;;;;;;;;;;;;;;;;;;
+;; Update Rules ;;
+;;;;;;;;;;;;;;;;;;
+
+; Step counter update
+(<= (next (step ?s2))
+    (true (step ?s1))
+    (succ ?s1 ?s2)
+    )
+
+; Position update based on does:
+;   1. if we're in a and go west/west, we stay in a
+(<= (next (room a))
+    (does walker (walk straight straight))
+    (true (room a))
+    )
+
+;   2. if we're anywhere and do something other than west/west,
+;      then go to b
+(<= (next (room b))
+    (does walker (walk ?x ?y))
+    (or (distinct ?x straight)
+        (distinct ?y straight)
+        )
+    )
+
+;   3. if we're in b, stay in b
+(<= (next (room b))
+    (true (room b))
+    )
+
+;;;;;;;;;;;;;;;;;;;;;;;;
+;; Terminal Condition ;;
+;;;;;;;;;;;;;;;;;;;;;;;;
+
+; End condition: step #200
+(<= terminal
+    (true (step 200))
+    )
+
+;;;;;;;;;;;;;
+;; Scoring ;;
+;;;;;;;;;;;;;
+
+; We only win if we're in room a at the end
+(<= (goal walker 100)
+    (true (room a))
+    (true (step ?step))
+    (less-than ?step 201)
+    )
+
+
+; We lose if we're in room b
+(<= (goal walker 0)
+    (true (room b))
+    )
+
+
+;;;;;;;;;;;;;;;;;;;;;;
+;; Helper Relations ;;
+;;;;;;;;;;;;;;;;;;;;;;
+
+(<= (less-than ?x ?y)
+    (succ ?x ?y)
+    )
+
+(<= (less-than ?x ?y)
+    (succ ?x ?z)
+    (less-than ?z ?y)
+    )
+
+;;;;;;;;;;;;;;;;
+;; Successors ;;
+;;;;;;;;;;;;;;;;
+(succ 1 2)
+(succ 2 3)
+(succ 3 4)
+(succ 4 5)
+(succ 5 6)
+(succ 6 7)
+(succ 7 8)
+(succ 8 9)
+(succ 9 10)
+(succ 10 11)
+(succ 11 12)
+(succ 12 13)
+(succ 13 14)
+(succ 14 15)
+(succ 15 16)
+(succ 16 17)
+(succ 17 18)
+(succ 18 19)
+(succ 19 20)
+(succ 20 21)
+(succ 21 22)
+(succ 22 23)
+(succ 23 24)
+(succ 24 25)
+(succ 25 26)
+(succ 26 27)
+(succ 27 28)
+(succ 28 29)
+(succ 29 30)
+(succ 30 31)
+(succ 31 32)
+(succ 32 33)
+(succ 33 34)
+(succ 34 35)
+(succ 35 36)
+(succ 36 37)
+(succ 37 38)
+(succ 38 39)
+(succ 39 40)
+(succ 40 41)
+(succ 41 42)
+(succ 42 43)
+(succ 43 44)
+(succ 44 45)
+(succ 45 46)
+(succ 46 47)
+(succ 47 48)
+(succ 48 49)
+(succ 49 50)
+(succ 50 51)
+(succ 51 52)
+(succ 52 53)
+(succ 53 54)
+(succ 54 55)
+(succ 55 56)
+(succ 56 57)
+(succ 57 58)
+(succ 58 59)
+(succ 59 60)
+(succ 60 61)
+(succ 61 62)
+(succ 62 63)
+(succ 63 64)
+(succ 64 65)
+(succ 65 66)
+(succ 66 67)
+(succ 67 68)
+(succ 68 69)
+(succ 69 70)
+(succ 70 71)
+(succ 71 72)
+(succ 72 73)
+(succ 73 74)
+(succ 74 75)
+(succ 75 76)
+(succ 76 77)
+(succ 77 78)
+(succ 78 79)
+(succ 79 80)
+(succ 80 81)
+(succ 81 82)
+(succ 82 83)
+(succ 83 84)
+(succ 84 85)
+(succ 85 86)
+(succ 86 87)
+(succ 87 88)
+(succ 88 89)
+(succ 89 90)
+(succ 90 91)
+(succ 91 92)
+(succ 92 93)
+(succ 93 94)
+(succ 94 95)
+(succ 95 96)
+(succ 96 97)
+(succ 97 98)
+(succ 98 99)
+(succ 99 100)
+(succ 100 101)
+(succ 101 102)
+(succ 102 103)
+(succ 103 104)
+(succ 104 105)
+(succ 105 106)
+(succ 106 107)
+(succ 107 108)
+(succ 108 109)
+(succ 109 110)
+(succ 110 111)
+(succ 111 112)
+(succ 112 113)
+(succ 113 114)
+(succ 114 115)
+(succ 115 116)
+(succ 116 117)
+(succ 117 118)
+(succ 118 119)
+(succ 119 120)
+(succ 120 121)
+(succ 121 122)
+(succ 122 123)
+(succ 123 124)
+(succ 124 125)
+(succ 125 126)
+(succ 126 127)
+(succ 127 128)
+(succ 128 129)
+(succ 129 130)
+(succ 130 131)
+(succ 131 132)
+(succ 132 133)
+(succ 133 134)
+(succ 134 135)
+(succ 135 136)
+(succ 136 137)
+(succ 137 138)
+(succ 138 139)
+(succ 139 140)
+(succ 140 141)
+(succ 141 142)
+(succ 142 143)
+(succ 143 144)
+(succ 144 145)
+(succ 145 146)
+(succ 146 147)
+(succ 147 148)
+(succ 148 149)
+(succ 149 150)
+(succ 150 151)
+(succ 151 152)
+(succ 152 153)
+(succ 153 154)
+(succ 154 155)
+(succ 155 156)
+(succ 156 157)
+(succ 157 158)
+(succ 158 159)
+(succ 159 160)
+(succ 160 161)
+(succ 161 162)
+(succ 162 163)
+(succ 163 164)
+(succ 164 165)
+(succ 165 166)
+(succ 166 167)
+(succ 167 168)
+(succ 168 169)
+(succ 169 170)
+(succ 170 171)
+(succ 171 172)
+(succ 172 173)
+(succ 173 174)
+(succ 174 175)
+(succ 175 176)
+(succ 176 177)
+(succ 177 178)
+(succ 178 179)
+(succ 179 180)
+(succ 180 181)
+(succ 181 182)
+(succ 182 183)
+(succ 183 184)
+(succ 184 185)
+(succ 185 186)
+(succ 186 187)
+(succ 187 188)
+(succ 188 189)
+(succ 189 190)
+(succ 190 191)
+(succ 191 192)
+(succ 192 193)
+(succ 193 194)
+(succ 194 195)
+(succ 195 196)
+(succ 196 197)
+(succ 197 198)
+(succ 198 199)
+(succ 199 200)
+(succ 200 201)

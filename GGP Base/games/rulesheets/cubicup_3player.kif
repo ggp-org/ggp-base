@@ -1,0 +1,221 @@
+(role yellow)
+(role red)
+(role green)
+
+(nextplayer yellow red)
+(nextplayer red green)
+(nextplayer green yellow)
+
+;;;;;;;;;;;;;;
+
+(init (control yellow))
+
+(init (cubes yellow 28))
+(init (cubes red 28))
+(init (cubes green 28))
+
+(init (cube 0 0 0 base))
+(init (cube 1 0 0 base))
+(init (cube 1 1 0 base))
+(init (cube 2 0 0 base))
+(init (cube 2 1 0 base))
+(init (cube 2 2 0 base))
+(init (cube 3 0 0 base))
+(init (cube 3 1 0 base))
+(init (cube 3 2 0 base))
+(init (cube 3 3 0 base))
+(init (cube 4 0 0 base))
+(init (cube 4 1 0 base))
+(init (cube 4 2 0 base))
+(init (cube 4 3 0 base))
+(init (cube 4 4 0 base))
+(init (cube 5 0 0 base))
+(init (cube 5 1 0 base))
+(init (cube 5 2 0 base))
+(init (cube 5 3 0 base))
+(init (cube 5 4 0 base))
+(init (cube 5 5 0 base))
+(init (cube 6 0 0 base))
+(init (cube 6 1 0 base))
+(init (cube 6 2 0 base))
+(init (cube 6 3 0 base))
+(init (cube 6 4 0 base))
+(init (cube 6 5 0 base))
+(init (cube 6 6 0 base))
+(init (cube 7 0 0 base))
+(init (cube 7 1 0 base))
+(init (cube 7 2 0 base))
+(init (cube 7 3 0 base))
+(init (cube 7 4 0 base))
+(init (cube 7 5 0 base))
+(init (cube 7 6 0 base))
+(init (cube 7 7 0 base))
+
+(lastcube 7 7 7)
+
+;;;;;;;;;;;;;;
+
+(<= (legal ?player (put ?x ?y ?z))
+(true (control ?player))
+(other_players_open_cubicup ?player ?x ?y ?z))
+
+(<= (legal ?player (put ?x ?y ?z))
+(true (control ?player))
+(not (any_other_players_open_cubicup ?player))
+(filled ?xp ?yp ?zp)
+(succ ?xp ?x)
+(filled ?x ?yp ?zp)
+(succ ?yp ?y)
+(filled ?x ?y ?zp)
+(succ ?zp ?z)
+(not (filled ?x ?y ?z)))
+
+(<= (legal ?player noop)
+(role ?player)
+(not (true (control ?player))))
+;;;;;;;;;;;;;;
+
+(<= (cubicup ?player ?x ?y ?z)
+(role ?player)
+(true (cube ?xp ?yp ?zp ?player))
+(succ ?xp ?x)
+(true (cube ?x ?yp ?zp ?player))
+(succ ?yp ?y)
+(true (cube ?x ?y ?zp ?player))
+(succ ?zp ?z))
+
+(<= (other_players_open_cubicup ?player ?x ?y ?z)
+(other_players_cubicup ?player ?x ?y ?z)
+(not (filled ?x ?y ?z)))
+
+(<= (any_other_players_open_cubicup ?player)
+(other_players_open_cubicup ?player ?x ?y ?z))
+
+(<= (other_players_cubicup ?player ?x ?y ?z)
+(cubicup ?player2 ?x ?y ?z)
+(role ?player)
+(distinct ?player ?player2))
+
+;;;;;;;;;;;;;;
+
+; don't change control if there are still cubicups to fill and cubes of this player left
+; or if none of the other players has cubes left
+; otherwise change control to the next player that has cubes left
+(<= dont_change_control
+(true (control ?player))
+(not (true (cubes ?player 1)))
+(any_other_players_open_cubicup ?player))
+
+(<= dont_change_control
+(not exists_other_player_with_cubes))
+
+;;;
+
+(<= exists_other_player_with_cubes
+(true (control ?player))
+(true (cubes ?player2 ?n))
+(distinct ?n 0)
+(distinct ?player2 ?player))
+
+;;;;;;
+
+(<= (next (control ?player))
+(true (control ?player))
+dont_change_control)
+
+(<= (next (control ?nextplayer))
+(not dont_change_control)
+(true (control ?player))
+(true (cubes ?nextplayer ?n))
+(distinct ?n 0)
+(nextplayer ?player ?player1)
+(nextplayer_with_cubes ?player1 ?nextplayer))
+
+;;;;;;
+
+(<= (nextplayer_with_cubes ?player ?player)
+(true (cubes ?player ?n))
+(distinct ?n 0))
+(<= (nextplayer_with_cubes ?player ?nextplayer)
+(true (cubes ?player 0))
+(nextplayer ?player ?player1)
+(nextplayer_with_cubes ?player1 ?nextplayer))
+
+;;;;;;;;;;;;;;
+
+(<= (next (cube ?x ?y ?z ?color))
+(true (cube ?x ?y ?z ?color)))
+
+(<= (next (cube ?x ?y ?z ?player))
+(does ?player (put ?x ?y ?z)))
+
+;;;;;;;;;;;;;;
+
+(<= (next (cubes ?player ?n))
+(true (cubes ?player ?n))
+(not (true (control ?player))))
+
+(<= (next (cubes ?player ?n))
+(true (cubes ?player ?n1))
+(true (control ?player))
+(succ ?n ?n1))
+
+;;;;;;;;;;;;;;;
+
+(<= (goal ?player 100)
+(lastcube ?x ?y ?z)
+(true (cube ?x ?y ?z ?player))
+(not (other_players_cubicup ?player ?x ?y ?z)))
+
+(<= (goal ?w 50)
+(role ?w)
+(lastcube ?x ?y ?z)
+(true (cube ?x ?y ?z ?player1))
+(other_players_cubicup ?player1 ?x ?y ?z))
+
+(<= (goal ?player2 0)
+(lastcube ?x ?y ?z)
+(true (cube ?x ?y ?z ?player))
+(not (other_players_cubicup ?player ?x ?y ?z))
+(role ?player2)
+(distinct ?player ?player2))
+
+(<= terminal
+(lastcube ?x ?y ?z)
+(filled ?x ?y ?z))
+
+;;;;;;;;;;;;;;;
+
+(<= (filled ?x ?y ?z)
+(true (cube ?x ?y ?z ?color)))
+
+;;;;;;;;;;;;;;;
+
+(succ 0 1)
+(succ 1 2)
+(succ 2 3)
+(succ 3 4)
+(succ 4 5)
+(succ 5 6)
+(succ 6 7)
+(succ 7 8)
+(succ 8 9)
+(succ 9 10)
+(succ 10 11)
+(succ 11 12)
+(succ 12 13)
+(succ 13 14)
+(succ 14 15)
+(succ 15 16)
+(succ 16 17)
+(succ 17 18)
+(succ 18 19)
+(succ 19 20)
+(succ 20 21)
+(succ 21 22)
+(succ 22 23)
+(succ 23 24)
+(succ 24 25)
+(succ 25 26)
+(succ 26 27)
+(succ 27 28)

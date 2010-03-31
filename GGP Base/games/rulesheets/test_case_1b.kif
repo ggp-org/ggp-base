@@ -1,0 +1,32 @@
+;; This tests an edge case when handling GDL.
+;; Specifically, it tests a time-invariant goal rule and uses legal in a proposition definition. 
+
+(role you)
+
+(init (state 0))
+
+(<= (legal you win)
+    (true (state 0)))
+
+(<= (legal you lose)
+    (true (state 0)))
+
+(<= (next (state 1))
+	(does you win))
+
+(<= (next (state 2))
+	(does you lose))
+
+(<= anylegalmoves
+	(legal you ?x))
+
+(<= terminal
+    (true (state 1)))
+(<= terminal
+    (not anylegalmoves))
+
+(<= (goal you 100)
+    (true (state 1)))
+(<= (goal you 0)
+    (not (true (state 1)))
+    (not anylegalmoves))

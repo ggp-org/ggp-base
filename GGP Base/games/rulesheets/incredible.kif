@@ -1,0 +1,311 @@
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Incredible Amazing Blocks World
+;;; grid-bug: solve() took 637809799 microseconds
+;;;      comment out the contemplate action:
+;;;           solve() took  10863886 microseconds
+;;;  solution at step 14
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(role robot)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(init (cell w))
+(init (gold y))
+
+(init (step c1))
+
+(init (clear b))
+(init (clear c))
+(init (clear f))
+
+(init (on c a))
+(init (on e d))
+(init (on f e))
+
+(init (table a))
+(init (table b))
+(init (table d))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(<= (next (cell ?y))
+(does robot move)
+(true (cell ?x))
+(adjacent ?x ?y))
+
+(<= (next (cell ?x))
+(does robot grab)
+(true (cell ?x)))
+
+(<= (next (cell ?x))
+(does robot drop)
+(true (cell ?x)))
+
+(<= (next (cell ?x))
+(true (cell ?x))
+(does robot (s ?u ?v)))
+
+(<= (next (cell ?x))
+(true (cell ?x))
+(does robot (u ?u ?v)))
+
+(<= (next (cell ?x))
+(true (cell ?x))
+(does robot (contemplate ?u ?v)))
+
+(<= (next (gold ?x))
+(does robot move)
+(true (gold ?x)))
+
+(<= (next (gold i))
+(does robot grab)
+(true (cell ?x))
+(true (gold ?x)))
+
+(<= (next (gold i))
+(does robot grab)
+(true (gold i)))
+
+(<= (next (gold ?y))
+(does robot grab)
+(true (cell ?x))
+(true (gold ?y))
+(distinct ?x ?y))
+
+(<= (next (gold ?x))
+(does robot drop)
+(true (cell ?x))
+(true (gold i)))
+
+(<= (next (gold ?x))
+(does robot drop)
+(true (gold ?x))
+(distinct ?x i))
+
+(<= (next (gold ?x))
+(true (gold ?x))
+(does robot (s ?u ?v)))
+
+(<= (next (gold ?x))
+(true (gold ?x))
+(does robot (u ?u ?v)))
+
+(<= (next (gold ?x))
+(true (gold ?x))
+(does robot (contemplate ?u ?v)))
+
+(<= (next (step ?y))
+(true (step ?x))
+(succ ?x ?y))
+
+(<= (next (on ?x ?y))
+(does robot (s ?x ?y)))
+
+(<= (next (on ?x ?y))
+(does robot (s ?u ?v))
+(true (on ?x ?y)))
+
+(<= (next (on ?x ?y))
+(does robot (u ?u ?v))
+(true (on ?x ?y))
+(distinct ?u ?x))
+
+(<= (next (on ?x ?y))
+(true (on ?x ?y))
+(does robot move))
+
+(<= (next (on ?x ?y))
+(true (on ?x ?y))
+(does robot grab))
+
+(<= (next (on ?x ?y))
+(true (on ?x ?y))
+(does robot drop))
+
+(<= (next (on ?x ?y))
+(true (on ?x ?y))
+(does robot (contemplate ?u ?v)))
+
+(<= (next (table ?x))
+(does robot (s ?u ?v))
+(true (table ?x))
+(distinct ?u ?x))
+
+(<= (next (table ?x))
+(does robot (u ?x ?y)))
+
+(<= (next (table ?x))
+(does robot (u ?u ?v))
+(true (table ?x)))
+
+(<= (next (table ?x))
+(true (table ?x))
+(does robot move))
+
+(<= (next (table ?x))
+(true (table ?x))
+(does robot grab))
+
+(<= (next (table ?x))
+(true (table ?x))
+(does robot drop))
+
+(<= (next (table ?x))
+(true (table ?x))
+(does robot (contemplate ?u ?v)))
+
+(<= (next (clear ?y))
+(does robot (s ?u ?v))
+(true (clear ?y))
+(distinct ?v ?y))
+
+(<= (next (clear ?y))
+(does robot (u ?x ?y)))
+
+(<= (next (clear ?x))
+(does robot (u ?u ?v))
+(true (clear ?x)))
+
+(<= (next (clear ?x))
+(true (clear ?x))
+(does robot move))
+
+(<= (next (clear ?x))
+(true (clear ?x))
+(does robot grab))
+
+(<= (next (clear ?x))
+(true (clear ?x))
+(does robot drop))
+
+(<= (next (clear ?x))
+(true (clear ?x))
+(does robot (contemplate ?u ?v)))
+
+;;   (<= (next (pondered ?u ?v))
+;;       (does robot (contemplate ?u ?v)))
+
+(adjacent w x)
+(adjacent x y)
+(adjacent y z)
+(adjacent z w)
+
+(succ c1 c2)
+(succ c2 c3)
+(succ c3 c4)
+(succ c4 c5)
+(succ c5 c6)
+(succ c6 c7)
+(succ c7 c8)
+(succ c8 c9)
+(succ c9 c10)
+(succ c10 c11)
+(succ c11 c12)
+(succ c12 c13)
+(succ c13 c14)
+(succ c14 c15)
+(succ c15 c16)
+(succ c16 c17)
+(succ c17 c18)
+(succ c18 c19)
+(succ c19 c20)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(<= (legal robot move))
+
+(<= (legal robot grab)
+(true (cell ?x))
+(true (gold ?x)))
+
+(<= (legal robot drop)
+(true (gold i)))
+
+(<= (legal robot (s ?x ?y))
+(true (clear ?x))
+(true (table ?x))
+(true (clear ?y))
+(distinct ?x ?y))
+
+(<= (legal robot (u ?x ?y))
+(true (clear ?x))
+(true (on ?x ?y)))
+
+(<= (legal robot (contemplate ?x ?y))
+(adjacent ?x ?x1)
+(adjacent ?y ?y1))
+
+;  (<= (legal robot (contemplate ?x ?y))
+;      (adjacent ?x ?x1)
+;      (succ ?y ?y1))
+
+;  (<= (legal robot (contemplate ?x ?y))
+;      (succ ?x ?x1)
+;      (adjacent ?y ?y1))
+
+;  (<= (legal robot (contemplate ?x ?y))
+;      (succ ?x ?x1)
+;      (succ ?y ?y1))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(<= (completed bdftower)
+(true (on d f))
+(true (on b d)))
+
+(<= (completed caetower)
+(true (on a e))
+(true (on c a)))
+
+(<= (goal robot 100)
+(true (gold w))
+(completed bdftower)
+(completed caetower))
+
+(<= (goal robot 75)
+(true (gold w))
+(not (completed bdftower))
+(completed caetower))
+
+(<= (goal robot 70)
+(true (gold w))
+(completed bdftower)
+(not (completed caetower)))
+
+(<= (goal robot 55)
+(completed bdftower)
+(completed caetower)
+(not (true (gold w))))
+
+(<= (goal robot 45)
+(true (gold w))
+(not (completed bdftower))
+(not (completed caetower)))
+
+(<= (goal robot 30)
+(completed caetower)
+(not (completed bdftower))
+(not (true (gold w))))
+
+(<= (goal robot 25)
+(completed bdftower)
+(not (completed caetower))
+(not (true (gold w))))
+
+(<= (goal robot 0)
+(true (step c20))
+(not (completed caetower))
+(not (completed bdftower))
+(not (true (gold w))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(<= terminal
+(true (step c20)))
+
+(<= terminal
+(true (gold w)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

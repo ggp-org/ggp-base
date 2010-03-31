@@ -1,0 +1,725 @@
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Blob Wars
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Roles
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(role redduper)
+(role blueduper)
+(role redjumper)
+(role bluejumper)
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Initial State
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;; Set all cells to blank
+
+(init (cell n1 n1 b))
+(init (cell n1 n2 o))
+(init (cell n1 n3 o))
+(init (cell n1 n4 o))
+(init (cell n1 n5 o))
+(init (cell n1 n6 r))
+
+(init (cell n2 n1 o))
+(init (cell n2 n2 o))
+(init (cell n2 n3 o))
+(init (cell n2 n4 o))
+(init (cell n2 n5 o))
+(init (cell n2 n6 o))
+
+(init (cell n3 n1 o))
+(init (cell n3 n2 o))
+(init (cell n3 n3 o))
+(init (cell n3 n4 o))
+(init (cell n3 n5 o))
+(init (cell n3 n6 o))
+
+(init (cell n4 n1 o))
+(init (cell n4 n2 o))
+(init (cell n4 n3 o))
+(init (cell n4 n4 o))
+(init (cell n4 n5 o))
+(init (cell n4 n6 o))
+
+(init (cell n5 n1 o))
+(init (cell n5 n2 o))
+(init (cell n5 n3 o))
+(init (cell n5 n4 o))
+(init (cell n5 n5 o))
+(init (cell n5 n6 o))
+
+(init (cell n6 n1 r))
+(init (cell n6 n2 o))
+(init (cell n6 n3 o))
+(init (cell n6 n4 o))
+(init (cell n6 n5 o))
+(init (cell n6 n6 b))
+
+(init (control redduper))
+(init (winning nobody n0))
+
+(init (step n0))
+(init (passes n0))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Constant Definitions
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(in1range n1 n1)
+(in1range n1 n2)
+(in1range n2 n1)
+(in1range n2 n2)
+(in1range n2 n3)
+(in1range n3 n2)
+(in1range n3 n3)
+(in1range n3 n4)
+(in1range n4 n3)
+(in1range n4 n4)
+(in1range n4 n5)
+(in1range n5 n4)
+(in1range n5 n5)
+(in1range n5 n6)
+(in1range n6 n5)
+(in1range n6 n6)
+
+(in2range n1 n3)
+(in2range n2 n4)
+(in2range n3 n1)
+(in2range n3 n5)
+(in2range n4 n2)
+(in2range n4 n6)
+(in2range n5 n3)
+(in2range n5 n7)
+(in2range n6 n4)
+
+(<= (in2range ?x ?y)
+(in1range ?x ?y))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Dynamic Components
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+; MOVE COUNT
+(<= (next (step ?y))
+(true (step ?x))
+(succ ?x ?y))
+
+;;;;; DUPLICATION ;;;;;
+
+;;; If a square gets marked by duplication, it takes on that color.
+(<= (next (cell ?tx ?ty r))
+(does redduper (dupe ?fx ?fy ?tx ?ty)))
+
+(<= (next (cell ?tx ?ty b))
+(does blueduper (dupe ?fx ?fy ?tx ?ty)))
+
+;;; If a square gets duplicated from, it keeps its color.
+(<= (next (cell ?fx ?fy r))
+(does redduper (dupe ?fx ?fy ?tx ?ty)))
+
+(<= (next (cell ?fx ?fy b))
+(does blueduper (dupe ?fx ?fy ?tx ?ty)))
+
+;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;; JUMPING ;;;;;;;
+
+;;; If a square gets jumped from, it is set to blank.
+(<= (next (cell ?tx ?ty r))
+(does redjumper (jump ?fx ?fy ?tx ?ty)))
+
+(<= (next (cell ?tx ?ty b))
+(does bluejumper (jump ?fx ?fy ?tx ?ty)))
+
+;;; Remove the jumped piece.
+(<= (next (cell ?fx ?fy o))
+(does redjumper (jump ?fx ?fy ?tx ?ty)))
+
+(<= (next (cell ?fx ?fy o))
+(does bluejumper (jump ?fx ?fy ?tx ?ty)))
+
+;;;;;;;;;;;;;;;;;;;;;;;
+
+;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;; SWITCHING ;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;
+(<= (next (cell ?ox ?oy r))
+(does redjumper (jump ?fx ?fy ?tx ?ty))
+(in1range ?tx ?ox)
+(in1range ?ty ?oy)
+(true (cell ?ox ?oy b)))
+;;;;;;;;;;;;;;;;;;;;;;;
+(<= (next (cell ?ox ?oy b))
+(does bluejumper (jump ?fx ?fy ?tx ?ty))
+(in1range ?tx ?ox)
+(in1range ?ty ?oy)
+(true (cell ?ox ?oy r)))
+;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;
+
+;;;;;;;;;;;;;;;;;;;;;;;
+;;;;; PERSISTENCE ;;;;;
+(<= (next (cell ?x ?y ?c))
+(true (cell ?x ?y ?c))
+(does ?p (dupe ?fx ?fy ?tx ?ty))
+(or (distinct ?x ?tx) (distinct ?y ?ty)))
+;;;;;;;;;;;;;;;;;;;;;;;
+(<= (next (cell ?x ?y ?c))
+(true (cell ?x ?y ?c))
+(does ?p (jump ?fx ?fy ?tx ?ty))
+(unswitched ?x ?y ?p ?tx ?ty)
+(or (distinct ?x ?tx) (distinct ?y ?ty))
+(or (distinct ?x ?fx) (distinct ?y ?fy)))
+;;;;;;;;;;;;;;;;;;;;;;;
+(<= (next (cell ?x ?y ?c))
+(true (cell ?x ?y ?c))
+(does ?p pass))
+;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;
+;;; Unswitched: ?x ?y stays unswitched even if ?p jumps to ?tx ?ty
+
+(<= (unswitched ?x ?y ?p ?tx ?ty)
+(color ?p ?c)
+(true (cell ?x ?y ?c))
+(true (cell ?tx ?ty o)))
+
+(<= (unswitched ?x ?y ?p ?tx ?ty)
+(role ?p)
+(true (cell ?x ?y o))
+(true (cell ?tx ?ty o)))
+
+(<= (unswitched ?x ?y ?p ?tx ?ty)
+(ocolor ?p ?c)
+(true (cell ?x ?y ?c))
+(true (cell ?tx ?ty o))
+(or (not (in1range ?x ?tx))
+(not (in1range ?y ?ty))))
+
+(acolor r)
+(acolor b)
+(opcolor r b)
+(opcolor b r)
+
+(color redduper r)
+(color blueduper b)
+(color redjumper r)
+(color bluejumper b)
+
+(ocolor redduper b)
+(ocolor blueduper r)
+(ocolor redjumper b)
+(ocolor bluejumper r)
+
+;; Next of winning
+
+(<= (next (winning ?p ?c))
+(does ?player pass)
+(true (winning ?p ?c)))
+
+(<= (next (winning ?p ?cplus))
+(does ?player (dupe ?fx ?fy ?tx ?ty))
+(color ?player ?p)
+(true (winning ?p ?c))
+(succ ?c ?cplus))
+
+(<= (next (winning ?p n1))
+(does ?player (dupe ?fx ?fy ?tx ?ty))
+(color ?player ?p)
+(true (winning nobody n0)))
+
+(<= (next (winning nobody n0))
+(does ?player (dupe ?fx ?fy ?tx ?ty))
+(ocolor ?player ?p)
+(true (winning ?p n1)))
+
+(<= (next (winning ?op ?cminus))
+(does ?player (dupe ?fx ?fy ?tx ?ty))
+(ocolor ?player ?op)
+(true (winning ?op ?c))
+(distinct ?c n1)
+(succ ?cminus ?c))
+
+(<= (next (winning ?p ?cplus))
+(does ?player (jump ?fx ?fy ?tx ?ty))
+(color ?player ?p)
+(true (winning ?p ?c))
+(changing ?player ?tx ?ty ?thismany)
+(addemup ?c ?thismany ?cplus))
+
+(<= (next (winning ?p ?thismany))
+(does ?player (jump ?fx ?fy ?tx ?ty))
+(color ?player ?p)
+(true (winning nobody n0))
+(changing ?player ?tx ?ty ?thismany)
+(distinct ?thismany n0))
+
+(<= (next (winning nobody n0))
+(does ?player (jump ?fx ?fy ?tx ?ty))
+(color ?player ?p)
+(true (winning nobody n0))
+(changing ?player ?tx ?ty n0))
+
+(<= (next (winning nobody n0))
+(does ?player (jump ?fx ?fy ?tx ?ty))
+(ocolor ?player ?op)
+(true (winning ?op ?thismany))
+(changing ?player ?tx ?ty ?thismany))
+
+(<= (next (winning ?op ?cminus))
+(does ?player (jump ?fx ?fy ?tx ?ty))
+(ocolor ?player ?op)
+(true (winning ?op ?c))
+(changing ?player ?tx ?ty ?thismany)
+(greater ?c ?thismany)
+(subtractem ?c ?thismany ?cminus))
+
+(<= (next (winning ?p ?cminus))
+(does ?player (jump ?fx ?fy ?tx ?ty))
+(color ?player ?p)
+(ocolor ?player ?op)
+(true (winning ?op ?c))
+(changing ?player ?tx ?ty ?thismany)
+(greater ?thismany ?c)
+(subtractem ?thismany ?c ?cminus))
+
+;;; Changing
+
+(<= (otheroro ?c ?x ?y)
+(opcolor ?c ?oc)
+(true (cell ?x ?y ?oc)))
+
+(<= (otheroro ?c ?x ?y)
+(acolor ?c)
+(true (cell ?x ?y o)))
+
+(<= (changing ?player ?tx ?ty ?thismany)
+(ocolor ?player ?op)
+(wcount ?op ?tx ?ty ?thismany))
+
+(<= (nwcount ?c ?x ?y n2)
+(succ ?ty ?y)
+(distinct ?y n1)
+(succ ?tx ?x)
+(true (cell ?tx ?ty ?c)))
+
+(<= (nwcount ?c ?x ?y n0)
+(succ ?ty ?y)
+(distinct ?y n1)
+(succ ?tx ?x)
+(color ?player ?c)
+(otheroro ?c ?tx ?ty))
+
+(<= (nwcount ?c ?x n1 n0)
+(acolor ?c)
+(succ ?x ?tx))
+
+(<= (ncount ?c ?x ?y ?more)
+(succ ?tx ?x)
+(distinct ?x n1)
+(true (cell ?tx ?y ?c))
+(nwcount ?c ?x ?y ?old)
+(succ ?old ?marwan)
+(succ ?marwan ?more))
+
+(<= (ncount ?c ?x ?y ?same)
+(succ ?tx ?x)
+(distinct ?x n1)
+(otheroro ?c ?tx ?y)
+(nwcount ?c ?x ?y ?same))
+
+(<= (ncount ?c n1 ?y n0)
+(acolor ?c)
+(succ ?y ?ty))
+
+(<= (necount ?c ?x ?y ?more)
+(succ ?tx ?x)
+(distinct ?x n1)
+(succ ?y ?ty)
+(true (cell ?tx ?ty ?c))
+(ncount ?c ?x ?y ?old)
+(succ ?old ?marwan)
+(succ ?marwan ?more))
+
+(<= (necount ?c ?x ?y ?same)
+(succ ?tx ?x)
+(distinct ?x n1)
+(succ ?y ?ty)
+(otheroro ?c ?tx ?ty)
+(ncount ?c ?x ?y ?same))
+
+(<= (necount ?c n1 ?y n0)
+(acolor ?c)
+(succ ?y ?ys))
+
+(<= (ecount ?c ?x ?y ?more)
+(succ ?y ?ty)
+(distinct ?y n6)
+(true (cell ?x ?ty ?c))
+(necount ?c ?x ?y ?old)
+(succ ?old ?marwan)
+(succ ?marwan ?more))
+
+(<= (ecount ?c ?x ?y ?same)
+(succ ?y ?ty)
+(distinct ?y n6)
+(otheroro ?c ?x ?ty)
+(necount ?c ?x ?y ?same))
+
+(<= (ecount ?c ?x n6 ?same)
+(ncount ?c ?x n6 ?same))
+
+(<= (secount ?c ?x ?y ?more)
+(succ ?y ?ty)
+(succ ?x ?tx)
+(distinct ?y n6)
+(true (cell ?tx ?ty ?c))
+(ecount ?c ?x ?y ?old)
+(succ ?old ?marwan)
+(succ ?marwan ?more))
+
+(<= (secount ?c ?x ?y ?same)
+(succ ?y ?ty)
+(succ ?x ?tx)
+(distinct ?y n6)
+(otheroro ?c ?tx ?ty)
+(ecount ?c ?x ?y ?same))
+
+(<= (secount ?c ?x n6 ?count)
+(ncount ?c ?x n6 ?count))
+
+(<= (scount ?c ?x ?y ?more)
+(succ ?x ?tx)
+(distinct ?x n6)
+(true (cell ?tx ?y ?c))
+(secount ?c ?x ?y ?old)
+(succ ?old ?marwan)
+(succ ?marwan ?more))
+
+(<= (scount ?c ?x ?y ?same)
+(succ ?x ?tx)
+(distinct ?x n6)
+(otheroro ?c ?tx ?y)
+(secount ?c ?x ?y ?same))
+
+(<= (scount ?c n6 ?y ?count)
+(ecount ?c n6 ?y ?count))
+
+(<= (swcount ?c ?x ?y ?more)
+(succ ?ty ?y)
+(succ ?x ?tx)
+(distinct ?x n6)
+(true (cell ?tx ?ty ?c))
+(scount ?c ?x ?y ?old)
+(succ ?old ?marwan)
+(succ ?marwan ?more))
+
+(<= (swcount ?c ?x ?y ?same)
+(succ ?ty ?y)
+(succ ?x ?tx)
+(distinct ?x n6)
+(otheroro ?c ?tx ?ty)
+(scount ?c ?x ?y ?same))
+
+(<= (swcount ?c n6 ?y ?count)
+(ecount ?c n6 ?y ?count))
+
+(<= (wcount ?c ?x ?y ?more)
+(succ ?ty ?y)
+(distinct ?y n1)
+(true (cell ?x ?ty ?c))
+(swcount ?c ?x ?y ?old)
+(succ ?old ?marwan)
+(succ ?marwan ?more))
+
+(<= (wcount ?c ?x ?y ?same)
+(succ ?ty ?y)
+(distinct ?y n1)
+(otheroro ?c ?x ?ty)
+(swcount ?c ?x ?y ?same))
+
+(<= (wcount ?c ?x n1 ?count)
+(scount ?c ?x n1 ?count))
+
+;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;; CONTROL ;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;
+(<= (next (control blueduper))
+(true (control redduper)))
+;;;;;;;;;;;;;;;;;;;;;;;
+(<= (next (control redjumper))
+(true (control blueduper)))
+;;;;;;;;;;;;;;;;;;;;;;;
+(<= (next (control bluejumper))
+(true (control redjumper)))
+;;;;;;;;;;;;;;;;;;;;;;;
+(<= (next (control redduper))
+(true (control bluejumper)))
+;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;
+
+;;;;;;;;;;;;;;;;;;;;;;;
+;;;; COUNT PASSES ;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;
+(<= (next (passes ?m))
+(true (passes ?n))
+(succ ?n ?m)
+(does ?p pass))
+;;;;;;;;;;;;;;;;;;;;;;;
+(<= (next (passes n0))
+(does ?p (dupe ?fx ?fy ?tx ?ty)))
+;;;;;;;;;;;;;;;;;;;;;;;
+(<= (next (passes n0))
+(does ?p (jump ?fx ?fy ?tx ?ty)))
+;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Legal Moves
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(<= (legal redduper (dupe ?fx ?fy ?tx ?ty))
+(true (control redduper))
+(true (cell ?fx ?fy r))
+(true (cell ?tx ?ty o))
+(in1range ?fx ?tx)
+(in1range ?fy ?ty)
+(or (distinct ?fx ?tx) (distinct ?fy ?ty)))
+
+(<= (legal blueduper (dupe ?fx ?fy ?tx ?ty))
+(true (control blueduper))
+(true (cell ?fx ?fy b))
+(true (cell ?tx ?ty o))
+(in1range ?fx ?tx)
+(in1range ?fy ?ty)
+(or (distinct ?fx ?tx) (distinct ?fy ?ty)))
+
+(<= (legal redjumper (jump ?fx ?fy ?tx ?ty))
+(true (control redjumper))
+(true (cell ?fx ?fy r))
+(true (cell ?tx ?ty o))
+(in2range ?fx ?tx)
+(in2range ?fy ?ty)
+(or (distinct ?fx ?tx) (distinct ?fy ?ty)))
+
+(<= (legal bluejumper (jump ?fx ?fy ?tx ?ty))
+(true (control bluejumper))
+(true (cell ?fx ?fy b))
+(true (cell ?tx ?ty o))
+(in2range ?fx ?tx)
+(in2range ?fy ?ty)
+(or (distinct ?fx ?tx) (distinct ?fy ?ty)))
+
+(<= (legal ?p pass)
+(true (control ?p)))
+
+(<= (legal redduper noop)
+(true (control ?p))
+(distinct ?p redduper))
+
+(<= (legal redjumper noop)
+(true (control ?p))
+(distinct ?p redjumper))
+
+(<= (legal blueduper noop)
+(true (control ?p))
+(distinct ?p blueduper))
+
+(<= (legal bluejumper noop)
+(true (control ?p))
+(distinct ?p bluejumper))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Terminal States
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(<= open
+(true (cell ?r ?c o)))
+
+(<= terminal
+(not open))
+
+(<= terminal
+(true (passes n4)))
+
+(<= terminal
+(true (step n40)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Goals
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(<= (goal redduper 100)
+(true (winning r ?count)))
+
+(<= (goal redduper 0)
+(true (winning b ?count)))
+
+(<= (goal redjumper 100)
+(true (winning r ?count)))
+
+(<= (goal redjumper 0)
+(true (winning b ?count)))
+
+(<= (goal blueduper 100)
+(true (winning b ?count)))
+
+(<= (goal blueduper 0)
+(true (winning r ?count)))
+
+(<= (goal bluejumper 100)
+(true (winning b ?count)))
+
+(<= (goal bluejumper 0)
+(true (winning r ?count)))
+
+;; Since the game is biased towards whoever has the last jump, we give more
+;; points to the red team when there's a tie, because the blue team got to
+;; go last (assuming this ended with the stepcounter = n40).
+
+(<= (goal redduper 80)
+(true (winning nobody n0)))
+
+(<= (goal redjumper 80)
+(true (winning nobody n0)))
+
+(<= (goal blueduper 20)
+(true (winning nobody n0)))
+
+(<= (goal bluejumper 20)
+(true (winning nobody n0)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(<= (addemup ?x n0 ?x)
+(succ ?x ?tx))
+(<= (addemup ?x n1 ?z)
+(succ ?x ?z))
+(<= (addemup ?x ?y ?z)
+(succ ?yp ?y)
+(addemup ?x ?yp ?oz)
+(succ ?oz ?z))
+
+(<= (subtractem ?x n0 ?x)
+(succ ?x ?tx))
+(<= (subtractem ?x n1 ?z)
+(succ ?z ?x))
+(<= (subtractem ?x ?y ?z)
+(succ ?yp ?y)
+(subtractem ?x ?yp ?oz)
+(succ ?z ?oz))
+
+(<= (greater ?a ?b)
+(succ ?b ?a))
+(<= (greater ?a ?b)
+(distinct ?a ?b)
+(succ ?c ?a)
+(greater ?c ?b))
+
+; MOVE COUNT SUCCESSOR
+(succ n0 n1)
+(succ n1 n2)
+(succ n2 n3)
+(succ n3 n4)
+(succ n4 n5)
+(succ n5 n6)
+(succ n6 n7)
+(succ n7 n8)
+(succ n8 n9)
+(succ n9 n10)
+(succ n10 n11)
+(succ n11 n12)
+(succ n12 n13)
+(succ n13 n14)
+(succ n14 n15)
+(succ n15 n16)
+(succ n16 n17)
+(succ n17 n18)
+(succ n18 n19)
+(succ n19 n20)
+(succ n20 n21)
+(succ n21 n22)
+(succ n22 n23)
+(succ n23 n24)
+(succ n24 n25)
+(succ n25 n26)
+(succ n26 n27)
+(succ n27 n28)
+(succ n28 n29)
+(succ n29 n30)
+(succ n30 n31)
+(succ n31 n32)
+(succ n32 n33)
+(succ n33 n34)
+(succ n34 n35)
+(succ n35 n36)
+(succ n36 n37)
+(succ n37 n38)
+(succ n38 n39)
+(succ n39 n40)
+(succ n40 n41)
+(succ n41 n42)
+(succ n42 n43)
+(succ n43 n44)
+(succ n44 n45)
+(succ n45 n46)
+(succ n46 n47)
+(succ n47 n48)
+(succ n48 n49)
+(succ n49 n50)
+(succ n50 n51)
+(succ n51 n52)
+(succ n52 n53)
+(succ n53 n54)
+(succ n54 n55)
+(succ n55 n56)
+(succ n56 n57)
+(succ n57 n58)
+(succ n58 n59)
+(succ n59 n60)
+(succ n60 n61)
+(succ n61 n62)
+(succ n62 n63)
+(succ n63 n64)
+(succ n64 n65)
+(succ n65 n66)
+(succ n66 n67)
+(succ n67 n68)
+(succ n68 n69)
+(succ n69 n70)
+(succ n70 n71)
+(succ n71 n72)
+(succ n72 n73)
+(succ n73 n74)
+(succ n74 n75)
+(succ n75 n76)
+(succ n76 n77)
+(succ n77 n78)
+(succ n78 n79)
+(succ n79 n80)
+(succ n80 n81)
+(succ n81 n82)
+(succ n82 n83)
+(succ n83 n84)
+(succ n84 n85)
+(succ n85 n86)
+(succ n86 n87)
+(succ n87 n88)
+(succ n88 n89)
+(succ n89 n90)
+(succ n90 n91)
+(succ n91 n92)
+(succ n92 n93)
+(succ n93 n94)
+(succ n94 n95)
+(succ n95 n96)
+(succ n96 n97)
+(succ n97 n98)
+(succ n98 n99)
+(succ n99 n100)
+(succ n100 n101)
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

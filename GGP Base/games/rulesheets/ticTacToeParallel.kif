@@ -1,0 +1,308 @@
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Tictactoe (two instances in parallel)
+;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; ROLE Relations
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(role xplayer)
+(role oplayer)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; INIT Relations
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(init (cell1 1 1 b))
+(init (cell1 1 2 b))
+(init (cell1 1 3 b))
+(init (cell1 2 1 b))
+(init (cell1 2 2 b))
+(init (cell1 2 3 b))
+(init (cell1 3 1 b))
+(init (cell1 3 2 b))
+(init (cell1 3 3 b))
+
+(init (cell2 1 1 b))
+(init (cell2 1 2 b))
+(init (cell2 1 3 b))
+(init (cell2 2 1 b))
+(init (cell2 2 2 b))
+(init (cell2 2 3 b))
+(init (cell2 3 1 b))
+(init (cell2 3 2 b))
+(init (cell2 3 3 b))
+
+(init (control xplayer))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; LEGAL Relations
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(<= (legal ?player (mark ?x1 ?y1 ?x2 ?y2))
+    (true (control ?player))
+    (true (cell1 ?x1 ?y1 b))
+    (true (cell2 ?x2 ?y2 b)))
+
+(<= (legal xplayer noop)
+    (true (control oplayer)))
+
+(<= (legal oplayer noop)
+    (true (control xplayer)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; NEXT Relations
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(<= (next (cell1 ?x1 ?y1 x))
+    (does xplayer (mark ?x1 ?y1 ?x2 ?y2)))
+(<= (next (cell1 ?x1 ?y1 o))
+    (does oplayer (mark ?x1 ?y1 ?x2 ?y2)))
+(<= (next (cell1 ?x ?y ?mark))
+    (true (cell1 ?x ?y ?mark))
+    (does xplayer (mark ?x1 ?y1 ?x2 ?y2))
+    (distinctCell ?x ?y ?x1 ?y1))
+(<= (next (cell1 ?x ?y ?mark))
+    (true (cell1 ?x ?y ?mark))
+    (does oplayer (mark ?x1 ?y1 ?x2 ?y2))
+    (distinctCell ?x ?y ?x1 ?y1))
+
+(<= (next (cell2 ?x2 ?y2 x))
+    (does xplayer (mark ?x1 ?y1 ?x2 ?y2)))
+(<= (next (cell2 ?x2 ?y2 o))
+    (does oplayer (mark ?x1 ?y1 ?x2 ?y2)))
+(<= (next (cell2 ?x ?y ?mark))
+    (true (cell2 ?x ?y ?mark))
+    (does xplayer (mark ?x1 ?y1 ?x2 ?y2))
+    (distinctCell ?x ?y ?x2 ?y2))
+(<= (next (cell2 ?x ?y ?mark))
+    (true (cell2 ?x ?y ?mark))
+    (does oplayer (mark ?x1 ?y1 ?x2 ?y2))
+    (distinctCell ?x ?y ?x2 ?y2))
+
+(<= (next (control xplayer))
+    (true (control oplayer)))
+(<= (next (control oplayer))
+    (true (control xplayer)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; TERMINAL Relations
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(<= terminal
+    (line1 x))
+(<= terminal
+    (line1 o))
+(<= terminal
+    (not open1))
+
+(<= terminal
+    (line2 x))
+(<= terminal
+    (line2 o))
+(<= terminal
+    (not open2))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; GOAL Relations
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(<= (goal xplayer 100)
+    goalXPlayer1-100
+    goalXPlayer2-100)
+
+(<= (goal xplayer 75)
+    goalXPlayer1-100
+    goalXPlayer2-50)
+(<= (goal xplayer 75)
+    goalXPlayer1-50
+    goalXPlayer2-100)
+
+(<= (goal xplayer 50)
+    goalXPlayer1-100
+    goalXPlayer2-0)    
+(<= (goal xplayer 50)
+    goalXPlayer1-50
+    goalXPlayer2-50)
+(<= (goal xplayer 50)
+    goalXPlayer1-0
+    goalXPlayer2-100)    
+
+(<= (goal xplayer 25)
+    goalXPlayer1-50
+    goalXPlayer2-0)
+(<= (goal xplayer 25)
+    goalXPlayer1-0
+    goalXPlayer2-50)
+
+(<= (goal xplayer 0)
+    goalXPlayer1-0
+    goalXPlayer2-0)
+
+(<= (goal oplayer 100)
+    goalOPlayer1-100
+    goalOPlayer2-100)
+
+(<= (goal oplayer 75)
+    goalOPlayer1-100
+    goalOPlayer2-50)
+(<= (goal oplayer 75)
+    goalOPlayer1-50
+    goalOPlayer2-100)
+
+(<= (goal oplayer 50)
+    goalOPlayer1-100
+    goalOPlayer2-0)
+(<= (goal oplayer 50)
+    goalOPlayer1-50
+    goalOPlayer2-50)
+(<= (goal oplayer 50)
+    goalOPlayer1-0
+    goalOPlayer2-100)
+
+(<= (goal oplayer 25)
+    goalOPlayer1-50
+    goalOPlayer2-0)
+(<= (goal oplayer 25)
+    goalOPlayer1-0
+    goalOPlayer2-50)
+
+(<= (goal oplayer 0)
+    goalOPlayer1-0
+    goalOPlayer2-0)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; View Definitions
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(<= goalXPlayer1-100
+    (line1 x))
+(<= goalXPlayer1-50
+    (not (line1 x))
+    (not (line1 o))
+    (not open1))
+(<= goalXPlayer1-0
+    (line1 o))
+(<= goalXPlayer1-0
+    (not (line1 x))
+    (not (line1 o))
+    open1)
+    
+(<= goalOPlayer1-100
+    (line1 o))
+(<= goalOPlayer1-50
+    (not (line1 x))
+    (not (line1 o))
+    (not open1))
+(<= goalOPlayer1-0
+    (line1 x))
+(<= goalOPlayer1-0
+    (not (line1 x))
+    (not (line1 o))
+    open1)
+
+(<= goalXPlayer2-100
+    (line2 x))
+(<= goalXPlayer2-50
+    (not (line2 x))
+    (not (line2 o))
+    (not open2))
+(<= goalXPlayer2-0
+    (line2 o))
+(<= goalXPlayer2-0
+    (not (line2 x))
+    (not (line2 o))
+    open2)
+    
+(<= goalOPlayer2-100
+    (line2 o))
+(<= goalOPlayer2-50
+    (not (line2 x))
+    (not (line2 o))
+    (not open2))
+(<= goalOPlayer2-0
+    (line2 x))
+(<= goalOPlayer2-0
+    (not (line2 x))
+    (not (line2 o))
+    open2)
+
+(<= (row1 ?x ?mark)
+    (true (cell1 ?x 1 ?mark))
+    (true (cell1 ?x 2 ?mark))
+    (true (cell1 ?x 3 ?mark)))
+    
+(<= (column1 ?y ?mark)
+    (true (cell1 1 ?y ?mark))
+    (true (cell1 2 ?y ?mark))
+    (true (cell1 3 ?y ?mark)))
+    
+(<= (diagonal1 ?mark)
+    (true (cell1 1 1 ?mark))
+    (true (cell1 2 2 ?mark))
+    (true (cell1 3 3 ?mark)))
+(<= (diagonal1 ?mark)
+    (true (cell1 1 3 ?mark))
+    (true (cell1 2 2 ?mark))
+    (true (cell1 3 1 ?mark)))
+    
+(<= (line1 ?mark) 
+    (row1 ?x ?mark))
+(<= (line1 ?mark) 
+    (column1 ?y ?mark))
+(<= (line1 ?mark) 
+    (diagonal1 ?mark))
+
+(<= open1
+    (true (cell1 ?x ?y b)))
+
+(<= (row2 ?x ?mark)
+    (true (cell2 ?x 1 ?mark))
+    (true (cell2 ?x 2 ?mark))
+    (true (cell2 ?x 3 ?mark)))
+    
+(<= (column2 ?y ?mark)
+    (true (cell2 1 ?y ?mark))
+    (true (cell2 2 ?y ?mark))
+    (true (cell2 3 ?y ?mark)))
+    
+(<= (diagonal2 ?mark)
+    (true (cell2 1 1 ?mark))
+    (true (cell2 2 2 ?mark))
+    (true (cell2 3 3 ?mark)))
+(<= (diagonal2 ?mark)
+    (true (cell2 1 3 ?mark))
+    (true (cell2 2 2 ?mark))
+    (true (cell2 3 1 ?mark)))
+    
+(<= (line2 ?mark) 
+    (row2 ?x ?mark))
+(<= (line2 ?mark) 
+    (column2 ?y ?mark))
+(<= (line2 ?mark) 
+    (diagonal2 ?mark))
+
+(<= open2
+    (true (cell2 ?x ?y b)))
+
+(<= (distinctCell ?x1 ?y1 ?x2 ?y2)
+    (cell ?x1 ?y1)
+    (cell ?x2 ?y2)
+    (distinct ?x1 ?x2))
+(<= (distinctCell ?x1 ?y1 ?x2 ?y2)
+    (cell ?x1 ?y1)
+    (cell ?x2 ?y2)
+    (distinct ?y1 ?y2))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Static Relations
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(cell 1 1) (cell 1 2) (cell 1 3)
+(cell 2 1) (cell 2 2) (cell 2 3)
+(cell 3 1) (cell 3 2) (cell 3 3)
+( base cell1 ( val 1 2 3 ) ( val 1 2 3 ) ( val b o x ) )
+( base control ( val oplayer xplayer ) )
+( base cell2 ( val 1 2 3 ) ( val 1 2 3 ) ( val b o x ) )

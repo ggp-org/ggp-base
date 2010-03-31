@@ -1,0 +1,344 @@
+;===============================================================================
+;
+; Torus
+; - original by team YAG^2P (GGP lecture 06/07)
+; - debugged and changed by Stephan Schiffel
+;
+; This game is a kind of mix between Snake and Maze, where the snake must run 
+; through a maze and collect points. The more points collected, the higher the 
+; score. The snake will grow; one segment each time it made two moves. 
+; The snake MUST reach the exit (exit), else it will get no score no matter how 
+; much points it collected. But it even might go to the exit without having 
+; collected any point (in this case, score will be 0, too). The game also will
+; end with score 0 if the snake is unable to make any move.
+;
+; The game grid is a torus, meaning that the most right column borders the most 
+; left one and the top row borders the bottom one. If the snake goes outside the
+; grid, it will entry; it at the opposite side again.
+;
+;===============================================================================
+
+(role snake)
+
+;---Level-----------------------------------------------------------------------
+;
+; The initial game grid. This means the current level. A level can contain the
+; following items: 
+;
+;    b: A blank field where the snake still can move to
+;    w: wall, the snake can't move through it
+;    p: A point that the snake can collect
+;    e: The exit. 
+;
+; furthermore, the snake's start position pos is part of the level.
+;
+; -----------
+; |   x  x. |     bbbwbbwpb
+; |xx x     |     wwpwbbbbb
+; |   xxx xx|     bbbwwwbww
+; |.x   o   | ==> pwbbbbbbw ; (pos 6 4)
+; |xx xx x x|     wwbwwbwbw
+; | xe  .x  |     bwebbpwbb
+; | xxxx x  |     bwwwwbwbb
+; -----------
+
+(init (cell c1 r1 b))
+(init (cell c2 r1 b))
+(init (cell c3 r1 b))
+(init (cell c4 r1 wall))
+(init (cell c5 r1 b))
+(init (cell c6 r1 b))
+(init (cell c7 r1 wall))
+(init (cell c8 r1 point))
+(init (cell c9 r1 b))
+(init (cell c1 r2 wall))
+(init (cell c2 r2 wall))
+(init (cell c3 r2 point))
+(init (cell c4 r2 wall))
+(init (cell c5 r2 b))
+(init (cell c6 r2 b))
+(init (cell c7 r2 b))
+(init (cell c8 r2 b))
+(init (cell c9 r2 b))
+(init (cell c1 r3 b))
+(init (cell c2 r3 b))
+(init (cell c3 r3 b))
+(init (cell c4 r3 wall))
+(init (cell c5 r3 wall))
+(init (cell c6 r3 wall))
+(init (cell c7 r3 b))
+(init (cell c8 r3 wall))
+(init (cell c9 r3 wall))
+(init (cell c1 r4 point))
+(init (cell c2 r4 wall))
+(init (cell c3 r4 b))
+(init (cell c4 r4 b))
+(init (cell c5 r4 b))
+(init (cell c6 r4 b))
+(init (cell c7 r4 b))
+(init (cell c8 r4 b))
+(init (cell c9 r4 b))
+(init (cell c1 r5 wall))
+(init (cell c2 r5 wall))
+(init (cell c3 r5 b))
+(init (cell c4 r5 wall)) 
+(init (cell c5 r5 wall))
+(init (cell c6 r5 b))
+(init (cell c7 r5 wall))
+(init (cell c8 r5 b)) 
+(init (cell c9 r5 wall))
+(init (cell c1 r6 b))
+(init (cell c2 r6 wall))
+(init (cell c3 r6 exit))
+(init (cell c4 r6 b)) 
+(init (cell c5 r6 b))
+(init (cell c6 r6 point))
+(init (cell c7 r6 wall))
+(init (cell c8 r6 b)) 
+(init (cell c9 r6 b))
+(init (cell c1 r7 b))
+(init (cell c2 r7 wall))
+(init (cell c3 r7 wall))
+(init (cell c4 r7 wall)) 
+(init (cell c5 r7 wall))
+(init (cell c6 r7 b))
+(init (cell c7 r7 wall))
+(init (cell c8 r7 b))
+(init (cell c9 r7 b))
+
+(init (step 0))
+
+; Head's current position
+
+(init (pos c6 r4))
+
+; Tail's current position
+
+(init (tailpos c6 r4))
+
+; initial score
+
+(init (points 0))
+
+;---Game Grid Geometry----------------------------------------------------------
+
+; Neighbour cells: (up a b) means that a is the cell above b et c.
+
+(<= (nextcell ?x ?y1 mov_up ?x ?y2)
+(rowinc ?y2 ?y1)
+(column ?x))
+(<= (nextcell ?x ?y1 mov_down ?x ?y2)
+(rowinc ?y1 ?y2)
+(column ?x))
+(<= (nextcell ?x1 ?y mov_left ?x2 ?y)
+(colinc ?x2 ?x1)
+(row ?y))
+(<= (nextcell ?x1 ?y mov_right ?x2 ?y)
+(colinc ?x1 ?x2)
+(row ?y))
+
+; successor row and column numbers. (rowinc a b) means that row a is the row 
+; that follows row b, (colinc a b) that column a is the column that follows 
+; column b
+
+(rowinc r1 r2) (rowinc r2 r3) (rowinc r3 r4) (rowinc r4 r5) (rowinc r5 r6) (rowinc r6 r7) (rowinc r7 r1)
+
+(row r1) (row r2) (row r3) (row r4) (row r5) (row r6) (row r7)
+
+(colinc c1 c2) (colinc c2 c3) (colinc c3 c4) (colinc c4 c5) (colinc c5 c6) (colinc c6 c7) (colinc c7 c8) (colinc c8 c9) (colinc c9 c1)
+; (colinc c10 c11) (colinc c11 c1)
+
+(column c1) (column c2) (column c3) (column c4) (column c5) (column c6) (column c7) (column c8) (column c9)
+
+;---Legal Moves-----------------------------------------------------------------
+;
+; The head of the snake (pos) can move to the left, right, upper, lower cell,
+; if it contains nothing (b), a point (point) or the exit (exit)
+
+(<= (legal snake ?move)
+    (true (pos ?x ?y))
+(nextcell ?x ?y ?move ?xn ?yn)
+(maymove ?xn ?yn))
+
+(<= (maymove ?x ?y)
+    (or
+(true (cell ?x ?y b))
+(true (cell ?x ?y point))
+(true (cell ?x ?y exit))
+))
+
+;---Moving----------------------------------------------------------------------
+;
+; 
+; We will use the following symbols to represent the snake's segments in the 
+; game grid:
+;
+;    mov_up: in this cell, the snake moved upwards
+;    mov_down: in this cell, the snake moved downwards
+;    mov_left: in this cell, the snake moved left
+;    mov_right: in this cell, the snake moved right
+;
+; The direction where the snake has moved to is needed to know for each segment,
+; because the snake's tail will also move into the same direction later.
+;
+; Moving the snake will update the cells of the game grid as well as pos
+
+
+(<= (next (step ?y))
+(true (step ?x))
+(succ ?x ?y))
+
+(<= (next (cell ?x ?y ?move))
+(does snake ?move)
+(true (pos ?x ?y)))
+
+(<= (next (pos ?xn ?yn)) 
+    (does snake ?move)
+(true (pos ?x ?y))
+(nextcell ?x ?y ?move ?xn ?yn))
+
+;---Moving the Snake's Tail-----------------------------------------------------
+
+; Move the tail on an even number of moves only
+
+(<= (next evenmove) (not (true evenmove)))
+
+(<= (next (tailpos ?x ?y))
+    (not (true evenmove))
+(true (tailpos ?x ?y)))
+
+; On "u" cell, move up, on "d" down, on "l" left, on "r" right
+
+(<= (next (tailpos ?xn ?yn)) 
+    (true evenmove)
+(true (tailpos ?x ?y))
+(true (cell ?x ?y ?move))
+(nextcell ?x ?y ?move ?xn ?yn))
+
+; If the tail moves, make the field where it was before blank
+
+(<= (next (cell ?x ?y b))
+(true evenmove)
+(true (tailpos ?x ?y)))
+
+
+;---Keeping state of the other fields-------------------------------------------
+
+; If a cell is the head of the snake or the tail of the snake and it does move,
+; the state of this field will change. All other fields will not change
+
+(<= (next (cell ?x ?y ?sym))
+    (true (cell ?x ?y ?sym))
+(not (true (pos ?x ?y)))
+(or
+(not (true evenmove))
+(not (true (tailpos ?x ?y)))))
+
+;---Scoring and Terminal States-------------------------------------------------
+
+; score increment
+
+
+(<= (next (points ?n1))
+    (true (points ?n))
+doscore
+(succ ?n ?n1))
+
+(<= (next (points ?n))
+    (true (points ?n))
+(not doscore))
+    
+; doscore = true, if the snake eats a point
+
+(<= doscore
+(true (pos ?x ?y))
+(true (cell ?x ?y point)))
+
+(score 0 0)
+(score 1 85)
+(score 2 90)
+(score 3 95)
+(score 4 100)
+
+; If the snake reaches cell exit, game ends with a total score stored in the score
+; relation. It will end with score 0, if not reached exit and no legal moves left.
+
+(<= (goal snake ?s)
+(true (points ?n))
+(true (pos ?x ?y))
+(true (cell ?x ?y exit))
+(score ?n ?s))
+
+(<= (goal snake 0)
+(true (pos ?x ?y))
+(not (true (cell ?x ?y exit))))
+
+(<= terminal
+(true (pos ?x ?y))
+(true (cell ?x ?y exit)))
+
+(<= terminal
+(true (step 50)))
+
+(<= terminal
+(not exists_legal))
+
+(<= exists_legal
+(legal snake ?move))
+
+(<= (smaller ?x ?y)
+(succ ?x ?y))
+(<= (smaller ?x ?z)
+(succ ?y ?z)
+(smaller ?x ?y))
+
+(succ 0 1)
+(succ 1 2)
+(succ 2 3)
+(succ 3 4)
+(succ 4 5)
+(succ 5 6)
+(succ 6 7)
+(succ 7 8)
+(succ 8 9)
+(succ 9 10)
+(succ 10 11)
+(succ 11 12)
+(succ 12 13)
+(succ 13 14)
+(succ 14 15)
+(succ 15 16)
+(succ 16 17)
+(succ 17 18)
+(succ 18 19)
+(succ 19 20)
+(succ 20 21)
+(succ 21 22)
+(succ 22 23)
+(succ 23 24)
+(succ 24 25)
+(succ 25 26)
+(succ 26 27)
+(succ 27 28)
+(succ 28 29)
+(succ 29 30)
+(succ 30 31)
+(succ 31 32)
+(succ 32 33)
+(succ 33 34)
+(succ 34 35)
+(succ 35 36)
+(succ 36 37)
+(succ 37 38)
+(succ 38 39)
+(succ 39 40)
+(succ 40 41)
+(succ 41 42)
+(succ 42 43)
+(succ 43 44)
+(succ 44 45)
+(succ 45 46)
+(succ 46 47)
+(succ 47 48)
+(succ 48 49)
+(succ 49 50)

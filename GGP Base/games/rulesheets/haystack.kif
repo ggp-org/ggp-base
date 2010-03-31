@@ -1,0 +1,92 @@
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;; Haystack
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+
+  (role robot)
+
+
+
+  (init h1)
+
+
+
+  (<= (legal robot a) (true h1))
+
+  (<= (legal robot a) (true h5))
+
+  (<= (legal robot a) (true h6))
+
+  (<= (legal robot b) (true h1))
+
+  (<= (legal robot b) (true h5))
+
+  (<= (legal robot b) (true h7))
+
+  (<= (legal robot c) (true h1))
+
+  (<= (legal robot d) (true h2))
+
+  (<= (legal robot d) (true h4))
+
+
+
+  (<= (next h2) (does robot a) (true h1))
+
+  (<= (next h3) (does robot b) (true h1))
+
+  (<= (next h4) (does robot c) (true h1))
+
+  (<= (next h5) (does robot d) (true h2))
+
+  (<= (next h5) (does robot d) (true h4))
+
+  (<= (next h6) (does robot a) (true h5))
+
+  (<= (next h7) (does robot b) (true h5))
+
+  (<= (next h8) (does robot a) (true h6))
+
+  (<= (next h8) (does robot b) (true h7))
+
+
+
+  (<= (goal robot 100) (true h3))
+
+  (<= (goal robot 0) (not (true h3)))
+
+
+
+  (<= terminal (true h3))
+
+  (<= terminal (true h8))
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+
+(base h1)
+
+(base h2)
+
+(base h3)
+
+(base h4)
+
+(base h5)
+
+(base h6)
+
+(base h7)
+
+(base h8)
+

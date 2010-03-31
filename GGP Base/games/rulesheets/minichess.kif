@@ -1,0 +1,260 @@
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Minichess
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; Solver Analysis: white has a forced score of 100 after 3 moves of perfect play. -Sam
+;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(role white)
+(role black)
+
+;;;;
+
+(init (cell a 1 b))
+(init (cell a 2 b))
+(init (cell a 3 b))
+(init (cell a 4 bk))
+(init (cell b 1 b))
+(init (cell b 2 b))
+(init (cell b 3 b))
+(init (cell b 4 b))
+(init (cell c 1 wk))
+(init (cell c 2 b))
+(init (cell c 3 b))
+(init (cell c 4 b))
+(init (cell d 1 wr))
+(init (cell d 2 b))
+(init (cell d 3 b))
+(init (cell d 4 b))
+(init (control white))
+(init (step 1))
+
+;;;;
+    
+    (<= (next (cell ?x ?y ?p))
+        (does ?player (move ?p ?u ?v ?x ?y)))
+    
+    (<= (next (cell ?u ?v b))
+        (does ?player (move ?p ?u ?v ?x ?y)))
+    
+    (<= (next (cell ?w ?z b))
+        (does ?player (move ?p ?u ?v ?x ?y))
+        (true (cell ?w ?z b))
+        (distpair ?w ?x ?y ?z))
+    
+    (<= (next (cell ?w ?z ?q))
+        (does ?player (move ?p ?u ?v ?x ?y))
+        (true (cell ?w ?z ?q))
+        (distinct ?p ?q)
+        (distinct ?q b))
+
+    (<= (distpair ?w ?x ?y ?z)
+        (distinct ?w ?x))
+
+    (<= (distpair ?w ?x ?y ?z)
+        (distinct ?y ?z))
+    
+    
+    (<= (next (control white))
+        (true (control black)))
+    
+    (<= (next (control black))
+        (true (control white)))
+    
+    
+    (<= (next (step ?y))
+        (true (step ?x))
+        (successor ?x ?y))
+    
+    
+    (successor 1 2)
+    (successor 2 3)
+    (successor 3 4)
+    (successor 4 5)
+    (successor 5 6)
+    (successor 6 7)
+    (successor 7 8)
+    (successor 8 9)
+    (successor 9 10)
+    
+    ;;;;
+    
+    (<= (legal white (move wk ?u ?v ?x ?y))
+        (true (control white))
+        (true (cell ?u ?v wk))
+        (kingmove ?u ?v ?x ?y)
+        (true (cell ?x ?y b))
+        (not (restricted ?x ?y)))
+    
+    (<= (legal white (move wr ?u ?v ?x ?y))
+        (true (control white))
+        (true (cell ?u ?v wr))
+        (rookmove ?u ?v ?x ?y)
+        (true (cell ?x ?y b))
+        (not (restricted ?x ?y)))
+    
+    (<= (legal white noop)
+        (true (control black)))
+    
+    
+    (<= (legal black (move bk ?u ?v ?x ?y))
+        (true (control black))
+        (true (cell ?u ?v bk))
+        (kingmove ?u ?v ?x ?y)
+        (true (cell ?x ?y b))
+        (not (attacked bk ?x ?y))
+        (not (guarded ?x ?y)))
+    
+    (<= (legal black noop)
+        (true (control white)))
+    
+    
+    (<= (kingmove ?u ?v ?u ?y)
+        (adj ?v ?y))
+    
+    (<= (kingmove ?u ?v ?x ?v)
+        (nxt ?u ?x))
+    
+    (<= (kingmove ?u ?v ?x ?y)
+        (nxt ?u ?x)
+        (adj ?v ?y))
+
+    (<= (adj ?x ?y)
+        (adjacent ?x ?y))
+
+    (<= (adj ?x ?y)
+        (adjacent ?y ?x))
+
+    (<= (nxt ?x ?y)
+        (nextcolumn ?x ?y))
+
+    (<= (nxt ?x ?y)
+        (nextcolumn ?y ?x))
+
+    
+    (<= (rookmove ?u ?v ?u ?y)
+        (clearcolumn wr ?u ?v ?y))
+    
+    (<= (rookmove ?u ?v ?u ?y)
+        (clearcolumn wr ?u ?y ?v))
+    
+    (<= (rookmove ?u ?v ?x ?v)
+        (clearrow wr ?u ?x ?v))
+    
+    (<= (rookmove ?u ?v ?x ?v)
+        (clearrow wr ?x ?u ?v))
+    
+    
+    (<= checkmate
+        check
+        stuck)
+    
+    (<= check
+        (true (cell ?u ?v bk))
+        (attacked bk ?u ?v))
+    
+    (<= stuck
+        (not canmove))
+    
+    (<= canmove
+        (true (cell ?u ?v bk))
+        (kingmove ?u ?v ?x ?y)
+        (not (attacked bk ?x ?y))
+        (not (guarded ?x ?y)))
+    
+    
+    (<= (restricted ?x ?y)
+        (true (cell ?u ?v bk))
+        (kingmove ?u ?v ?x ?y))
+    
+    
+    (<= (guarded ?x ?y)
+        (true (cell ?u ?v wk))
+        (kingmove ?u ?v ?x ?y))
+    
+    
+    (<= (attacked ?p ?u ?w)
+        (true (cell ?u ?v wr))
+        (clearcolumn ?p ?u ?v ?w))
+    
+    (<= (attacked ?p ?u ?v)
+        (true (cell ?u ?w wr))
+        (clearcolumn ?p ?u ?v ?w))
+    
+    (<= (attacked ?p ?u ?v)
+        (true (cell ?x ?v wr))
+        (clearrow ?p ?u ?x ?v))
+    
+    (<= (attacked ?p ?u ?v)
+        (true (cell ?u ?v wr))
+        (clearrow ?p ?u ?x ?v))
+    
+    
+    (<= (clearcolumn ?p ?x ?y1 ?y2)
+        (adjacent ?y1 ?y2))
+    
+    (<= (clearcolumn ?p ?x ?y1 ?y3)
+        (adjacent ?y1 ?y2)
+        (adjacent ?y2 ?y3)
+        (safe ?x ?y2 ?p))
+    
+    (<= (clearcolumn ?p ?x ?y1 ?y4)
+        (adjacent ?y1 ?y2)
+        (adjacent ?y2 ?y3)
+        (adjacent ?y3 ?y4)
+        (safe ?x ?y2 ?p)
+        (safe ?x ?y3 ?p))
+    
+    
+    (<= (clearrow ?p ?x1 ?x2 ?y)
+        (nextcolumn ?x1 ?x2))
+    
+    (<= (clearrow ?p ?x1 ?x3 ?y)
+        (nextcolumn ?x1 ?x2)
+        (nextcolumn ?x2 ?x3)
+        (safe ?x2 ?y ?p))
+    
+    (<= (clearrow ?p ?x1 ?x4 ?y)
+        (nextcolumn ?x1 ?x2)
+        (nextcolumn ?x2 ?x3)
+        (nextcolumn ?x3 ?x4)
+        (safe ?x2 ?y ?p)
+        (safe ?x3 ?y ?p))
+    
+    (<= (safe ?x ?y ?p)
+        (true (cell ?x ?y b)))
+
+    (<= (safe ?x ?y ?p)
+        (true (cell ?x ?y ?p)))
+
+    
+    (adjacent 1 2)
+    (adjacent 2 3)
+    (adjacent 3 4)
+    
+    (nextcolumn a b)
+    (nextcolumn b c)
+    (nextcolumn c d)
+    
+;;;;
+
+(<= (goal white 100)
+    checkmate)
+
+(<= (goal white 0)
+    (not checkmate))
+
+(<= (goal black 100)
+    (not checkmate))
+
+(<= (goal black 0)
+    checkmate)
+
+;;;;
+
+(<= terminal
+    (true (step 4)))
+
+(<= terminal
+    checkmate)

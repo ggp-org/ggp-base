@@ -1,0 +1,439 @@
+; both players have two pawns
+; whoever is first to queen a pawn wins
+
+; ACTION (move ?piece ?xsrc ?ysrc ?xdest ?ydest)
+
+(role white)
+(role black)
+
+;*******************************************************************************
+;* Initial state.                                                              *
+;* Letters are columns: row 1 is WHITE side, row 8 is BLACK                    *
+;* Numbers are rows:    column a is left, h is right (from white side)         *
+;*******************************************************************************
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; Solver Analysis: white has a forced score of 100 after 17 moves of perfect play. -Sam
+;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(init (cell a 1 b))
+(init (cell a 2 b))
+(init (cell a 3 b))
+(init (cell a 4 b))
+(init (cell a 5 b))
+(init (cell a 6 b))
+(init (cell a 7 b))
+(init (cell a 8 b))
+
+(init (cell b 1 b))
+(init (cell b 2 b))
+(init (cell b 3 b))
+(init (cell b 4 b))
+(init (cell b 5 b))
+(init (cell b 6 b))
+(init (cell b 7 b))
+(init (cell b 8 b))
+
+(init (cell c 1 b))
+(init (cell c 2 wp))
+(init (cell c 3 b))
+(init (cell c 4 b))
+(init (cell c 5 b))
+(init (cell c 6 b))
+(init (cell c 7 b))
+(init (cell c 8 b))
+
+(init (cell d 1 b))
+(init (cell d 2 b))
+(init (cell d 3 b))
+(init (cell d 4 b))
+(init (cell d 5 b))
+(init (cell d 6 b))
+(init (cell d 7 bp))
+(init (cell d 8 b))
+
+(init (cell e 1 b))
+(init (cell e 2 wp))
+(init (cell e 3 b))
+(init (cell e 4 b))
+(init (cell e 5 b))
+(init (cell e 6 b))
+(init (cell e 7 b))
+(init (cell e 8 b))
+
+(init (cell f 1 b))
+(init (cell f 2 b))
+(init (cell f 3 b))
+(init (cell f 4 b))
+(init (cell f 5 b))
+(init (cell f 6 b))
+(init (cell f 7 bp))
+(init (cell f 8 b))
+
+(init (cell g 1 b))
+(init (cell g 2 b))
+(init (cell g 3 b))
+(init (cell g 4 b))
+(init (cell g 5 b))
+(init (cell g 6 b))
+(init (cell g 7 b))
+(init (cell g 8 b))
+
+(init (cell h 1 b))
+(init (cell h 2 b))
+(init (cell h 3 b))
+(init (cell h 4 b))
+(init (cell h 5 b))
+(init (cell h 6 b))
+(init (cell h 7 b))
+(init (cell h 8 b))
+
+(init (control white))
+
+; End initial state
+
+;*******************************************************************************
+;* NEXT STATE AXIOMS: REGULAR MOVES                                            *
+;*******************************************************************************
+
+; MOVE SOURCE
+; Piece ?p moves out of ?u ?v leaving square blank
+(<= (next (cell ?u ?v b))
+    (does ?player (move ?p ?u ?v ?x ?y)))
+
+; MOVE DESTINATION: NON-QUEENING MOVE
+; Piece ?p moves to ?x ?y
+(<= (next (cell ?x ?y ?p))
+    (does ?player (move ?p ?u ?v ?x ?y))
+    (or (distinct ?p wp) (distinct ?y 8))
+    (or (distinct ?p bp) (distinct ?y 1)))
+
+; UNDISTURBED CELL: NON-CASTLE MOVE / NON-ENPASSANT
+; Piece (or blank) ?p at ?x ?y remains unchanged if:
+; 1) This move is not a castle or an en passant capture
+; 2) ?x ?y is a different cell from the move source cell
+; 3) ?x ?y is a different cell from the move destination cell
+(<= (next (cell ?x ?y ?p))
+    (does ?player (move ?piece ?x1 ?y1 ?x2 ?y2))
+    (true (cell ?x ?y ?p))
+    (not (pawn_capture_en_passant ?player ?x1 ?y1 ?x2 ?y2))
+    (different_cells ?x ?y ?x1 ?y1)
+    (different_cells ?x ?y ?x2 ?y2))
+
+; CONTROL TRANSFER
+(<= (next (control white))
+    (true (control black)))
+(<= (next (control black))
+    (true (control white)))
+
+;*******************************************************************************
+;* NEXT STATE AXIOMS: SPECIAL MOVES                                            *
+;*******************************************************************************
+
+; MOVE DESTINATION: QUEENING MOVE
+(<= (next (cell ?x 8 wq))
+    (does ?player (move wp ?u ?v ?x 8)))
+(<= (next (cell ?x 1 bq))
+    (does ?player (move bp ?u ?v ?x 1)))
+
+; UNDISTURBED CELL: EN PASSANT
+; Piece or blank ?p at ?x ?y remains unchanged if:
+; 1) This is an en passant capture
+; 2) ?x ?y is not one of the en passant cells
+
+(<= (next (cell ?x ?y ?p))
+    (does ?player (move ?piece ?x1 ?y1 ?x2 ?y2))
+    (true (cell ?x ?y ?p))
+    (pawn_capture_en_passant ?player ?x1 ?y1 ?x2 ?y2)
+    (different_cells ?x ?y ?x1 ?y1)
+    (different_cells ?x ?y ?x2 ?y2)
+    (different_cells ?x ?y ?x2 ?y1))
+
+; PAWN CAPTURED EN PASSANT
+(<= (next (cell ?x2 ?y1 b))
+    (does ?player (move ?piece ?x1 ?y1 ?x2 ?y2))
+    (pawn_capture_en_passant ?player ?x1 ?y1 ?x2 ?y2))
+
+;*******************************************************************************
+;* NEXT STATE AXIOMS: SPECIAL STATE PREDICATES                                 *
+;*******************************************************************************
+
+; PAWN MOVED TWO
+; True iff this pawn just advanced 2 spots.
+; Used to test legality of en passant pawn capture.
+; No frame axiom for this since it only lasts one state.
+(<= (next (pawn_moved_two wp ?x))
+    (does white (move wp ?x 2 ?x 4)))
+
+(<= (next (pawn_moved_two bp ?x))
+    (does black (move bp ?x 7 ?x 5)))
+
+;*******************************************************************************
+;* LEGAL MOVES and their auxilliary axioms                                     *
+;*******************************************************************************
+
+; Legal Move when you are:
+; 1) NOT in check
+; 2) NOT moving your King
+; 3) NOT capturing
+(<= (legal ?player (move ?piece ?u ?v ?x ?y))
+    (true (control ?player))
+    (true (cell ?x ?y b))
+    (piece_owner_type ?piece ?player ?ptype)
+    (legal2 ?player (move ?piece ?u ?v ?x ?y))
+    )
+
+; Legal Move when you are:
+; 1) NOT in check
+; 2) NOT moving your King
+; 3) CAPTURING
+(<= (legal ?player (move ?piece ?u ?v ?x ?y))
+    (true (control ?player))
+    (occupied_by_opponent ?x ?y ?player)
+    (piece_owner_type ?piece ?player ?ptype)
+    (legal2 ?player (move ?piece ?u ?v ?x ?y))
+    )
+
+; NO-OPs for player not moving
+(<= (legal white noop)
+    (true (control black)))
+(<= (legal black noop)
+    (true (control white)))
+
+; End legal move axioms
+
+;*******************************************************************************
+;* LEGAL PIECE MOVE AND THREAT AXIOMS: PAWN                                    *
+;*******************************************************************************
+
+; ADVANCE
+(<= (legal2 ?player (move ?piece ?u ?v ?x ?y))
+    (true (cell ?x ?y b))
+    (true (cell ?u ?v ?piece))
+    (piece_owner_type ?piece ?player pawn)
+    (pawn_advance ?u ?v ?x ?y ?player))
+
+; white pawns advance up the rows
+(<= (pawn_advance ?u ?v ?u ?y white)
+    (next_rank ?v ?y)
+    (coordinate ?u))
+
+(<= (pawn_advance ?u 2 ?u 4 white)
+    (true (cell ?u 3 b)))
+
+; blacks pawns advance down the rows
+(<= (pawn_advance ?u ?v ?u ?y black)
+    (next_rank ?y ?v)
+    (coordinate ?u))
+
+(<= (pawn_advance ?u 7 ?u 5 black)
+    (true (cell ?u 6 b)))
+
+; REGULAR CAPTURE
+(<= (legal2 ?player (move ?piece ?u ?v ?x ?y))
+    (true (cell ?u ?v ?piece))
+    (piece_owner_type ?piece ?player pawn)
+    (opponent ?player ?opponent)
+    (piece_owner_type ?captured ?opponent ?type)
+    (true (cell ?x ?y ?captured))
+    (pawn_capture ?u ?v ?x ?y ?player))
+
+; Can a pawn at (u,v) owned by ?player capture a piece at (x,y)?
+(<= (pawn_capture ?u ?v ?x ?y white)
+    (next_rank ?v ?y)
+    (or (next_file ?u ?x) (next_file ?x ?u)))
+
+(<= (pawn_capture ?u ?v ?x ?y black)
+    (next_rank ?y ?v)
+    (or (next_file ?u ?x) (next_file ?x ?u)))
+
+; EN PASSANT CAPTURE
+(<= (legal2 ?player (move ?piece ?u ?v ?x ?y))
+    (true (cell ?u ?v ?piece))
+    (piece_owner_type ?piece ?player pawn)
+    (pawn_capture_en_passant ?player ?u ?v ?x ?y))
+
+; IS EN PASSSANT CAPTURE
+; true iff moving the piece from the source to the destination
+; cell constitutes an en passant capture
+(<= (pawn_capture_en_passant white ?x1 5 ?x2 6)
+    (true (cell ?x1 5 wp))
+    (true (pawn_moved_two bp ?x2))
+    (pawn_capture ?x1 5 ?x2 6 white))
+
+(<= (pawn_capture_en_passant black ?x1 4 ?x2 3)
+    (true (cell ?x1 4 bp))
+    (true (pawn_moved_two wp ?x2))
+    (pawn_capture ?x1 4 ?x2 3 black))
+
+; End legal piece move axioms
+
+;*******************************************************************************
+; AUXILIARY PREDICATES                                                         *
+;*******************************************************************************
+
+;;;  DIFFERENT CELLS
+;;;  True iff ?x1 ?y1 is a different cell from ?x2 ?y2
+(<= (adjacent ?x1 ?x2)
+    (next_file ?x1 ?x2))
+
+(<= (adjacent ?x1 ?x2)
+    (next_file ?x2 ?x1))
+
+(<= (adjacent ?y1 ?y2)
+    (next_rank ?y1 ?y2))
+
+(<= (adjacent ?y1 ?y2)
+    (next_rank ?y2 ?y1))
+
+(<= (adjacent_two ?a ?b)
+    (adjacent ?a ?mid)
+    (adjacent ?mid ?b)
+    (distinct ?a ?b))
+
+(<= (clear_column ?u ?v ?y)
+    (next_rank ?v ?y)
+    (coordinate ?u))
+
+(<= (clear_column ?u ?v ?y)
+    (next_rank ?v ?w)
+    (true (cell ?u ?w b))
+    (clear_column ?u ?w ?y))
+
+(<= (clear_row ?u ?x ?v)
+    (next_file ?u ?x)
+    (coordinate ?v))
+
+(<= (clear_row ?u ?x ?v)
+    (next_file ?u ?w)
+    (true (cell ?w ?v b))
+    (clear_row ?w ?x ?v))
+
+(<= (different_cells ?x1 ?y1 ?x2 ?y2)
+    (distinct ?x1 ?x2)
+    (coordinate ?x1)
+    (coordinate ?x2)
+    (coordinate ?y1)
+    (coordinate ?y2))
+
+(<= (different_cells ?x1 ?y1 ?x2 ?y2)
+    (distinct ?y1 ?y2)
+    (coordinate ?x1)
+    (coordinate ?x2)
+    (coordinate ?y1)
+    (coordinate ?y2))
+
+(<= (has_legal_move ?player)
+    (legal ?player (move ?piece ?u ?v ?x ?y)))
+
+(<= (occupied_by_opponent ?x ?y ?player)
+    (true (cell ?x ?y ?piece))
+    (opponent ?player ?opponent)
+    (piece_owner_type ?piece ?opponent ?type))
+
+(<= (occupied_by_player ?x ?y ?player)
+    (true (cell ?x ?y ?piece))
+    (piece_owner_type ?piece ?player ?type))
+
+;*******************************************************************************
+;* GAME TERMINATION CONDITIONS                                                 *
+;*******************************************************************************
+
+(<= (has_queen ?player)
+(piece_owner_type ?piece ?player queen)
+(true (cell ?x ?y ?piece)))
+
+(<= (stuck ?player)
+    (role ?player)
+    (not (has_legal_move ?player)))
+
+; End auxiliary axioms 
+
+;*******************************************************************************
+;* GOALS AND TERMINAL STATES                                                   *
+;* Player gets 100 for queening a pawn                                         *
+;* 50 if someone is stuck and 0 for the opponent queening a pawn.              *
+;*******************************************************************************
+(<= (goal ?player 100)
+    (has_queen ?player))
+
+(<= (goal white 0)
+    (has_queen black))
+
+(<= (goal black 0)
+    (has_queen white))
+
+(<= (goal ?player 50)
+(role ?player)
+(not anyone_has_a_queen))
+
+(<= terminal
+    (true (control ?player))
+    (stuck ?player))
+(<= terminal
+anyone_has_a_queen)
+
+(<= anyone_has_a_queen
+(has_queen ?player))
+
+; End goals and terminals
+;*******************************************************************************
+;* GROUND FACTS                                                                *
+;*******************************************************************************
+
+; PLAYER OPPONENTS
+(opponent white black)
+(opponent black white)
+
+; PIECE OWNERSHIP AND TYPE 
+(piece_owner_type wk white king)
+(piece_owner_type wq white queen)
+(piece_owner_type wr white rook)
+(piece_owner_type wb white bishop)
+(piece_owner_type wn white knight)
+(piece_owner_type wp white pawn)
+
+(piece_owner_type bk black king)
+(piece_owner_type bq black queen)
+(piece_owner_type br black rook)
+(piece_owner_type bb black bishop)
+(piece_owner_type bn black knight)
+(piece_owner_type bp black pawn)
+
+; BOARD TOPOLOGY
+(next_rank 1 2)
+(next_rank 2 3)
+(next_rank 3 4)
+(next_rank 4 5)
+(next_rank 5 6)
+(next_rank 6 7)
+(next_rank 7 8)
+
+(next_file a b)
+(next_file b c)
+(next_file c d)
+(next_file d e)
+(next_file e f)
+(next_file f g)
+(next_file g h)
+
+; BOARD COORDINATES
+
+(coordinate 1)
+(coordinate 2)
+(coordinate 3)
+(coordinate 4)
+(coordinate 5)
+(coordinate 6)
+(coordinate 7)
+(coordinate 8)
+(coordinate a)
+(coordinate b)
+(coordinate c)
+(coordinate d)
+(coordinate e)
+(coordinate f)
+(coordinate g)
+(coordinate h)

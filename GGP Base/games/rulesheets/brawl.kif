@@ -1,0 +1,423 @@
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; brawl.kif
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(role white)
+(role black)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Initial state
+;;; Letters are columns: row 1 is WHITE side, row 8 is BLACK
+;;; Numbers are rows:    column a is left, h is right (from white side)
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(init (cell a 1 wr))
+(init (cell a 2 b))
+(init (cell a 3 b))
+(init (cell a 4 b))
+(init (cell a 5 b))
+(init (cell a 6 b))
+(init (cell a 7 b))
+(init (cell a 8 br))
+
+(init (cell b 1 b))
+(init (cell b 2 b))
+(init (cell b 3 b))
+(init (cell b 4 b))
+(init (cell b 5 b))
+(init (cell b 6 b))
+(init (cell b 7 b))
+(init (cell b 8 b))
+
+(init (cell c 1 b))
+(init (cell c 2 b))
+(init (cell c 3 b))
+(init (cell c 4 b))
+(init (cell c 5 b))
+(init (cell c 6 b))
+(init (cell c 7 b))
+(init (cell c 8 b))
+
+(init (cell d 1 wq))
+(init (cell d 2 b))
+(init (cell d 3 b))
+(init (cell d 4 b))
+(init (cell d 5 b))
+(init (cell d 6 b))
+(init (cell d 7 b))
+(init (cell d 8 bq))
+
+(init (cell e 1 wk))
+(init (cell e 2 b))
+(init (cell e 3 b))
+(init (cell e 4 b))
+(init (cell e 5 b))
+(init (cell e 6 b))
+(init (cell e 7 b))
+(init (cell e 8 bk))
+
+(init (cell f 1 b))
+(init (cell f 2 b))
+(init (cell f 3 b))
+(init (cell f 4 b))
+(init (cell f 5 b))
+(init (cell f 6 b))
+(init (cell f 7 b))
+(init (cell f 8 b))
+
+(init (cell g 1 b))
+(init (cell g 2 b))
+(init (cell g 3 b))
+(init (cell g 4 b))
+(init (cell g 5 b))
+(init (cell g 6 b))
+(init (cell g 7 b))
+(init (cell g 8 b))
+
+(init (cell h 1 wr))
+(init (cell h 2 b))
+(init (cell h 3 b))
+(init (cell h 4 b))
+(init (cell h 5 b))
+(init (cell h 6 b))
+(init (cell h 7 b))
+(init (cell h 8 br))
+
+(init (control white))
+(init (pieces white 4))
+(init (pieces black 4))
+(init (step 1))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; NEXT STATE AXIOMS: REGULAR MOVES
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(<= (next (cell ?x ?y ?p))
+(does ?player (move ?p ?u ?v ?x ?y)))
+
+(<= (next (cell ?u ?v b))
+(does ?player (move ?p ?u ?v ?x ?y)))
+
+(<= (next (cell ?x ?y ?p))
+(does ?player (move ?piece ?x1 ?y1 ?x2 ?y2))
+(true (cell ?x ?y ?p))
+(different_cells ?x ?y ?x1 ?y1)
+(different_cells ?x ?y ?x2 ?y2))
+
+(<= (next (pieces ?player ?n))
+(does ?player (move ?p ?u ?v ?x ?y))
+(true (pieces ?player ?n)))
+
+(<= (next (pieces ?opponent ?n))
+(does ?player (move ?p ?u ?v ?x ?y))
+(true (cell ?x ?y b))
+(opponent ?player ?opponent)
+(true (pieces ?opponent ?n)))
+
+(<= (next (pieces ?opponent ?m))
+(does ?player (move ?p ?u ?v ?x ?y))
+(true (cell ?x ?y ?q))
+(distinct ?q b)
+(opponent ?player ?opponent)
+(true (pieces ?opponent ?n))
+(succ ?m ?n))
+
+(<= (next (control white))
+(true (control black)))
+
+(<= (next (control black))
+(true (control white)))
+
+(<= (next (step ?y))
+(true (step ?x))
+(succ ?x ?y))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; LEGAL MOVES
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(<= (legal ?player ?move)
+(true (control ?player))
+(feasible ?player ?move))
+
+;;; King
+
+(<= (feasible ?player (move ?piece ?u ?v ?x ?y))
+(piece_owner_type ?piece ?player king)
+(true (cell ?u ?v ?piece))
+(kingmove ?u ?v ?x ?y)
+(occupied_by_opponent_or_blank ?x ?y ?player))
+
+(<= (kingmove ?u ?v ?u ?y)
+(nextrank ?v ?y)
+(file ?u))
+
+(<= (kingmove ?u ?v ?x ?v)
+(nextfile ?u ?x)
+(rank ?v))
+
+(<= (kingmove ?u ?v ?x ?y)
+(nextfile ?u ?x)
+(nextrank ?v ?y))
+
+;;; Queen
+
+(<= (feasible ?player (move ?piece ?u ?v ?x ?y))
+(piece_owner_type ?piece ?player queen)
+(true (cell ?u ?v ?piece))
+(queenmove ?u ?v ?x ?y)
+(occupied_by_opponent_or_blank ?x ?y ?player))
+
+(<= (queenmove ?u ?v ?x ?y)
+(bishopmove ?u ?v ?x ?y))
+
+(<= (queenmove ?u ?v ?x ?y)
+(rookmove ?u ?v ?x ?y))
+
+;;; Rook
+
+(<= (feasible ?player (move ?piece ?u ?v ?x ?y))
+(piece_owner_type ?piece ?player rook)
+(true (cell ?u ?v ?piece))
+(rookmove ?u ?v ?x ?y)
+(occupied_by_opponent_or_blank ?x ?y ?player))
+
+(<= (rookmove ?u ?v ?u ?y)
+(clear_column ?u ?v ?y))
+
+(<= (rookmove ?u ?v ?u ?y)
+(clear_column ?u ?y ?v))
+
+(<= (rookmove ?u ?v ?x ?v)
+(clear_row ?u ?x ?v))
+
+(<= (rookmove ?u ?v ?x ?v)
+(clear_row ?x ?u ?v))
+
+;;; Bishop
+
+(<= (bishopmove ?u ?v ?x ?y)
+(clear_diagonal_ne ?u ?v ?x ?y))
+
+(<= (bishopmove ?u ?v ?x ?y)
+(clear_diagonal_ne ?x ?y ?u ?v))
+
+(<= (bishopmove ?u ?v ?x ?y)
+(clear_diagonal_se ?u ?v ?x ?y))
+
+(<= (bishopmove ?u ?v ?x ?y)
+(clear_diagonal_se ?x ?y ?u ?v))
+
+;;;;
+
+(<= (legal white noop)
+(true (control black)))
+
+(<= (legal black noop)
+(true (control white)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; AUXILIARY PREDICATES
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(<= (nextfile ?x1 ?x2)
+(next_file ?x1 ?x2))
+
+(<= (nextfile ?x1 ?x2)
+(next_file ?x2 ?x1))
+
+(<= (nextrank ?y1 ?y2)
+(next_rank ?y1 ?y2))
+
+(<= (nextrank ?y1 ?y2)
+(next_rank ?y2 ?y1))
+
+(<= (adjacent ?x1 ?x2)
+(next_file ?x1 ?x2))
+
+(<= (adjacent ?x1 ?x2)
+(next_file ?x2 ?x1))
+
+(<= (adjacent ?y1 ?y2)
+(next_rank ?y1 ?y2))
+
+(<= (adjacent ?y1 ?y2)
+(next_rank ?y2 ?y1))
+
+(<= (adjacent_two ?a ?b)
+(adjacent ?a ?mid)
+(adjacent ?mid ?b)
+(distinct ?a ?b))
+
+(<= (clear_column ?u ?v ?y)
+(next_rank ?v ?y)
+(file ?u))
+
+(<= (clear_column ?u ?v ?y)
+(next_rank ?v ?w)
+(true (cell ?u ?w b))
+(clear_column ?u ?w ?y))
+
+(<= (clear_row ?u ?x ?v)
+(next_file ?u ?x)
+(rank ?v))
+
+(<= (clear_row ?u ?x ?v)
+(next_file ?u ?w)
+(true (cell ?w ?v b))
+(clear_row ?w ?x ?v))
+
+(<= (clear_diagonal_ne ?u ?v ?x ?y)
+(next_file ?u ?x)
+(next_rank ?v ?y))
+
+(<= (clear_diagonal_ne ?u ?v ?x ?y)
+(next_file ?u ?u2)
+(next_rank ?v ?v2)
+(true (cell ?u2 ?v2 b))
+(clear_diagonal_ne ?u2 ?v2 ?x ?y))
+
+(<= (clear_diagonal_se ?u ?v ?x ?y)
+(next_file ?u ?x)
+(next_rank ?y ?v))
+
+(<= (clear_diagonal_se ?u ?v ?x ?y)
+(next_file ?u ?u2)
+(next_rank ?v2 ?v)
+(true (cell ?u2 ?v2 b))
+(clear_diagonal_se ?u2 ?v2 ?x ?y))
+
+(<= (different_cells ?x1 ?y1 ?x2 ?y2)
+(distinct ?x1 ?x2)
+(file ?x1)
+(file ?x2)
+(rank ?y1)
+(rank ?y2))
+
+(<= (different_cells ?x1 ?y1 ?x2 ?y2)
+(distinct ?y1 ?y2)
+(file ?x1)
+(file ?x2)
+(rank ?y1)
+(rank ?y2))
+
+(<= (occupied_by_opponent_or_blank ?x ?y ?player)
+(true (cell ?x ?y b))
+(role ?player))
+
+(<= (occupied_by_opponent_or_blank ?x ?y ?player)
+(true (cell ?x ?y ?piece))
+(opponent ?player ?opponent)
+(piece_owner_type ?piece ?opponent ?type))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; GOALS
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(<= (goal white ?n)
+(true (pieces black ?m))
+(score ?m ?n))
+
+(<= (goal black ?n)
+(true (pieces white ?m))
+(score ?m ?n))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; TERMINAL STATES
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(<= terminal
+(true (step 11)))
+
+(<= terminal
+(true (pieces white 0)))
+
+(<= terminal
+(true (pieces black 0)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; GROUND FACTS
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(opponent white black)
+(opponent black white)
+
+(piece_owner_type wk white king)
+(piece_owner_type wq white queen)
+(piece_owner_type wr white rook)
+(piece_owner_type wb white bishop)
+(piece_owner_type wn white knight)
+(piece_owner_type wp white pawn)
+
+(piece_owner_type bk black king)
+(piece_owner_type bq black queen)
+(piece_owner_type br black rook)
+(piece_owner_type bb black bishop)
+(piece_owner_type bn black knight)
+(piece_owner_type bp black pawn)
+
+(next_rank 1 2)
+(next_rank 2 3)
+(next_rank 3 4)
+(next_rank 4 5)
+(next_rank 5 6)
+(next_rank 6 7)
+(next_rank 7 8)
+
+(next_file a b)
+(next_file b c)
+(next_file c d)
+(next_file d e)
+(next_file e f)
+(next_file f g)
+(next_file g h)
+
+(file a)
+(file b)
+(file c)
+(file d)
+(file e)
+(file f)
+(file g)
+(file h)
+
+(rank 1)
+(rank 2)
+(rank 3)
+(rank 4)
+(rank 5)
+(rank 6)
+(rank 7)
+(rank 8)
+
+(score  0 100)
+(score  1  75)
+(score  2  50)
+(score  3  25)
+(score  4  0)
+
+(succ 0 1)
+(succ 1 2)
+(succ 2 3)
+(succ 3 4)
+(succ 4 5)
+(succ 5 6)
+(succ 6 7)
+(succ 7 8)
+(succ 8 9)
+(succ 9 10)
+(succ 10 11)
+(succ 11 12)
+(succ 12 13)
+(succ 13 14)
+(succ 14 15)
+(succ 15 16)
+(succ 16 17)
+(succ 17 18)
+(succ 18 19)
+(succ 19 20)
+(succ 20 21)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

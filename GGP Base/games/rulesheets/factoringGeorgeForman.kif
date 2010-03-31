@@ -1,0 +1,169 @@
+(role robot)
+
+
+(init (cell 1 1 0))
+
+
+(init (cell 1 2 0))
+
+
+(init (cell 2 1 0))
+
+
+(init (cell 2 2 0))
+
+
+(init (round 0))
+
+
+(<= (legal robot (press ?x ?y))
+
+
+    (index ?x)
+
+
+    (index ?y))
+
+
+(<= (next (cell ?x ?y 4))
+
+
+    (does robot (press ?x ?y)))
+
+
+(<= (next (cell ?x ?y 3))
+
+
+    (true (cell ?x ?y 4)))
+
+
+(<= (next (cell ?x ?y 2))
+
+
+    (true (cell ?x ?y 3)))
+
+
+(<= (next (cell ?x ?y 1))
+
+
+    (true (cell ?x ?y 2)))
+
+
+(<= (next (cell ?x ?y 0))
+
+
+    (true (cell ?x ?y 1)))
+
+
+(<= (next (cell ?x ?y 0))
+
+
+    (true (cell ?x ?y 0)))
+
+
+(<= (next (round ?x))
+
+
+    (true (round ?x))
+
+
+    (not lightson))
+
+
+(<= (next (round 1))
+
+
+    (true (round 0))
+
+
+    lightson)
+
+
+(<= (next (round 2))
+
+
+    (true (round 1))
+
+
+    lightson)
+
+
+(<= (next (round 3))
+
+
+    (true (round 2))
+
+
+    lightson)
+
+
+(<= (goal robot 100)
+
+
+    (true (round 3)))
+
+
+(<= (goal robot 100)
+
+
+    (not (true (round 3))))
+
+
+(<= (on ?x ?y)
+
+
+    (true (cell ?x ?y 1)))
+
+
+(<= (on ?x ?y)
+
+
+    (true (cell ?x ?y 2)))
+
+
+(<= (on ?x ?y)
+
+
+    (true (cell ?x ?y 3)))
+
+
+(<= (on ?x ?y)
+
+
+    (true (cell ?x ?y 4)))
+
+
+(<= lightson
+
+
+    (on 1 1)
+
+
+    (on 1 2)
+
+
+    (on 2 1)
+
+
+    (on 2 2))
+
+
+(<= terminal
+
+
+     lightson
+
+
+     (true (round 3)))
+
+
+(index 1)
+
+
+(index 2)
+
+
+(base cell (x 1 2) (y 1 2) (val 0 1 2 3 4))
+
+
+(base round (num 0 1 2 3))

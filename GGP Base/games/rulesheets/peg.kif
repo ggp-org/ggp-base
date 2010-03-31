@@ -1,0 +1,260 @@
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; 
+;;; Peg Jumping, the Most Awesome Game Ever
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; 
+; bugfixed version of peg
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; 
+
+   (role jumper)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; 
+
+   (init (hole a c3 peg))
+   (init (hole a c4 peg))
+   (init (hole a c5 peg))
+   (init (hole b c3 peg))
+   (init (hole b c4 peg))
+   (init (hole b c5 peg))
+   (init (hole c c1 peg))
+   (init (hole c c2 peg))
+   (init (hole c c3 peg))
+   (init (hole c c4 peg))
+   (init (hole c c5 peg))
+   (init (hole c c6 peg))
+   (init (hole c c7 peg))
+   (init (hole d c1 peg))
+   (init (hole d c2 peg))
+   (init (hole d c3 peg))
+   (init (hole d c4 empty))
+   (init (hole d c5 peg))
+   (init (hole d c6 peg))
+   (init (hole d c7 peg))
+   (init (hole e c1 peg))
+   (init (hole e c2 peg))
+   (init (hole e c3 peg))
+   (init (hole e c4 peg))
+   (init (hole e c5 peg))
+   (init (hole e c6 peg))
+   (init (hole e c7 peg))
+   (init (hole f c3 peg))
+   (init (hole f c4 peg))
+   (init (hole f c5 peg))
+   (init (hole g c3 peg))
+   (init (hole g c4 peg))
+   (init (hole g c5 peg))
+   (init (pegs s32))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; 
+   
+   (<= (next (pegs ?x))
+       (does jumper (jump ?sr ?sc ?dr ?dc))
+       (true (pegs ?y))
+       (succ ?x ?y))
+
+   (<= (next (hole ?sr ?sc empty))
+       (does jumper (jump ?sr ?sc ?dr ?dc)))
+
+   (<= (next (hole ?or ?oc empty))
+       (does jumper (jump ?sr ?sc ?dr ?dc))
+       (middle ?sr ?sc ?or ?oc ?dr ?dc))
+
+   (<= (next (hole ?dr ?dc peg))
+       (does jumper (jump ?sr ?sc ?dr ?dc)))
+
+   (<= (next (hole ?x ?y empty))
+       (does jumper (jump ?sr ?sc ?dr ?dc))
+       (true (hole ?x ?y empty))
+       (distinct ?x ?dr))
+
+   (<= (next (hole ?x ?y empty))
+       (does jumper (jump ?sr ?sc ?dr ?dc))
+       (true (hole ?x ?y empty))
+       (distinct ?y ?dc))
+
+   (<= (next (hole ?x ?y peg))
+       (does jumper (jump ?sr ?sc ?dr ?dc))
+       (true (hole ?x ?y peg))
+       (distinct ?x ?sr)
+       (middle ?sr ?sc ?or ?oc ?dr ?dc)
+       (distinct ?x ?or))
+
+   (<= (next (hole ?x ?y peg))
+       (does jumper (jump ?sr ?sc ?dr ?dc))
+       (true (hole ?x ?y peg))
+       (distinct ?y ?sc)
+       (middle ?sr ?sc ?or ?oc ?dr ?dc)
+       (distinct ?y ?oc))
+
+   (<= (middle ?row ?sc ?row ?oc ?row ?dc)
+       (pc ?sc ?oc)
+       (nc ?dc ?oc)
+       (row ?row))
+
+   (<= (middle ?row ?sc ?row ?oc ?row ?dc)
+       (nc ?sc ?oc)
+       (pc ?dc ?oc)
+       (row ?row))
+
+   (<= (middle ?sr ?col ?or ?col ?dr ?col)
+       (pr ?sr ?or)
+       (nr ?dr ?or)
+       (column ?col))
+
+   (<= (middle ?sr ?col ?or ?col ?dr ?col)
+       (nr ?sr ?or)
+       (pr ?dr ?or)
+       (column ?col))
+
+   (nc c1 c2)
+   (nc c2 c3)
+   (nc c3 c4)
+   (nc c4 c5)
+   (nc c5 c6)
+   (nc c6 c7)
+
+   (pc c2 c1)
+   (pc c3 c2)
+   (pc c4 c3)
+   (pc c5 c4)
+   (pc c6 c5)
+   (pc c7 c6)
+
+   (column c1)
+   (column c2)
+   (column c3)
+   (column c4)
+   (column c5)
+   (column c6)
+   (column c7)
+
+   (nr a b)
+   (nr b c)
+   (nr c d)
+   (nr d e)
+   (nr e f)
+   (nr f g)
+
+   (pr b a)
+   (pr c b)
+   (pr d c)
+   (pr e d)
+   (pr f e)
+   (pr g f)
+
+   (row a)
+   (row b)
+   (row c)
+   (row d)
+   (row e)
+   (row f)
+   (row g)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; 
+
+   (<= (legal jumper (jump ?sr ?sc ?dr ?dc))
+       (true (hole ?sr ?sc peg))
+       (true (hole ?dr ?dc empty))
+       (middle ?sr ?sc ?or ?oc ?dr ?dc)
+       (true (hole ?or ?oc peg)))
+
+   (<= moveable
+       (true (hole ?sr ?sc peg))
+       (true (hole ?dr ?dc empty))
+       (middle ?sr ?sc ?or ?oc ?dr ?dc)
+       (true (hole ?or ?oc peg)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; 
+
+   (<= (goal jumper 100)
+       (true (hole d c4 peg))
+       (true (pegs s1)))
+
+   (<= (goal jumper 99)
+       (true (hole ?row ?col peg))
+       (true (pegs s1))
+       (distinct ?row d))
+
+   (<= (goal jumper 99)
+       (true (hole ?row ?col peg))
+       (true (pegs s1))
+       (distinct ?col c4))
+
+   (<= (goal jumper 90)
+       (true (pegs s2)))
+
+   (<= (goal jumper 80)
+       (true (pegs s3)))
+
+   (<= (goal jumper 70)
+       (true (pegs s4)))
+
+   (<= (goal jumper 60)
+       (true (pegs s5)))
+
+   (<= (goal jumper 50)
+       (true (pegs s6)))
+
+   (<= (goal jumper 40)
+       (true (pegs s7)))
+
+   (<= (goal jumper 30)
+       (true (pegs s8)))
+
+   (<= (goal jumper 20)
+       (true (pegs s9)))
+
+   (<= (goal jumper 10)
+       (true (pegs s10)))
+
+   (<= (goal jumper 0)
+       (true (pegs ?x))
+       (distinct ?x s10)
+       (distinct ?x s9)
+       (distinct ?x s8)
+       (distinct ?x s7)
+       (distinct ?x s6)
+       (distinct ?x s5)
+       (distinct ?x s4)
+       (distinct ?x s3)
+       (distinct ?x s2)
+       (distinct ?x s1))
+
+   (succ s1 s2)
+   (succ s2 s3)
+   (succ s3 s4)
+   (succ s4 s5)
+   (succ s5 s6)
+   (succ s6 s7)
+   (succ s7 s8)
+   (succ s8 s9)
+   (succ s9 s10)
+   (succ s10 s11)
+   (succ s11 s12)
+   (succ s12 s13)
+   (succ s13 s14)
+   (succ s14 s15)
+   (succ s15 s16)
+   (succ s16 s17)
+   (succ s17 s18)
+   (succ s18 s19)
+   (succ s19 s20)
+   (succ s20 s21)
+   (succ s21 s22)
+   (succ s22 s23)
+   (succ s23 s24)
+   (succ s24 s25)
+   (succ s25 s26)
+   (succ s26 s27)
+   (succ s27 s28)
+   (succ s28 s29)
+   (succ s29 s30)
+   (succ s30 s31)
+   (succ s31 s32)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; 
+
+   (<= terminal
+       (not moveable))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; 

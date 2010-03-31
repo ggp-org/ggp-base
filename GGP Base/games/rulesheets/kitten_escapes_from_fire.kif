@@ -1,0 +1,172 @@
+; kitten tries to escape from fire
+;#################
+;#          #    #
+;#       O# #  # #
+;#        #    # #
+;#             #X#
+;#################
+; X..goal (safe from fire)
+; O..start kitten
+; #..wall
+; every round one column on the left goes up in fire
+; so the game ends after 15 rounds (breadth of the board)
+; kitten can move Up, Down, Left, Right
+
+(role kitten)
+	
+(init (position kitten 8 2))
+(init (round 0))
+	
+(<= (legal ?role (move ?x ?y))
+	(role ?role)
+	(field ?x ?y)
+	(true (position ?role ?a ?b))
+	(neighbor ?x ?y ?a ?b))
+	
+(<= (next (position ?role ?x ?y))
+	(role ?role)
+	(does ?role (move ?x ?y)))
+(<= (next (round ?x))
+	(true (round ?y))
+	(succ ?y ?x))
+	
+	
+(<= (neighbor ?x ?y ?x ?b)
+	(range ?x)
+	(or (succ ?y ?b) (succ ?b ?y)))
+(<= (neighbor ?x ?y ?a ?y)
+	(range ?y)
+	(or (succ ?x ?a) (succ ?a ?x)))
+	
+(<= terminal
+	(true (position ?role 15 4))
+	(role ?role))
+
+;(<= dead
+;	(true (position ?role ?x ?y))
+;	(role ?role)
+;	(range ?y)
+;	(true (round ?r))
+;	(smallerThan ?x ?r))
+
+(<= terminal
+	(true (position ?role ?x ?y))
+	(role ?role)
+	(true (round ?r))
+	(smallerThan ?x ?r))
+
+(<= terminal
+	(true (round 16)))
+
+(<= (goal kitten 100)
+	(true (position kitten 15 4)))
+(<= (goal kitten 0)
+	(true (position ?role ?x ?y))
+	(role ?role)
+	(true (round ?r))
+	(smallerThan ?x ?r))
+(<= (goal kitten 0)
+	(true (round 16)))
+
+
+
+(<= (smallerThan ?x ?y)
+	(succ ?x ?y))
+(<= (smallerThan ?x ?z)
+	(succ ?x ?y)
+	(smallerThan ?y ?z))
+
+(succ 0 1)
+(succ 1 2)
+(succ 2 3)
+(succ 3 4)
+(succ 4 5)
+(succ 5 6)
+(succ 6 7)
+(succ 7 8)
+(succ 8 9)
+(succ 9 10)
+(succ 10 11)
+(succ 11 12)
+(succ 12 13)
+(succ 13 14)
+(succ 14 15)
+(succ 15 16)
+
+(range 1)
+(range 2)
+(range 3)
+(range 4)
+(range 5)
+(range 6)
+(range 7)
+(range 8)
+(range 9)
+(range 10)
+(range 11)
+(range 12)
+(range 13)
+(range 14)
+(range 15)
+
+
+(field 1 1)
+(field 1 2)
+(field 1 3)
+(field 1 4)
+(field 2 1)
+(field 2 2)
+(field 2 3)
+(field 2 4)
+(field 3 1)
+(field 3 2)
+(field 3 3)
+(field 3 4)
+(field 4 1)
+(field 4 2)
+(field 4 3)
+(field 4 4)
+(field 5 1)
+(field 5 2)
+(field 5 3)
+(field 5 4)
+(field 6 1)
+(field 6 2)
+(field 6 3)
+(field 6 4)
+(field 7 1)
+(field 7 2)
+(field 7 3)
+(field 7 4)
+(field 8 1)
+(field 8 2)
+(field 8 3)
+(field 8 4)
+(field 9 1)
+;(field 9 2) ;just comment the fields which you cant enter
+;(field 9 3)
+(field 9 4)
+(field 10 1)
+(field 10 2)
+(field 10 3)
+(field 10 4)
+;(field 11 1)
+;(field 11 2)
+(field 11 3)
+(field 11 4)
+(field 12 1)
+(field 12 2)
+(field 12 3)
+(field 12 4)
+(field 13 1)
+(field 13 2)
+(field 13 3)
+(field 13 4)
+(field 14 1)
+;(field 14 2)
+;(field 14 3)
+;(field 14 4)
+(field 15 1)
+(field 15 2)
+(field 15 3)
+(field 15 4)

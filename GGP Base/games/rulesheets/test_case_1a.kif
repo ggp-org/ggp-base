@@ -1,0 +1,16 @@
+;; This tests an edge case when handling GDL.
+;; Specifically, it tests a time-invariant goal rule.
+
+(role you)
+(init (state 0))
+
+(<= (legal you proceed)
+    (true (state 0)))
+
+(<= (next (state 1))
+	(does you proceed))
+
+(<= terminal
+    (true (state 1)))
+    
+(<= (goal you 100))

@@ -1,0 +1,82 @@
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;;          troublemaker02
+;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; A game designed to reveal the flaws
+;;; in my concept term decomposition
+;;; search method.
+;;; Interleaving may not work here.
+;;;
+;;; Author: martin.guenther@mail.inf.tu-dresden.de
+;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(role player)
+
+(init (pos1 a))
+(init (pos2 x))
+
+(<=	(legal player (move1 ?n))
+(true (pos1 ?m))
+(conn1 ?m ?n))
+
+(<=	(legal player (move2 ?n))
+(true (pos2 ?m))
+(conn2 ?m ?n))
+
+(<=	(next (pos1 ?n))
+(does player (move1 ?n)))
+
+(<=	(next (pos1 ?n))
+(true (pos1 ?n))
+(does player (move2 ?m)))
+
+(<=	(next (pos2 ?n))
+(does player (move2 ?n)))
+
+(<=	(next (pos2 ?n))
+(true (pos2 ?n))
+(does player (move1 ?m)))
+
+(<=	terminal
+(true (pos1 c))
+(true (pos2 z)))
+
+(<=	terminal
+(true (pos1 a))
+(true (pos2 z)))
+
+(<=	terminal
+(true (pos1 c))
+(true (pos2 x)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;
+(<=	terminal
+(true (pos1 b1))
+(true (pos2 y1)))
+;;;;;;;;;;;;;;;;;;;;;;;;
+
+(<=	(goal player 100)
+(true (pos1 c))
+(true (pos2 z)))
+
+(<=	(goal player 0)
+(not (true (pos1 c))))
+
+(<=	(goal player 0)
+(not (true (pos2 z))))
+
+; graph 1: a --> (b1|b2) --> c
+; graph 2: x --> (y1|y2) --> z
+
+(conn1 a b1)
+(conn1 a b2)
+(conn1 b1 c)
+(conn1 b2 c)
+
+(conn2 x y1)
+(conn2 x y2)
+(conn2 y1 z)
+(conn2 y2 z)

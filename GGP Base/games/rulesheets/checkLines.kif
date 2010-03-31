@@ -1,0 +1,598 @@
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Check Lines
+;;;
+;;;  <3 ~ Jordan Potter and Todd Sullivan
+;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; Solver Analysis: red has a forced score of 100 after 15 moves of perfect play. -Sam
+;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; ROLE Relations
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(role red)
+(role blue)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; INIT Relations
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(init (control red))
+(init (stage 0))
+(init (step 1))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; LEGAL Relations
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; === RED ===
+
+;; if not red's turn
+(<= (legal red noop)
+(true (control blue)))
+
+;; if red still has tokens
+;;  can place a token
+(<= (legal red (play ?x red))
+(true (control red))
+(emptySpace ?x)
+(not (true (stage 10))))
+
+;; if red has no more tokens
+;;  can select a token to move
+(<= (legal red (play ?x red))
+(true (control red))
+(true (stage 10))
+(true (token ?x red))
+(emptySpace ?y)
+(adjacent ?x ?y))
+
+
+;; === BLUE ===
+
+;; if not blue's turn
+(<= (legal blue noop)
+(true (control red)))
+
+;; if blue still has tokens
+;;  can place a token
+(<= (legal blue (play ?x blue))
+(true (control blue))
+(emptySpace ?x)
+(not (true (stage 10))))
+
+;; if blue has no more tokens
+;;  can select a token to move
+(<= (legal blue (play ?x blue))
+(true (control blue))
+(true (stage 10))
+(true (token ?x blue))
+(emptySpace ?y)
+(adjacent ?x ?y))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; NEXT Relations
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; if still have tokens
+(<= (next (token ?x ?color))
+(role ?player)
+(does ?player (play ?x ?color))
+(not (true (stage 10))))
+(<= (next (token ?x ?color))
+(true (token ?x ?color))
+(not (true (stage 10))))
+
+;; if no more tokens
+(<= (next (token ?y ?color))
+(role ?player)
+(true (stage 10))
+(emptySpace ?y)
+(adjacent ?x ?y)
+(does ?player (play ?x ?color)))
+(<= (next (token ?x ?color))
+(true (stage 10))
+(true (token ?x ?color))
+(not (does red (play ?x red)))
+(not (does blue (play ?x blue))))
+
+;; update the step counter
+(<= (next (step ?y))
+(true (step ?x))
+(succ ?x ?y))
+
+;; update control
+(<= (next (control red))
+(true (control blue)))
+(<= (next (control blue))
+(true (control red)))
+
+;; update stage
+(<= (next (stage 1))  (true (stage 0)))
+(<= (next (stage 2))  (true (stage 1)))
+(<= (next (stage 3))  (true (stage 2)))
+(<= (next (stage 4))  (true (stage 3)))
+(<= (next (stage 5))  (true (stage 4)))
+(<= (next (stage 6))  (true (stage 5)))
+(<= (next (stage 7))  (true (stage 6)))
+(<= (next (stage 8))  (true (stage 7)))
+(<= (next (stage 9))  (true (stage 8)))
+(<= (next (stage 10)) (true (stage 9)))
+(<= (next (stage 10)) (true (stage 10)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; TERMINAL Relations
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; check if a player has crossing lines
+(<= terminal
+(crossingLines red))
+(<= terminal
+(crossingLines blue))
+
+;; check for stalemate
+(<= terminal
+(not (hasMoves red)))
+(<= terminal
+(not (hasMoves blue)))
+
+;; check step counter
+(<= terminal
+(true (step 201)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; GOAL Relations
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; red goals
+(<= (goal red 100)
+(crossingLines red))
+(<= (goal red 0)
+(crossingLines blue))
+(<= (goal red 0)
+(not (true (step 201)))
+(hasMoves red)
+(hasMoves blue)
+(not (crossingLines red))
+(not (crossingLines blue)))
+
+;; blue goals
+(<= (goal blue 100)
+(crossingLines blue))
+(<= (goal blue 0)
+(crossingLines red))
+(<= (goal blue 0)
+(not (true (step 201)))
+(hasMoves blue)
+(hasMoves red)
+(not (crossingLines red))
+(not (crossingLines blue)))
+
+;; stalemate
+(<= (goal red 50)
+(not (crossingLines red))
+(not (crossingLines blue))
+(not (hasMoves blue)))
+(<= (goal red 50)
+(not (crossingLines red))
+(not (crossingLines blue))
+(not (hasMoves red)))
+(<= (goal blue 50)
+(not (crossingLines red))
+(not (crossingLines blue))
+(not (hasMoves red)))
+(<= (goal blue 50)
+(not (crossingLines red))
+(not (crossingLines blue))
+(not (hasMoves blue)))
+
+;; stalemate from step counter
+(<= (goal red 50)
+(true (step 201))
+(hasMoves red)
+(hasMoves blue)
+(not (crossingLines red))
+(not (crossingLines blue)))
+(<= (goal blue 50)
+(true (step 201))
+(hasMoves red)
+(hasMoves blue)
+(not (crossingLines red))
+(not (crossingLines blue)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; View Definitions
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; check if the space is empty
+(<= (emptySpace ?x)
+(point ?x)
+(not (true (token ?x red)))
+(not (true (token ?x blue))))
+
+;; check if the player still has moves
+(<= (hasMoves ?player)
+(role ?player)
+(not (true (stage 10))))
+(<= (hasMoves ?player)
+(true (stage 10))
+(role ?player)
+(not (true (control ?player))))
+(<= (hasMoves ?player)
+(true (stage 10))
+(true (control ?player))
+(true (token ?x ?player))
+(emptySpace ?y)
+(adjacent ?x ?y))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; View Definitions  -  LINE CHECKS
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(<= (line1 ?color)
+(true (token 1 ?color)) (true (token 4 ?color)) (true (token 9 ?color)))
+(<= (line2 ?color)
+(true (token 1 ?color)) (true (token 7 ?color)) (true (token 10 ?color)))
+(<= (line3 ?color)
+(true (token 1 ?color)) (true (token 6 ?color)) (true (token 11 ?color)))
+(<= (line4 ?color)
+(true (token 1 ?color)) (true (token 3 ?color)) (true (token 5 ?color)))
+(<= (line5 ?color)
+(true (token 2 ?color)) (true (token 5 ?color)) (true (token 11 ?color)))
+(<= (line6 ?color)
+(true (token 2 ?color)) (true (token 8 ?color)) (true (token 10 ?color)))
+(<= (line7 ?color)
+(true (token 2 ?color)) (true (token 6 ?color)) (true (token 9 ?color)))
+(<= (line8 ?color)
+(true (token 2 ?color)) (true (token 3 ?color)) (true (token 4 ?color)))
+(<= (line9 ?color)
+(true (token 3 ?color)) (true (token 7 ?color)) (true (token 9 ?color)))
+(<= (line10 ?color)
+(true (token 3 ?color)) (true (token 8 ?color)) (true (token 11 ?color)))
+(<= (line11 ?color)
+(true (token 4 ?color)) (true (token 7 ?color)) (true (token 11 ?color)))
+(<= (line12 ?color)
+(true (token 4 ?color)) (true (token 6 ?color)) (true (token 8 ?color)))
+(<= (line13 ?color)
+(true (token 5 ?color)) (true (token 8 ?color)) (true (token 9 ?color)))
+(<= (line14 ?color)
+(true (token 5 ?color)) (true (token 6 ?color)) (true (token 7 ?color)))
+(<= (line15 ?color)
+(true (token 9 ?color)) (true (token 10 ?color)) (true (token 11 ?color))) 
+
+
+;; line 1 intersecting
+(<= (crossingLines ?color) (line1 ?color) (line2 ?color))
+(<= (crossingLines ?color) (line1 ?color) (line3 ?color))
+(<= (crossingLines ?color) (line1 ?color) (line4 ?color))
+(<= (crossingLines ?color) (line1 ?color) (line7 ?color))
+(<= (crossingLines ?color) (line1 ?color) (line8 ?color))
+(<= (crossingLines ?color) (line1 ?color) (line9 ?color))
+(<= (crossingLines ?color) (line1 ?color) (line11 ?color))
+(<= (crossingLines ?color) (line1 ?color) (line12 ?color))
+(<= (crossingLines ?color) (line1 ?color) (line13 ?color))
+(<= (crossingLines ?color) (line1 ?color) (line15 ?color))
+
+;; line 2 intersecting
+(<= (crossingLines ?color) (line2 ?color) (line3 ?color))
+(<= (crossingLines ?color) (line2 ?color) (line4 ?color))
+(<= (crossingLines ?color) (line2 ?color) (line6 ?color))
+(<= (crossingLines ?color) (line2 ?color) (line9 ?color))
+(<= (crossingLines ?color) (line2 ?color) (line11 ?color))
+(<= (crossingLines ?color) (line2 ?color) (line14 ?color))
+(<= (crossingLines ?color) (line2 ?color) (line15 ?color))
+
+;; line 3 intersecting
+(<= (crossingLines ?color) (line3 ?color) (line4 ?color))
+(<= (crossingLines ?color) (line3 ?color) (line5 ?color))
+(<= (crossingLines ?color) (line3 ?color) (line7 ?color))
+(<= (crossingLines ?color) (line3 ?color) (line10 ?color))
+(<= (crossingLines ?color) (line3 ?color) (line11 ?color))
+(<= (crossingLines ?color) (line3 ?color) (line12 ?color))
+(<= (crossingLines ?color) (line3 ?color) (line14 ?color))
+(<= (crossingLines ?color) (line3 ?color) (line15 ?color))
+
+;; line 4 intersecting
+(<= (crossingLines ?color) (line4 ?color) (line5 ?color))
+(<= (crossingLines ?color) (line4 ?color) (line8 ?color))
+(<= (crossingLines ?color) (line4 ?color) (line9 ?color))
+(<= (crossingLines ?color) (line4 ?color) (line10 ?color))
+(<= (crossingLines ?color) (line4 ?color) (line13 ?color))
+(<= (crossingLines ?color) (line4 ?color) (line14 ?color))
+
+;; line 5 intersecting
+(<= (crossingLines ?color) (line5 ?color) (line6 ?color))
+(<= (crossingLines ?color) (line5 ?color) (line7 ?color))
+(<= (crossingLines ?color) (line5 ?color) (line8 ?color))
+(<= (crossingLines ?color) (line5 ?color) (line10 ?color))
+(<= (crossingLines ?color) (line5 ?color) (line11 ?color))
+(<= (crossingLines ?color) (line5 ?color) (line13 ?color))
+(<= (crossingLines ?color) (line5 ?color) (line14 ?color))
+(<= (crossingLines ?color) (line5 ?color) (line15 ?color))
+
+;; line 6 intersecting
+(<= (crossingLines ?color) (line6 ?color) (line7 ?color))
+(<= (crossingLines ?color) (line6 ?color) (line8 ?color))
+(<= (crossingLines ?color) (line6 ?color) (line10 ?color))
+(<= (crossingLines ?color) (line6 ?color) (line12 ?color))
+(<= (crossingLines ?color) (line6 ?color) (line13 ?color))
+(<= (crossingLines ?color) (line6 ?color) (line15 ?color))
+
+;; line 7 intersecting
+(<= (crossingLines ?color) (line7 ?color) (line8 ?color))
+(<= (crossingLines ?color) (line7 ?color) (line9 ?color))
+(<= (crossingLines ?color) (line7 ?color) (line12 ?color))
+(<= (crossingLines ?color) (line7 ?color) (line13 ?color))
+(<= (crossingLines ?color) (line7 ?color) (line14 ?color))
+(<= (crossingLines ?color) (line7 ?color) (line15 ?color))
+
+;; line 8 intersecting
+(<= (crossingLines ?color) (line8 ?color) (line9 ?color))
+(<= (crossingLines ?color) (line8 ?color) (line10 ?color))
+(<= (crossingLines ?color) (line8 ?color) (line11 ?color))
+(<= (crossingLines ?color) (line8 ?color) (line12 ?color))
+
+;; line 9 intersecting
+(<= (crossingLines ?color) (line9 ?color) (line10 ?color))
+(<= (crossingLines ?color) (line9 ?color) (line11 ?color))
+(<= (crossingLines ?color) (line9 ?color) (line13 ?color))
+(<= (crossingLines ?color) (line9 ?color) (line14 ?color))
+(<= (crossingLines ?color) (line9 ?color) (line15 ?color))
+
+;; line 10 intersecting
+(<= (crossingLines ?color) (line10 ?color) (line11 ?color))
+(<= (crossingLines ?color) (line10 ?color) (line12 ?color))
+(<= (crossingLines ?color) (line10 ?color) (line13 ?color))
+(<= (crossingLines ?color) (line10 ?color) (line15 ?color))
+
+;; line 11 intersecting
+(<= (crossingLines ?color) (line11 ?color) (line12 ?color))
+(<= (crossingLines ?color) (line11 ?color) (line14 ?color))
+(<= (crossingLines ?color) (line11 ?color) (line15 ?color))
+
+;; line 12 intersecting
+(<= (crossingLines ?color) (line12 ?color) (line13 ?color))
+(<= (crossingLines ?color) (line12 ?color) (line14 ?color))
+
+;; line 13 intersecting
+(<= (crossingLines ?color) (line13 ?color) (line14 ?color))
+(<= (crossingLines ?color) (line13 ?color) (line15 ?color))
+
+;; line 14 intersecting
+
+;; line 15 intersecting
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Static Relations
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(point 1) (point 2) (point 3) (point 4) (point 5) (point 6) (point 7) (point 8)
+(point 9) (point 10) (point 11)
+
+(adjacent 1 3) (adjacent 1 4) (adjacent 1 6) (adjacent 1 7)
+(adjacent 2 3) (adjacent 2 5) (adjacent 2 6) (adjacent 2 8)
+(adjacent 3 1) (adjacent 3 2) (adjacent 3 4) (adjacent 3 5) (adjacent 3 7) (adjacent 3 8)
+(adjacent 4 1) (adjacent 4 3) (adjacent 4 6) (adjacent 4 7) (adjacent 4 9)
+(adjacent 5 2) (adjacent 5 3) (adjacent 5 6) (adjacent 5 8) (adjacent 5 11)
+(adjacent 6 1) (adjacent 6 2) (adjacent 6 4) (adjacent 6 5) (adjacent 6 7) (adjacent 6 8) (adjacent 6 9) (adjacent 6 11)
+(adjacent 7 1) (adjacent 7 3) (adjacent 7 4) (adjacent 7 6) (adjacent 7 9) (adjacent 7 10) (adjacent 7 11)
+(adjacent 8 2) (adjacent 8 3) (adjacent 8 5) (adjacent 8 6) (adjacent 8 9) (adjacent 8 10) (adjacent 8 11)
+(adjacent 9 4) (adjacent 9 6) (adjacent 9 7) (adjacent 9 8) (adjacent 9 10)
+(adjacent 10 7) (adjacent 10 8) (adjacent 10 9) (adjacent 10 11)
+(adjacent 11 5) (adjacent 11 6) (adjacent 11 7) (adjacent 11 8) (adjacent 11 10)
+
+(base control (player red blue))
+(base token (x 1 2 3 4 5 6 7 8 9 10 11) (color red blue))
+(base stage (x 0 1 2 3 4 5 6 7 8 9 10))
+(base step (x 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59 60 61 62 63 64 65 66 67 68 69 70 71 72 73 74 75 76 77 78 79 80 81 82 83 84 85 86 87 88 89 90 91 92 93 94 95 96 97 98 99 100 101 102 103 104 105 106 107 108 109 110 111 112 113 114 115 116 117 118 119 120 121 122 123 124 125 126 127 128 129 130 131 132 133 134 135 136 137 138 139 140 141 142 143 144 145 146 147 148 149 150 151 152 153 154 155 156 157 158 159 160 161 162 163 164 165 166 167 168 169 170 171 172 173 174 175 176 177 178 179 180 181 182 183 184 185 186 187 188 189 190 191 192 193 194 195 196 197 198 199 200 201))
+
+
+;; step counter
+(succ 1 2)
+(succ 2 3)
+(succ 3 4)
+(succ 4 5)
+(succ 5 6)
+(succ 6 7)
+(succ 7 8)
+(succ 8 9)
+(succ 9 10)
+(succ 10 11)
+(succ 11 12)
+(succ 12 13)
+(succ 13 14)
+(succ 14 15)
+(succ 15 16)
+(succ 16 17)
+(succ 17 18)
+(succ 18 19)
+(succ 19 20)
+(succ 20 21)
+(succ 21 22)
+(succ 22 23)
+(succ 23 24)
+(succ 24 25)
+(succ 25 26)
+(succ 26 27)
+(succ 27 28)
+(succ 28 29)
+(succ 29 30)
+(succ 30 31)
+(succ 31 32)
+(succ 32 33)
+(succ 33 34)
+(succ 34 35)
+(succ 35 36)
+(succ 36 37)
+(succ 37 38)
+(succ 38 39)
+(succ 39 40)
+(succ 40 41)
+(succ 41 42)
+(succ 42 43)
+(succ 43 44)
+(succ 44 45)
+(succ 45 46)
+(succ 46 47)
+(succ 47 48)
+(succ 48 49)
+(succ 49 50)
+(succ 50 51)
+(succ 51 52)
+(succ 52 53)
+(succ 53 54)
+(succ 54 55)
+(succ 55 56)
+(succ 56 57)
+(succ 57 58)
+(succ 58 59)
+(succ 59 60)
+(succ 60 61)
+(succ 61 62)
+(succ 62 63)
+(succ 63 64)
+(succ 64 65)
+(succ 65 66)
+(succ 66 67)
+(succ 67 68)
+(succ 68 69)
+(succ 69 70)
+(succ 70 71)
+(succ 71 72)
+(succ 72 73)
+(succ 73 74)
+(succ 74 75)
+(succ 75 76)
+(succ 76 77)
+(succ 77 78)
+(succ 78 79)
+(succ 79 80)
+(succ 80 81)
+(succ 81 82)
+(succ 82 83)
+(succ 83 84)
+(succ 84 85)
+(succ 85 86)
+(succ 86 87)
+(succ 87 88)
+(succ 88 89)
+(succ 89 90)
+(succ 90 91)
+(succ 91 92)
+(succ 92 93)
+(succ 93 94)
+(succ 94 95)
+(succ 95 96)
+(succ 96 97)
+(succ 97 98)
+(succ 98 99)
+(succ 99 100)
+(succ 100 101)
+(succ 101 102)
+(succ 102 103)
+(succ 103 104)
+(succ 104 105)
+(succ 105 106)
+(succ 106 107)
+(succ 107 108)
+(succ 108 109)
+(succ 109 110)
+(succ 110 111)
+(succ 111 112)
+(succ 112 113)
+(succ 113 114)
+(succ 114 115)
+(succ 115 116)
+(succ 116 117)
+(succ 117 118)
+(succ 118 119)
+(succ 119 120)
+(succ 120 121)
+(succ 121 122)
+(succ 122 123)
+(succ 123 124)
+(succ 124 125)
+(succ 125 126)
+(succ 126 127)
+(succ 127 128)
+(succ 128 129)
+(succ 129 130)
+(succ 130 131)
+(succ 131 132)
+(succ 132 133)
+(succ 133 134)
+(succ 134 135)
+(succ 135 136)
+(succ 136 137)
+(succ 137 138)
+(succ 138 139)
+(succ 139 140)
+(succ 140 141)
+(succ 141 142)
+(succ 142 143)
+(succ 143 144)
+(succ 144 145)
+(succ 145 146)
+(succ 146 147)
+(succ 147 148)
+(succ 148 149)
+(succ 149 150)
+(succ 150 151)
+(succ 151 152)
+(succ 152 153)
+(succ 153 154)
+(succ 154 155)
+(succ 155 156)
+(succ 156 157)
+(succ 157 158)
+(succ 158 159)
+(succ 159 160)
+(succ 160 161)
+(succ 161 162)
+(succ 162 163)
+(succ 163 164)
+(succ 164 165)
+(succ 165 166)
+(succ 166 167)
+(succ 167 168)
+(succ 168 169)
+(succ 169 170)
+(succ 170 171)
+(succ 171 172)
+(succ 172 173)
+(succ 173 174)
+(succ 174 175)
+(succ 175 176)
+(succ 176 177)
+(succ 177 178)
+(succ 178 179)
+(succ 179 180)
+(succ 180 181)
+(succ 181 182)
+(succ 182 183)
+(succ 183 184)
+(succ 184 185)
+(succ 185 186)
+(succ 186 187)
+(succ 187 188)
+(succ 188 189)
+(succ 189 190)
+(succ 190 191)
+(succ 191 192)
+(succ 192 193)
+(succ 193 194)
+(succ 194 195)
+(succ 195 196)
+(succ 196 197)
+(succ 197 198)
+(succ 198 199)
+(succ 199 200)
+(succ 200 201)

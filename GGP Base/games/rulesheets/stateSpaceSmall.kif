@@ -1,0 +1,108 @@
+;; Generated path-based goal tree game
+;; Depth = 5; branching = 4; size = 1024
+
+(role robot)
+
+(init (depth level1))
+(init (prev-goal 0))
+
+(<= (legal robot (move ?direction))
+    (direction ?direction)
+  )
+
+;; Maintain previous choices in state
+(<= (next (choice ?x ?y))    (true (choice ?x ?y))  )
+
+;; Increment game depth
+(<= (next (depth ?y))    (true (depth ?x))    (succ ?x ?y)  )
+
+;; Add the new choice point
+(<= (next (choice ?d ?x))
+    (does robot (move ?x))
+    (true (depth ?d))
+  )
+
+;; Set the new prev-goal if there is one
+(<= (next (prev-goal ?x)) (state-goal ?x))
+
+;; Keep the old goal if we don't define a new one
+(<= (next (prev-goal ?x))
+    (not goal-defined)
+    (true (prev-goal ?x))
+)
+
+(<= goal-defined (state-goal ?x))
+
+;; if the current state has a goal, use that
+(<= (goal robot ?g)
+    (state-goal ?g)
+  )
+
+;; if the current state doesn't define a goal, use the prev one
+(<= (goal robot ?g)
+    (not goal-defined)
+    (true (prev-goal ?g))
+  )
+
+;; define the goals for states:
+(<= (state-goal 25)
+    (true (choice level1 c3))
+    (not (true (choice level1 c4)))
+    (not (true (choice level2 c1)))
+    (not (true (choice level2 c3)))
+    (not (true (choice level3 c2)))
+    (not (true (choice level2 c1)))
+    (not (true (choice level3 c3)))
+    (not (true (choice level4 c4)))
+  )
+;; define the goals for states:
+(<= (state-goal 50)
+    (true (choice level1 c4))
+    (true (choice level2 c1))
+    (not (true (choice level1 c3)))
+    (not (true (choice level1 c3)))
+    (not (true (choice level2 c3)))
+    (not (true (choice level3 c2)))
+    (not (true (choice level1 c3)))
+    (not (true (choice level3 c3)))
+    (not (true (choice level4 c4)))
+  )
+;; define the goals for states:
+(<= (state-goal 75)
+    (true (choice level1 c3))
+    (true (choice level2 c3))
+    (true (choice level3 c2))
+    (not (true (choice level1 c4)))
+    (not (true (choice level2 c1)))
+    (not (true (choice level2 c1)))
+    (not (true (choice level3 c3)))
+    (not (true (choice level4 c4)))
+  )
+;; define the goals for states:
+(<= (state-goal 100)
+    (true (choice level1 c3))
+    (true (choice level2 c1))
+    (true (choice level3 c3))
+    (true (choice level4 c4))
+    (not (true (choice level1 c4)))
+    (not (true (choice level2 c3)))
+    (not (true (choice level3 c2)))
+  )
+
+(<= terminal 
+    (true (depth level5))
+  )
+
+(succ level1 level2)
+(succ level2 level3)
+(succ level3 level4)
+(succ level4 level5)
+
+(direction c1)
+(direction c2)
+(direction c3)
+(direction c4)
+
+( base choice ( val level1 level2 level3 level4 level5 ) ( val c1 c2 c3 c4 ) )
+( base depth ( val level1 level2 level3 level4 level5 ) )
+( base prev-goal ( val 0 25 50 75 100 ) )

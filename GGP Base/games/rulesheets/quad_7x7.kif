@@ -1,0 +1,277 @@
+;; Quad, http://www.spektrum.de/artikel/823733
+;; Stand 09/10/29 11:40
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; rollen
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(role x)
+(role o)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; init spielsteine
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(init (quad x 12))
+(init (quad o 12))
+(init (white x 5))
+(init (white o 5))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; init spielfeld
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(init (cell r1 c2 b))
+(init (cell r1 c3 b))
+(init (cell r1 c4 b))
+(init (cell r1 c5 b))
+(init (cell r1 c6 b))
+(init (cell r2 c1 b))
+(init (cell r2 c2 b))
+(init (cell r2 c3 b))
+(init (cell r2 c4 b))
+(init (cell r2 c5 b))
+(init (cell r2 c6 b))
+(init (cell r2 c7 b))
+(init (cell r3 c1 b))
+(init (cell r3 c2 b))
+(init (cell r3 c3 b))
+(init (cell r3 c4 b))
+(init (cell r3 c5 b))
+(init (cell r3 c6 b))
+(init (cell r3 c7 b))
+(init (cell r4 c1 b))
+(init (cell r4 c2 b))
+(init (cell r4 c3 b))
+(init (cell r4 c4 b))
+(init (cell r4 c5 b))
+(init (cell r4 c6 b))
+(init (cell r4 c7 b))
+(init (cell r5 c1 b))
+(init (cell r5 c2 b))
+(init (cell r5 c3 b))
+(init (cell r5 c4 b))
+(init (cell r5 c5 b))
+(init (cell r5 c6 b))
+(init (cell r5 c7 b))
+(init (cell r6 c1 b))
+(init (cell r6 c2 b))
+(init (cell r6 c3 b))
+(init (cell r6 c4 b))
+(init (cell r6 c5 b))
+(init (cell r6 c6 b))
+(init (cell r6 c7 b))
+(init (cell r7 c2 b))
+(init (cell r7 c3 b))
+(init (cell r7 c4 b))
+(init (cell r7 c5 b))
+(init (cell r7 c6 b))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; x beginnt
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(init (control x))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; nachfolgerrelationen
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(ncol c1 c2)
+(ncol c2 c3)
+(ncol c3 c4)
+(ncol c4 c5)
+(ncol c5 c6)
+(ncol c6 c7)
+
+(nrow r1 r2)
+(nrow r2 r3)
+(nrow r3 r4)
+(nrow r4 r5)
+(nrow r5 r6)
+(nrow r6 r7)
+
+(<= (prow ?x ?y) (nrow ?y ?x))
+(<= (pcol ?x ?y) (ncol ?y ?x))
+
+(succ 0 1)
+(succ 1 2)
+(succ 2 3)
+(succ 3 4)
+(succ 4 5)
+(succ 5 6)
+(succ 6 7)
+(succ 7 8)
+(succ 8 9)
+(succ 9 10)
+(succ 10 11)
+(succ 11 12)
+(succ 12 13)
+(succ 13 14)
+(succ 14 15)
+(succ 15 16)
+(succ 16 17)
+(succ 17 18)
+(succ 18 19)
+(succ 19 20)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; 'control' setzt blockade oder spielstein
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(<= (legal ?player (mark ?x ?y)) (true (cell ?x ?y b)) (true (control ?player)))
+(<= (legal ?player (block ?x ?y)) (true (cell ?x ?y b)) (true (control ?player)) (true (white ?player ?c)) (distinct ?c 0))
+(<= (legal x noop) (true (control o)))
+(<= (legal o noop) (true (control x)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; update des spielfeldes
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(<= (next (cell ?m ?n ?p)) (does ?p (mark ?m ?n)))
+(<= (next (cell ?m ?n w)) (does ?p (block ?m ?n)))
+(<= (next (cell ?m ?n ?p)) (true (cell ?m ?n ?p)) (distinct ?p b))
+
+(<= (next (cell ?m ?n b)) (does ?W (mark ?j ?k)) (true(cell ?m ?n b)) (distinct ?m ?j))
+(<= (next (cell ?m ?n b)) (does ?W (mark ?j ?k)) (true(cell ?m ?n b)) (distinct ?n ?k))
+
+(<= (next (cell ?m ?n b)) (does ?W (block ?j ?k)) (true(cell ?m ?n b)) (distinct ?m ?j))
+(<= (next (cell ?m ?n b)) (does ?W (block ?j ?k)) (true(cell ?m ?n b)) (distinct ?n ?k))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; update der spielsteine
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; passiver spieler
+(<= (next (quad ?p ?c)) (true (control ?q)) (true (quad ?p ?c)) (distinct ?p ?q))
+(<= (next (white ?p ?c)) (true (control ?q)) (true (white ?p ?c)) (distinct ?p ?q))
+;; aktiver spieler, verwendeten stapel veringern
+(<= (next (quad ?p ?c)) (does ?p (mark ?j ?k)) (true (quad ?p ?c1)) (succ ?c ?c1))
+(<= (next (white ?p ?c)) (does ?p (block ?j ?k)) (true (white ?p ?c1)) (succ ?c ?c1))
+;; den anderen stapel erhalten
+(<= (next (quad ?p ?c)) (does ?p (block ?j ?k)) (true (quad ?p ?c)))
+(<= (next (white ?p ?c)) (does ?p (mark ?j ?k)) (true (white ?p ?c)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; control
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; bei setzen von spielstein wechselt control
+(<= (next (control x)) (does o (mark ?j ?k)) (true (control o)))
+(<= (next (control o)) (does x (mark ?j ?k)) (true (control x)))
+
+;; bei blockade wechselt control nicht
+(<= (next (control ?p)) (does ?p (block ?j ?k)) (true (control ?p)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; ein quadrat bilden
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; das einfachste:
+;; 12
+;; 34
+
+(<= (square ?x1 ?y1 ?x1 ?y2 ?x2 ?y1 ?x2 ?y2) (ncol ?y1 ?y2) (nrow ?x1 ?x2))
+
+;; links oben fest gehalten, gestreckt:
+;; 1-2
+;; ---
+;; 3-4
+
+(<= (square ?x1 ?y1 ?x1 ?y2 ?x2 ?y1 ?x2 ?y2) (ncol ?y3 ?y2) (nrow ?x3 ?x2) (square ?x1 ?y1 ?x1 ?y3 ?x3 ?y1 ?x3 ?y3))
+
+;; ecke links oben fest gehalten, ecke rechts oben nach oben gezogen:
+;; --2-
+;; 1---
+;; ---4
+;; -3--
+
+(<= (square ?x1 ?y1 ?x2 ?y2 ?x3 ?y3 ?x4 ?y4) (prow ?x2p ?x2) (ncol ?y3n ?y3) (prow ?x4p ?x4) (ncol ?y4n ?y4)
+   (square ?x1 ?y1 ?x2p ?y2 ?x3 ?y3n ?x4p ?y4n))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; sieg / niederlage
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(<= win
+   (true (cell ?x1 ?y1 x)) (true (cell ?x2 ?y2 x))
+   (true (cell ?x3 ?y3 x)) (true (cell ?x4 ?y4 x))
+   (square ?x1 ?y1 ?x2 ?y2 ?x3 ?y3 ?x4 ?y4))
+(<= lose
+   (true (cell ?x1 ?y1 o)) (true (cell ?x2 ?y2 o))
+   (true (cell ?x3 ?y3 o)) (true (cell ?x4 ?y4 o))
+   (square ?x1 ?y1 ?x2 ?y2 ?x3 ?y3 ?x4 ?y4))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; x gewinnt, wenn im naechsten zug ein quadrat moeglich waere
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(<= winByOpenQuad
+   (not lose)
+   (not open)
+   (true (cell ?x1 ?y1 x)) (true (cell ?x2 ?y2 x))
+   (true (cell ?x3 ?y3 x)) (true (cell ?x4 ?y4 b))
+   (square ?x1 ?y1 ?x2 ?y2 ?x3 ?y3 ?x4 ?y4))
+(<= winByOpenQuad
+   (not lose)
+   (not open)
+   (true (cell ?x1 ?y1 x)) (true (cell ?x2 ?y2 b))
+   (true (cell ?x3 ?y3 x)) (true (cell ?x4 ?y4 x))
+   (square ?x1 ?y1 ?x2 ?y2 ?x3 ?y3 ?x4 ?y4))
+(<= winByOpenQuad
+   (not lose)
+   (not open)
+   (true (cell ?x1 ?y1 x)) (true (cell ?x2 ?y2 x))
+   (true (cell ?x3 ?y3 b)) (true (cell ?x4 ?y4 x))
+   (square ?x1 ?y1 ?x2 ?y2 ?x3 ?y3 ?x4 ?y4))
+(<= winByOpenQuad
+   (not lose)
+   (not open)
+   (true (cell ?x1 ?y1 b)) (true (cell ?x2 ?y2 x))
+   (true (cell ?x3 ?y3 x)) (true (cell ?x4 ?y4 x))
+   (square ?x1 ?y1 ?x2 ?y2 ?x3 ?y3 ?x4 ?y4))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; spiel laeuft, bis die steine verbaut sind
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(<= open
+   (true (quad ?p ?c)) (distinct ?c 0))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; wer hat mehr blockaden?
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; more(x,y) -> x>y
+(<= (more ?x 0) (succ ?y ?x))
+(<= (more ?x ?y) (succ ?x1 ?x) (succ ?y1 ?y) (more ?x1 ?y1))
+
+(<= morewhite (true (white x ?a)) (true (white o ?b)) (more ?a ?b))
+(<= lesswhite (true (white x ?a)) (true (white o ?b)) (more ?b ?a))
+(<= equalwhite (true (white x ?a)) (true (white o ?a)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; punkteverteilung:
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(<= (goal x 100) win)
+(<= (goal x 95)  (not win) winByOpenQuad)
+(<= (goal x 90)  (not win) (not winByOpenQuad) (not lose) (not open) morewhite)
+(<= (goal x 50)  (not win) (not winByOpenQuad) (not lose) (not open) equalwhite)
+(<= (goal x 10)  (not win) (not winByOpenQuad) (not lose) (not open) lesswhite)
+(<= (goal x 0)   lose)
+
+(<= (goal o 100) lose)
+(<= (goal o 90)  (not win) (not winByOpenQuad) (not lose) (not open) lesswhite)
+(<= (goal o 50)  (not win) (not winByOpenQuad) (not lose) (not open) equalwhite)
+(<= (goal o 10)  (not win) (not winByOpenQuad) (not lose) (not open) morewhite)
+(<= (goal o 5)   (not win) winByOpenQuad)
+(<= (goal o 0)   win)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; endzustaende: sieg oder keine steine mehr
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(<= terminal win)
+(<= terminal lose)
+(<= terminal (not open))

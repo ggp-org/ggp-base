@@ -1,0 +1,435 @@
+; Hitori (http://en.wikipedia.org/wiki/Hitori)
+; minus the condition that all unfilled cells must be connected
+
+(role player)
+
+(init(cell 1 1 5 e))
+(init(cell 1 2 5 e)) ;5
+(init(cell 1 3 2 e)) ;2
+(init(cell 1 4 2 e))
+(init(cell 1 5 3 e))
+
+(init(cell 2 1 3 e))
+(init(cell 2 2 4 e))
+(init(cell 2 3 5 e)) ;;5
+(init(cell 2 4 2 e))
+(init(cell 2 5 1 e))
+
+(init(cell 3 1 3 e)) ;;3
+(init(cell 3 2 1 e))
+(init(cell 3 3 3 e)) ;3
+(init(cell 3 4 3 e))
+(init(cell 3 5 5 e))
+
+(init(cell 4 1 1 e))
+(init(cell 4 2 5 e)) ;5
+(init(cell 4 3 5 e))
+(init(cell 4 4 4 e))
+(init(cell 4 5 2 e))
+
+(init(cell 5 1 4 e))
+(init(cell 5 2 5 e))
+(init(cell 5 3 1 e)) ;1
+(init(cell 5 4 5 e)) ;5
+(init(cell 5 5 4 e))
+
+(init(step 0))
+
+;--------------------------------------------------------------------
+;MARK CELL AS BLACK
+(<= (next (cell ?x ?y ?value b))
+	(does player (write ?x ?y ?value b)))
+
+;MARK CELL AS EMPLTY
+(<= (next (cell ?x ?y ?value e))
+	(does player (write ?x ?y ?value e)))
+;	(true(cell ?x ?y ?value b)))
+
+
+
+;NOTHING HAPPEND FOR OTHER CELLS
+(<= (next (cell ?x ?y ?value ?color))
+      (true (cell ?x ?y ?value ?color))
+      (does player (write ?a ?b ?value2 ?color2))
+      (or (distinct ?x ?a)(distinct ?y ?b)))
+
+;---------------------------------------------------------------------
+;LEGAL MOVES
+
+(<= (legal player (write ?x ?y ?value e))
+	(true(cell ?x ?y ?value b)))
+
+
+(<= (legal player (write ?x ?y ?value b))
+	(true(cell ?x ?y ?value e)) 
+	(neighbours ?x ?y e) 
+	(count_val ?x ?y ?count1)
+	(count_val1 ?x ?y ?count2)
+	(or (bigger ?count1 1) (bigger ?count2 1) )
+)
+
+;-----------------------------------------------------------------------
+;--- COUNT OCCURENCES OF A VALUE IN HORIZONT----------------------------
+
+(<= (count_val ?x ?y ?count)
+	(true(cell ?x ?y ?value ?color))
+	(count_hor ?x 1 ?value ?count) 
+)
+
+(<= (count_val1 ?x ?y ?count)
+	(true(cell ?x ?y ?value ?color))
+	(count_ver 1 ?y ?value ?count) 
+)
+
+(<= (count_hor ?x ?y ?value ?count)
+	(true(cell ?x ?y ?value e))
+	(succ ?y ?y1)
+	(count_hor ?x ?y1 ?value ?count1)
+	(succ ?count1 ?count)
+)
+(<= (count_hor ?x ?y ?value ?count)
+	(true(cell ?x ?y ?value1 ?color))
+	(distinct ?value ?value1)
+	(succ ?y ?y1)
+	(count_hor ?x ?y1 ?value ?count)	
+)
+(<= (count_hor ?x ?y ?value ?count)
+	(true(cell ?x ?y ?value b))
+	(succ ?y ?y1)
+	(count_hor ?x ?y1 ?value ?count)
+)
+
+(<= (count_hor ?x 5 ?value 1)
+	(true(cell ?x 5 ?value e))
+)
+
+(<= (count_hor ?x 5 ?value 0)
+	(true(cell ?x 5 ?value b))
+)
+
+(<= (count_hor ?x 5 ?value 0)
+	(true(cell ?x 5 ?value1 ?color))
+	(distinct ?value ?value1)
+	(succ ?value ?value2)		;to make value a save var
+)
+
+
+;--- COUNT OCCURENCES OF A VALUE IN VERTICAL----------------------------
+
+
+(<= (count_ver 5 ?y ?value 1)
+	(true(cell 5 ?y ?value e))
+)
+
+(<= (count_ver 5 ?y ?value 0)
+	(true(cell 5 ?y ?value b))
+)
+
+(<= (count_ver 5 ?y ?value 0)
+	(true(cell 5 ?y ?value1 ?color))
+	(distinct ?value ?value1)
+	(succ ?value ?value2)
+)
+
+(<= (count_ver ?x ?y ?value ?count)
+	(true(cell ?x ?y ?value e))
+	(succ ?x ?x1)
+	(count_ver ?x1 ?y ?value ?count1)
+	(succ ?count1 ?count)
+)
+(<= (count_ver ?x ?y ?value ?count)
+	(true(cell ?x ?y ?value1 ?color))
+	(distinct ?value ?value1)
+	(succ ?x ?x1)
+	(count_ver ?x1 ?y ?value ?count)	
+)
+(<= (count_ver ?x ?y ?value ?count)
+	(true(cell ?x ?y ?value b))
+	(succ ?x ?x1)
+	(count_ver ?x1 ?y ?value ?count)
+)
+
+
+
+;-----------------------------------------------------------------------
+
+;NEIGHBOURS must be empty
+
+(<= (neighbours ?x ?y e)
+	(hor ?x ?y e) 
+	(ver ?x ?y e)
+)
+
+; ------neigbours in horisontal ----------------------------------------
+
+(<= (hor ?x 1 e)
+	(true(cell ?x 2 ?value e))
+ )
+
+(<= (hor ?x 5 e)
+	(true(cell ?x 4 ?value e))
+ )
+ 
+(<= (hor ?x ?y e)
+	(succ ?y1 ?y) 
+	(succ ?y ?y2)
+	(true(cell ?x ?y1 ?value e))
+	(true(cell ?x ?y2 ?value1 e))
+	
+ )
+
+; ------neigbours in vertical ----------------------------------------
+
+(<= (ver ?x ?y e)
+	(succ ?x1 ?x)
+	(succ ?x ?x2)
+	(true(cell ?x1 ?y ?value e))
+	(true(cell ?x2 ?y ?value1 e))
+	
+ )
+
+(<= (ver 1 ?y e)
+	(true(cell 2 ?y ?value e))
+ )
+
+(<= (ver 5 ?y e)
+	(true(cell 4 ?y ?value e))
+ )
+
+;------------ no duplicates in coloums-------------------------------------- 
+	
+(<= (diff ?x ?y)
+	(true (cell ?x ?y ?v b)) )
+
+(<= (diff ?x ?y)
+	(true (cell ?x ?y ?v1 e))
+	(succ ?x ?x1)
+	(diff_aux ?x1 ?y ?v1) )
+ 
+(<= (diff_aux ?x ?y ?v)
+	(true (cell ?x ?y ?v1 e))
+	(distinct ?v ?v1)
+	(succ ?x ?x1)
+	(diff_aux ?x1 ?y ?v) )
+
+(<= (diff_aux ?x ?y ?v)
+	(true (cell ?x ?y ?v1 b))
+	(succ ?x ?x1)
+	(diff_aux ?x1 ?y ?v) )
+
+(<= (diff_aux ?x ?y ?v)
+	(succ ?x 7) 
+	(succ ?y ?y1)	;to make y safe var
+	(succ ?v ?v1)	;to make v safe var
+)
+
+;------------ no duplicates in rows ---------------------------------------
+	
+(<= (diff1 ?x ?y)
+	(true (cell ?x ?y ?v b)) )
+
+(<= (diff1 ?x ?y)
+	(true (cell ?x ?y ?v1 e))
+	(succ ?y ?y1)
+	(diff_aux1 ?x ?y1 ?v1) )
+ 
+(<= (diff_aux1 ?x ?y ?v)
+	(true (cell ?x ?y ?v1 e))
+	(distinct ?v ?v1)
+	(succ ?y ?y1)
+	(diff_aux1 ?x ?y1 ?v) )
+
+(<= (diff_aux1 ?x ?y ?v)
+	(true (cell ?x ?y ?v1 b))
+	(succ ?y ?y1)
+	(diff_aux1 ?x ?y1 ?v) )
+
+(<= (diff_aux1 ?x ?y ?v)
+	(succ ?y 7) 
+	(succ ?x ?x1)     ;to make x safe var
+	(succ ?v ?v1)	  ;to make v safe var
+)
+
+
+
+;------------- BIGGER RELATION ----------------------------------------------
+(<= (bigger ?x ?y)
+	(succ ?y ?x)
+)
+
+(<=(bigger ?x ?y)
+	(succ ?y ?y1)
+	(bigger ?x ?y1)
+)
+
+;----------------------------------------------------------------------------
+
+; MOVE COUNT
+(<= (next (step ?y))
+	(true (step ?x))
+	(succ ?x ?y))
+
+;----------------------------------------------------------------------------
+;TERMINAL STATES
+(<=  terminal
+	(true (step 100)) )
+
+
+(<= terminal 
+	(diff 1 1)
+	(diff 2 1)
+	(diff 3 1)
+	(diff 4 1)
+	(diff 1 2)
+	(diff 2 2)
+	(diff 3 2)
+	(diff 4 2)
+	(diff 1 3)
+	(diff 2 3)
+	(diff 3 3)
+	(diff 4 3)
+	(diff 1 4)
+	(diff 2 4)
+	(diff 3 4)
+	(diff 4 4)
+	(diff 1 5)
+	(diff 2 5)
+	(diff 3 5)
+	(diff 4 5)
+	
+	(diff1 1 1)
+	(diff1 1 2)
+	(diff1 1 3)
+	(diff1 1 4)
+	(diff1 2 1)
+	(diff1 2 2)
+	(diff1 2 3)
+	(diff1 2 4)
+	(diff1 3 1)
+	(diff1 3 2)
+	(diff1 3 3)
+	(diff1 3 4)
+	(diff1 4 1)
+	(diff1 4 2)
+	(diff1 4 3)
+	(diff1 4 4)
+	(diff1 5 1)
+	(diff1 5 2)
+	(diff1 5 3)
+	(diff1 5 4)
+	
+	
+)
+
+(<= (goal player 100)
+	(not(true(step 100)))
+
+)
+
+(<= (goal player 1)
+		(true(step 100))
+
+)
+;---------------------------------------------------------------------
+; Successor axioms
+(succ 0 1)
+(succ 1 2)
+(succ 2 3)
+(succ 3 4)
+(succ 4 5)
+(succ 5 6)
+(succ 6 7)
+(succ 7 8)
+(succ 8 9)
+(succ 9 10)
+(succ 10 11)
+(succ 11 12)
+(succ 12 13)
+(succ 13 14)
+(succ 14 15)
+(succ 15 16)
+(succ 16 17)
+(succ 17 18)
+(succ 18 19)
+(succ 19 20)
+(succ 20 21)
+(succ 21 22)
+(succ 22 23)
+(succ 23 24)
+(succ 24 25)
+(succ 25 26)
+(succ 26 27)
+(succ 27 28)
+(succ 28 29)
+(succ 29 30)
+(succ 30 31)
+(succ 31 32)
+(succ 32 33)
+(succ 33 34)
+(succ 34 35)
+(succ 35 36)
+(succ 36 37)
+(succ 37 38)
+(succ 38 39)
+(succ 39 40)
+(succ 40 41)
+(succ 41 42)
+(succ 42 43)
+(succ 43 44)
+(succ 44 45)
+(succ 45 46)
+(succ 46 47)
+(succ 47 48)
+(succ 48 49)
+(succ 49 50)
+(succ 50 51)
+(succ 51 52)
+(succ 52 53)
+(succ 53 54)
+(succ 54 55)
+(succ 55 56)
+(succ 56 57)
+(succ 57 58)
+(succ 58 59)
+(succ 59 60)
+(succ 60 61)
+(succ 61 62)
+(succ 62 63)
+(succ 63 64)
+(succ 64 65)
+(succ 65 66)
+(succ 66 67)
+(succ 67 68)
+(succ 68 69)
+(succ 69 70)
+(succ 70 71)
+(succ 71 72)
+(succ 72 73)
+(succ 73 74)
+(succ 74 75)
+(succ 75 76)
+(succ 76 77)
+(succ 77 78)
+(succ 78 79)
+(succ 79 80)
+(succ 80 81)
+(succ 81 82)
+(succ 82 83)
+(succ 83 84)
+(succ 84 85)
+(succ 85 86)
+(succ 86 87)
+(succ 87 88)
+(succ 88 89)
+(succ 89 90)
+(succ 90 91)
+(succ 91 92)
+(succ 92 93)
+(succ 93 94)
+(succ 94 95)
+(succ 95 96)
+(succ 96 97)
+(succ 97 98)
+(succ 98 99)
+(succ 99 100)
+(succ 100 101)

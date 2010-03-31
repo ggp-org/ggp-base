@@ -1,0 +1,73 @@
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Simple Mutex Game
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+  (role robot)
+
+  (init h1)
+  (init t1)
+
+  (<= (legal robot a) (true h1) likely)
+  (<= (legal robot a) (true h5) likely)
+  (<= (legal robot a) (true h6) likely)
+  (<= (legal robot b) (true h1) likely)
+  (<= (legal robot b) (true h5) likely)
+  (<= (legal robot b) (true h7) likely)
+  (<= (legal robot c) (true h1) likely)
+  (<= (legal robot d) (true h2) likely)
+  (<= (legal robot d) (true h4) likely)
+
+  (<= (next h2) (does robot a) (true h1) likely)
+  (<= (next h3) (does robot b) (true h1) likely)
+  (<= (next h4) (does robot c) (true h1) likely)
+  (<= (next h5) (does robot d) (true h2) likely)
+  (<= (next h5) (does robot d) (true h4) likely)
+  (<= (next h6) (does robot a) (true h5) likely)
+  (<= (next h7) (does robot b) (true h5) likely)
+  (<= (next h8) (does robot a) (true h6) likely)
+  (<= (next h8) (does robot b) (true h7) likely)
+
+  (<= (next m1) (true h1))
+  (<= (next m2) (not (true h1)))
+  
+  (<= (next m3) (true h2))
+  (<= (next m4) (not (true h2)))  
+
+  (<= (next m5) (true h4))
+  (<= (next m6) (not (true h4)))  
+
+  (<= (next t2) (true t1))
+  (<= (next t1) (true t2))
+
+  (<= unlikely (true t1) (true t2))
+  (<= unlikely (true m1) (true m2))
+  (<= unlikely (true m3) (true m4))
+  (<= unlikely (true m5) (true m6))
+  (<= likely (not unlikely))
+
+  (<= (goal robot 100) (true h3))
+  (<= (goal robot 0) (not (true h3)))
+
+  (<= terminal (true h3) likely)
+  (<= terminal (true h8) likely)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(base h1)
+(base h2)
+(base h3)
+(base h4)
+(base h5)
+(base h6)
+(base h7)
+(base h8)
+(base m1)
+(base m2)
+(base m3)
+(base m4)
+(base m5)
+(base m6)
+(base t1)
+(base t2)

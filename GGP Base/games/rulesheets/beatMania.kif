@@ -1,0 +1,154 @@
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Beat Mania
+;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; ROLE Relations
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(role dropper)
+(role player)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; INIT Relations
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(init (blocksDropped 0))
+(init (blocksCaught  0))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; LEGAL Relations
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(<= (legal dropper (place 1))
+    (not (true (blocksDropped 30))))
+(<= (legal dropper (place 2))
+    (not (true (blocksDropped 30))))
+(<= (legal dropper (place 3))
+    (not (true (blocksDropped 30))))
+(<= (legal dropper noop)
+    (true (blocksDropped 30)))
+
+(legal player (play 1))
+(legal player (play 2))
+(legal player (play 3))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; NEXT Relations
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(<= (next (block 1 30))
+    (does dropper (place 1)))
+(<= (next (block 2 30))
+    (does dropper (place 2)))
+(<= (next (block 3 30))
+    (does dropper (place 3)))
+    
+(<= (next (blocksDropped ?n++))
+    blockDropped
+    (true (blocksDropped ?n))
+    (++ ?n ?n++))
+(<= (next (blocksDropped ?n))
+    (true (blocksDropped ?n))
+    (not blockDropped))
+    
+(<= (next (blocksCaught ?n++))    
+	blockCaught
+    (true (blocksCaught ?n))
+    (++ ?n ?n++))
+(<= (next (blocksCaught ?n))
+    (true (blocksCaught ?n))
+    (not blockCaught))
+    
+(<= (next (block ?x ?y--))
+    (true (block ?x ?y))
+    (-- ?y ?y--))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; TERMINAL Relations
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(<= terminal
+    (true (blocksDropped 30))
+    (not (true (block 1 1)))
+    (not (true (block 2 1)))
+    (not (true (block 3 1))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; GOAL Relations
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(<= (goal dropper 100))
+(<= (goal player ?goal)
+    (true (blocksCaught ?n))
+    (scoreMap ?n ?goal))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; View Definitions
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(<= blockDropped
+    (does dropper (place 1)))
+(<= blockDropped
+    (does dropper (place 2)))
+(<= blockDropped
+    (does dropper (place 3)))
+    
+(<= blockCaught
+    (does player (play 1))
+    (true (block 1 1)))
+(<= blockCaught
+    (does player (play 2))
+    (true (block 2 1)))
+(<= blockCaught
+    (does player (play 3))
+    (true (block 3 1)))
+    
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Static Relations
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(++  0  1) (++  1  2) (++  2  3) (++  3  4) (++  4  5) (++  5  6) (++  6  7) (++  7  8) (++  8  9) (++  9 10)
+(++ 10 11) (++ 11 12) (++ 12 13) (++ 13 14) (++ 14 15) (++ 15 16) (++ 16 17) (++ 17 18) (++ 18 19) (++ 19 20)
+(++ 20 21) (++ 21 22) (++ 22 23) (++ 23 24) (++ 24 25) (++ 25 26) (++ 26 27) (++ 27 28) (++ 28 29) (++ 29 30)
+
+(-- 30 29) (-- 29 28) (-- 28 27) (-- 27 26) (-- 26 25) (-- 25 24) (-- 24 23) (-- 23 22) (-- 22 21) (-- 21 20)
+(-- 20 19) (-- 19 18) (-- 18 17) (-- 17 16) (-- 16 15) (-- 15 14) (-- 14 13) (-- 13 12) (-- 12 11) (-- 11 10)
+(-- 10  9) (--  9  8) (--  8  7) (--  7  6) (--  6  5) (--  5  4) (--  4  3) (--  3  2) (--  2  1)
+
+
+
+
+(scoreMap  0   0)
+(scoreMap  1   3)
+(scoreMap  2   6)
+(scoreMap  3   9)
+(scoreMap  4  12)
+(scoreMap  5  15)
+(scoreMap  6  18)
+(scoreMap  7  21)
+(scoreMap  8  24)
+(scoreMap  9  27)
+(scoreMap 10  30)
+(scoreMap 11  33)
+(scoreMap 12  36)
+(scoreMap 13  39)
+(scoreMap 14  42)
+(scoreMap 15  45)
+(scoreMap 16  48)
+(scoreMap 17  51)
+(scoreMap 18  54)
+(scoreMap 19  57)
+(scoreMap 20  60)
+(scoreMap 21  63)
+(scoreMap 22  66)
+(scoreMap 23  69)
+(scoreMap 24  72)
+(scoreMap 25  75)
+(scoreMap 26  80)
+(scoreMap 27  85)
+(scoreMap 28  90)
+(scoreMap 29  95)
+(scoreMap 30 100)

@@ -1,0 +1,246 @@
+; Bidding Tic-Tac-Toe
+;
+; GDL by Stephan Schiffel <stephan.schiffel@gmx.de>
+; inspired by Malcolm Ryan
+
+(role x)
+(role o)
+
+(other x o)
+(other o x)
+
+(xcoord 1)
+(xcoord 2)
+(xcoord 3)
+
+(ycoord 1)
+(ycoord 2)
+(ycoord 3)
+
+; initial state
+
+(<= (init (cell ?x ?y b))
+	(xcoord ?x)
+	(ycoord ?y))
+(<= (init (coins ?p 10))
+	(role ?p))
+(init (tiebreaker x))
+(init (stage bidding))
+
+; legal moves
+
+(<= (legal ?p (bid ?b ?tiebreaker))
+	; both players bid simultaneously in the bid stage
+	(true (stage bidding))
+	; can't bid more than you have
+	(true (coins ?p ?m))
+	(le ?b ?m)
+	(legal_bid_tiebreaker ?p ?tiebreaker))
+
+(<= (legal_bid_tiebreaker ?p with_tiebreaker)
+	; the tiebreaker can only be played by the owner
+	(true (tiebreaker ?p)))
+
+(<= (legal_bid_tiebreaker ?p no_tiebreaker)
+	; nobody has to play the tiebreaker
+	(role ?p))
+
+(<= (legal ?p (mark ?r ?c))
+	; the winning player gets to place a mark
+	(true (control ?p))
+	(true (cell ?r ?c b)))
+
+(<= (legal ?p noop)
+	; the losing player does nothing
+	(true (control ?p1))
+	(role ?p)
+	(distinct ?p ?p1))
+
+; successor state
+
+; bidding and marking stages alternate
+(<= (next (stage bidding))
+	(true (control ?p)))
+
+(<= (next (control ?p))
+	; the winning bidder gets control
+	(true (stage bidding))
+	(winner ?p))
+
+(<= (next (coins ?p ?m))
+	; the winner loses his bid
+	(true (stage bidding))
+	(winner ?p)
+	(does ?p (bid ?b ?t))
+	(true (coins ?p ?m0))
+	(add ?m ?b ?m0))
+
+(<= (next (coins ?p ?m))
+	; the loser gains the opponent's bid
+	(true (stage bidding))
+	(winner ?o)
+	(other ?o ?p)
+	(does ?o (bid ?b ?t))
+	(true (coins ?p ?m0))
+	(add ?m0 ?b ?m))
+
+(<= (next (coins ?p ?m))
+	; coins don't change in marking phase
+	(true (control ?someone))
+	(true (coins ?p ?m)))
+
+(<= (next (tiebreaker ?p))
+	; the tiebreaker changes hands when played by the winner
+	(true (stage bidding))
+	(winner ?o)
+	(other ?o ?p)
+	(does ?o (bid ?b with_tiebreaker)))
+
+(<= (next (tiebreaker ?p))
+	; the tiebreaker stays if the winner did not bid it
+	(true (stage bidding))
+	(true (tiebreaker ?p))
+	(winner ?w)
+	(does ?w (bid ?b no_tiebreaker)))
+
+(<= (next (tiebreaker ?p))
+	; tiebreaker does not change in marking phase
+	(true (control ?someone))
+	(true (tiebreaker ?p)))
+
+(<= (next (cell ?r ?c ?p))
+	; a cell is marked
+	(does ?p (mark ?r ?c)))
+
+(<= (next (cell ?r ?c ?x))
+	; unmarked cells stay the same
+	(true (cell ?r ?c ?x))
+	(true (control ?p))
+	(not (does ?p (mark ?r ?c))))
+
+(<= (next (cell ?r ?c ?x))
+	; cells stay the same in the bidding stage
+	(true (stage bidding))
+	(true (cell ?r ?c ?x)))
+
+; winning bidder
+
+(<= (winner ?p)
+	(does ?p (bid ?bp ?tp))
+	(other ?p ?o)
+	(does ?o (bid ?bo ?to))
+	(gt ?bp ?bo))
+
+(<= (winner ?p)
+	; tied bids
+	; tiebreaker was played
+	(does ?p (bid ?b with_tiebreaker))
+	(other ?p ?o)
+	(does ?o (bid ?b no_tiebreaker)))
+
+(<= (winner ?p)
+	; tied bids
+	; tiebreaker wasn't played
+	; player with the tiebreaker loses
+	(true (tiebreaker ?o))
+	(does ?o (bid ?b no_tiebreaker))
+	(other ?p ?o)
+	(does ?p (bid ?b no_tiebreaker)))
+
+; lines
+
+(<= (row ?p)
+	(true (cell ?r 1 ?p))
+	(true (cell ?r 2 ?p))
+	(true (cell ?r 3 ?p)))
+
+(<= (column ?p)
+	(true (cell 1 ?c ?p))
+	(true (cell 2 ?c ?p))
+	(true (cell 3 ?c ?p)))
+
+(<= (diagonal ?p)
+	(true (cell 1 1 ?p))
+	(true (cell 2 2 ?p))
+	(true (cell 3 3 ?p)))
+
+(<= (diagonal ?p)
+	(true (cell 1 3 ?p))
+	(true (cell 2 2 ?p))
+	(true (cell 3 1 ?p)))
+
+(<= (line ?player) (row ?player))
+(<= (line ?player) (column ?player))
+(<= (line ?player) (diagonal ?player))
+
+; terminal
+
+(<= open
+	(true (cell ?r ?c b)))
+
+(<= terminal
+	(role ?p)
+	(line ?p))
+
+(<= terminal
+	(not open))
+
+; goal
+
+(<= (goal ?p 100)
+	(line ?p))
+
+(<= (goal ?p 0)
+	(other ?p ?o)
+	(line ?o))
+
+(<= (goal ?p 50)
+	(role ?p)
+	(not (line x))
+	(not (line o)))
+
+; arithmetic
+
+(succ 0 1)
+(succ 1 2)
+(succ 2 3)
+(succ 3 4)
+(succ 4 5)
+(succ 5 6)
+(succ 6 7)
+(succ 7 8)
+(succ 8 9)
+(succ 9 10)
+(succ 10 11)
+(succ 11 12)
+(succ 12 13)
+(succ 13 14)
+(succ 14 15)
+(succ 15 16)
+(succ 16 17)
+(succ 17 18)
+(succ 18 19)
+(succ 19 20)
+
+(<= (number ?x)
+	(succ ?x ?y))
+(<= (number ?x)
+	(succ ?y ?x))
+
+(<= (gt ?x ?y)
+	(succ ?y ?x))
+(<= (gt ?x ?y)
+	(succ ?y ?z)
+	(gt ?x ?z))
+
+(<= (le ?x ?x)
+	(number ?x))
+(<= (le ?x ?y)
+	(gt ?y ?x))
+
+(<= (add ?x 0 ?x)
+	(number ?x))
+(<= (add ?x ?y ?sum)
+	(succ ?y1 ?y)
+	(succ ?x ?x1)
+	(add ?x1 ?y1 ?sum))

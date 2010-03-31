@@ -1,0 +1,91 @@
+;; This tests an edge case when handling GDL.
+
+(role snake)
+
+(init (cell c1 b))
+(init (cell c2 b))
+(init (cell c3 b))
+(init (cell c4 wall))
+(init (cell c5 b))
+(init (cell c6 b))
+(init (cell c7 b))
+(init (cell c8 b))
+(init (cell c9 b))
+
+(init (step 0))
+(init (pos c6))
+(init (tailpos c6))
+
+(<= (nextcell ?x1 mov_left ?x2)
+	(colinc ?x2 ?x1))
+(<= (nextcell ?x1 mov_right ?x2)
+	(colinc ?x1 ?x2))
+
+(colinc c1 c2) (colinc c2 c3) (colinc c3 c4) (colinc c4 c5) (colinc c5 c6) (colinc c6 c7) (colinc c7 c8) (colinc c8 c9) (colinc c9 c1)
+
+;; ------------
+
+(<= (legal snake ?move)
+	(true (pos ?x))
+	(nextcell ?x ?move ?xn)
+	(maymove ?xn))
+
+(<= (maymove ?x)
+	(true (cell ?x b)))
+
+(<= (next (pos ?xn))
+	(does snake ?move)
+	(true (pos ?x))
+	(nextcell ?x ?move ?xn))
+
+(<= (next evenmove)
+	(not (true evenmove)))
+
+(<= (next (cell ?x b))
+	(true evenmove)
+	(true (tailpos ?x)))
+;;  (not (true (pos ?x)))
+
+(<= (next (cell ?x ?sym))
+	(true (cell ?x ?sym))
+	(not (true (pos ?x)))
+	(not (true (tailpos ?x))))
+
+(<= (next (cell ?x ?sym))
+	(true (cell ?x ?sym))
+	(not (true (pos ?x)))
+	(not (true evenmove)))
+
+(<= (next (cell ?x ?move))
+	(does snake ?move)
+	(true (pos ?x)))
+
+;; -----------------
+
+(<= (goal snake 0)
+    (not (true (step 6))))
+
+(<= (goal snake 100)
+    (true (step 6)))
+
+(<= terminal
+	(true (step 6)))
+
+(<= terminal
+	(not exists_legal))
+
+(<= exists_legal
+	(legal snake ?move))
+
+;; -----------------
+
+(<= (next (step ?y))
+	(true (step ?x))
+	(succ ?x ?y))
+
+(succ 0 1)
+(succ 1 2)
+(succ 2 3)
+(succ 3 4)
+(succ 4 5)
+(succ 5 6)

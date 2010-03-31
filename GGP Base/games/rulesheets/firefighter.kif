@@ -1,0 +1,178 @@
+; firefighter game 
+; written by manju
+; www.ggp-potsdam.de
+; template of twisty passages
+
+;;;;;;;;;;;;;;;;;
+;; Game Agents ;;
+;;;;;;;;;;;;;;;;;
+
+(role firefighter)
+
+;;;;;;;;;;;;;;;;;;;
+;; Initial State ;;
+;;;;;;;;;;;;;;;;;;;
+
+(init fire)
+(init (step 1))
+
+;;;;;;;;;;;;;;;;;
+;; Legal moves ;;
+;;;;;;;;;;;;;;;;;
+
+(<= (legal firefighter (walk ?x))
+    (actions ?x)
+    )
+	
+(<= (legal firefighter extinguish)
+    (actions ?x)
+    )
+
+(<= (legal firefighter flee)
+	(true (step 1))
+	)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;
+;; actions ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(actions gonorthwest)
+(actions gonorth)
+(actions gonortheast)
+(actions goeast)
+(actions gowest)
+(actions gosoutheast)
+(actions gosouth)
+(actions gosouthwest)
+
+;;;;;;;;;;;;;;;;;;
+;; Update Rules ;;
+;;;;;;;;;;;;;;;;;;
+
+(<= (next (step ?s2))
+    (true (step ?s1))
+    (succ ?s1 ?s2)
+    )
+
+(<= (next fleed)
+    (does firefighter flee)
+    )
+
+(<= (next (maked go ?s2))
+    (does firefighter (walk ?x))
+    (actions ?x)
+	(true (step ?s1))
+	(succ ?s1 ?s2)
+    )
+
+(<= (next (maked extinguish ?s2))
+    (does firefighter extinguish)
+	(true (step ?s1))
+	(succ ?s1 ?s2)
+    )
+	
+(<= (next lost)
+	(true lost)
+    )
+	
+(<= (next lost)
+    (does firefighter (walk ?x))
+    (actions ?x)
+    )
+	
+(<= (next (maked go ?s))
+	(true (maked go ?s))
+    )
+	
+(<= (next (maked extinguish ?s))
+	(true (maked extinguish ?s))
+    )
+	
+;;;;;;;;;;;;;;;;;;;;;;;;
+;; Terminal Condition ;;
+;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+(<= terminal
+    (true (step 50))
+    )
+	
+(<= terminal
+    (true fleed)
+    )
+	
+;;;;;;;;;;;;;
+;; Scoring ;;
+;;;;;;;;;;;;;
+
+
+(<= (goal firefighter 100)
+    (not (true lost))
+    (not (true fleed))
+    )
+
+(<= (goal firefighter 0)
+    (true lost)
+    )
+	
+(<= (goal firefighter 20)
+    (true fleed)
+    )
+	
+
+	
+;;;;;;;;;;;;;;;;
+;; Successors ;;
+;;;;;;;;;;;;;;;;
+
+	
+(succ 1 2)
+(succ 2 3)
+(succ 3 4)
+(succ 4 5)
+(succ 5 6)
+(succ 6 7)
+(succ 7 8)
+(succ 8 9)
+(succ 9 10)
+(succ 10 11)
+(succ 11 12)
+(succ 12 13)
+(succ 13 14)
+(succ 14 15)
+(succ 15 16)
+(succ 16 17)
+(succ 17 18)
+(succ 18 19)
+(succ 19 20)
+(succ 20 21)
+(succ 21 22)
+(succ 22 23)
+(succ 23 24)
+(succ 24 25)
+(succ 25 26)
+(succ 26 27)
+(succ 27 28)
+(succ 28 29)
+(succ 29 30)
+(succ 30 31)
+(succ 31 32)
+(succ 32 33)
+(succ 33 34)
+(succ 34 35)
+(succ 35 36)
+(succ 36 37)
+(succ 37 38)
+(succ 38 39)
+(succ 39 40)
+(succ 40 41)
+(succ 41 42)
+(succ 42 43)
+(succ 43 44)
+(succ 44 45)
+(succ 45 46)
+(succ 46 47)
+(succ 47 48)
+(succ 48 49)
+(succ 49 50)
+(succ 50 51)

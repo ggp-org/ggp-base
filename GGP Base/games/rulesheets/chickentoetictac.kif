@@ -1,0 +1,142 @@
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Chicken Toetictac
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Roles
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(role xplayer)
+(role oplayer)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Initial State
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(init (blank a))
+(init (blank b))
+(init (blank c))
+(init (blank d))
+(init (blank e))
+(init (blank f))
+(init (blank g))
+(init (blank h))
+(init (blank i))
+(init (control xplayer))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Dynamic Components
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; Cell
+
+; X player moves
+(<= (next (ecks ?m))
+(does xplayer (mark ?m))
+(true (blank ?m))
+(true (control xplayer))
+(not (does oplayer (mark ?m))))
+
+; O player moves
+(<= (next (oh ?m))
+(does oplayer (mark ?m))
+(true (blank ?m))
+(true (control oplayer))
+(not (does xplayer (mark ?m))))
+
+; Both players mark the same spot, O control
+(<= (next (ecks ?m))
+(does oplayer (mark ?m))
+(true (blank ?m))
+(true (control oplayer))
+(does xplayer (mark ?m)))
+
+; Both players mark the same spot, X control
+(<= (next (oh ?m))
+(does oplayer (mark ?m))
+(true (blank ?m))
+(true (control xplayer))
+(does xplayer (mark ?m)))
+
+(<= (next (ecks ?m))
+(true (ecks ?m)))
+
+(<= (next (oh ?m))
+(true (oh ?m)))
+
+(<= (next (blank ?m))
+(does ?w (mark ?j))
+(true (blank ?m))
+(true (control ?w))
+(distinct ?m ?j))
+
+(<= (next (control xplayer))
+(true (control oplayer)))
+
+(<= (next (control oplayer))
+(true (control xplayer)))
+
+(line a b c)
+(line a d g)
+(line d e f)
+(line b e h)
+(line g h i)
+(line c f i)
+(line a e i)
+(line c e g)
+
+(<= xline
+(line ?a ?b ?c)
+(true (ecks ?a))
+(true (ecks ?b))
+(true (ecks ?c)))
+
+(<= oline
+(line ?a ?b ?c)
+(true (oh ?a))
+(true (oh ?b))
+(true (oh ?c)))
+
+(<= open
+(true (blank ?m)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(<= (legal ?w (mark ?x))
+(true (blank ?x))
+(role ?w))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(<= (goal xplayer 100)
+xline)
+
+(<= (goal xplayer 50)
+(not xline)
+(not oline)
+(not open))
+
+(<= (goal xplayer 0)
+oline)
+
+(<= (goal oplayer 100)
+oline)
+
+(<= (goal oplayer 50)
+(not xline)
+(not oline)
+(not open))
+
+(<= (goal oplayer 0)
+xline)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(<= terminal
+xline)
+
+(<= terminal
+oline)
+
+(<= terminal
+(not open))

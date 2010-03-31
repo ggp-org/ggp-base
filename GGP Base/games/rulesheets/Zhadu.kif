@@ -1,0 +1,389 @@
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;;  Zhadu: Legend of the Sharing
+;;;
+;;;  A 2 player abstract strategy game with a placement phase and a movement
+;;;  phase, where the first piece you capture determines what other piece you
+;;;  need to capture in order to win.
+;;;
+;;;  Full Description: http://www.rafrederickson.com/Zhadu_Guidelines.pdf
+;;;
+;;;  GDL BY: Sam Schreiber (schreib@cs.stanford.edu)
+;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; ROLE Relations
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(role light)
+(role dark)
+(opponent light dark)
+(opponent dark light)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Board structure
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(bordering a a1)
+(bordering a a2)
+(bordering a a3)
+(bordering b b1)
+(bordering b b2)
+(bordering b b3)
+(bordering c c1)
+(bordering c c2)
+(bordering c c3)
+(bordering d d1)
+(bordering d d2)
+(bordering d d3)
+(bordering e e1)
+(bordering e e2)
+(bordering e e3)
+(bordering f f1)
+(bordering f f2)
+(bordering f f3)
+(bordering g g1)
+(bordering g g2)
+(bordering g g3)
+(bordering h h1)
+(bordering h h2)
+(bordering h h3)
+(bordering a1 a2)
+(bordering a1 a3)
+(bordering a2 a3)
+(bordering b1 b2)
+(bordering b1 b3)
+(bordering b2 b3)
+(bordering c1 c2)
+(bordering c1 c3)
+(bordering c2 c3)
+(bordering d1 d2)
+(bordering d1 d3)
+(bordering d2 d3)
+(bordering e1 e2)
+(bordering e1 e3)
+(bordering e2 e3)
+(bordering f1 f2)
+(bordering f1 f3)
+(bordering f2 f3)
+(bordering g1 g2)
+(bordering g1 g3)
+(bordering g2 g3)
+(bordering h1 h2)
+(bordering h1 h3)
+(bordering h2 h3)
+(bordering a2 c3)
+(bordering c3 b1)
+(bordering a3 c2)
+(bordering c2 d1)
+(bordering b2 e3)
+(bordering d3 g2)
+(bordering e1 f2)
+(bordering f2 h3)
+(bordering g1 f3)
+(bordering f3 h2)
+(bordering b3 c1)
+(bordering c1 d2)
+(bordering d2 g3)
+(bordering g3 f1)
+(bordering f1 e2)
+(bordering e2 b3) 
+
+(<= (neighbors ?a ?b)
+    (bordering ?a ?b))
+(<= (neighbors ?a ?b)
+    (bordering ?b ?a))
+
+(<= (cellFilled ?x)
+    (role ?p)
+    (value ?v)
+    (true (piece ?p ?v ?x)))
+
+(<= (empty ?x)
+    (cell ?x)
+    (not (cellFilled ?x)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Control alternating, step counter
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(init (control light))
+(<= (next (control light))
+    (true (control dark)))
+(<= (next (control dark))
+    (true (control light)))
+(<= (legal ?p noop)
+    (role ?p)
+    (not (true (control ?p))))
+    
+(init (step 0))
+(<= (next (step ?xn))
+    (succ ?x ?xn)
+    (true (step ?x)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Board setup phase
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(validInitialLocation light a)
+(validInitialLocation light a1)
+(validInitialLocation light a2)
+(validInitialLocation light a3)
+(validInitialLocation light c)
+(validInitialLocation dark h)
+(validInitialLocation dark h1)
+(validInitialLocation dark h2)
+(validInitialLocation dark h3)
+(validInitialLocation dark f)
+
+(<= (onBoard ?p ?v)
+	(cell ?x)	
+    (true (piece ?p ?v ?x)))
+
+(<= (legal ?p (place ?v ?x))
+	(cell ?x)
+	(validInitialLocation ?p ?x)
+    (empty ?x)
+    (value ?v)
+    (not (onBoard ?p ?v))
+    (true (control ?p))
+    (true (phase setup)))
+
+(<= (next (piece ?p ?v ?x))
+    (does ?p (place ?v ?x)))
+
+(init (phase setup))
+(<= (next (phase setup))
+    (or (true (step 0))
+        (true (step 1))
+        (true (step 2))
+        (true (step 3))
+        (true (step 4))
+        (true (step 5))
+        (true (step 6))
+        (true (step 7))
+        (true (step 8))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Gameplay (legal moves)
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(<= (legal ?p (move ?v ?xn))
+    (true (piece ?p ?v ?x))
+    (not (true (phase setup)))
+    (value ?v)
+    (cell ?xn)
+    (true (control ?p))    
+    (canMoveTo ?p ?xn)
+    (canGoBetween ?v ?x ?xn))
+
+(<= (canMoveTo ?p ?xn)
+    (role ?p)
+    (empty ?xn))
+    
+(<= (canMoveTo ?p ?xn)
+    (opponent ?p ?op)
+    (value ?v)
+    (true (piece ?op ?v ?xn)))
+
+(<= (canGoBetween 1 ?x ?xn)
+    (neighbors ?x ?xn))
+    
+(<= (canGoBetween 2 ?x ?xn)
+    (cell ?a)
+    (empty ?a)
+    (neighbors ?x ?a)
+    (neighbors ?a ?xn)
+    (distinct ?x ?xn))
+    
+(<= (canGoBetween 3 ?x ?xn)
+    (cell ?a)    
+    (empty ?a)
+    (neighbors ?x ?a)
+    (distinct ?x ?b)
+    (cell ?b)
+    (empty ?b)    
+    (neighbors ?a ?b)
+    (neighbors ?b ?xn)    
+    (distinct ?x ?xn)
+    (distinct ?a ?xn))
+    
+(<= (canGoBetween 123 ?x ?xn)
+    (or (canGoBetween 1 ?x ?xn)
+        (canGoBetween 2 ?x ?xn)
+        (canGoBetween 3 ?x ?xn)))
+        
+(<= (canGoBetween 4 ?x ?xn)
+    (cell ?a)
+    (empty ?a)
+    (neighbors ?x ?a)
+    (neighbors ?a ?b)
+    (distinct ?x ?b)
+    (cell ?b)
+    (empty ?b)
+    (neighbors ?b ?c)
+    (distinct ?x ?c)
+    (distinct ?a ?c)
+    (cell ?c)
+    (empty ?c)
+    (neighbors ?c ?xn)
+    (distinct ?x ?xn)
+    (distinct ?a ?xn)
+    (distinct ?b ?xn))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Gameplay (next state, captures)
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(<= (shouldDisappear ?p ?v ?x)
+    (role ?p)
+    (value ?v)
+    (cell ?x)
+    (opponent ?p ?p2)
+    (value ?v2)
+    (cell ?x2)
+    (or (does ?p2 (move ?v2 ?x))
+        (does ?p (move ?v ?x2))))   
+
+(<= (next (piece ?p ?v ?x))
+    (true (piece ?p ?v ?x))
+    (opponent ?p ?p2)
+    (value ?v2)
+    (cell ?x2)
+    (not (shouldDisappear ?p ?v ?x)))
+
+(<= (next (piece ?p ?v ?x))
+    (does ?p (move ?v ?x)))
+
+; ---
+
+(<= (hasFirstCapture ?p)
+    (value ?v)
+    (true (firstCapture ?p ?v)))
+
+(<= (next (firstCapture ?p ?v))
+    (role ?p)
+    (not (hasFirstCapture ?p))
+    (cell ?x)
+    (opponent ?p ?p2)
+    (does ?p (move ?v2 ?x))
+    (true (piece ?p2 ?v ?x)))
+
+(<= (next (firstCapture ?p ?v))
+    (true (firstCapture ?p ?v)))
+
+; ---
+
+(<= (next (lastCapture ?p ?v))
+    (cell ?x)
+    (value ?v2)
+    (opponent ?p ?p2)
+    (does ?p (move ?v2 ?x))
+    (true (piece ?p2 ?v ?x)))
+
+(<= (justCaptured ?p)
+    (cell ?x)
+    (value ?v2)
+    (opponent ?p ?p2)
+    (does ?p (move ?v2 ?x))
+    (true (piece ?p2 ?v ?x)))    
+
+(<= (next (lastCapture ?p ?v))
+    (true (lastCapture ?p ?v))
+    (not (justCaptured ?p)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Gameplay (goals, terminal)
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(<= (hasLegalMove ?player)
+    (legal ?player (move ?v ?x)))
+
+(<= (hasLegalMove ?player)
+    (legal ?player (place ?v ?x)))
+
+(<= (hasLegalMove ?player)
+    (legal ?player noop))
+
+(<= (victory ?p)
+    (role ?p)
+    (opponent ?p ?q)
+    (not (hasLegalMove ?q)))
+
+(<= (victory ?p)
+    (role ?p)
+    (value ?v1)
+    (value ?v2)
+    (true (firstCapture ?p ?v1))
+    (true (lastCapture ?p ?v2))
+    (victoryCondition ?v1 ?v2))
+    
+(<= (victoryCondition ?a ?b)
+    (victoryPair ?a ?b))
+(<= (victoryCondition ?a ?b)
+    (victoryPair ?b ?a))
+    
+(victoryPair 1 3)
+(victoryPair 4 4)
+(victoryPair 1 123)
+(victoryPair 2 123)
+(victoryPair 3 123)
+
+(<= terminal
+    (role ?p)
+    (victory ?p))
+    
+(<= (goal ?p 0)
+    (role ?p)
+    (opponent ?p ?p2)
+    (victory ?p2))
+    
+(<= (goal ?p 100)
+    (role ?p)
+    (victory ?p))
+
+(<= terminal
+    (true (step 100)))
+
+(<= (goal ?p 50)
+    (role ?p)
+    (opponent ?p ?p2)
+    (not (victory ?p))
+    (not (victory ?p2)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Static Relations
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(value 1) (value 2) (value 3) (value 123) (value 4)
+
+(cell a) (cell a1) (cell a2) (cell a3)
+(cell b) (cell b1) (cell b2) (cell b3)
+(cell c) (cell c1) (cell c2) (cell c3)
+(cell d) (cell d1) (cell d2) (cell d3)
+(cell e) (cell e1) (cell e2) (cell e3)
+(cell f) (cell f1) (cell f2) (cell f3)
+(cell g) (cell g1) (cell g2) (cell g3)
+(cell h) (cell h1) (cell h2) (cell h3)
+
+(succ  1  2) (succ  2  3) (succ  3  4) (succ  4  5) (succ  5  6) 
+(succ  6  7) (succ  7  8) (succ  8  9) (succ  9 10) (succ 10 11)
+(succ 11 12) (succ 12 13) (succ 13 14) (succ 14 15) (succ 15 16)
+(succ 16 17) (succ 17 18) (succ 18 19) (succ 19 20) (succ 20 21)
+(succ 21 22) (succ 22 23) (succ 23 24) (succ 24 25) (succ 25 26)
+(succ 26 27) (succ 27 28) (succ 28 29) (succ 29 30) (succ 30 31)
+(succ 31 32) (succ 32 33) (succ 33 34) (succ 34 35) (succ 35 36)
+(succ 36 37) (succ 37 38) (succ 38 39) (succ 39 40) (succ 40 41)
+(succ 41 42) (succ 42 43) (succ 43 44) (succ 44 45) (succ 45 46)
+(succ 46 47) (succ 47 48) (succ 48 49) (succ 49 50) (succ 50 51)
+(succ 51 52) (succ 52 53) (succ 53 54) (succ 54 55) (succ 55 56)
+(succ 56 57) (succ 57 58) (succ 58 59) (succ 59 60) (succ 60 61)
+(succ 61 62) (succ 62 63) (succ 63 64) (succ 64 65) (succ 65 66)
+(succ 66 67) (succ 67 68) (succ 68 69) (succ 69 70) (succ 70 71)
+(succ 71 72) (succ 72 73) (succ 73 74) (succ 74 75) (succ 75 76)
+(succ 76 77) (succ 77 78) (succ 78 79) (succ 79 80) (succ 80 81)
+(succ 81 82) (succ 82 83) (succ 83 84) (succ 84 85) (succ 85 86)
+(succ 86 87) (succ 87 88) (succ 88 89) (succ 89 90) (succ 90 91)
+(succ 91 92) (succ 92 93) (succ 93 94) (succ 94 95) (succ 95 96)
+(succ 96 97) (succ 97 98) (succ 98 99) (succ 99 100) (succ 0 1)

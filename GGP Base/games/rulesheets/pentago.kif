@@ -1,0 +1,262 @@
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Pentago
+;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; ROLE Relations
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(role red)
+(role black)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; INIT Relations
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(init (placeControl red))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; LEGAL Relations
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(<= (legal ?player (place ?q ?x ?y))
+    (role ?player)
+    (true (placeControl ?player))
+    (cellEmpty ?q ?x ?y))
+    
+(<= (legal ?player (rotate ?q ?dir))
+    (quadrant ?q)
+    (direction ?dir)
+    (role ?player)
+    (true (rotateControl ?player)))
+    
+(<= (legal ?player noop)
+    (role ?player)
+    (not (true (placeControl ?player)))
+    (not (true (rotateControl ?player))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; NEXT Relations
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(<= (next (cellHolds ?q ?x ?y ?player))
+    (role ?player)
+    (does ?player (place ?q ?x ?y)))
+
+(<= (next (cellHolds ?q ?x ?y ?state))
+    (true (cellHolds ?q ?x ?y ?state))
+    (role ?player)
+    (does ?player (place ?qAny ?xAny ?yAny)))
+    
+(<= (next (cellHolds ?q ?x2 ?y2 ?state))
+    (role ?player)
+    (does ?player (rotate ?q ?dir))
+    (true (cellHolds ?q ?x1 ?y1 ?state))
+    (rotation ?dir ?x1 ?y1 ?x2 ?y2))
+    
+(<= (next (cellHolds ?q1 ?x ?y ?state))
+    (role ?player)
+    (does ?player (rotate ?q2 ?dirAny))
+    (true (cellHolds ?q1 ?x ?y ?state))
+    (distinct ?q1 ?q2))
+
+(<= (next (rotateControl red))
+    (true ( placeControl red)))
+(<= (next ( placeControl red))
+    (true (rotateControl black)))
+(<= (next (rotateControl black))
+    (true ( placeControl black)))
+(<= (next ( placeControl black))
+    (true (rotateControl red)))
+    
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; TERMINAL Relations
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    
+(<= terminal
+    (line red))
+(<= terminal
+    (line black))
+(<= terminal
+    (not boardOpen))
+    
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; GOAL Relations
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+   
+(<= (goal red 100)
+    (line red))
+(<= (goal red 50)
+    (not (line red))
+    (not (line black))
+    (not boardOpen))
+(<= (goal red 0)
+    (line black))
+(<= (goal red 0)
+    (not (line red))
+    (not (line black))
+    boardOpen)
+    
+(<= (goal black 100)
+    (line black))
+(<= (goal black 50)
+    (not (line red))
+    (not (line black))
+    (not boardOpen))
+(<= (goal black 0)
+    (line red))
+(<= (goal black 0)
+    (not (line red))
+    (not (line red))
+    boardOpen)
+    
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; View Definitions
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    
+(<= (line ?player)
+    (row ?player))
+(<= (line ?player)
+    (col ?player))
+(<= (line ?player)
+    (diag ?player))
+    
+(<= (row ?player)
+    (role ?player)
+    (true (cellHolds ?q1 ?x1 ?y1 ?player))
+    (globalIndex ?q1 ?x1 ?y1 ?x1G ?yG)
+    (++ ?x1G ?x2G)
+    (true (cellHolds ?q2 ?x2 ?y2 ?player))
+    (globalIndex ?q2 ?x2 ?y2 ?x2G ?yG)
+    (++ ?x2G ?x3G)
+    (true (cellHolds ?q3 ?x3 ?y3 ?player))
+    (globalIndex ?q3 ?x3 ?y3 ?x3G ?yG)
+    (++ ?x3G ?x4G)
+    (true (cellHolds ?q4 ?x4 ?y4 ?player))
+    (globalIndex ?q4 ?x4 ?y4 ?x4G ?yG)
+    (++ ?x4G ?x5G)
+    (true (cellHolds ?q5 ?x5 ?y5 ?player))
+    (globalIndex ?q5 ?x5 ?y5 ?x5G ?yG))
+    
+(<= (col ?player)
+    (role ?player)
+    (true (cellHolds ?q1 ?x1 ?y1 ?player))
+    (globalIndex ?q1 ?x1 ?y1 ?xG ?y1G)
+    (++ ?y1G ?y2G)
+    (true (cellHolds ?q2 ?x2 ?y2 ?player))
+    (globalIndex ?q2 ?x2 ?y2 ?xG ?y2G)
+    (++ ?y2G ?y3G)
+    (true (cellHolds ?q3 ?x3 ?y3 ?player))
+    (globalIndex ?q3 ?x3 ?y3 ?xG ?y3G)
+    (++ ?y3G ?y4G)
+    (true (cellHolds ?q4 ?x4 ?y4 ?player))
+    (globalIndex ?q4 ?x4 ?y4 ?xG ?y4G)
+    (++ ?y4G ?y5G)
+    (true (cellHolds ?q5 ?x5 ?y5 ?player))
+    (globalIndex ?q5 ?x5 ?y5 ?xG ?y5G))
+    
+(<= (diag ?player)
+    (role ?player)
+    (true (cellHolds ?q1 ?x1 ?y1 ?player))
+    (globalIndex ?q1 ?x1 ?y1 ?x1G ?y1G)
+    (++ ?x1G ?x2G)
+    (++ ?y1G ?y2G)
+    (true (cellHolds ?q2 ?x2 ?y2 ?player))
+    (globalIndex ?q2 ?x2 ?y2 ?x2G ?y2G)
+    (++ ?x2G ?x3G)
+    (++ ?y2G ?y3G)
+    (true (cellHolds ?q3 ?x3 ?y3 ?player))
+    (globalIndex ?q3 ?x3 ?y3 ?x3G ?y3G)
+    (++ ?x3G ?x4G)
+    (++ ?y3G ?y4G)
+    (true (cellHolds ?q4 ?x4 ?y4 ?player))
+    (globalIndex ?q4 ?x4 ?y4 ?x4G ?y4G)
+    (++ ?x4G ?x5G)
+    (++ ?y4G ?y5G)
+    (true (cellHolds ?q5 ?x5 ?y5 ?player))
+    (globalIndex ?q5 ?x5 ?y5 ?x5G ?y5G))
+    
+(<= (diag ?player)
+    (role ?player)
+    (true (cellHolds ?q1 ?x1 ?y1 ?player))
+    (globalIndex ?q1 ?x1 ?y1 ?x1G ?y5G)
+    (++ ?x1G ?x2G)
+    (++ ?y4G ?y5G)
+    (true (cellHolds ?q2 ?x2 ?y2 ?player))
+    (globalIndex ?q2 ?x2 ?y2 ?x2G ?y4G)
+    (++ ?x2G ?x3G)
+    (++ ?y3G ?y4G)
+    (true (cellHolds ?q3 ?x3 ?y3 ?player))
+    (globalIndex ?q3 ?x3 ?y3 ?x3G ?y3G)
+    (++ ?x3G ?x4G)
+    (++ ?y2G ?y3G)
+    (true (cellHolds ?q4 ?x4 ?y4 ?player))
+    (globalIndex ?q4 ?x4 ?y4 ?x4G ?y2G)
+    (++ ?x4G ?x5G)
+    (++ ?y1G ?y2G)
+    (true (cellHolds ?q5 ?x5 ?y5 ?player))
+    (globalIndex ?q5 ?x5 ?y5 ?x5G ?y1G))
+    
+(<= (globalIndex 1 ?x ?y ?xG ?yG)    
+    (+ 3 ?x ?xG)
+    (+ 3 ?y ?yG))
+(<= (globalIndex 2 ?x ?y ?x ?yG)    
+    (index ?x)
+    (+ 3 ?y ?yG))
+(<= (globalIndex 3 ?x ?y ?x ?y)    
+    (index ?x)
+    (index ?y))
+(<= (globalIndex 4 ?x ?y ?xG ?y)    
+    (+ 3 ?x ?xG)
+    (index ?y))
+    
+(<= (rotation clockwise ?x1 ?y1 ?x2 ?y2)
+    (verticalFlip ?y1 ?x1 ?x2 ?y2))
+(<= (rotation counterclockwise ?x1 ?y1 ?x2 ?y2)
+    (horizontalFlip ?y1 ?x1 ?x2 ?y2))
+    
+(<= (horizontalFlip 1 ?y 3 ?y)
+    (index ?y))
+(<= (horizontalFlip 2 ?y 2 ?y)
+    (index ?y))
+(<= (horizontalFlip 3 ?y 1 ?y)
+    (index ?y))
+    
+(<= (verticalFlip ?x 1 ?x 3)
+    (index ?x))
+(<= (verticalFlip ?x 2 ?x 2)
+    (index ?x))
+(<= (verticalFlip ?x 3 ?x 1)
+    (index ?x))
+    
+(<= (cell ?q ?x ?y)
+    (quadrant ?q)
+    (index ?x)
+    (index ?y))
+    
+(<= (cellEmpty ?q ?x ?y)
+    (cell ?q ?x ?y)
+    (not (true (cellHolds ?q ?x ?y red)))
+    (not (true (cellHolds ?q ?x ?y black))))
+
+(<= boardOpen
+    (cellEmpty ?q ?x ?y))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Static Relations
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    
+(index 1) (index 2) (index 3)
+
+(quadrant 1) (quadrant 2) (quadrant 3) (quadrant 4)
+
+(direction clockwise) (direction counterclockwise)
+
+(++  1 2) (++  2 3) (++  3 4) (++  4 5) (++  5 6)
+(+ 3 1 4) (+ 3 2 5) (+ 3 3 6)
+
+(base placeControl (player red black))
+(base rotateControl (player red black))
+(base cellHolds (quadrant 1 2 3 4) (x 1 2 3) (y 1 2 3) (player red black))

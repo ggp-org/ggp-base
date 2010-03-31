@@ -1,0 +1,258 @@
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; racetrackcorridor
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+    (role white)
+    (role black)
+    
+    ;;;;
+    
+    (init (cell wlane a 1 b))
+    (init (cell wlane a 2 b))
+    (init (cell wlane a 3 white))
+    (init (cell wlane b 1 b))
+    (init (cell wlane b 2 b))
+    (init (cell wlane b 3 b))
+    (init (cell wlane c 1 b))
+    (init (cell wlane c 2 b))
+    (init (cell wlane c 3 b))
+    (init (cell wlane d 1 b))
+    (init (cell wlane d 2 b))
+    (init (cell wlane d 3 b))
+    (init (cell wlane e 1 b))
+    (init (cell wlane e 2 b))
+    (init (cell wlane e 3 b))
+    
+    (init (cell blane a 1 b))
+    (init (cell blane a 2 b))
+    (init (cell blane a 3 black))
+    (init (cell blane b 1 b))
+    (init (cell blane b 2 b))
+    (init (cell blane b 3 b))
+    (init (cell blane c 1 b))
+    (init (cell blane c 2 b))
+    (init (cell blane c 3 b))
+    (init (cell blane d 1 b))
+    (init (cell blane d 2 b))
+    (init (cell blane d 3 b))
+    (init (cell blane e 1 b))
+    (init (cell blane e 2 b))
+    (init (cell blane e 3 b))
+    
+    ;; Wall in lane arg1 above row arg2 on the left or right
+    
+    (init (wall wlane a none))
+    (init (wall wlane b none))
+    (init (wall wlane c none))
+    (init (wall wlane d none))
+    
+    (init (wall blane a none))
+    (init (wall blane b none))
+    (init (wall blane c none))
+    (init (wall blane d none))
+    
+    (init (walls white 4))
+    (init (walls black 4))
+    
+    ;;;;
+    
+    (<= (next (cell ?lane ?x ?y ?q))
+        (true (cell ?lane ?x ?y ?q))
+        (playerlane ?player ?lane)
+        (does ?player (place ?row ?side)))
+    
+    (<= (next (cell ?lane ?x ?y ?p))
+        (playerlane ?player ?lane)
+        (does ?player (move ?p ?u ?v ?x ?y)))
+    
+    (<= (next (cell ?lane ?u ?v b))
+        (playerlane ?player ?lane)
+        (does ?player (move ?p ?u ?v ?x ?y)))
+    
+    (<= (next (cell ?lane ?w ?z b))
+        (playerlane ?player ?lane)
+        (does ?player (move ?p ?u ?v ?x ?y))
+        (true (cell ?lane ?w ?z b))
+        (distinct ?z ?y))
+    
+    (<= (next (cell ?lane ?w ?z b))
+        (playerlane ?player ?lane)
+        (does ?player (move ?p ?u ?v ?x ?y))
+        (true (cell ?lane ?w ?z b))
+        (distinct ?w ?x))
+    
+    (<= (next (wall ?lane ?r ?s))
+        (does ?player (move ?p ?u ?v ?x ?y))
+        (opponentlane ?player ?lane)
+        (true (wall ?lane ?r ?s)))
+    
+    (<= (next (wall ?lane ?row ?side))
+        (does ?player (place ?row ?side))
+        (opponentlane ?player ?lane)
+        (true (wall ?lane ?row none)))
+    
+    (<= (next (wall ?lane ?row none))
+        (does ?player (place ?r1 ?s1))
+        (opponentlane ?player ?lane)
+        (true (wall ?lane ?row none))
+        (distinct ?r1 ?row))
+    
+    (<= (next (walls ?player ?walls))
+        (does ?player (move ?p ?u ?v ?x ?y))
+        (true (walls ?player ?walls)))
+    
+    (<= (next (walls ?player ?walls))
+        (does ?player (place ?row ?side))
+        (true (walls ?player ?pwalls))
+        (successor ?pwalls walls))
+    
+    (<= (next (step ?y))
+        (true (step ?x))
+        (successor ?x ?y))
+    
+    ;;;;
+    
+    (<= (legal ?player (move ?player ?u ?v ?x ?y))
+        (playerlane ?player ?lane)
+        (true (cell ?lane ?u ?v ?player))
+        (pawnmove ?lane ?u ?v ?x ?y)
+        (true (cell ?lane ?x ?y b)))
+    
+    (<= (legal ?player (place ?row left))
+        (true (walls ?player ?n))
+        (greaterthan ?n 0)
+        (opponentlane ?player ?lane)
+        (true (wall ?lane ?row none)))
+    
+    (<= (legal ?player (place ?row right))
+        (true (walls ?player ?n))
+        (greaterthan ?n 0)
+        (opponentlane ?player ?lane)
+        (true (wall ?lane ?row none)))
+    
+    ;;;;
+    
+    (playerlane white wlane)
+    (playerlane black blane)
+    (opponentlane white blane)
+    (opponentlane black wlane)
+    
+    (<= (pawnmove ?lane ?r1 1 ?r2 1)
+        (nrow ?r1 ?r2)
+        (true (wall ?lane ?r1 none)))
+    
+    (<= (pawnmove ?lane ?r1 1 ?r2 1)
+        (nrow ?r1 ?r2)
+        (true (wall ?lane ?r1 right)))
+    
+    (<= (pawnmove ?lane ?r1 2 ?r2 2)
+        (nrow ?r1 ?r2)
+        (true (wall ?lane ?r1 none)))
+    
+    (<= (pawnmove ?lane ?r1 3 ?r2 3)
+        (nrow ?r1 ?r2)
+        (true (wall ?lane ?r1 none)))
+    
+    (<= (pawnmove ?lane ?r1 3 ?r2 3)
+        (nrow ?r1 ?r2)
+        (true (wall ?lane ?r1 left)))
+    
+    (pawnmove ?lane ?r 1 ?r 2)
+    (pawnmove ?lane ?r 2 ?r 1)
+    (pawnmove ?lane ?r 2 ?r 3)
+    (pawnmove ?lane ?r 3 ?r 2)
+    
+    (nrow a b)
+    (nrow b c)
+    (nrow c d)
+    (nrow d e)
+    
+    (successor 0 1)
+    (successor 1 2)
+    (successor 2 3)
+    (successor 3 4)
+    (successor 4 5)
+    (successor 5 6)
+    (successor 6 7)
+    (successor 7 8)
+    (successor 8 9)
+    (successor 9 10)
+    (successor 10 11)
+    (successor 11 12)
+    (successor 12 13)
+    (successor 13 14)
+    (successor 14 15)
+    (successor 15 16)
+    (successor 16 17)
+    (successor 17 18)
+    (successor 18 19)
+    (successor 19 20)
+    
+    (<= (greaterthan ?larger ?smaller)
+        (successor ?smaller ?larger))
+    
+    (<= (greaterthan ?larger ?smaller)
+        (successor ?next ?larger)
+        (greaterthan ?next ?smaller))
+    
+    ;;;;
+    
+    (<= (goal white 100)
+        (true (cell wlane e ?x white))
+        (true (cell blane ?r ?x1 black))
+        (distinct ?r e))
+    
+    (<= (goal white 100)
+        (true (cell wlane e ?x white))
+        (true (cell blane e ?x1 black))
+        (true (walls white ?wn))
+        (true (walls black ?bn))
+        (greatherthan ?wn ?bn))
+    
+    (<= (goal white 0)
+        (true (cell blane e ?x black))
+        (true (cell wlane ?r ?x1 white))
+        (distinct ?r e))
+    
+    (<= (goal black 100)
+        (true (cell blane e ?x black))
+        (true (cell wlane ?r ?x1 white))
+        (distinct ?r e))
+    
+    (<= (goal black 100)
+        (true (cell wlane e ?x white))
+        (true (cell blane e ?x1 black))
+        (true (walls white ?wn))
+        (true (walls black ?bn))
+        (greatherthan ?bn ?wn))
+    
+    (<= (goal black 0)
+        (true (cell wlane e ?x white))
+        (true (cell blane ?r ?x1 black))
+        (distinct ?r e))
+    
+    (<= (goal ?role 50)
+        (true (cell wlane e ?x white))
+        (true (cell blane e ?x1 black))
+        (true (walls white ?n))
+        (true (walls black ?n)))
+    
+    (<= (goal ?role 50)
+        (true (step 20))
+        (true (cell wlane ?r1 ?x1 white))
+        (true (cell blane ?r2 ?x2 black))
+        (distinct ?r1 e)
+        (distinct ?r2 e))
+    
+    ;;;;
+    
+    (<= terminal
+        (true (step 20)))
+    
+    (<= terminal
+        (true (cell ?lane e ?r ?p))
+        (distinct ?p b))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

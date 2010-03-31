@@ -1,0 +1,169 @@
+(role taker)
+
+(init (disk p1 green))
+(init (disk p2 green))
+(init (disk p3 red))
+(init (disk p4 red))
+(init (disk p5 green))
+(init (disk p6 red))
+(init (disk p7 green))
+(init (disk p8 red))
+(init (resets s0))
+
+(place p1)
+(place p2)
+(place p3)
+(place p4)
+(place p5)
+(place p6)
+(place p7)
+(place p8)
+
+(adj p1 p2)
+(adj p1 p8)
+(adj p2 p1)
+(adj p2 p3)
+(adj p3 p2)
+(adj p3 p4)
+(adj p4 p5)
+(adj p4 p3)
+(adj p5 p4)
+(adj p5 p6)
+(adj p6 p5)
+(adj p6 p7)
+(adj p7 p6)
+(adj p7 p8)
+(adj p8 p1)
+(adj p8 p7)
+
+(succ s0 s1)
+(succ s1 s2)
+(succ s2 s3)
+
+(<= (legal taker (remove ?x))
+(place ?x)
+(true (disk ?x green)))
+
+(<= (legal taker reset)
+(true (resets s0)))
+
+(<= (legal taker reset)
+(true (resets s1)))
+
+(<= (legal taker reset)
+(true (resets s2)))
+
+(<= (next (disk ?x none))
+(does taker (remove ?x))
+(true (disk ?x green)))
+
+(<= (next (disk ?x red))
+(does taker (remove ?y))
+(true (disk ?x green))
+(adj ?x ?y))
+
+(<= (next (disk ?x green))
+(does taker (remove ?y))
+(true (disk ?x red))
+(adj ?x ?y))
+
+(<= (next (disk ?x none))
+(does taker (remove ?y))
+(true (disk ?x none))
+(distinct ?x ?y))
+
+(<= (next (disk ?x green))
+(does taker (remove ?y))
+(true (disk ?x green))
+(distinct ?x ?y)
+(not (adj ?x ?y)))
+
+(<= (next (disk ?x red))
+(does taker (remove ?y))
+(true (disk ?x red))
+(distinct ?x ?y)
+(not (adj ?x ?y)))
+
+(<= (next (resets ?x))
+(does taker (remove ?y))
+(true (resets ?x)))
+
+(<= (next (resets ?x))
+(does taker reset)
+(true (resets ?y))
+(succ ?y ?x))
+
+(<= (next (disk p1 green))
+(does taker reset))
+
+(<= (next (disk p2 green))
+(does taker reset))
+
+(<= (next (disk p3 red))
+(does taker reset))
+
+(<= (next (disk p4 red))
+(does taker reset))
+
+(<= (next (disk p5 green))
+(does taker reset))
+
+(<= (next (disk p6 red))
+(does taker reset))
+
+(<= (next (disk p7 green))
+(does taker reset))
+
+(<= (next (disk p8 red))
+(does taker reset))
+
+(<= (goal taker 100)
+(true (disk p1 none))
+(true (disk p2 none))
+(true (disk p3 none))
+(true (disk p4 none))
+(true (disk p5 none))
+(true (disk p6 none))
+(true (disk p7 none))
+(true (disk p8 none))
+(true (resets s0)))
+
+(<= (goal taker 66)
+(true (disk p1 none))
+(true (disk p2 none))
+(true (disk p3 none))
+(true (disk p4 none))
+(true (disk p5 none))
+(true (disk p6 none))
+(true (disk p7 none))
+(true (disk p8 none))
+(true (resets s1)))
+
+(<= (goal taker 33)
+(true (disk p1 none))
+(true (disk p2 none))
+(true (disk p3 none))
+(true (disk p4 none))
+(true (disk p5 none))
+(true (disk p6 none))
+(true (disk p7 none))
+(true (disk p8 none))
+(true (resets s2)))
+
+(<= (goal taker 0)
+(true (resets s3)))
+
+(<= terminal
+(true (disk p1 none))
+(true (disk p2 none))
+(true (disk p3 none))
+(true (disk p4 none))
+(true (disk p5 none))
+(true (disk p6 none))
+(true (disk p7 none))
+(true (disk p8 none)))
+
+(<= terminal
+(true (resets s3)))
+
+

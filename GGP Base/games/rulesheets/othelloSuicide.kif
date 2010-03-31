@@ -1,0 +1,273 @@
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Othello
+;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; ROLE Relations
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(role black)
+(role red)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; INIT Relations
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(init (cell 4 4 black))
+(init (cell 4 5 red))
+(init (cell 5 4 red))
+(init (cell 5 5 black))
+
+(init (control black))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; LEGAL Relations
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(<= (legal ?player (mark ?x ?y))
+    (true (control ?player))
+    (hasLegalMoveAt ?player ?x ?y))
+(<= (legal ?player noop)
+    (true (control ?player))
+    (not (hasAnyLegalMove ?player)))
+
+(<= (legal ?player noop)
+    (opponent ?player ?opponent)
+    (true (control ?opponent)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; NEXT Relations
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(<= (next (cell ?x ?y ?player))
+    (does ?player (mark ?x ?y)))
+
+(<= (next (cell ?x ?y ?player))
+    (true (cell ?x ?y ?player))
+    (opponent ?player ?opponent)
+    (does ?opponent noop))
+
+(<= (next (cell ?xP ?yP ?player))
+    (true (cell ?xP ?yP ?player))
+    (opponent ?player ?opponent)
+    (does ?opponent (mark ?xO ?yO))
+    (not (playWillFlip ?opponent ?xO ?yO ?player ?xP ?yP)))
+
+(<= (next (cell ?xP ?yP ?opponent))
+    (true (cell ?xP ?yP ?player))
+    (opponent ?player ?opponent)
+    (does ?opponent (mark ?xO ?yO))
+    (playWillFlip ?opponent ?xO ?yO ?player ?xP ?yP))
+
+(<= (next (control black))
+    (true (control red)))
+(<= (next (control red))
+    (true (control black)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; TERMINAL Relations
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(<= terminal
+    gameOver)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; GOAL Relations
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(<= (goal black 0)
+    (not gameOver))
+(<= (goal black 0)
+    gameOver
+    (tally ?black ?red)
+    (lessThan ?red ?black))
+(<= (goal black 50)
+    gameOver
+    (tally ?black ?red)
+    (not (distinct ?black ?red)))
+(<= (goal black 100)
+    gameOver
+    (tally ?black ?red)
+    (lessThan ?black ?red))
+
+(<= (goal red 0)
+    (not gameOver))
+(<= (goal red 0)
+    gameOver
+    (tally ?black ?red)
+    (lessThan ?black ?red))
+(<= (goal red 50)
+    gameOver
+    (tally ?black ?red)
+    (not (distinct ?black ?red)))
+(<= (goal red 100)
+    gameOver
+    (tally ?black ?red)
+    (lessThan ?red ?black))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; View Definitions
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(<= (cellOpen ?x ?y)
+    (index ?x)
+    (index ?y)
+    (not (true (cell ?x ?y black)))
+    (not (true (cell ?x ?y red))))
+
+(<= (nextCell N ?x ?y1 ?x ?y2)
+    (index ?x)
+    (indexpp ?y1 ?y2))
+(<= (nextCell S ?x ?y1 ?x ?y2)
+    (index ?x)
+    (indexpp ?y2 ?y1))
+(<= (nextCell E ?x1 ?y ?x2 ?y)
+    (indexpp ?x1 ?x2)
+    (index ?y))
+(<= (nextCell W ?x1 ?y ?x2 ?y)
+    (indexpp ?x2 ?x1)
+    (index ?y))
+(<= (nextCell NE ?x1 ?y1 ?x2 ?y2)
+    (indexpp ?x1 ?x2)
+    (indexpp ?y1 ?y2))
+(<= (nextCell NW ?x1 ?y1 ?x2 ?y2)
+    (indexpp ?x2 ?x1)
+    (indexpp ?y1 ?y2))
+(<= (nextCell SE ?x1 ?y1 ?x2 ?y2)
+    (indexpp ?x1 ?x2)
+    (indexpp ?y2 ?y1))
+(<= (nextCell SW ?x1 ?y1 ?x2 ?y2)
+    (indexpp ?x2 ?x1)
+    (indexpp ?y2 ?y1))
+
+(<= (openPieceString ?player ?x0 ?y0 ?dir ?xF ?yF)
+    (true (cell ?x0 ?y0 ?player))
+    (nextCell ?dir ?x0 ?y0 ?xNext ?yNext)
+    (openPieceString ?player ?xNext ?yNext ?dir ?xF ?yF))
+(<= (openPieceString ?player ?x0 ?y0 ?dir ?xF ?yF)
+    (true (cell ?x0 ?y0 ?player))
+    (nextCell ?dir ?x0 ?y0 ?xF ?yF))
+
+(<= (closedPieceString ?player ?x0 ?y0 ?dir ?xF ?yF)
+    (true (cell ?x0 ?y0 ?player))
+    (nextCell ?dir ?x0 ?y0 ?xNext ?yNext)
+    (closedPieceString ?player ?xNext ?yNext ?dir ?xF ?yF))
+(<= (closedPieceString ?player ?x0 ?y0 ?dir ?xF ?yF)
+    (true (cell ?x0 ?y0 ?player))
+    (nextCell ?dir ?x0 ?y0 ?xF ?yF)
+    (opponent ?player ?opponent)
+    (true (cell ?xF ?yF ?opponent)))
+
+(<= (playWillFlip ?player ?xP ?yP ?opponent ?xO ?yO)
+    (role ?player)
+    (openPieceString ?opponent ?xO ?yO ?dir ?xP ?yP)
+    (opposite ?dir ?oppDir)
+    (closedPieceString ?opponent ?xO ?yO ?oppDir ?xAny ?yAny))
+
+(<= (hasLegalMoveAt ?player ?xP ?yP)
+    (cellOpen ?xP ?yP)
+    (opponent ?player ?opponent)
+    (true (cell ?xO ?yO ?opponent))
+    (playWillFlip ?player ?xP ?yP ?opponent ?xO ?yO))
+
+(<= (hasAnyLegalMove ?player)
+    (hasLegalMoveAt ?player ?x ?y))
+
+(<= (tally ?black ?red)
+    (pieceCount 1 1 ?black ?red))
+
+(<= (pieceCount ?x ?y ?blackCountpp ?redCount)
+	(index ?y)
+    (distinct ?y 8)
+    (indexpp ?y ?ypp)
+    (true (cell ?x ?y black))
+    (pieceCount ?x ?ypp ?blackCount ?redCount)
+    (pp ?blackCount ?blackCountpp))
+(<= (pieceCount ?x ?y ?blackCount ?redCountpp)
+	(index ?y)
+    (distinct ?y 8)
+    (indexpp ?y ?ypp)
+    (true (cell ?x ?y red))
+    (pieceCount ?x ?ypp ?blackCount ?redCount)
+    (pp ?redCount ?redCountpp))
+(<= (pieceCount ?x ?y ?blackCount ?redCount)
+	(index ?y)
+    (distinct ?y 8)
+    (indexpp ?y ?ypp)
+    (cellOpen ?x ?y)
+    (pieceCount ?x ?ypp ?blackCount ?redCount))
+
+(<= (pieceCount ?x 8 ?blackCountpp ?redCount)
+	(index ?x)
+    (distinct ?x 8)
+    (indexpp ?x ?xpp)
+    (true (cell ?x 8 black))
+    (pieceCount ?xpp 1 ?blackCount ?redCount)
+    (pp ?blackCount ?blackCountpp))
+(<= (pieceCount ?x 8 ?blackCount ?redCountpp)
+	(index ?x)
+    (distinct ?x 8)
+    (indexpp ?x ?xpp)
+    (true (cell ?x 8 red))
+    (pieceCount ?xpp 1 ?blackCount ?redCount)
+    (pp ?redCount ?redCountpp))
+(<= (pieceCount ?x 8 ?blackCount ?redCount)
+	(index ?x)
+    (distinct ?x 8)
+    (indexpp ?x ?xpp)
+    (cellOpen ?x 8)
+    (pieceCount ?xpp 1 ?blackCount ?redCount))
+
+(<= (pieceCount 8 8 1 0) 
+    (true (cell 8 8 black)))
+(<= (pieceCount 8 8 0 1)
+    (true (cell 8 8 red)))
+(<= (pieceCount 8 8 0 0)
+    (cellOpen 8 8))
+
+(<= (lessThan ?x ?y)
+    (pp ?x ?xpp)
+    (lessThan ?xpp ?y))
+(<= (lessThan ?x ?y)
+    (pp ?x ?y))
+
+(<= gameOver
+    (not (hasAnyLegalMove black))
+    (not (hasAnyLegalMove red)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Static Relations
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(index 1) (index 2) (index 3) (index 4) (index 5) (index 6) (index 7) (index 8)
+(indexpp 1 2) (indexpp 2 3) (indexpp 3 4) (indexpp 4 5) (indexpp 5 6) (indexpp 6 7) (indexpp 7 8)
+
+(opponent red black)
+(opponent black red)
+
+(direction  N)  (direction S) (direction  E) (direction  W)
+(direction NE) (direction NW) (direction SE) (direction SW)
+
+(opposite  N  S) (opposite  S  N) (opposite  E  W) (opposite  W  E)
+(opposite NE SW) (opposite SW NE) (opposite NW SE) (opposite SE NW)
+
+(int  0) (int  1) (int  2) (int  3) (int  4) (int  5) (int  6) (int  7) (int  8) (int  9)
+(int 10) (int 11) (int 12) (int 13) (int 14) (int 15) (int 16) (int 17) (int 18) (int 19)
+(int 20) (int 21) (int 22) (int 23) (int 24) (int 25) (int 26) (int 27) (int 28) (int 29)
+(int 30) (int 31) (int 32) (int 33) (int 34) (int 35) (int 36) (int 37) (int 38) (int 39)
+(int 40) (int 41) (int 42) (int 43) (int 44) (int 45) (int 46) (int 47) (int 48) (int 49)
+(int 50) (int 51) (int 52) (int 53) (int 54) (int 55) (int 56) (int 57) (int 58) (int 59)
+(int 60) (int 61) (int 62) (int 63) (int 64) 
+
+(pp  0  1) (pp  1  2) (pp  2  3) (pp  3  4) (pp  4  5) (pp  5  6) (pp  6  7) (pp  7  8) (pp  8  9) (pp  9 10)
+(pp 10 11) (pp 11 12) (pp 12 13) (pp 13 14) (pp 14 15) (pp 15 16) (pp 16 17) (pp 17 18) (pp 18 19) (pp 19 20)
+(pp 20 21) (pp 21 22) (pp 22 23) (pp 23 24) (pp 24 25) (pp 25 26) (pp 26 27) (pp 27 28) (pp 28 29) (pp 29 30)
+(pp 30 31) (pp 31 32) (pp 32 33) (pp 33 34) (pp 34 35) (pp 35 36) (pp 36 37) (pp 37 38) (pp 38 39) (pp 39 40)
+(pp 40 41) (pp 41 42) (pp 42 43) (pp 43 44) (pp 44 45) (pp 45 46) (pp 46 47) (pp 47 48) (pp 48 49) (pp 49 50)
+(pp 50 51) (pp 51 52) (pp 52 53) (pp 53 54) (pp 54 55) (pp 55 56) (pp 56 57) (pp 57 58) (pp 58 59) (pp 59 60)
+(pp 60 61) (pp 61 62) (pp 62 63) (pp 63 64) 
+
+( base cell ( val 1 2 3 4 5 6 7 8 ) ( val 1 2 3 4 5 6 7 8 ) ( val black red ) )
+( base control ( val black red ) )

@@ -1,0 +1,78 @@
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;;          troublemaker01
+;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; A game designed to reveal the flaws
+;;; in my concept term decomposition
+;;; search method.
+;;; (move1, pos1) and (move2, pos2)
+;;; are independent subgames with only
+;;; one local plan each: [move1 b, move1 c]
+;;; resp. [move2 y, move2 z]. But neither
+;;; [move1 b, move1 c, move2 y, move2 z] nor
+;;; [move2 y, move2 z, move1 b, move1 c] are an
+;;; optimal global plan.
+;;;
+;;; Author: martin.guenther@mail.inf.tu-dresden.de
+;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(role player)
+
+(init (pos1 a))
+(init (pos2 x))
+
+(<=	(legal player (move1 ?n))
+(true (pos1 ?m))
+(conn1 ?m ?n))
+
+(<=	(legal player (move2 ?n))
+(true (pos2 ?m))
+(conn2 ?m ?n))
+
+(<=	(next (pos1 ?n))
+(does player (move1 ?n)))
+
+(<=	(next (pos1 ?n))
+(true (pos1 ?n))
+(does player (move2 ?m)))
+
+(<=	(next (pos2 ?n))
+(does player (move2 ?n)))
+
+(<=	(next (pos2 ?n))
+(true (pos2 ?n))
+(does player (move1 ?m)))
+
+(<=	terminal
+(true (pos1 c))
+(true (pos2 z)))
+
+(<=	terminal
+(true (pos1 a))
+(true (pos2 z)))
+
+(<=	terminal
+(true (pos1 c))
+(true (pos2 x)))
+
+(<=	(goal player 100)
+(true (pos1 c))
+(true (pos2 z)))
+
+(<=	(goal player 0)
+(not (true (pos1 c))))
+
+(<=	(goal player 0)
+(not (true (pos2 z))))
+
+; graph 1: a --> b --> c
+; graph 2: x --> y --> z
+
+(conn1 a b)
+(conn1 b c)
+
+(conn2 x y)
+(conn2 y z)

@@ -1,0 +1,241 @@
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Quarto
+;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; ROLE Relations
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(role white)
+(role black)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; INIT Relations
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(init (cell 1 1 empty))
+(init (cell 1 2 empty))
+(init (cell 1 3 empty)) 
+(init (cell 1 4 empty))
+(init (cell 2 1 empty))
+(init (cell 2 2 empty))
+(init (cell 2 3 empty)) 
+(init (cell 2 4 empty))
+(init (cell 3 1 empty))
+(init (cell 3 2 empty))
+(init (cell 3 3 empty)) 
+(init (cell 3 4 empty))
+(init (cell 4 1 empty))
+(init (cell 4 2 empty))
+(init (cell 4 3 empty)) 
+(init (cell 4 4 empty))
+
+(init (pool p0000))
+(init (pool p0001))
+(init (pool p0010))
+(init (pool p0011))
+(init (pool p0100))
+(init (pool p0101))
+(init (pool p0110))
+(init (pool p0111))
+(init (pool p1000))
+(init (pool p1001))
+(init (pool p1010))
+(init (pool p1011))
+(init (pool p1100))
+(init (pool p1101))
+(init (pool p1110))
+(init (pool p1111))
+	
+(init (selectControl white))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; LEGAL Relations
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(<= (legal ?player (select ?piece))
+    (role ?player)
+	(true (selectControl ?player))
+	(true (pool ?piece)))
+
+(<= (legal ?player (place ?piece ?x ?y))
+    (role ?player)
+	(true (placeControl ?player))
+	(true (selected ?piece))
+	(true (cell ?x ?y empty)))
+
+(<= (legal ?player noop)
+    (role ?player)
+    (not (true (selectControl ?player)))
+    (not (true (placeControl ?player))))	
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; NEXT Relations
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(<= (next (pool ?piece))
+    (true (pool ?piece))
+	(not (does white (select ?piece)))
+    (not (does black (select ?piece))))
+(<= (next (selected ?piece))
+    (role ?player)
+    (does ?player (select ?piece)))
+
+(<= (next (cell ?x ?y ?state))
+    (true (cell ?x ?y ?state))
+    (role ?player)
+	(does ?player (select ?piece)))
+(<= (next (cell ?x1 ?y1 ?state))
+    (true (cell ?x1 ?y1 ?state))
+    (role ?player)
+	(does ?player (place ?piece ?x2 ?y2))
+	(distinctCell ?x1 ?y1 ?x2 ?y2))
+(<= (next (cell ?x ?y ?piece))
+    (does ?player (place ?piece ?x ?y)))
+
+(<= (next (selectControl white))
+    (true (placeControl white)))
+(<= (next (placeControl white))
+    (true (selectControl black)))
+(<= (next (selectControl black))
+    (true (placeControl black)))
+(<= (next (placeControl black))
+    (true (selectControl white)))
+	
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; TERMINAL Relations
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(<= terminal
+    line)
+(<= terminal 
+    (not boardOpen))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; TERMINAL Relations
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(<= (goal white 0)
+    line
+	(placedLast white))
+(<= (goal white 50)
+    (not line)
+	(not boardOpen))
+(<= (goal white 0)
+    (not line)
+	boardOpen)
+(<= (goal white 100)
+    line
+	(placedLast black))
+
+(<= (goal black 0)
+    line
+	(placedLast black))
+(<= (goal black 50)
+    (not line)
+	(not boardOpen))
+(<= (goal black 0)
+    (not line)
+	boardOpen)
+(<= (goal black 100)
+    line
+	(placedLast white))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; View Definitions
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(<= (placedLast ?player)
+    (true (selectControl ?player)))
+
+(<= boardOpen
+    (true (cell ?x ?y empty)))
+    
+(<= line
+    row)
+(<= line
+    column)
+(<= line
+    diagonal)
+
+(<= row
+    (index ?y)
+    (true (cell 1 ?y ?p1))
+	(true (cell 2 ?y ?p2))
+	(true (cell 3 ?y ?p3))
+	(true (cell 4 ?y ?p4))
+	(set ?p1 ?p2 ?p3 ?p4))
+
+(<= column
+    (index ?x)
+    (true (cell ?x 1 ?p1))
+	(true (cell ?x 2 ?p2))
+	(true (cell ?x 3 ?p3))
+	(true (cell ?x 4 ?p4))
+	(set ?p1 ?p2 ?p3 ?p4))
+
+(<= diagonal
+    (true (cell 1 1 ?p1))
+	(true (cell 2 2 ?p2))
+	(true (cell 3 3 ?p3))
+	(true (cell 4 4 ?p4))
+	(set ?p1 ?p2 ?p3 ?p4))
+(<= diagonal
+    (true (cell 1 4 ?p1))
+	(true (cell 2 3 ?p2))
+	(true (cell 3 2 ?p3))
+	(true (cell 4 1 ?p4))
+	(set ?p1 ?p2 ?p3 ?p4))
+
+(<= (set ?p1 ?p2 ?p3 ?p4)
+    (bit ?bit)
+	(index ?n)
+    (bitNIs ?n ?p1 ?bit)
+	(bitNIs ?n ?p2 ?bit)
+	(bitNIs ?n ?p3 ?bit)
+	(bitNIs ?n ?p4 ?bit))
+ 
+(<= (distinctCell ?x1 ?y1 ?x2 ?y2)
+	(index ?x1)
+	(index ?y1)
+	(index ?x2)
+	(index ?y2)
+    (distinct ?x1 ?x2))
+(<= (distinctCell ?x1 ?y1 ?x2 ?y2)
+	(index ?x1)
+	(index ?y1)
+	(index ?x2)
+	(index ?y2)
+    (distinct ?y1 ?y2))
+	
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Static Relations
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(bit 0) (bit 1)
+	
+(index 1) (index 2) (index 3) (index 4)	
+
+(bitNIs 4 p0000 0) (bitNIs 3 p0000 0) (bitNIs 2 p0000 0) (bitNIs 1 p0000 0)
+(bitNIs 4 p0001 0) (bitNIs 3 p0001 0) (bitNIs 2 p0001 0) (bitNIs 1 p0001 1)
+(bitNIs 4 p0010 0) (bitNIs 3 p0010 0) (bitNIs 2 p0010 1) (bitNIs 1 p0010 0)
+(bitNIs 4 p0011 0) (bitNIs 3 p0011 0) (bitNIs 2 p0011 1) (bitNIs 1 p0011 1)
+(bitNIs 4 p0100 0) (bitNIs 3 p0100 1) (bitNIs 2 p0100 0) (bitNIs 1 p0100 0)
+(bitNIs 4 p0101 0) (bitNIs 3 p0101 1) (bitNIs 2 p0101 0) (bitNIs 1 p0101 1)
+(bitNIs 4 p0110 0) (bitNIs 3 p0110 1) (bitNIs 2 p0110 1) (bitNIs 1 p0110 0)
+(bitNIs 4 p0111 0) (bitNIs 3 p0111 1) (bitNIs 2 p0111 1) (bitNIs 1 p0111 1)
+(bitNIs 4 p1000 1) (bitNIs 3 p1000 0) (bitNIs 2 p1000 0) (bitNIs 1 p1000 0)
+(bitNIs 4 p1001 1) (bitNIs 3 p1001 0) (bitNIs 2 p1001 0) (bitNIs 1 p1001 1)
+(bitNIs 4 p1010 1) (bitNIs 3 p1010 0) (bitNIs 2 p1010 1) (bitNIs 1 p1010 0)
+(bitNIs 4 p1011 1) (bitNIs 3 p1011 0) (bitNIs 2 p1011 1) (bitNIs 1 p1011 1)
+(bitNIs 4 p1100 1) (bitNIs 3 p1100 1) (bitNIs 2 p1100 0) (bitNIs 1 p1100 0)
+(bitNIs 4 p1101 1) (bitNIs 3 p1101 1) (bitNIs 2 p1101 0) (bitNIs 1 p1101 1)
+(bitNIs 4 p1110 1) (bitNIs 3 p1110 1) (bitNIs 2 p1110 1) (bitNIs 1 p1110 0)
+(bitNIs 4 p1111 1) (bitNIs 3 p1111 1) (bitNIs 2 p1111 1) (bitNIs 1 p1111 1)
+( base selectcontrol ( val black white ) )
+( base cell ( val 1 2 3 4 ) ( val 1 2 3 4 ) ( val empty p0000 p0001 p0010 p0011 p0100 p0101 p0110 p0111 p1000 p1001 p1010 p1011 p1100 p1101 p1110 p1111 ) )
+( base selected ( val p0000 p0001 p0010 p0011 p0100 p0101 p0110 p0111 p1000 p1001 p1010 p1011 p1100 p1101 p1110 p1111 ) )
+( base placecontrol ( val black white ) )
+( base pool ( val p0000 p0001 p0010 p0011 p0100 p0101 p0110 p0111 p1000 p1001 p1010 p1011 p1100 p1101 p1110 p1111 ) )

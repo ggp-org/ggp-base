@@ -1,0 +1,102 @@
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Switches
+;;; *************SEEMS BROKEN TO ME**************
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+    (role red)
+    (role white)
+    (role blue)
+
+    ;;;;
+
+    (init off)
+    (init red)
+    (init dim)
+    (init start)
+    
+    (trans off a on)
+    (trans on a on)
+    (trans on b off)
+    (trans off b off)
+    (trans red c green)
+    (trans green c green)
+    (trans green d red)
+    (trans red d red)
+    (trans dim e bright)
+    (trans bright e bright)
+    (trans bright f dim)
+    (trans dim f dim)
+    (trans start end)
+
+    (legal red a)
+    (legal red b)
+    (legal white c)
+    (legal white d)
+    (legal blue e)
+    (legal blue f)
+
+    ;;;;
+    
+    (<= (goal red 100)
+        (true on))
+
+    (<= (goal red 0)
+        (true off))
+
+    (<= (goal white 100)
+        (true green))
+
+    (<= (goal white 0)
+        (true red))
+
+    (<= (goal blue 100)
+        (true bright))
+
+    (<= (goal blue 0)
+        (true dim))    
+
+    ;;;;
+    
+    (<= terminal
+        (true end))
+
+    
+    (<= (next ?q)
+        (trans ?p ?q)
+        (true ?p))
+    
+    (<= (next ?q)
+        (trans ?p ?a ?q)
+        (does ?player ?a)
+        (true ?p))
+    
+    (<= (next ?r)
+        (trans ?p ?q ?a ?r)
+        (does ?player ?a)
+        (true ?p)
+        (true ?q))
+    
+    (<= (conn ?x ?y) (affects ?x ?z) (affects ?y ?z))
+    
+    (<= (affects ?x ?z) (trans ?x ?y ?z))
+    (<= (affects ?y ?z) (trans ?x ?y ?z))
+    (<= (affects ?x ?z) (trans ?x ?y ?w) (affects ?w ?z))
+    (<= (affects ?y ?z) (trans ?x ?y ?w) (affects ?w ?z))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+( base end )
+( base red )
+( base a )
+( base off )
+( base on )
+( base f )
+( base c )
+( base start )
+( base d )
+( base e )
+( base bright )
+( base dim )
+( base green )
+( base b )

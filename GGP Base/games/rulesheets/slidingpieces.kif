@@ -1,0 +1,234 @@
+(role player)
+
+;;;;;;;;;
+
+(init (cell y1 x1 piece1))
+(init (cell y1 x2 piece2))
+(init (cell y1 x3 piece2))
+(init (cell y1 x4 piece3))
+(init (cell y2 x1 piece1))
+(init (cell y2 x2 piece2))
+(init (cell y2 x3 piece2))
+(init (cell y2 x4 piece3))
+(init (cell y3 x1 blank))
+(init (cell y3 x2 piece4))
+(init (cell y3 x3 piece4))
+(init (cell y3 x4 blank))
+(init (cell y4 x1 piece5))
+(init (cell y4 x2 piece6))
+(init (cell y4 x3 piece7))
+(init (cell y4 x4 piece8))
+(init (cell y5 x1 piece5))
+(init (cell y5 x2 piece9))
+(init (cell y5 x3 piece10))
+(init (cell y5 x4 piece8))
+
+(init (step s0))
+
+;;;;;;;;;
+
+(direction north)
+(direction east)
+(direction south)
+(direction west)
+
+
+(xcoord x1)
+(xcoord x2)
+(xcoord x3)
+(xcoord x4)
+
+(ycoord y1)
+(ycoord y2)
+(ycoord y3)
+(ycoord y4)
+(ycoord y5)
+
+(next_x x1 x2)
+(next_x x2 x3)
+(next_x x3 x4)
+
+(next_y y1 y2)
+(next_y y2 y3)
+(next_y y3 y4)
+(next_y y4 y5)
+
+(<= (adjacent ?y ?x north ?y2 ?x)
+(xcoord ?x)
+(next_y ?y2 ?y))
+(<= (adjacent ?y ?x east ?y ?x2)
+(next_x ?x ?x2)
+(ycoord ?y))
+(<= (adjacent ?y ?x south ?y2 ?x)
+(xcoord ?x)
+(next_y ?y ?y2))
+(<= (adjacent ?y ?x west ?y ?x2)
+(next_x ?x2 ?x)
+(ycoord ?y))
+
+(<= (has_adjacent ?y ?x ?d)
+(adjacent ?y ?x ?d ?y2 ?x2))
+
+;;;;;;;;;
+
+(<= (legal player (move ?p ?d))
+(true (cell ?y ?x ?p))
+(distinct ?p blank)
+(direction ?d)
+(not (blocked_cell ?p ?d)))
+
+(<= (blocked_cell ?p ?d)
+(true (cell ?y ?x ?p))
+(adjacent ?y ?x ?d ?yd ?xd)
+(true (cell ?yd ?xd ?p2))
+(distinct ?p2 blank)
+(distinct ?p2 ?p))
+
+(<= (blocked_cell ?p ?d)
+(true (cell ?y ?x ?p))
+(direction ?d)
+(not (has_adjacent ?y ?x ?d)))
+
+;;;;;;;;;
+
+(<= (next (step ?x))
+(true (step ?y))
+(successor ?y ?x))
+
+;;;;;;;;;
+
+(<= (next (cell ?y ?x ?p))
+(is_moved ?y1 ?x1 ?y ?x)
+(true (cell ?y1 ?x1 ?p)))
+
+(<= (next (cell ?y ?x blank))
+(true (cell ?y ?x ?something))
+(not (is_moved_any_to ?y ?x)))
+
+(<= (next (cell ?y ?x ?p))
+(true (cell ?y ?x ?p))
+(not (is_moved_anywhere ?y ?x))
+(not (is_moved_any_to ?y ?x)))
+
+;;;;;;;;;
+
+(<= (is_moved ?y ?x ?yd ?xd)
+(does player (move ?p ?d))
+(true (cell ?y ?x ?p))
+(adjacent ?y ?x ?d ?yd ?xd))
+
+(<= (is_moved_any_to ?yd ?xd)
+(is_moved ?y ?x ?yd ?xd))
+
+(<= (is_moved_anywhere ?y ?x)
+(is_moved ?y ?x ?yd ?xd))
+
+;;;;;;;;;
+
+(<= (goal player 100)
+goal_reached
+; (true (step s16))
+)
+
+;(<= (goal player 50)
+;	goal_reached
+;	(not (true (step s16))))
+
+(<= (goal player 0)
+(not goal_reached))
+
+(<= terminal
+(true (step s81)))
+(<= terminal
+goal_reached)
+
+(<= goal_reached
+(true (cell 4 2 piece2))
+(true (cell 4 3 piece2))
+(true (cell 5 2 piece2))
+(true (cell 5 3 piece2)))
+
+;;;;;;;;;;
+
+(successor s0 s1)
+(successor s1 s2)
+(successor s2 s3)
+(successor s3 s4)
+(successor s4 s5)
+(successor s5 s6)
+(successor s6 s7)
+(successor s7 s8)
+(successor s8 s9)
+(successor s9 s10)
+(successor s10 s11)
+(successor s11 s12)
+(successor s12 s13)
+(successor s13 s14)
+(successor s14 s15)
+(successor s15 s16)
+(successor s16 s17)
+(successor s17 s18)
+(successor s18 s19)
+(successor s19 s20)
+(successor s20 s21)
+(successor s21 s22)
+(successor s22 s23)
+(successor s23 s24)
+(successor s24 s25)
+(successor s25 s26)
+(successor s26 s27)
+(successor s27 s28)
+(successor s28 s29)
+(successor s29 s30)
+(successor s30 s31)
+(successor s31 s32)
+(successor s32 s33)
+(successor s33 s34)
+(successor s34 s35)
+(successor s35 s36)
+(successor s36 s37)
+(successor s37 s38)
+(successor s38 s39)
+(successor s39 s40)
+(successor s40 s41)
+(successor s41 s42)
+(successor s42 s43)
+(successor s43 s44)
+(successor s44 s45)
+(successor s45 s46)
+(successor s46 s47)
+(successor s47 s48)
+(successor s48 s49)
+(successor s49 s50)
+(successor s50 s51)
+(successor s51 s52)
+(successor s52 s53)
+(successor s53 s54)
+(successor s54 s55)
+(successor s55 s56)
+(successor s56 s57)
+(successor s57 s58)
+(successor s58 s59)
+(successor s59 s60)
+(successor s60 s61)
+(successor s61 s62)
+(successor s62 s63)
+(successor s63 s64)
+(successor s64 s65)
+(successor s65 s66)
+(successor s66 s67)
+(successor s67 s68)
+(successor s68 s69)
+(successor s69 s70)
+(successor s70 s71)
+(successor s71 s72)
+(successor s72 s73)
+(successor s73 s74)
+(successor s74 s75)
+(successor s75 s76)
+(successor s76 s77)
+(successor s77 s78)
+(successor s78 s79)
+(successor s79 s80)
+(successor s80 s81)
+

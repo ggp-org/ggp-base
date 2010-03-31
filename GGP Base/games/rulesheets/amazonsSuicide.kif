@@ -1,0 +1,276 @@
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Amazons (Suicide)
+;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; ROLE Relations
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(role white)
+(role black)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; INIT Relations
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(init (location  4  1 white))
+(init (location  7  1 white))
+(init (location  1  4 white))
+(init (location 10  4 white))
+
+(init (location  1  7 black))
+(init (location 10  7 black))
+(init (location  4 10 black))
+(init (location  7 10 black))
+
+(init (control white))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; LEGAL Relations
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(<= (legal ?player noop)
+    (role ?player)
+    (not (true (control ?player))))
+    
+(<= (legal ?player (play ?x1 ?y1 ?x2 ?y2 ?x3 ?y3))
+    (true (control ?player))
+    (true (location ?x1 ?y1 ?player))
+    (queenMove ?x1 ?y1 ?x2 ?y2)
+    (emptyCell ?x2 ?y2)
+    (queenMoveIgnoring ?x1 ?y1 ?x2 ?y2 ?x3 ?y3)
+    (emptyCell ?x3 ?y3))    
+
+(<= (legal ?player (play ?x1 ?y1 ?x2 ?y2 ?x1 ?y1))
+    (true (control ?player))
+    (true (location ?x1 ?y1 ?player))
+    (queenMove ?x1 ?y1 ?x2 ?y2)
+    (emptyCell ?x2 ?y2))
+    
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; NEXT Relations
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    
+(<= (next (location ?x ?y ?state))
+    (true (location ?x ?y ?state))
+    (does ?player (play ?x1 ?y1 ?x2 ?y2 ?x3 ?y3))
+    (distinctCell ?x ?y ?x1 ?y1))
+    
+(<= (next (location ?x2 ?y2 ?player))
+    (does ?player (play ?x1 ?y1 ?x2 ?y2 ?x3 ?y3)))
+    
+(<= (next (location ?x3 ?y3 arrow))
+    (does ?player (play ?x1 ?y1 ?x2 ?y2 ?x3 ?y3)))
+    
+(<= (next (control black))
+    (true (control white)))
+(<= (next (control white))
+    (true (control black)))
+    
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; TERMINAL Relations
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(<= terminal
+    (not (legalMove white)))
+(<= terminal
+    (not (legalMove black)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; GOAL Relations
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(<= (goal white 100)
+    (not (legalMove white)))
+(<= (goal white 0)
+    (legalMove white))
+    
+(<= (goal black 100)
+    (not (legalMove black)))
+(<= (goal black 0)
+    (legalMove black))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; View Definitions
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(<= (legalMove ?player)
+    (true (location ?x1 ?y1 ?player))
+    (queenMove ?x1 ?y1 ?xAny ?yAny)
+    (emptyCell ?xAny ?yAny))
+
+(<= (queenMove ?x1 ?y1 ?x2 ?y2)
+    (rookMove ?x1 ?y1 ?x2 ?y2))
+(<= (queenMove ?x1 ?y1 ?x2 ?y2)
+    (bishopMove ?x1 ?y1 ?x2 ?y2))
+    
+(<= (rookMove ?x1 ?y1 ?x2 ?y2)
+    (horizontalMove ?x1 ?y1 ?x2 ?y2))
+(<= (rookMove ?x1 ?y1 ?x2 ?y2)
+    (horizontalMove ?x2 ?y2 ?x1 ?y1))
+(<= (rookMove ?x1 ?y1 ?x2 ?y2)
+    (verticalMove ?x1 ?y1 ?x2 ?y2))
+(<= (rookMove ?x1 ?y1 ?x2 ?y2)
+    (verticalMove ?x2 ?y2 ?x1 ?y1))
+
+(<= (bishopMove ?x1 ?y1 ?x2 ?y2)
+    (diagonalUpMove ?x1 ?y1 ?x2 ?y2))
+(<= (bishopMove ?x1 ?y1 ?x2 ?y2)
+    (diagonalUpMove ?x2 ?y2 ?x1 ?y1))
+(<= (bishopMove ?x1 ?y1 ?x2 ?y2)
+    (diagonalDownMove ?x1 ?y1 ?x2 ?y2))
+(<= (bishopMove ?x1 ?y1 ?x2 ?y2)
+    (diagonalDownMove ?x2 ?y2 ?x1 ?y1))    
+    
+(<= (horizontalMove ?x1 ?y ?x3 ?y)
+    (++ ?x1 ?x2)
+    (emptyCell ?x2 ?y)
+    (horizontalMove ?x2 ?y ?x3 ?y)
+    (index ?y))
+(<= (horizontalMove ?x1 ?y ?x2 ?y)
+    (++ ?x1 ?x2)
+    (index ?y))
+
+(<= (verticalMove ?x ?y1 ?x ?y3)
+    (++ ?y1 ?y2)
+    (emptyCell ?x ?y2)
+    (verticalMove ?x ?y2 ?x ?y3)
+    (index ?x))
+(<= (verticalMove ?x ?y1 ?x ?y2)
+    (++ ?y1 ?y2)
+    (index ?x))	
+	
+(<= (diagonalUpMove ?x1 ?y1 ?x3 ?y3)
+    (plus 1 ?x1 ?x2)
+    (++ ?y1 ?y2)
+    (emptyCell ?x2 ?y2)
+    (diagonalUpMove ?x2 ?y2 ?x3 ?y3))
+(<= (diagonalUpMove ?x1 ?y1 ?x2 ?y2)
+    (++ ?x1 ?x2)
+    (++ ?y1 ?y2))	
+	
+(<= (diagonalDownMove ?x1 ?y1 ?x3 ?y3)
+    (++ ?x1 ?x2)
+    (++ ?y2 ?y1)
+    (emptyCell ?x2 ?y2)
+    (diagonalDownMove ?x2 ?y2 ?x3 ?y3))
+(<= (diagonalDownMove ?x1 ?y1 ?x2 ?y2)
+    (++ ?x1 ?x2) 
+    (++ ?y2 ?y1))    
+    
+(<= (queenMoveIgnoring ?xIg ?yIg ?x1 ?y1 ?x2 ?y2)
+    (rookMoveIgnoring ?xIg ?yIg ?x1 ?y1 ?x2 ?y2))
+(<= (queenMoveIgnoring ?xIg ?yIg ?x1 ?y1 ?x2 ?y2)
+    (bishopMoveIgnoring ?xIg ?yIg ?x1 ?y1 ?x2 ?y2))
+    
+(<= (rookMoveIgnoring ?xIg ?yIg ?x1 ?y1 ?x2 ?y2)
+    (horizontalMoveIgnoring ?xIg ?yIg ?x1 ?y1 ?x2 ?y2))
+(<= (rookMoveIgnoring ?xIg ?yIg ?x1 ?y1 ?x2 ?y2)
+    (horizontalMoveIgnoring ?xIg ?yIg ?x2 ?y2 ?x1 ?y1))
+(<= (rookMoveIgnoring ?xIg ?yIg ?x1 ?y1 ?x2 ?y2)
+    (verticalMoveIgnoring ?xIg ?yIg ?x1 ?y1 ?x2 ?y2))
+(<= (rookMoveIgnoring ?xIg ?yIg ?x1 ?y1 ?x2 ?y2)
+    (verticalMoveIgnoring ?xIg ?yIg ?x2 ?y2 ?x1 ?y1))
+
+(<= (bishopMoveIgnoring ?xIg ?yIg ?x1 ?y1 ?x2 ?y2)
+    (diagonalUpMoveIgnoring ?xIg ?yIg ?x1 ?y1 ?x2 ?y2))
+(<= (bishopMoveIgnoring ?xIg ?yIg ?x1 ?y1 ?x2 ?y2)
+    (diagonalUpMoveIgnoring ?xIg ?yIg ?x2 ?y2 ?x1 ?y1))
+(<= (bishopMoveIgnoring ?xIg ?yIg ?x1 ?y1 ?x2 ?y2)
+    (diagonalDownMoveIgnoring ?xIg ?yIg ?x1 ?y1 ?x2 ?y2))
+(<= (bishopMoveIgnoring ?xIg ?yIg ?x1 ?y1 ?x2 ?y2)
+    (diagonalDownMoveIgnoring ?xIg ?yIg ?x2 ?y2 ?x1 ?y1))    
+    
+(<= (horizontalMoveIgnoring ?xIg ?yIg ?x1 ?y ?x3 ?y)
+    (++ ?x1 ?x2)
+    (emptyCell ?x2 ?y)
+    (horizontalMoveIgnoring ?xIg ?yIg ?x2 ?y ?x3 ?y)
+    (index ?y))
+(<= (horizontalMoveIgnoring ?xIg ?yIg ?x1 ?y ?x3 ?y)
+    (++ ?x1 ?x2)
+    (identicalCell ?xIg ?yIg ?x2 ?y)
+    (horizontalMoveIgnoring ?xIg ?yIg ?x2 ?y ?x3 ?y)
+    (index ?y))
+(<= (horizontalMoveIgnoring ?xIg ?yIg ?x1 ?y ?x2 ?y)
+    (++ ?x1 ?x2)
+    (index ?y)
+    (cell ?xIg ?yIg))
+
+(<= (verticalMoveIgnoring ?xIg ?yIg ?x ?y1 ?x ?y3)
+    (++ ?y1 ?y2)
+    (emptyCell ?x ?y2)
+    (verticalMoveIgnoring ?xIg ?yIg ?x ?y2 ?x ?y3)
+    (index ?x))
+(<= (verticalMoveIgnoring ?xIg ?yIg ?x ?y1 ?x ?y3)
+    (++ ?y1 ?y2)
+    (identicalCell ?xIg ?yIg ?x ?y2)
+    (verticalMoveIgnoring ?xIg ?yIg ?x ?y2 ?x ?y3)
+    (index ?x))
+(<= (verticalMoveIgnoring ?xIg ?yIg ?x ?y1 ?x ?y2)
+    (++ ?y1 ?y2)
+    (index ?x)
+    (cell ?xIg ?yIg))	
+	
+(<= (diagonalUpMoveIgnoring ?xIg ?yIg ?x1 ?y1 ?x3 ?y3)
+    (plus 1 ?x1 ?x2)
+    (++ ?y1 ?y2)
+    (emptyCell ?x2 ?y2)
+    (diagonalUpMoveIgnoring ?xIg ?yIg ?x2 ?y2 ?x3 ?y3))
+(<= (diagonalUpMoveIgnoring ?xIg ?yIg ?x1 ?y1 ?x3 ?y3)
+    (plus 1 ?x1 ?x2)
+    (++ ?y1 ?y2)
+    (identicalCell ?xIg ?yIg ?x2 ?y2)
+    (diagonalUpMoveIgnoring ?xIg ?yIg ?x2 ?y2 ?x3 ?y3))
+(<= (diagonalUpMoveIgnoring ?xIg ?yIg ?x1 ?y1 ?x2 ?y2)
+    (++ ?x1 ?x2)
+    (++ ?y1 ?y2)
+    (cell ?xIg ?yIg))	
+	
+(<= (diagonalDownMoveIgnoring ?xIg ?yIg ?x1 ?y1 ?x3 ?y3)
+    (++ ?x1 ?x2)
+    (++ ?y2 ?y1)
+    (emptyCell ?x2 ?y2)
+    (diagonalDownMoveIgnoring ?xIg ?yIg ?x2 ?y2 ?x3 ?y3))
+(<= (diagonalDownMoveIgnoring ?xIg ?yIg ?x1 ?y1 ?x3 ?y3)
+    (++ ?x1 ?x2)
+    (++ ?y2 ?y1)
+    (identicalCell ?xIg ?yIg ?x2 ?y2)
+    (diagonalDownMoveIgnoring ?xIg ?yIg ?x2 ?y2 ?x3 ?y3))
+(<= (diagonalDownMoveIgnoring ?xIg ?yIg ?x1 ?y1 ?x2 ?y2)
+    (++ ?x1 ?x2) 
+    (++ ?y2 ?y1)
+    (cell ?xIg ?yIg))    
+
+(<= (emptyCell ?x ?y)
+    (cell ?x ?y)
+    (not (true (location ?x ?y white)))
+    (not (true (location ?x ?y black)))
+	(not (true (location ?x ?y arrow))))
+
+(<= (identicalCell ?x1 ?y1 ?x2 ?y2)
+    (cell ?x1 ?y1)
+    (cell ?x2 ?y2)
+    (not (distinct ?x1 ?x2))
+    (not (distinct ?y1 ?y2)))
+	
+(<= (distinctCell ?x1 ?y1 ?x2 ?y2)
+    (cell ?x1 ?y1)
+    (cell ?x2 ?y2)
+    (distinct ?x1 ?x2))
+(<= (distinctCell ?x1 ?y1 ?x2 ?y2)
+    (cell ?x1 ?y1)
+    (cell ?x2 ?y2)
+    (distinct ?y1 ?y2))
+
+(<= (cell ?x ?y)
+    (index ?x)
+    (index ?y))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Static Relations
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(index 1) (index 2) (index 3) (index 4) (index 5) (index 6) (index 7) (index 8) (index 9) (index 10)
+(++ 1 2)  (++ 2 3)  (++ 3 4)  (++ 4 5)  (++ 5 6)  (++ 6 7)  (++ 7 8)  (++ 8 9)  (++ 9 10)

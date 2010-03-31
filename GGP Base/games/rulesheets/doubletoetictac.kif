@@ -1,0 +1,192 @@
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Tictactoe Rereified
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(role xplayer)
+(role oplayer)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(init (blank a board1))
+(init (blank b board1))
+(init (blank c board1))
+(init (blank d board1))
+(init (blank e board1))
+(init (blank f board1))
+(init (blank g board1))
+(init (blank h board1))
+(init (blank i board1))
+
+(init (blank a board2))
+(init (blank b board2))
+(init (blank c board2))
+(init (blank d board2))
+(init (blank e board2))
+(init (blank f board2))
+(init (blank g board2))
+(init (blank h board2))
+(init (blank i board2))
+
+(init (control board1 xplayer))
+(init (control board2 oplayer))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(otherboard board1 board2)
+(otherboard board2 board1)
+
+(<= (next (ecks ?m ?board))
+(does xplayer (mark ?m ?board))
+(true (blank ?m ?board)))
+
+(<= (next (oh ?m ?board))
+(does oplayer (mark ?m ?board))
+(true (blank ?m ?board)))
+
+(<= (next (ecks ?m ?board))
+(true (ecks ?m ?board)))
+
+(<= (next (oh ?m ?board))
+(true (oh ?m ?board)))
+
+(<= (next (blank ?m ?board))
+(does ?w (mark ?n ?board))
+(true (blank ?m ?board))
+(distinct ?m ?n))
+
+(<= (next (blank ?m ?board))
+(true (blank ?m ?board))
+(does ?w noop)
+(true (control ?board ?w)))
+
+(<= (next (control ?board xplayer))
+(true (control ?board oplayer)))
+
+(<= (next (control ?board oplayer))
+(true (control ?board xplayer)))
+
+(line a b c)
+(line a d g)
+(line d e f)
+(line b e h)
+(line g h i)
+(line c f i)
+(line a e i)
+(line c e g)
+
+(<= (xline ?board)
+(line ?a ?b ?c)
+(true (ecks ?a ?board))
+(true (ecks ?b ?board))
+(true (ecks ?c ?board)))
+
+(<= (oline ?board)
+(line ?a ?b ?c)
+(true (oh ?a ?board))
+(true (oh ?b ?board))
+(true (oh ?c ?board)))
+
+(<= (open ?board)
+(true (blank ?m ?board)))
+
+(<= (anyline ?board)
+(or (xline ?board)
+(oline ?board)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(<= (legal ?player (mark ?y ?board))
+(true (blank ?y ?board))
+(true (control ?board ?player))
+(not (anyline ?board)))
+
+(<= (legal oplayer noop)
+(true (control ?board oplayer))
+(not (open ?board)))
+
+(<= (legal xplayer noop)
+(true (control ?board xplayer))
+(not (open ?board)))
+
+(<= (legal oplayer noop)
+(true (control ?board oplayer))
+(anyline ?board))
+
+(<= (legal xplayer noop)
+(true (control ?board xplayer))
+(anyline ?board))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(<= (goal xplayer 100)
+(xline board1)
+(xline board2))
+
+(<= (goal xplayer 75)
+(xline ?board1)
+(otherboard ?board1 ?board2)
+(not (oline ?board2))
+(not (xline ?board2)))
+
+(<= (goal xplayer 25)
+(oline ?board1)
+(otherboard ?board1 ?board2)
+(not (oline ?board2))
+(not (xline ?board2)))
+
+(<= (goal xplayer 0)
+(oline board1)
+(oline board2))
+
+(<= (goal ?player 50)
+(role ?player)
+(xline ?board1)
+(otherboard ?board1 ?board2)
+(oline ?board2))
+
+(<= (goal ?player 50)
+(role ?player)
+(not (open board1))
+(not (open board2))
+(not (anyline board1))
+(not (anyline board2)))
+
+(<= (goal oplayer 100)
+(oline board1)
+(oline board2))
+
+(<= (goal oplayer 75)
+(oline ?board1)
+(otherboard ?board1 ?board2)
+(not (oline ?board2))
+(not (xline ?board2)))
+
+(<= (goal oplayer 25)
+(xline ?board1)
+(otherboard ?board1 ?board2)
+(not (oline ?board2))
+(not (xline ?board2)))
+
+(<= (goal oplayer 0)
+(xline board1)
+(xline board2))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(<= terminal
+(anyline ?board1)
+(otherboard ?board1 ?board2)
+(anyline ?board2))
+
+(<= terminal
+(anyline ?board1)
+(otherboard ?board1 ?board2)
+(not (open ?board2)))
+
+(<= terminal
+(not (open board1))
+(not (open board2)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

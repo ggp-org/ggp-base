@@ -1,0 +1,176 @@
+; original by team LuckyLusor
+;    Jan-Henrik Moss <s2094906@inf.tu-dresden.de>
+;    Silvio Tschapke <s1178847@inf.tu-dresden.de>
+;
+; adapted by Stephan Schiffel <stephan.schiffel@inf.tu-dresden.de>
+
+(role wolf)
+(role sheep)
+
+
+(init(cell c1 c1 s))
+(init(cell c1 c2 b))
+(init(cell c1 c3 b))
+(init(cell c1 c4 b))
+(init(cell c1 c5 b))
+(init(cell c1 c6 b))
+(init(cell c1 c7 b))
+(init(cell c1 c8 b))
+(init(cell c2 c1 b))
+(init(cell c2 c2 b))
+(init(cell c2 c3 b))
+(init(cell c2 c4 b))
+(init(cell c2 c5 b))
+(init(cell c2 c6 b))
+(init(cell c2 c7 b))
+(init(cell c2 c8 b))
+(init(cell c3 c1 s))
+(init(cell c3 c2 b))
+(init(cell c3 c3 b))
+(init(cell c3 c4 b))
+(init(cell c3 c5 b))
+(init(cell c3 c6 b))
+(init(cell c3 c7 b))
+(init(cell c3 c8 b))
+(init(cell c4 c1 b))
+(init(cell c4 c2 b))
+(init(cell c4 c3 b))
+(init(cell c4 c4 b))
+(init(cell c4 c5 b))
+(init(cell c4 c6 b))
+(init(cell c4 c7 b))
+(init(cell c4 c8 w))
+(init(cell c5 c1 s))
+(init(cell c5 c2 b))
+(init(cell c5 c3 b))
+(init(cell c5 c4 b))
+(init(cell c5 c5 b))
+(init(cell c5 c6 b))
+(init(cell c5 c7 b))
+(init(cell c5 c8 b))
+(init(cell c6 c1 b))
+(init(cell c6 c2 b))
+(init(cell c6 c3 b))
+(init(cell c6 c4 b))
+(init(cell c6 c5 b))
+(init(cell c6 c6 b))
+(init(cell c6 c7 b))
+(init(cell c6 c8 b))
+(init(cell c7 c1 s))
+(init(cell c7 c2 b))
+(init(cell c7 c3 b))
+(init(cell c7 c4 b))
+(init(cell c7 c5 b))
+(init(cell c7 c6 b))
+(init(cell c7 c7 b))
+(init(cell c7 c8 b))
+(init(cell c8 c1 b))
+(init(cell c8 c2 b))
+(init(cell c8 c3 b))
+(init(cell c8 c4 b))
+(init(cell c8 c5 b))
+(init(cell c8 c6 b))
+(init(cell c8 c7 b))
+(init(cell c8 c8 b))
+
+(init(control wolf))
+
+(<= (next (cell ?x ?y b))
+(does ?role (move ?x ?y ?tox ?toy)))
+(<= (next (cell ?x ?y w))
+(does wolf (move ?fromx ?fromy ?x ?y)))
+(<= (next (cell ?x ?y ?s))
+(does sheep (move ?fromx ?fromy ?x ?y))
+(true (cell ?fromx ?fromy ?s)))
+
+(<=(next (cell ?x ?y ?z))
+(true (cell ?x ?y ?z))
+(distinct ?z b)
+(does ?role (move ?fromx ?fromy ?tox ?toy))
+(or (distinct ?fromx ?x) (distinct ?fromy ?y)))
+
+(<= (next (cell ?x ?y b))
+(true (cell ?x ?y b))
+(does ?role (move ?a ?b ?c ?d))
+(or (distinct ?c ?x) (distinct ?d ?y)))
+(<= (next (control sheep))
+(true (control wolf)))
+(<= (next (control wolf))
+(true (control sheep)))
+
+
+
+(<= (legal wolf (move ?fromx ?fromy ?tox ?toy))
+(true (control wolf))
+(true (cell ?fromx ?fromy w))
+(adjacent wolf ?fromx ?fromy ?tox ?toy)
+(true (cell ?tox ?toy b)))
+
+(<=(legal sheep (move ?fromx ?fromy  ?tox ?toy))
+(true (control sheep))
+(true (cell ?fromx ?fromy s))
+(adjacent sheep ?fromx ?fromy ?tox ?toy)
+(true (cell ?tox ?toy b)))
+
+(<= (legal wolf noop)
+(true (control sheep)))
+(<= (legal sheep noop)
+(true (control wolf)))
+
+
+
+(<= (adjacent sheep ?x ?y ?x1 ?y1) (succ ?x ?x1) (succ ?y ?y1))
+(<= (adjacent sheep ?x ?y ?x1 ?y1) (succ ?x1 ?x) (succ ?y ?y1))
+(<= (adjacent wolf ?x ?y ?x1 ?y1) (succ ?x1 ?x) (succ ?y1 ?y))
+(<= (adjacent wolf ?x ?y ?x1 ?y1) (succ ?x ?x1) (succ ?y1 ?y))
+(<= (adjacent wolf ?x ?y ?x1 ?y1) (succ ?x ?x1) (succ ?y ?y1))
+(<= (adjacent wolf ?x ?y ?x1 ?y1) (succ ?x1 ?x) (succ ?y ?y1))
+
+(<= terminal
+wolf_behind_sheep)
+(<= terminal
+(not (moveable wolf)))
+(<= terminal
+(not (moveable sheep)))
+
+(<= (goal wolf 100)
+(moveable wolf))
+(<= (goal wolf 0)
+(not (moveable wolf)))
+(<= (goal sheep 100)
+(not (moveable wolf)))
+(<= (goal sheep 0)
+(moveable wolf))
+
+(<= (moveable wolf)
+(true (cell ?x ?y w))
+(adjacent wolf ?x ?y ?tox ?toy)
+(true (cell ?tox ?toy b)))
+
+(<= (moveable sheep)
+(true (cell ?x ?y s))
+(adjacent sheep ?x ?y ?tox ?toy)
+(true (cell ?tox ?toy b)))
+
+
+(<= wolf_behind_sheep
+(not not_wolf_behind_sheep))
+
+(<= not_wolf_behind_sheep
+(true (cell ?xw ?yw w))
+(true (cell ?xs ?ys s))
+(smaller ?ys ?yw))
+
+(<= (smaller ?x ?y)
+(succ ?x ?y))
+(<= (smaller ?x ?y)
+(succ ?x ?z)
+(smaller ?z ?y))
+
+(succ c1 c2)
+(succ c2 c3)
+(succ c3 c4)
+(succ c4 c5)
+(succ c5 c6)
+(succ c6 c7)
+(succ c7 c8)

@@ -1,0 +1,378 @@
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; 3-Player Pacman
+;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; ROLE Relations
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(role pacman)
+(role blinky)
+(role inky)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; INIT Relations
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(init (control pacman))
+
+(init (location pacman 5 3))
+(init (location blinky 4 6))
+(init (location inky   5 6))
+
+(init (location pellet 3 1))
+(init (location pellet 4 1))
+(init (location pellet 5 1))
+(init (location pellet 6 1))
+(init (location pellet 3 2))
+(init (location pellet 6 2))
+(init (location pellet 1 3))
+(init (location pellet 2 3))
+(init (location pellet 3 3))
+(init (location pellet 4 3))
+(init (location pellet 6 3))
+(init (location pellet 7 3))
+(init (location pellet 8 3))
+(init (location pellet 1 4))
+(init (location pellet 3 4))
+(init (location pellet 6 4))
+(init (location pellet 8 4))
+(init (location pellet 1 5))
+(init (location pellet 3 5))
+(init (location pellet 6 5))
+(init (location pellet 8 5))
+(init (location pellet 1 6))
+(init (location pellet 2 6))
+(init (location pellet 3 6))
+(init (location pellet 6 6))
+(init (location pellet 7 6))
+(init (location pellet 8 6))
+(init (location pellet 3 7))
+(init (location pellet 6 7))
+(init (location pellet 3 8))
+(init (location pellet 4 8))
+(init (location pellet 5 8))
+(init (location pellet 6 8))
+
+(init (blockedNorth 4 1))
+(init (blockedNorth 5 1))
+(init (blockedNorth 1 2))
+(init (blockedNorth 2 2))
+(init (blockedNorth 4 2))
+(init (blockedNorth 5 2))
+(init (blockedNorth 7 2))
+(init (blockedNorth 8 2))
+(init (blockedNorth 2 3))
+(init (blockedNorth 4 3))
+(init (blockedNorth 5 3))
+(init (blockedNorth 7 3))
+(init (blockedNorth 2 5))
+(init (blockedNorth 4 5))
+(init (blockedNorth 5 5))
+(init (blockedNorth 7 5))
+(init (blockedNorth 1 6))
+(init (blockedNorth 2 6))
+(init (blockedNorth 4 6))
+(init (blockedNorth 5 6))
+(init (blockedNorth 7 6))
+(init (blockedNorth 8 6))
+(init (blockedNorth 4 7))
+(init (blockedNorth 5 7))
+
+(init (blockedEast 1 4))
+(init (blockedEast 1 5))
+(init (blockedEast 2 1))
+(init (blockedEast 2 2))
+(init (blockedEast 2 4))
+(init (blockedEast 2 5))
+(init (blockedEast 2 7))
+(init (blockedEast 2 8))
+(init (blockedEast 3 2))
+(init (blockedEast 3 4))
+(init (blockedEast 3 5))
+(init (blockedEast 3 7))
+(init (blockedEast 5 2))
+(init (blockedEast 5 4))
+(init (blockedEast 5 5))
+(init (blockedEast 5 7))
+(init (blockedEast 6 1))
+(init (blockedEast 6 2))
+(init (blockedEast 6 4))
+(init (blockedEast 6 5))
+(init (blockedEast 6 7))
+(init (blockedEast 6 8))
+(init (blockedEast 7 4))
+(init (blockedEast 7 5))
+
+(init (collected 0))
+
+(init (step 1))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; LEGAL Relations
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(<= (legal pacman (move ?dir))
+    (true (control pacman))
+    (true (location pacman ?x ?y))
+    (legalStep ?dir ?x ?y)
+    (distinct ?dir nowhere))
+(<= (legal pacman (move nowhere))
+    (not (true (control pacman))))
+
+(<= (legal ?ghost (move ?dir))
+    (ghost ?ghost)
+    (true (control ghosts))
+    (true (location ?ghost ?x ?y))
+    (legalStep ?dir ?x ?y)
+    (distinct ?dir nowhere))
+(<= (legal ?ghost (move nowhere))
+    (ghost ?ghost)
+    (not (true (control ghosts))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; NEXT Relations
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(<= (next (control pacman))
+    (true (control ghosts)))
+(<= (next (control ghosts))
+    (true (control pacman)))
+
+(<= (next (location pellet ?xP ?yP))
+    (true (location pellet ?xP ?yP))
+    (true (location pacman ?xPM1 ?yPM1))
+    (does pacman (move ?dir))
+    (nextCell ?dir ?xPM1 ?yPM1 ?xPM2 ?yPM2)
+    (distinctCell ?xP ?yP ?xPM2 ?yPM2))
+
+(<= (next (collected ?n++))
+    (true (location pacman ?x1 ?y1))
+    (does pacman (move ?dir))
+    (nextCell ?dir ?x1 ?y1 ?x2 ?y2)
+    (true (location pellet ?x2 ?y2))
+    (true (collected ?n))
+    (succ ?n ?n++))
+(<= (next (collected ?n))
+    (true (location pacman ?x1 ?y1))
+    (does pacman (move ?dir))
+    (nextCell ?dir ?x1 ?y1 ?x2 ?y2)
+    (not (true (location pellet ?x2 ?y2)))
+    (true (collected ?n)))
+    
+(<= (next (blockedNorth ?x ?y))
+    (true (blockedNorth ?x ?y)))
+(<= (next (blockedEast ?x ?y))
+    (true (blockedEast ?x ?y)))
+
+(<= (next (location ?char ?x2 ?y2))
+    (movable ?char)
+    (true (location ?char ?x1 ?y1))
+    (does ?char (move ?dir))
+    (nextCell ?dir ?x1 ?y1 ?x2 ?y2))
+
+(<= (next (step ?n++))
+    (true (step ?n))
+    (succ ?n ?n++))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; TERMINAL Relations
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(<= terminal
+    captured)
+(<= terminal
+    noPellets)
+(<= terminal
+    timeout)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; GOAL Relations
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(<= (goal pacman ?g)
+    (true (collected ?n))
+    (scoreMap ?n ?g))
+
+(<= (goal blinky 0)
+    (true (location pacman ?xP ?yP))
+    (true (location blinky ?xB ?yB))
+    (distinctCell ?xP ?yP ?xB ?yB))
+(<= (goal blinky 100)
+    (true (location pacman ?x ?y))
+    (true (location blinky ?x ?y)))
+
+(<= (goal inky 0)
+    (true (location pacman ?xP ?yP))
+    (true (location inky ?xI ?yI))
+    (distinctCell ?xP ?yP ?xI ?yI))
+(<= (goal inky 100)
+    (true (location pacman ?x ?y))
+    (true (location inky ?x ?y)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; View Definitions
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(<= (legalStep north ?x ?y)
+    (++ ?y ?yNew)
+    (cell ?x ?yNew)
+    (not (blocked ?x ?y ?x ?yNew)))
+(<= (legalStep south ?x ?y)
+    (-- ?y ?yNew)
+    (cell ?x ?yNew)
+    (not (blocked ?x ?y ?x ?yNew)))
+(<= (legalStep east ?x ?y)
+    (++ ?x ?xNew)
+    (cell ?xNew ?y)
+    (not (blocked ?x ?y ?xNew ?y)))
+(<= (legalStep west ?x ?y)
+    (-- ?x ?xNew)
+    (cell ?xNew ?y)
+    (not (blocked ?x ?y ?xNew ?y)))
+(<= (legalStep nowhere ?x ?y)
+    (cell ?x ?y))
+
+(<= (nextCell north ?x ?y ?x ?yNew)
+    (index ?x)
+    (++ ?y ?yNew))
+(<= (nextCell south ?x ?y ?x ?yNew)
+    (index ?x)
+    (-- ?y ?yNew))
+(<= (nextCell east ?x ?y ?xNew ?y)
+    (index ?y)
+    (++ ?x ?xNew))
+(<= (nextCell west ?x ?y ?xNew ?y)
+    (index ?y)
+    (-- ?x ?xNew))
+(<= (nextCell nowhere ?x ?y ?x ?y)
+    (cell ?x ?y))
+    
+(<= (blocked ?x ?y1 ?x ?y2)
+    (true (blockedNorth ?x ?y1))
+    (++ ?y1 ?y2))
+(<= (blocked ?x ?y2 ?x ?y1)
+    (true (blockedNorth ?x ?y1))
+    (++ ?y1 ?y2))
+(<= (blocked ?x1 ?y ?x2 ?y)
+    (true (blockedEast ?x1 ?y))
+    (++ ?x1 ?x2))
+(<= (blocked ?x2 ?y ?x1 ?y)
+    (true (blockedEast ?x1 ?y))
+    (++ ?x1 ?x2))
+
+(<= (distinctCell ?x1 ?y1 ?x2 ?y2)
+    (cell ?x1 ?y1)
+	(cell ?x2 ?y2)
+    (distinct ?x1 ?x2))
+(<= (distinctCell ?x1 ?y1 ?x2 ?y2)
+	(cell ?x1 ?y1)
+	(cell ?x2 ?y2)
+    (distinct ?y1 ?y2))
+
+(<= captured
+    (true (location pacman ?x ?y))
+    (true (location blinky ?x ?y)))
+(<= captured
+    (true (location pacman ?x ?y))
+    (true (location inky   ?x ?y)))
+
+(<= noPellets
+    (true (collected 35)))
+
+(<= timeout
+    (true (step 100)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Static Relations
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(movable pacman)
+(movable blinky)
+(movable inky)
+
+(ghost blinky)
+(ghost inky)
+
+(index 1) (index 2) (index 3) (index 4) (index 5) (index 6) (index 7) (index 8)
+
+(cell 1 8) (cell 2 8) (cell 3 8) (cell 4 8) (cell 5 8) (cell 6 8) (cell 7 8) (cell 8 8)
+(cell 1 7) (cell 2 7) (cell 3 7) (cell 4 7) (cell 5 7) (cell 6 7) (cell 7 7) (cell 8 7)
+(cell 1 6) (cell 2 6) (cell 3 6) (cell 4 6) (cell 5 6) (cell 6 6) (cell 7 6) (cell 8 6)
+(cell 1 5) (cell 2 5) (cell 3 5) (cell 4 5) (cell 5 5) (cell 6 5) (cell 7 5) (cell 8 5)
+(cell 1 4) (cell 2 4) (cell 3 4) (cell 4 4) (cell 5 4) (cell 6 4) (cell 7 4) (cell 8 4)
+(cell 1 3) (cell 2 3) (cell 3 3) (cell 4 3) (cell 5 3) (cell 6 3) (cell 7 3) (cell 8 3)
+(cell 1 2) (cell 2 2) (cell 3 2) (cell 4 2) (cell 5 2) (cell 6 2) (cell 7 2) (cell 8 2)
+(cell 1 1) (cell 2 1) (cell 3 1) (cell 4 1) (cell 5 1) (cell 6 1) (cell 7 1) (cell 8 1)
+
+(++ 1 2) (++ 2 3) (++ 3 4) (++ 4 5) (++ 5 6) (++ 6 7) (++ 7 8)
+(-- 8 7) (-- 7 6) (-- 6 5) (-- 5 4) (-- 4 3) (-- 3 2) (-- 2 1) 
+
+(succ  0  1) (succ  1  2) (succ  2  3) (succ  3  4) (succ  4   5) 
+(succ  5  6) (succ  6  7) (succ  7  8) (succ  8  9) (succ  9  10) 
+(succ 10 11) (succ 11 12) (succ 12 13) (succ 13 14) (succ 14  15) 
+(succ 15 16) (succ 16 17) (succ 17 18) (succ 18 19) (succ 19  20) 
+(succ 20 21) (succ 21 22) (succ 22 23) (succ 23 24) (succ 24  25) 
+(succ 25 26) (succ 26 27) (succ 27 28) (succ 28 29) (succ 29  30) 
+(succ 30 31) (succ 31 32) (succ 32 33) (succ 33 34) (succ 34  35) 
+(succ 35 36) (succ 36 37) (succ 37 38) (succ 38 39) (succ 39  40) 
+(succ 40 41) (succ 41 42) (succ 42 43) (succ 43 44) (succ 44  45) 
+(succ 45 46) (succ 46 47) (succ 47 48) (succ 48 49) (succ 49  50) 
+(succ 50 51) (succ 51 52) (succ 52 53) (succ 53 54) (succ 54  55) 
+(succ 55 56) (succ 56 57) (succ 57 58) (succ 58 59) (succ 59  60) 
+(succ 60 61) (succ 61 62) (succ 62 63) (succ 63 64) (succ 64  65) 
+(succ 65 66) (succ 66 67) (succ 67 68) (succ 68 69) (succ 69  70) 
+(succ 70 71) (succ 71 72) (succ 72 73) (succ 73 74) (succ 74  75)
+(succ 75 76) (succ 76 77) (succ 77 78) (succ 78 79) (succ 79  80) 
+(succ 80 81) (succ 81 82) (succ 82 83) (succ 83 84) (succ 84  85)
+(succ 85 86) (succ 86 87) (succ 87 88) (succ 88 89) (succ 89  90) 
+(succ 90 91) (succ 91 92) (succ 92 93) (succ 93 94) (succ 94  95)
+(succ 95 96) (succ 96 97) (succ 97 98) (succ 98 99) (succ 99 100) 
+
+(scoreMap  0   0)
+(scoreMap  1   2)
+(scoreMap  2   4)
+(scoreMap  3   6)
+(scoreMap  4   8)
+(scoreMap  5  10)
+(scoreMap  6  12)
+(scoreMap  7  14)
+(scoreMap  8  16)
+(scoreMap  9  18)
+(scoreMap 10  20)
+(scoreMap 11  23)
+(scoreMap 12  26)
+(scoreMap 13  29)
+(scoreMap 14  32)
+(scoreMap 15  35)
+(scoreMap 16  38)
+(scoreMap 17  41)
+(scoreMap 18  44)
+(scoreMap 19  47)
+(scoreMap 20  50)
+(scoreMap 21  53)
+(scoreMap 22  56)
+(scoreMap 23  59)
+(scoreMap 24  62)
+(scoreMap 25  65)
+(scoreMap 26  68)
+(scoreMap 27  71)
+(scoreMap 28  74)
+(scoreMap 29  77)
+(scoreMap 30  80)
+(scoreMap 31  83)
+(scoreMap 32  86)
+(scoreMap 33  89)
+(scoreMap 34  95)
+(scoreMap 35 100)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;( base collected ( val 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59 60 61 62 63 64 65 66 67 68 69 70 71 72 73 74 75 76 77 78 79 80 81 82 83 84 85 86 87 88 89 90 91 92 93 94 95 96 97 98 99 100 ) )
+( base control ( val ghosts pacman ) )
+( base blockednorth ( val 1 2 4 5 7 8 ) ( val 1 2 3 5 6 7 ) )
+( base step ( val 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59 60 61 62 63 64 65 66 67 68 69 70 71 72 73 74 75 76 77 78 79 80 81 82 83 84 85 86 87 88 89 90 91 92 93 94 95 96 97 98 99 100 ) )
+( base location ( val blinky inky pacman pellet ) ( val 1 2 3 4 5 6 7 8 ) ( val 1 2 3 4 5 6 7 8 ) )
+( base blockedeast ( val 1 2 3 5 6 7 ) ( val 1 2 4 5 7 8 ) )

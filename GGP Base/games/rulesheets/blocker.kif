@@ -1,0 +1,87 @@
+  (role crosser)
+  (role blocker)
+
+  (init (cell 1 1 b))
+  (init (cell 1 2 b))
+  (init (cell 1 3 b))
+  (init (cell 1 4 b))
+  (init (cell 2 1 b))
+  (init (cell 2 2 b))
+  (init (cell 2 3 b))
+  (init (cell 2 4 b))
+  (init (cell 3 1 b))
+  (init (cell 3 2 b))
+  (init (cell 3 3 b))
+  (init (cell 3 4 b))
+  (init (cell 4 1 b))
+  (init (cell 4 2 b))
+  (init (cell 4 3 b))
+  (init (cell 4 4 b))
+
+  (<= (next (cell ?m ?n blk))
+      (does blocker (mark ?m ?n))
+      (true (cell ?m ?n b)))
+
+  (<= (next (cell ?m ?n crosser)) 
+      (does crosser (mark ?m ?n))
+      (not (does blocker (mark ?m ?n)))
+      (true (cell ?m ?n b)))
+
+  (<= (next (cell ?m ?n ?x))
+      (true (cell ?m ?n ?x))
+      (distinct ?x b))
+
+  (<= (next (cell ?m ?n b))
+      (true (cell ?m ?n b))
+      (not (does blocker (mark ?m ?n)))
+      (not (does crosser (mark ?m ?n))))
+
+  (cont 1 1)
+  (cont 2 2)
+  (cont 3 3)
+  (cont 4 4)
+  (cont 1 2)
+  (cont 2 3)
+  (cont 3 4)
+  (cont 2 1)
+  (cont 3 2)
+  (cont 4 3)
+
+
+  (<= bridge
+      (true (cell 1 ?a crosser))
+      (cont ?a ?b)
+      (true (cell 2 ?b crosser))
+      (cont ?b ?c)
+      (true (cell 3 ?c crosser))
+      (cont ?c ?d)
+      (true (cell 4 ?d crosser)))
+
+  (<= open
+      (true (cell ?m ?n b)))
+
+
+  (<= (legal ?who (mark ?x ?y))
+      (true (cell ?x ?y b))
+      (role ?who))
+
+
+  (<= (goal crosser 100)
+      bridge)
+
+  (<= (goal blocker 0)
+      bridge)
+
+  (<= (goal crosser 0)
+      (not bridge)
+      (not open))
+
+  (<= (goal blocker 100)
+      (not bridge)
+      (not open))
+
+  (<= terminal
+      bridge)
+
+  (<= terminal
+      (not open))
