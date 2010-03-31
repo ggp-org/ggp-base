@@ -14,6 +14,16 @@ import java.util.Set;
 
 import util.match.Match;
 
+/**
+ * GamerLogger is a customized logger designed for long-running game players.
+ * Logs are written to directories on a per-game basis. Each logfile represents
+ * a single logical component of the game playing program, identified whenever
+ * the logger is called.
+ * 
+ * TODO: More details about specific use examples.
+ * 
+ * @author Sam Schreiber
+ */
 public class GamerLogger {
     // Public Interface
     public static void emitToConsole(String s) {
