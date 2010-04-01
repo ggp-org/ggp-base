@@ -57,7 +57,7 @@ public class ProjectSearcher {
 		{
 			File f = toProcess.pop();
 			if(!f.exists())
-				System.out.println(f);
+				System.out.println("Could not find expected file: [" + f + "] when running ProjectSearcher.");
 			if(f.isDirectory())
 				toProcess.addAll(Arrays.asList(f.listFiles(filter)));
 			else
