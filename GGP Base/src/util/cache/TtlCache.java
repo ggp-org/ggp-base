@@ -38,7 +38,6 @@ public final class TtlCache<K, V> implements Map<K,V>
 			this.ttl = ttl;
 		}
 
-		@SuppressWarnings("unchecked")
 		public boolean equals(Object o) {
 		    if (o instanceof TtlCache.Entry) {
 		        return ((Entry)o).value.equals(value);
