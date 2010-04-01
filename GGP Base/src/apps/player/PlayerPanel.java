@@ -6,6 +6,7 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.AbstractAction;
@@ -79,13 +80,16 @@ public final class PlayerPanel extends JPanel
 
 		portTextField.setColumns(15);
 
-		for(Class<?> gamer : gamers)
+		List<Class<?>> gamersCopy = new ArrayList<Class<?>>(gamers);
+		for(Class<?> gamer : gamersCopy)
 		{
 			Gamer g;
 			try {
 				g = (Gamer) gamer.newInstance();
 				typeComboBox.addItem(g.getName());
-			} catch(Exception ex) {}
+			} catch(Exception ex) {
+			    gamers.remove(gamer);
+			}
 		}
 
 		JPanel managerPanel = new JPanel(new GridBagLayout());
