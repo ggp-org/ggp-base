@@ -9,7 +9,7 @@ public class ConnectFourCanvas extends GridGameCanvas {
     private static final long serialVersionUID = 1L;
 
     public String getGameName() { return "Connect Four"; }
-    protected String getGameKIF() { return "connectfour"; }
+    protected String getGameKIF() { return "connectFour"; }
     protected int getGridHeight() { return 6; }
     protected int getGridWidth() { return 8; }
 
