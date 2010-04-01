@@ -33,6 +33,36 @@ import util.observer.Event;
 import util.observer.Observer;
 import util.observer.Subject;
 
+/**
+ * ProxyGamePlayer starts a separate process running an instance of the Gamer
+ * class that is passed in as a parameter. It serves as a proxy between this
+ * Gamer process and the GGP server: it ensures that legal moves are sent back
+ * to the server on time, accepts and stores working moves, and so on.
+ * 
+ * This class is not necessary, unless you are interested in adding another
+ * layer of bullet-proofing to your player in preparation for a tournament
+ * or for running your player for long periods of time.
+ * 
+ * There are advantages and disadvantages to this approach. The advantages are:
+ * 
+ *  1. Even if the Gamer process stalls, for example due to garbage collection,
+ *     you will always send a legal move back to the server in time.
+ *     
+ *  2. You can send "working moves" to the proxy, so that if your Gamer process
+ *     stalls, you can send back your best-guess move from before the stall.
+ *     
+ * The disadvantage is very simple:
+ * 
+ *  1. If the proxy breaks, you can revert to playing extremely poorly
+ *     even though your real Gamer process is fully functional.
+ *     
+ * The advantages are very important, and so my response to the disadvantage
+ * has been to shake as many bugs out of the proxy as I can. While the code is
+ * fairly complex, this proxy has proven to be decently reliable in my testing.
+ * So, that's progress.
+ * 
+ * @author Sam Schreiber
+ */
 public final class ProxyGamePlayer extends Thread implements Subject
 {
 	private final String gamerName;
