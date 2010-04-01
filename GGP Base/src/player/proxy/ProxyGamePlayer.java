@@ -320,7 +320,11 @@ public final class ProxyGamePlayer extends Thread implements Subject
 	                	// Clean up the working directory and terminate any orphan processes.
 	                	Thread.sleep(500);
 	                	GamerLogger.log("Proxy", "[PROXY] Calling cleanup scripts.");
-	                	Runtime.getRuntime().exec("./cleanup.sh").waitFor();
+	                	try {
+	                	    Runtime.getRuntime().exec("./cleanup.sh").waitFor();
+	                	} catch(IOException e) {
+	                	    GamerLogger.logStackTrace("Proxy", e);
+	                	}
 	                	Thread.sleep(500);
 	                }
 	                
