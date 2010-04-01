@@ -1,7 +1,7 @@
 =====================================
 = GENERAL GAME PLAYING BASE PACKAGE =
 =====================================
-
+ 
 Application Suite for the General Game Playing Project;
  - A GUI-based GameKiosk        (for playing human-vs-computer matches)
  - A GUI-based GamePlayer       (for running computer players)
