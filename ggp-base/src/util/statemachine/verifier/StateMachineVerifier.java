@@ -101,7 +101,7 @@ public class StateMachineVerifier {
                 }
             }
         }
-        GamerLogger.emitToConsole("]");
+        GamerLogger.emitToConsole("]\n");
 
         GamerLogger.log("StateMachine", "Completed automatic consistency testing on " + theSubject.getClass().getName() + ", w/ " + nRound + " rounds: all tests pass!");
         return true;
