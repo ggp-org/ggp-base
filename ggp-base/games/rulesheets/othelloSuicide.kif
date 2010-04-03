@@ -268,6 +268,3 @@
 (pp 40 41) (pp 41 42) (pp 42 43) (pp 43 44) (pp 44 45) (pp 45 46) (pp 46 47) (pp 47 48) (pp 48 49) (pp 49 50)
 (pp 50 51) (pp 51 52) (pp 52 53) (pp 53 54) (pp 54 55) (pp 55 56) (pp 56 57) (pp 57 58) (pp 58 59) (pp 59 60)
 (pp 60 61) (pp 61 62) (pp 62 63) (pp 63 64) 
-
-( base cell ( val 1 2 3 4 5 6 7 8 ) ( val 1 2 3 4 5 6 7 8 ) ( val black red ) )
-( base control ( val black red ) )
