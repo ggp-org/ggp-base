@@ -24,7 +24,6 @@ import apps.kiosk.server.KioskGameServer;
 
 import player.GamePlayer;
 import player.gamer.Gamer;
-import player.gamer.statemachine.reflex.random.RandomGamer;
 
 import util.configuration.ProjectConfiguration;
 import util.gdl.grammar.Gdl;
@@ -104,6 +103,9 @@ public final class Kiosk extends JPanel implements ActionListener
         }
     }
     
+    private final JComboBox playerComboBox;
+    private List<Class<?>> gamers = ProjectSearcher.getAllClassesThatAre(Gamer.class);
+    
     public Kiosk()
     {
         super(new GridBagLayout());
@@ -122,7 +124,20 @@ public final class Kiosk extends JPanel implements ActionListener
         selectedGame = new JComboBox();
         for(AvailableGame theGame : theAvailableGames)
             selectedGame.addItem(theGame);
-                
+
+        playerComboBox = new JComboBox();
+        List<Class<?>> gamersCopy = new ArrayList<Class<?>>(gamers);
+        for(Class<?> gamer : gamersCopy)
+        {
+            Gamer g;
+            try {
+                g = (Gamer) gamer.newInstance();
+                playerComboBox.addItem(g.getName());
+            } catch(Exception ex) {
+                gamers.remove(gamer);
+            }
+        }        
+        
         runButton = new JButton("Run!");
         runButton.addActionListener(this);
 
@@ -136,12 +151,14 @@ public final class Kiosk extends JPanel implements ActionListener
 
         managerPanel.setBorder(new TitledBorder("Kiosk Control"));
         managerPanel.add(new JLabel("Game:"), new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 5, 5));
-        managerPanel.add(selectedGame, new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 5, 5));
-        managerPanel.add(new JLabel("Start Clock:"), new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 5, 5));
-        managerPanel.add(startClockTextField, new GridBagConstraints(1, 2, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 5, 5));
-        managerPanel.add(new JLabel("Play Clock:"), new GridBagConstraints(0, 3, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 5, 5));
-        managerPanel.add(playClockTextField, new GridBagConstraints(1, 3, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 5, 5));
-        managerPanel.add(runButton, new GridBagConstraints(1, 4, 1, 1, 0.0, 1.0, GridBagConstraints.SOUTH, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 0, 0));
+        managerPanel.add(selectedGame, new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 5, 5));        
+        managerPanel.add(new JLabel("Opponent:"), new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 5, 5));
+        managerPanel.add(playerComboBox, new GridBagConstraints(1, 2, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 5, 5));
+        managerPanel.add(new JLabel("Start Clock:"), new GridBagConstraints(0, 3, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 5, 5));
+        managerPanel.add(startClockTextField, new GridBagConstraints(1, 3, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 5, 5));
+        managerPanel.add(new JLabel("Play Clock:"), new GridBagConstraints(0, 4, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 5, 5));
+        managerPanel.add(playClockTextField, new GridBagConstraints(1, 4, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 5, 5));
+        managerPanel.add(runButton, new GridBagConstraints(1, 5, 1, 1, 0.0, 1.0, GridBagConstraints.SOUTH, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 0, 0));
 
         JPanel gamePanel = new JPanel(new GridBagLayout());
         gamePanel.setBorder(new TitledBorder("Game Kiosk"));
@@ -157,19 +174,16 @@ public final class Kiosk extends JPanel implements ActionListener
             theHumanGamer = new KioskGamer(theGUIPanel);
             GamePlayer humanPlayer = new GamePlayer(HUMAN_PORT, theHumanGamer);
             humanPlayer.start();
-            
-            Gamer theComputerGamer = new RandomGamer();
-            GamePlayer computerPlayer = new GamePlayer(COMPUTER_PORT, theComputerGamer);
-            computerPlayer.start();
         } catch(Exception e) {
             e.printStackTrace();
         }
     }
     
+    private GamePlayer theComputerPlayer = null;
     private KioskGamer theHumanGamer;
     private final static int HUMAN_PORT = 9184;
     private final static int COMPUTER_PORT = 9185;
-
+    
     @Override
     public void actionPerformed(ActionEvent e) {
         if(e.getSource() == runButton) {
@@ -185,21 +199,39 @@ public final class Kiosk extends JPanel implements ActionListener
                 int playClock = Integer.valueOf(playClockTextField.getText());
                 Match match = new Match(matchId, startClock, playClock, description);
                 theHumanGamer.setCanvas(theGame.getCanvas());
-                    
+                                    
+                // Stop old player if it's not the right type
+                String computerPlayerName = (String) playerComboBox.getSelectedItem();
+                if(theComputerPlayer != null && !theComputerPlayer.getGamer().getName().equals(computerPlayerName)) {
+                    theComputerPlayer.interrupt();
+                    Thread.sleep(100);
+                    theComputerPlayer = null;
+                }
+                
+                // Start a new player if necessary
+                if(theComputerPlayer == null) {
+                    Gamer gamer = null;
+                    Class<?> gamerClass = gamers.get(playerComboBox.getSelectedIndex());
+                    try {
+                        gamer = (Gamer) gamerClass.newInstance();
+                    } catch(Exception ex) { throw new RuntimeException(ex); }
+                    theComputerPlayer = new GamePlayer(COMPUTER_PORT, gamer);
+                    theComputerPlayer.start();
+                }
+                
                 List<String> hosts = new ArrayList<String>();
                 List<Integer> ports = new ArrayList<Integer>();
                 List<String> playerNames = new ArrayList<String>();
-                              
-                GamerLogger.startFileLogging(match, "kiosk");
                 
                 hosts.add("127.0.0.1");
                 ports.add(HUMAN_PORT);
                 playerNames.add("Human");
                 
                 hosts.add("127.0.0.1");
-                ports.add(COMPUTER_PORT);                    
+                ports.add(theComputerPlayer.getGamerPort());                    
                 playerNames.add("Computer");                
                 
+                GamerLogger.startFileLogging(match, "kiosk");
                 KioskGameServer kioskServer = new KioskGameServer(match, hosts, ports, playerNames, 0);
                 kioskServer.addObserver(theHumanGamer);
                 kioskServer.start();

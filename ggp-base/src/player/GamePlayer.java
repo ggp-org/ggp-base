@@ -21,6 +21,7 @@ import util.observer.Subject;
 
 public final class GamePlayer extends Thread implements Subject
 {
+    private final int port;
     private final Gamer gamer;
     private ServerSocket listener;
     private final List<Observer> observers;
@@ -40,6 +41,7 @@ public final class GamePlayer extends Thread implements Subject
             }				
         }
         
+        this.port = port;
         this.gamer = gamer;
     }
 
@@ -54,6 +56,14 @@ public final class GamePlayer extends Thread implements Subject
 		{
 			observer.observe(event);
 		}
+	}
+	
+	public final int getGamerPort() {
+	    return port;
+	}
+	
+	public final Gamer getGamer() {
+	    return gamer;
 	}
 
 	@Override
