@@ -11,14 +11,14 @@ public class BlockerCanvas extends GridGameCanvas {
 
     public String getGameName() { return "Blocker"; }
     protected String getGameKIF() { return "blocker"; }
-    protected int getGridHeight() { return 4; }
-    protected int getGridWidth() { return 4; }
+    protected int getGridHeight() { return 6; }
+    protected int getGridWidth() { return 6; }
    
-    private int selectedRow = 0;
-    private int selectedColumn = 0;    
+    private int selectedRow = -1;
+    private int selectedColumn = -1;    
     protected void handleClickOnCell(int xCell, int yCell, int xWithin, int yWithin) {
-        xCell++;
-        yCell++;
+        if(xCell == 0 || xCell == 5 || yCell == 0 || yCell == 5)
+            return;
         
         if(gameStateHasLegalMove("( mark " + xCell + " " + yCell + " )")) {
             selectedRow = yCell;
@@ -28,20 +28,20 @@ public class BlockerCanvas extends GridGameCanvas {
     }
 
     protected void renderCell(int xCell, int yCell, Graphics g) {
-        xCell++;
-        yCell++;        
-        
         int width = g.getClipBounds().width;
         int height = g.getClipBounds().height;
         
         g.setColor(Color.BLACK);
         g.drawRect(1, 1, width-2, height-2);
         
-        if(gameStateHasFact("( cell " + xCell + " " + yCell + " blk )")) {
+        boolean isBlue = (yCell == 0) || (yCell == 5);
+        boolean isBlack = ((xCell == 0) || (xCell == 5)) && !isBlue;
+        
+        if(gameStateHasFact("( cell " + xCell + " " + yCell + " blk )") || isBlue) {
             g.setColor(Color.BLUE);
             g.fillRect(1, 1, width-2, height-2);
             drawBubbles(g, xCell, yCell);
-        } else if(gameStateHasFact("( cell " + xCell + " " + yCell + " crosser )")) {
+        } else if(gameStateHasFact("( cell " + xCell + " " + yCell + " crosser )") || isBlack) {
             g.setColor(Color.GRAY);
             g.fillRect(1, 1, width-2, height-2);
         } else {
@@ -58,7 +58,7 @@ public class BlockerCanvas extends GridGameCanvas {
         int width = g.getClipBounds().width;
         int height = g.getClipBounds().height;
         
-        Random r = new Random(x + 5*y);
+        Random r = new Random(x + 11*y);
         for(int i = 0; i < 4; i++) {
             int xB = (int)(r.nextDouble() * width);
             int yB = (int)(r.nextDouble() * height);
@@ -69,8 +69,9 @@ public class BlockerCanvas extends GridGameCanvas {
     }
     
     public void clearMoveSelection() {        
-        submitWorkingMove(null);
-        selectedColumn = 0;
+        submitWorkingMove(null);        
+        selectedColumn = -1;    
+        selectedRow = -1;
         
         repaint();
     }    
