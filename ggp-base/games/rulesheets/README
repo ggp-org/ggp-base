@@ -1,0 +1,15 @@
+Heya,
+
+Some quick notes on the games/rulesheets/ directory. I have tried to compile
+an authoritative collection of game rulesheets in this directory, pulling the
+best-commented versions from the Stanford archive or the Dresden archive. Yet,
+there's a lot of work still to do. A small number of games in this directory
+have various flaws, and others are poorly formatted or poorly commented.
+
+I'd like to ultimately come up with a better system for storing rulesheets and
+stylesheets, such that you always have access to the latest version of a game
+with the most accurate comments and some indication whether or not any subtle
+bugs have been discovered in it, but that's nothing more than a design doc at
+the moment.
+
+-Sam
