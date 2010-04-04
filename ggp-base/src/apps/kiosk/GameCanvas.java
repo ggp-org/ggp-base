@@ -1,6 +1,8 @@
 package apps.kiosk;
 
 import java.awt.Color;
+import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.event.MouseAdapter;
@@ -10,6 +12,8 @@ import java.io.File;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.imageio.ImageIO;
 import javax.swing.JPanel;
@@ -180,6 +184,21 @@ public abstract class GameCanvas extends JPanel implements Subject {
         }
         return false;
     }
+
+    protected Set<String> gameStateHasFactsMatching(String ptrn) {
+        Pattern pattern = Pattern.compile("\\( true " + ptrn + " \\)");
+
+        Set<String> theMatches = new HashSet<String>();
+        for(GdlSentence theFact : gameState.getContents()) {
+            Matcher matcher = pattern.matcher(theFact.toString());
+            if (matcher.find()) {
+                String match = matcher.group();
+                match = match.substring(7, match.length() - 2);
+                theMatches.add(match);
+            }
+        }
+        return theMatches;
+    }
     
     protected boolean gameStateHasLegalMove(String move) {
         try {
@@ -194,6 +213,27 @@ public abstract class GameCanvas extends JPanel implements Subject {
         }       
     }
     
+    protected Set<String> gameStateHasLegalMovesMatching(String ptrn) {
+        Pattern pattern = Pattern.compile(ptrn);
+
+        Set<String> theMatches = new HashSet<String>();
+        try {
+            List<Move> legalMoves = stateMachine.getLegalMoves(gameState, myRole);
+            for(Move theMove : legalMoves) {
+                Matcher matcher = pattern.matcher(theMove.toString());
+                if (matcher.find()) {
+                    String match = matcher.group();
+                    theMatches.add(match);
+                }
+            }
+            return theMatches;
+        } catch (MoveDefinitionException e) {
+            e.printStackTrace();
+            return null;
+        }        
+    }
+    
+
     protected Move stringToMove(String move) {
         try {
             return stateMachine.getMoveFromSentence((GdlSentence)GdlFactory.create(move));
@@ -210,6 +250,17 @@ public abstract class GameCanvas extends JPanel implements Subject {
     		e.printStackTrace();
     		return null;
     	}
+    }
+    
+    protected void fillWithString(Graphics g, String theText, double sizeFactor) {
+        int theHeight = g.getClipBounds().height;
+        int theWidth = g.getClipBounds().width;
+
+        Font theFont = g.getFont().deriveFont((float) (theHeight / sizeFactor)).deriveFont(Font.BOLD);
+        g.setFont(theFont);        
+        
+        FontMetrics theMetric = g.getFontMetrics();
+        g.drawString(theText, (theWidth - theMetric.stringWidth(theText)) / 2, theMetric.getAscent() + (theHeight - (theMetric.getDescent() + theMetric.getAscent())) / 2);
     }
 
     /* ---------- Enabling wrappers ------------ */

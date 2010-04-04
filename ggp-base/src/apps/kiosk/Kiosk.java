@@ -225,11 +225,11 @@ public final class Kiosk extends JPanel implements ActionListener
                 
                 hosts.add("127.0.0.1");
                 ports.add(HUMAN_PORT);
-                playerNames.add("Human");
+                playerNames.add("Human");               
                 
                 hosts.add("127.0.0.1");
                 ports.add(theComputerPlayer.getGamerPort());                    
-                playerNames.add("Computer");                
+                playerNames.add("Computer");
                 
                 GamerLogger.startFileLogging(match, "kiosk");
                 KioskGameServer kioskServer = new KioskGameServer(match, hosts, ports, playerNames, 0);

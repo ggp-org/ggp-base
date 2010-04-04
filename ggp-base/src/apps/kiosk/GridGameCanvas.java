@@ -54,5 +54,5 @@ public abstract class GridGameCanvas extends GameCanvas {
         int yWithin = y % nCellHeight;
         
         handleClickOnCell(xCell, yCell, xWithin, yWithin);
-    }    
+    }        
 }
