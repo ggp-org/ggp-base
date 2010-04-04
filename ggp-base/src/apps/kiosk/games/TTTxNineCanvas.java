@@ -2,16 +2,12 @@ package apps.kiosk.games;
 
 import java.awt.Color;
 import java.awt.Graphics;
-import java.awt.Image;
 
 import apps.kiosk.GridGameCanvas;
 
 public class TTTxNineCanvas extends GridGameCanvas {
     private static final long serialVersionUID = 1L;
 
-    private Image xImage = getImage("TTTx.png");
-    private Image oImage = getImage("TTTo.png");
-    
     public String getGameName() { return "Nine Board Tic Tac Toe"; }
     protected String getGameKIF() { return "tictactoex9"; }
     protected int getGridHeight() { return 9; }
@@ -59,9 +55,15 @@ public class TTTxNineCanvas extends GridGameCanvas {
         if(ySpot == 3) g.fillRect(0, height-5, width, 5);
         
         if(gameStateHasFact("( cell " + xBoard + " " + yBoard + " " + xSpot + " " + ySpot + " x )")) {
-            g.drawImage(xImage, 5, 5, width-10, height-10, null);
+            g.setColor(Color.GRAY);
+            g.fillRect(8, 8, width-15, height-15);                        
+            g.setColor(Color.BLACK);
+            fillWithString(g, "X", 1.2);
         } else if(gameStateHasFact("( cell " + xBoard + " " + yBoard + " " + xSpot + " " + ySpot + " o )")) {
-            g.drawImage(oImage, 5, 5, width-10, height-10, null);
+            g.setColor(Color.GRAY);
+            g.fillRect(8, 8, width-15, height-15);            
+            g.setColor(Color.WHITE);
+            fillWithString(g, "O", 1.2);
         } else {
             ;
         }
