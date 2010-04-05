@@ -3,7 +3,6 @@ package apps.kiosk.games;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Image;
-import java.awt.Polygon;
 import java.util.Iterator;
 import java.util.Set;
 
