@@ -12,6 +12,7 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -69,6 +70,7 @@ public final class Kiosk extends JPanel implements ActionListener
     
     private final JButton runButton;
     private final JComboBox selectedGame;
+    private final JCheckBox flipRoles;
 
     private final JPanel theGUIPanel;
     
@@ -121,6 +123,8 @@ public final class Kiosk extends JPanel implements ActionListener
             }
         }
         
+        flipRoles = new JCheckBox("Flip roles?");
+        
         selectedGame = new JComboBox();
         for(AvailableGame theGame : theAvailableGames)
             selectedGame.addItem(theGame);
@@ -158,7 +162,8 @@ public final class Kiosk extends JPanel implements ActionListener
         managerPanel.add(startClockTextField, new GridBagConstraints(1, 3, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 5, 5));
         managerPanel.add(new JLabel("Play Clock:"), new GridBagConstraints(0, 4, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 5, 5));
         managerPanel.add(playClockTextField, new GridBagConstraints(1, 4, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 5, 5));
-        managerPanel.add(runButton, new GridBagConstraints(1, 5, 1, 1, 0.0, 1.0, GridBagConstraints.SOUTH, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 0, 0));
+        managerPanel.add(flipRoles, new GridBagConstraints(1, 5, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 5, 5));                
+        managerPanel.add(runButton, new GridBagConstraints(1, 6, 1, 1, 0.0, 1.0, GridBagConstraints.SOUTH, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 0, 0));
 
         JPanel gamePanel = new JPanel(new GridBagLayout());
         gamePanel.setBorder(new TitledBorder("Game Kiosk"));
@@ -222,15 +227,23 @@ public final class Kiosk extends JPanel implements ActionListener
                 List<String> hosts = new ArrayList<String>();
                 List<Integer> ports = new ArrayList<Integer>();
                 List<String> playerNames = new ArrayList<String>();
-                
-                hosts.add("127.0.0.1");
-                ports.add(HUMAN_PORT);
-                playerNames.add("Human");               
+
+                if(!flipRoles.isSelected()) {
+                    hosts.add("127.0.0.1");
+                    ports.add(HUMAN_PORT);
+                    playerNames.add("Human");                                   
+                }                                
                 
                 hosts.add("127.0.0.1");
                 ports.add(theComputerPlayer.getGamerPort());                    
                 playerNames.add("Computer");
                 
+                if(flipRoles.isSelected()) {
+                    hosts.add("127.0.0.1");
+                    ports.add(HUMAN_PORT);
+                    playerNames.add("Human");                                   
+                }                
+                                
                 GamerLogger.startFileLogging(match, "kiosk");
                 KioskGameServer kioskServer = new KioskGameServer(match, hosts, ports, playerNames, 0);
                 kioskServer.addObserver(theHumanGamer);
