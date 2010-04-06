@@ -2,6 +2,7 @@ package apps.kiosk.games;
 
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.Image;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.SortedSet;
@@ -41,6 +42,19 @@ public class ChessCanvas extends GridGameCanvas {
         submitWorkingMove(stringToMove(currentSelectedMove));
     }
 
+    private final Image blackPawnImage   = getImage("Chess","Black_Pawn.png");
+    private final Image blackRookImage   = getImage("Chess","Black_Rook.png");
+    private final Image blackBishopImage = getImage("Chess","Black_Bishop.png");
+    private final Image blackKnightImage = getImage("Chess","Black_Knight.png");
+    private final Image blackKingImage   = getImage("Chess","Black_King.png");
+    private final Image blackQueenImage  = getImage("Chess","Black_Queen.png");
+    private final Image whitePawnImage   = getImage("Chess","White_Pawn.png");
+    private final Image whiteRookImage   = getImage("Chess","White_Rook.png");
+    private final Image whiteBishopImage = getImage("Chess","White_Bishop.png");
+    private final Image whiteKnightImage = getImage("Chess","White_Knight.png");
+    private final Image whiteKingImage   = getImage("Chess","White_King.png");
+    private final Image whiteQueenImage  = getImage("Chess","White_Queen.png");
+    
     protected void renderCell(int xCell, int yCell, Graphics g) {
         String xLetter = "" + ((char) ('a' + xCell));
         
@@ -68,6 +82,25 @@ public class ChessCanvas extends GridGameCanvas {
             String[] cellFacts = theFacts.iterator().next().split(" ");
             String cellType = cellFacts[4];
             if(!cellType.equals("b")) {
+                Image toDraw = null;
+                
+                if(cellType.equals("wp")) toDraw = whitePawnImage;
+                else if(cellType.equals("wn")) toDraw = whiteKnightImage;
+                else if(cellType.equals("wb")) toDraw = whiteBishopImage;
+                else if(cellType.equals("wq")) toDraw = whiteQueenImage;
+                else if(cellType.equals("wr")) toDraw = whiteRookImage;
+                else if(cellType.equals("wk")) toDraw = whiteKingImage;
+                else if(cellType.equals("bp")) toDraw = blackPawnImage;                
+                else if(cellType.equals("bn")) toDraw = blackKnightImage;
+                else if(cellType.equals("bb")) toDraw = blackBishopImage;
+                else if(cellType.equals("bq")) toDraw = blackQueenImage;
+                else if(cellType.equals("br")) toDraw = blackRookImage;
+                else if(cellType.equals("bk")) toDraw = blackKingImage;
+                
+                g.drawImage(toDraw, 5, 5, width-10, height-10, null);
+                
+                /*
+                // Classic inline rendering
                 Color theColor = ((cellType.charAt(0) == 'w') ? Color.WHITE : Color.BLACK);
                 Color oppColor = ((cellType.charAt(0) == 'b') ? Color.WHITE : Color.BLACK);
                 
@@ -79,7 +112,8 @@ public class ChessCanvas extends GridGameCanvas {
                 g.setColor(theColor);
                 g.fillOval(6, 6, width-12, height-12);       
                 g.setColor(oppColor);
-                fillWithString(g, pieceName, 2);                
+                fillWithString(g, pieceName, 2);
+                */                
             }
         }
         

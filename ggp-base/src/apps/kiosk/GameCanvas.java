@@ -243,14 +243,18 @@ public abstract class GameCanvas extends JPanel implements Subject {
     }
     
     protected Image getImage(String imageName) {
-    	try {
-    		File file = new File(ProjectConfiguration.gameImagesPath + imageName);
-    		return ImageIO.read(file);
-    	} catch(Exception e) {
-    		e.printStackTrace();
-    		return null;
-    	}
+        return getImage("", imageName);
     }
+
+    protected Image getImage(String dirName, String imageName) {
+        try {
+            File file = new File(ProjectConfiguration.gameImagesPath + dirName, imageName);
+            return ImageIO.read(file);
+        } catch(Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }    
     
     protected void fillWithString(Graphics g, String theText, double sizeFactor) {
         int theHeight = g.getClipBounds().height;

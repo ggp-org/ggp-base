@@ -10,11 +10,11 @@ import java.util.TreeSet;
 
 import apps.kiosk.GridGameCanvas;
 
-public class BreakthroughCanvas extends GridGameCanvas {
+public class KnightthroughCanvas extends GridGameCanvas {
     private static final long serialVersionUID = 1L;
 
-    public String getGameName() { return "Breakthrough"; }
-    protected String getGameKIF() { return "breakthrough"; }
+    public String getGameName() { return "Knightthrough"; }
+    protected String getGameKIF() { return "knightthrough"; }
     protected int getGridHeight() { return 8; }
     protected int getGridWidth() { return 8; }
     
@@ -40,8 +40,8 @@ public class BreakthroughCanvas extends GridGameCanvas {
         submitWorkingMove(stringToMove(currentSelectedMove));
     }
 
-    private final Image wPawnImage = getImage("Chess", "White_Pawn.png");
-    private final Image bPawnImage = getImage("Chess", "Black_Pawn.png");
+    private final Image wKnightImage = getImage("Chess", "White_Knight.png");
+    private final Image bKnightImage = getImage("Chess", "Black_Knight.png");
     protected void renderCell(int xCell, int yCell, Graphics g) {
         xCell++;
         yCell++;
@@ -58,7 +58,7 @@ public class BreakthroughCanvas extends GridGameCanvas {
         g.setColor(Color.BLACK);
         g.drawRect(1, 1, width-2, height-2);
         
-        Set<String> theFacts = gameStateHasFactsMatching("\\( cellholds " + xCell + " " + yCell + " (.*) \\)");
+        Set<String> theFacts = gameStateHasFactsMatching("\\( cell " + xCell + " " + yCell + " (.*) \\)");
         if(theFacts.size() > 0) {
             if(theFacts.size() > 1) {
                 System.err.println("More than one fact for a cell? Something is weird!");
@@ -67,22 +67,10 @@ public class BreakthroughCanvas extends GridGameCanvas {
             String[] cellFacts = theFacts.iterator().next().split(" ");
             String cellType = cellFacts[4];
             if(!cellType.equals("b")) {                
-                /*
-                // Simple rendering without using images
-                Color theColor = ((cellType.charAt(0) == 'w') ? Color.WHITE : Color.BLACK); 
-                Color oppColor = ((cellType.charAt(0) == 'b') ? Color.WHITE : Color.BLACK);
-                g.setColor(Color.DARK_GRAY);
-                g.fillOval(4, 4, width-8, height-8);
-                g.setColor(theColor);
-                g.fillOval(6, 6, width-12, height-12);       
-                g.setColor(oppColor);
-                fillWithString(g, "p", 2);
-                */
-
                 if(cellType.charAt(0) == 'w') {
-                    g.drawImage(wPawnImage, 0, 0, width, height, null);
+                    g.drawImage(wKnightImage, 0, 0, width, height, null);
                 } else {
-                    g.drawImage(bPawnImage, 0, 0, width, height, null);
+                    g.drawImage(bKnightImage, 0, 0, width, height, null);
                 }
             }
         }
