@@ -41,7 +41,7 @@ public final class Kiosk extends JPanel implements ActionListener
         JFrame frame = new JFrame("Gaming Kiosk");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        frame.setPreferredSize(new Dimension(1200, 900));
+        frame.setPreferredSize(new Dimension(1050, 900));
         frame.getContentPane().add(serverPanel);
 
         frame.pack();

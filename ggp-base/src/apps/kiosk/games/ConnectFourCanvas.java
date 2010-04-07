@@ -3,9 +3,10 @@ package apps.kiosk.games;
 import java.awt.Color;
 import java.awt.Graphics;
 
-import apps.kiosk.GridGameCanvas;
+import apps.kiosk.templates.CommonGraphics;
+import apps.kiosk.templates.GameCanvas_SimpleGrid;
 
-public class ConnectFourCanvas extends GridGameCanvas {
+public class ConnectFourCanvas extends GameCanvas_SimpleGrid {
     private static final long serialVersionUID = 1L;
 
     public String getGameName() { return "Connect Four"; }
@@ -14,10 +15,10 @@ public class ConnectFourCanvas extends GridGameCanvas {
     protected int getGridWidth() { return 8; }
 
     private int selectedColumn = 0;    
+    
+    @Override
     protected void handleClickOnCell(int xCell, int yCell, int xWithin, int yWithin) {
-        yCell = 5 - yCell;
-        xCell++;
-        yCell++;
+        yCell = 7 - yCell;
         
         if(gameStateHasLegalMove("( drop " + xCell + " )")) {
             selectedColumn = xCell;
@@ -25,10 +26,9 @@ public class ConnectFourCanvas extends GridGameCanvas {
         }
     }
 
-    protected void renderCell(int xCell, int yCell, Graphics g) {
-        yCell = 5 - yCell;
-        xCell++;
-        yCell++;
+    @Override
+    protected void renderCell(Graphics g, int xCell, int yCell) {
+        yCell = 7 - yCell;
         
         int width = g.getClipBounds().width;
         int height = g.getClipBounds().height;
@@ -38,10 +38,10 @@ public class ConnectFourCanvas extends GridGameCanvas {
         
         if(gameStateHasFact("( cell " + xCell + " " + yCell + " red )")) {
             g.setColor(Color.RED);
-            g.fillOval(5, 5, width-10, height-10);
+            CommonGraphics.drawCheckersPiece(g, "wp");
         } else if(gameStateHasFact("( cell " + xCell + " " + yCell + " black )")) {
             g.setColor(Color.BLACK);
-            g.fillOval(5, 5, width-10, height-10);
+            CommonGraphics.drawCheckersPiece(g, "bp");
         } else {
             ;
         }
@@ -52,10 +52,11 @@ public class ConnectFourCanvas extends GridGameCanvas {
         }
     }
     
+    @Override
     public void clearMoveSelection() {        
         submitWorkingMove(null);
         selectedColumn = 0;
         
         repaint();
-    }    
+    }
 }

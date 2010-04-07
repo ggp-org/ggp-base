@@ -2,77 +2,59 @@ package apps.kiosk.games;
 
 import java.awt.Color;
 import java.awt.Graphics;
-import java.util.Random;
+import java.util.Set;
 
-import apps.kiosk.GridGameCanvas;
+import apps.kiosk.templates.CommonGraphics;
+import apps.kiosk.templates.GameCanvas_FancyGrid;
 
-public class BlockerCanvas extends GridGameCanvas {
+public class BlockerCanvas extends GameCanvas_FancyGrid {
     private static final long serialVersionUID = 1L;
 
     public String getGameName() { return "Blocker"; }
     protected String getGameKIF() { return "blocker"; }
     protected int getGridHeight() { return 6; }
     protected int getGridWidth() { return 6; }
-   
-    private int selectedRow = -1;
-    private int selectedColumn = -1;    
-    protected void handleClickOnCell(int xCell, int yCell, int xWithin, int yWithin) {
-        if(xCell == 0 || xCell == 5 || yCell == 0 || yCell == 5)
-            return;
-        
-        if(gameStateHasLegalMove("( mark " + xCell + " " + yCell + " )")) {
-            selectedRow = yCell;
-            selectedColumn = xCell; 
-            submitWorkingMove(stringToMove("( mark " + selectedColumn + " " + selectedRow + " )"));
-        }
-    }
 
-    protected void renderCell(int xCell, int yCell, Graphics g) {
+    protected boolean coordinatesStartAtOne() { return false; }    
+
+    @Override
+    protected void renderCellBackground(Graphics g, int xCell, int yCell) {
         int width = g.getClipBounds().width;
-        int height = g.getClipBounds().height;
-        
-        g.setColor(Color.BLACK);
-        g.drawRect(1, 1, width-2, height-2);
+        int height = g.getClipBounds().height;                    
         
         boolean isBlue = (yCell == 0) || (yCell == 5);
-        boolean isBlack = ((xCell == 0) || (xCell == 5)) && !isBlue;
+        boolean isBlack = ((xCell == 0) || (xCell == 5)) && !isBlue;        
         
-        if(gameStateHasFact("( cell " + xCell + " " + yCell + " blk )") || isBlue) {
-            g.setColor(Color.BLUE);
-            g.fillRect(1, 1, width-2, height-2);
-            drawBubbles(g, xCell, yCell);
-        } else if(gameStateHasFact("( cell " + xCell + " " + yCell + " crosser )") || isBlack) {
+        if(isBlue) {
+            CommonGraphics.drawBubbles(g, xCell*11+yCell);
+        } else if(isBlack) {            
             g.setColor(Color.GRAY);
             g.fillRect(1, 1, width-2, height-2);
-        } else {
-            ;
-        }
-
-        if(selectedColumn == xCell && selectedRow == yCell) {
-            g.setColor(Color.GREEN);
-            g.drawRect(3, 3, width-6, height-6);
         }
     }
     
-    private void drawBubbles(Graphics g, int x, int y) {
+    @Override
+    protected void renderCellContent(Graphics g, String theFact) {
         int width = g.getClipBounds().width;
         int height = g.getClipBounds().height;
-        
-        Random r = new Random(x + 11*y);
-        for(int i = 0; i < 4; i++) {
-            int xB = (int)(r.nextDouble() * width);
-            int yB = (int)(r.nextDouble() * height);
-            int rB = (int)(r.nextDouble() * Math.min(width, height)/5.0);
-            g.setColor(Color.CYAN);
-            g.drawOval(xB-rB, yB-rB, rB*2, rB*2);
+
+        String[] theFacts = theFact.split(" ");
+        String theProperty = theFacts[4];
+        if(theProperty.equals("blk")) {
+            CommonGraphics.drawBubbles(g, theFact.hashCode());
+        } else if(theProperty.equals("crosser")) {
+            g.setColor(Color.GRAY);
+            g.fillRect(1, 1, width-2, height-2);
         }
     }
+
+    @Override
+    protected Set<String> getFactsAboutCell(int xCell, int yCell) {
+        return gameStateHasFactsMatching("\\( cell " + xCell + " " + yCell + " (.*) \\)");
+    }
     
-    public void clearMoveSelection() {        
-        submitWorkingMove(null);        
-        selectedColumn = -1;    
-        selectedRow = -1;
-        
-        repaint();
-    }    
+    @Override
+    protected Set<String> getLegalMovesForCell(int xCell, int yCell) {
+        return gameStateHasLegalMovesMatching("\\( mark " + xCell + " " + yCell + " \\)");
+    }
 }

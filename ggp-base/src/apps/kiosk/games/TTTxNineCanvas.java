@@ -3,9 +3,10 @@ package apps.kiosk.games;
 import java.awt.Color;
 import java.awt.Graphics;
 
-import apps.kiosk.GridGameCanvas;
+import apps.kiosk.templates.CommonGraphics;
+import apps.kiosk.templates.GameCanvas_SimpleGrid;
 
-public class TTTxNineCanvas extends GridGameCanvas {
+public class TTTxNineCanvas extends GameCanvas_SimpleGrid {
     private static final long serialVersionUID = 1L;
 
     public String getGameName() { return "Nine Board Tic Tac Toe"; }
@@ -13,6 +14,8 @@ public class TTTxNineCanvas extends GridGameCanvas {
     protected int getGridHeight() { return 9; }
     protected int getGridWidth() { return 9; }
 
+    protected boolean coordinatesStartAtOne() { return false; }
+    
     private int xSelectedBoard = 0;
     private int ySelectedBoard = 0;
     private int xSelectedSpot = 0;
@@ -33,7 +36,8 @@ public class TTTxNineCanvas extends GridGameCanvas {
         }
     }
 
-    protected void renderCell(int xCell, int yCell, Graphics g) {
+    @Override
+    protected void renderCell(Graphics g, int xCell, int yCell) {
         int width = g.getClipBounds().width;
         int height = g.getClipBounds().height;
 
@@ -58,12 +62,12 @@ public class TTTxNineCanvas extends GridGameCanvas {
             g.setColor(Color.GRAY);
             g.fillRect(8, 8, width-15, height-15);                        
             g.setColor(Color.BLACK);
-            fillWithString(g, "X", 1.2);
+            CommonGraphics.fillWithString(g, "X", 1.2);
         } else if(gameStateHasFact("( cell " + xBoard + " " + yBoard + " " + xSpot + " " + ySpot + " o )")) {
             g.setColor(Color.GRAY);
             g.fillRect(8, 8, width-15, height-15);            
             g.setColor(Color.WHITE);
-            fillWithString(g, "O", 1.2);
+            CommonGraphics.fillWithString(g, "O", 1.2);
         } else {
             ;
         }
@@ -82,11 +86,12 @@ public class TTTxNineCanvas extends GridGameCanvas {
         }        
     }
     
+    @Override    
     public void clearMoveSelection() {        
         submitWorkingMove(null);
         xSelectedSpot = 0;
         ySelectedSpot = 0;
         
         repaint();
-    }    
+    }
 }

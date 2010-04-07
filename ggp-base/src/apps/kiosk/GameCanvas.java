@@ -1,21 +1,16 @@
 package apps.kiosk;
 
 import java.awt.Color;
-import java.awt.Font;
-import java.awt.FontMetrics;
 import java.awt.Graphics;
-import java.awt.Image;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
-import java.io.File;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.imageio.ImageIO;
 import javax.swing.JPanel;
 
 import util.configuration.ProjectConfiguration;
@@ -240,32 +235,7 @@ public abstract class GameCanvas extends JPanel implements Subject {
         } catch(Exception e) {
             return null;
         }
-    }
-    
-    protected Image getImage(String imageName) {
-        return getImage("", imageName);
-    }
-
-    protected Image getImage(String dirName, String imageName) {
-        try {
-            File file = new File(ProjectConfiguration.gameImagesPath + dirName, imageName);
-            return ImageIO.read(file);
-        } catch(Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-    }    
-    
-    protected void fillWithString(Graphics g, String theText, double sizeFactor) {
-        int theHeight = g.getClipBounds().height;
-        int theWidth = g.getClipBounds().width;
-
-        Font theFont = g.getFont().deriveFont((float) (theHeight / sizeFactor)).deriveFont(Font.BOLD);
-        g.setFont(theFont);        
-        
-        FontMetrics theMetric = g.getFontMetrics();
-        g.drawString(theText, (theWidth - theMetric.stringWidth(theText)) / 2, theMetric.getAscent() + (theHeight - (theMetric.getDescent() + theMetric.getAscent())) / 2);
-    }
+    }        
 
     /* ---------- Enabling wrappers ------------ */
     

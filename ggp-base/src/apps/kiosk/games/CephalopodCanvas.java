@@ -2,12 +2,12 @@ package apps.kiosk.games;
 
 import java.awt.Color;
 import java.awt.Graphics;
-import java.util.Iterator;
 import java.util.Set;
 
-import apps.kiosk.GridGameCanvas;
+import apps.kiosk.templates.CommonGraphics;
+import apps.kiosk.templates.GameCanvas_FancyGrid;
 
-public class CephalopodCanvas extends GridGameCanvas {
+public class CephalopodCanvas extends GameCanvas_FancyGrid {
     private static final long serialVersionUID = 1L;
 
     public String getGameName() { return "Cephalopod"; }
@@ -15,71 +15,41 @@ public class CephalopodCanvas extends GridGameCanvas {
     protected int getGridHeight() { return 3; }
     protected int getGridWidth() { return 3; }
     
-    private int selectedRow = -1;
-    private int selectedColumn = -1; 
-    private String currentSelectedMove;
-    private Iterator<String> possibleSelectedMoves = null;
-    protected void handleClickOnCell(int xCell, int yCell, int xWithin, int yWithin) {
-        xCell++;
-        yCell++;
-        
-        if(selectedRow != yCell || selectedColumn != xCell || !possibleSelectedMoves.hasNext()) {
-            Set<String> theMoves = gameStateHasLegalMovesMatching("\\( play " + xCell + " " + yCell + " (.*) \\)");
-            if(theMoves.size() == 0)
-                return;
-            possibleSelectedMoves = theMoves.iterator();            
-        }
-        
-        selectedRow = yCell;
-        selectedColumn = xCell;
-        
-        currentSelectedMove = possibleSelectedMoves.next();        
-        submitWorkingMove(stringToMove(currentSelectedMove));
+    @Override
+    protected Set<String> getFactsAboutCell(int xCell, int yCell) {
+        return gameStateHasFactsMatching("\\( cell " + xCell + " " + yCell + " (.*) \\)");
     }
-
-    protected void renderCell(int xCell, int yCell, Graphics g) {
-        xCell++;
-        yCell++;        
-        
-        int width = g.getClipBounds().width;
-        int height = g.getClipBounds().height;
-        
-        g.setColor(Color.BLACK);
-        g.drawRect(1, 1, width-2, height-2);
-        
-        Set<String> theFacts = gameStateHasFactsMatching("\\( cell " + xCell + " " + yCell + " (.*) \\)");
-        if(theFacts.size() > 0) {
-            if(theFacts.size() > 1) {
-                System.err.println("More than one fact for a cell? Something is weird!");
-            }
-            
-            String[] cellFacts = theFacts.iterator().next().split(" ");
-        
-            int cellValue = Integer.parseInt(cellFacts[4]);
-            String cellPlayer = cellFacts[5];
     
-            if (cellPlayer.equals("red")) {
-                g.setColor(Color.RED);
-            } else if (cellPlayer.equals("black")) {
-                g.setColor(Color.BLACK);
-            }
-            
-            fillWithString(g, "" + cellValue, 1.2);  
+    @Override
+    protected Set<String> getLegalMovesForCell(int xCell, int yCell) {
+        return gameStateHasLegalMovesMatching("\\( play " + xCell + " " + yCell + " (.*) \\)");
+    }
+    
+    @Override
+    protected void renderCellContent(Graphics g, String theFact) {
+        String[] cellFacts = theFact.split(" ");
+        
+        int cellValue = Integer.parseInt(cellFacts[4]);
+        String cellPlayer = cellFacts[5];
+
+        if (cellPlayer.equals("red")) {
+            g.setColor(Color.RED);
+        } else if (cellPlayer.equals("black")) {
+            g.setColor(Color.BLACK);
         }
         
-        if(selectedColumn == xCell && selectedRow == yCell) {
-            g.setColor(Color.GREEN);
-            g.drawRect(3, 3, width-6, height-6);
-            
-            // Within this cell, render the graphics specific to the
-            // current move that we've selected (since each cell can
-            // have multiple moves associated with it).
-            String[] moveParts = currentSelectedMove.split(" ");
+        CommonGraphics.fillWithString(g, "" + cellValue, 1.2);
+    }
+    
+    @Override
+    protected void renderMoveSelectionForCell(Graphics g, int xCell, int yCell, String theMove) {
+        if(isSelectedCell(xCell, yCell)) {
+            String[] moveParts = theMove.split(" ");
             int captureMask = Integer.parseInt(moveParts[5]);
             renderCaptureMask(g, captureMask);
         }
     }
-
+    
     private void renderCaptureMask(Graphics g, int c) {
         boolean leftBit = (c == 3 || c == 5 || c == 7 || c == 9 || c == 11 || c == 13 || c == 15);
         boolean rightBit = (c >= 9);
@@ -94,16 +64,5 @@ public class CephalopodCanvas extends GridGameCanvas {
         if(rightBit) g.drawRect(17*width/20, 3*height/10, width/20, 4*height/10);
         if(topBit) g.drawRect(3*width/10, height/10, 4*width/10, height/20);
         if(bottomBit) g.drawRect(3*width/10, 17*height/20, 4*width/10, height/20);
-    }
-    
-    public void clearMoveSelection() {        
-        submitWorkingMove(null);
-        
-        possibleSelectedMoves = null;
-        currentSelectedMove = "";
-        selectedColumn = -1;    
-        selectedRow = -1;
-        
-        repaint();
     }    
 }
