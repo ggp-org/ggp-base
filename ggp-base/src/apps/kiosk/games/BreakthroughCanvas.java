@@ -27,9 +27,9 @@ public class BreakthroughCanvas extends GameCanvas_Chessboard {
     protected void renderCellContent(Graphics g, String theFact) {
         String[] cellFacts = theFact.split(" ");
         String cellType = cellFacts[4];
-        if(!cellType.equals("b")) {
-            CommonGraphics.drawChessPiece(g, cellType.charAt(0) + "p");
-        }
+        if(cellType.equals("b")) return;
+        
+        CommonGraphics.drawChessPiece(g, cellType.charAt(0) + "p");
     }
     
     @Override

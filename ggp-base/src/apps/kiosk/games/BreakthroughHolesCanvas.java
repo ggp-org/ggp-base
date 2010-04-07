@@ -7,15 +7,17 @@ import java.util.Set;
 import apps.kiosk.templates.CommonGraphics;
 import apps.kiosk.templates.GameCanvas_Chessboard;
 
-public class KnightthroughCanvas extends GameCanvas_Chessboard {
+public class BreakthroughHolesCanvas extends GameCanvas_Chessboard {
     private static final long serialVersionUID = 1L;
 
-    public String getGameName() { return "Knightthrough"; }
-    protected String getGameKIF() { return "knightthrough"; }
+    public String getGameName() { return "Breakthrough (Holes)"; }
+    protected String getGameKIF() { return "breakthroughHoles"; }
 
     @Override
     protected Set<String> getFactsAboutCell(int xCell, int yCell) {
-        return gameStateHasFactsMatching("\\( cell " + xCell + " " + yCell + " (.*) \\)");
+        Set<String> theFacts = gameStateHasFactsMatching("\\( cellholds " + xCell + " " + yCell + " (.*) \\)");
+        theFacts.addAll(gameStateHasFactsMatching("\\( cellofflimits " + xCell + " " + yCell + " \\)"));
+        return theFacts;
     }
     
     @Override
@@ -29,7 +31,11 @@ public class KnightthroughCanvas extends GameCanvas_Chessboard {
         String cellType = cellFacts[4];
         if(cellType.equals("b")) return;
         
-        CommonGraphics.drawChessPiece(g, cellType.charAt(0) + "n");
+        if(cellFacts[1].equals("cellholds")) {
+            CommonGraphics.drawChessPiece(g, cellType.charAt(0) + "p");
+        } else if(cellFacts[1].equals("cellofflimits")) {
+            CommonGraphics.drawBubbles(g, theFact.hashCode());
+        }
     }
     
     @Override
