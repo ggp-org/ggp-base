@@ -16,8 +16,11 @@ import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTextField;
+import javax.swing.ListSelectionModel;
 import javax.swing.border.TitledBorder;
 
 import apps.common.NativeUI;
@@ -69,7 +72,7 @@ public final class Kiosk extends JPanel implements ActionListener
     private final JTextField startClockTextField;
     
     private final JButton runButton;
-    private final JComboBox selectedGame;
+    private final JList selectedGame;
     private final JCheckBox flipRoles;
 
     private final JPanel theGUIPanel;
@@ -125,10 +128,11 @@ public final class Kiosk extends JPanel implements ActionListener
         
         flipRoles = new JCheckBox("Flip roles?");
         
-        selectedGame = new JComboBox();
-        for(AvailableGame theGame : theAvailableGames)
-            selectedGame.addItem(theGame);
-
+        selectedGame = new JList(theAvailableGames.toArray());
+        selectedGame.setSelectedIndex(0);
+        selectedGame.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        JScrollPane selectedGamePane = new JScrollPane(selectedGame);
+        
         playerComboBox = new JComboBox();
         List<Class<?>> gamersCopy = new ArrayList<Class<?>>(gamers);
         for(Class<?> gamer : gamersCopy)
@@ -153,17 +157,18 @@ public final class Kiosk extends JPanel implements ActionListener
         startClockTextField.setColumns(15);
         playClockTextField.setColumns(15);
 
+        int nRowCount = 1;
         managerPanel.setBorder(new TitledBorder("Kiosk Control"));
-        managerPanel.add(new JLabel("Game:"), new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 5, 5));
-        managerPanel.add(selectedGame, new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 5, 5));        
-        managerPanel.add(new JLabel("Opponent:"), new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 5, 5));
-        managerPanel.add(playerComboBox, new GridBagConstraints(1, 2, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 5, 5));
-        managerPanel.add(new JLabel("Start Clock:"), new GridBagConstraints(0, 3, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 5, 5));
-        managerPanel.add(startClockTextField, new GridBagConstraints(1, 3, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 5, 5));
-        managerPanel.add(new JLabel("Play Clock:"), new GridBagConstraints(0, 4, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 5, 5));
-        managerPanel.add(playClockTextField, new GridBagConstraints(1, 4, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 5, 5));
-        managerPanel.add(flipRoles, new GridBagConstraints(1, 5, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 5, 5));                
-        managerPanel.add(runButton, new GridBagConstraints(1, 6, 1, 1, 0.0, 1.0, GridBagConstraints.SOUTH, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 0, 0));
+        managerPanel.add(new JLabel("Opponent:"), new GridBagConstraints(0, nRowCount, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 5, 5));
+        managerPanel.add(playerComboBox, new GridBagConstraints(1, nRowCount++, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 5, 5));
+        managerPanel.add(new JLabel("Start Clock:"), new GridBagConstraints(0, nRowCount, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 5, 5));
+        managerPanel.add(startClockTextField, new GridBagConstraints(1, nRowCount++, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 5, 5));
+        managerPanel.add(new JLabel("Play Clock:"), new GridBagConstraints(0, nRowCount, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 5, 5));
+        managerPanel.add(playClockTextField, new GridBagConstraints(1, nRowCount++, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 5, 5));
+        managerPanel.add(flipRoles, new GridBagConstraints(1, nRowCount++, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 5, 5));
+        managerPanel.add(new JLabel("Game:"), new GridBagConstraints(0, nRowCount, 1, 1, 0.0, 0.0, GridBagConstraints.NORTH, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 5, 5));
+        managerPanel.add(selectedGamePane, new GridBagConstraints(1, nRowCount++, 1, 1, 0.0, 5.0, GridBagConstraints.CENTER, GridBagConstraints.VERTICAL, new Insets(5, 5, 5, 5), 5, 5));                                        
+        managerPanel.add(runButton, new GridBagConstraints(1, nRowCount++, 1, 1, 0.0, 1.0, GridBagConstraints.SOUTH, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 0, 0));
 
         JPanel gamePanel = new JPanel(new GridBagLayout());
         gamePanel.setBorder(new TitledBorder("Game Kiosk"));
@@ -193,7 +198,7 @@ public final class Kiosk extends JPanel implements ActionListener
     public void actionPerformed(ActionEvent e) {
         if(e.getSource() == runButton) {
             try {
-                AvailableGame theGame = (AvailableGame)selectedGame.getSelectedItem();
+                AvailableGame theGame = (AvailableGame) (selectedGame.getSelectedValue());
                 String kifFile = theGame.kifFile;
                 
                 String gameDirectory = ProjectConfiguration.gameRulesheetsPath;
