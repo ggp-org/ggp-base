@@ -32,7 +32,7 @@ import apps.player.detail.DetailPanel;
  * It also assumes that it is playing a zero-sum game, where its opponent will
  * always force it to lose if given that option.
  * 
- * This player is fairly good at games like Tic-Tac-Toe and Connect Four.
+ * This player is fairly good at games like Tic-Tac-Toe, Knight Fight, and Connect Four.
  * This player is pretty terrible at most games.
  * 
  * @author Sam Schreiber

@@ -7,11 +7,12 @@ import java.util.Set;
 import apps.kiosk.templates.CommonGraphics;
 import apps.kiosk.templates.GameCanvas_FancyGrid;
 
-public class NumberTicTacToeCanvas extends GameCanvas_FancyGrid {
+// NOTE: I still don't fully understand how this game actually works. -Sam
+public class ChickenTicTacToeCanvas extends GameCanvas_FancyGrid {
     public static final long serialVersionUID = 0x1;
     
-    public String getGameName() { return "Tic-Tac-Toe (Numeric)"; }
-    protected String getGameKIF() { return "numbertictactoe"; }
+    public String getGameName() { return "Tic-Tac-Toe (Chicken)"; }
+    protected String getGameKIF() { return "chickentictactoe"; }
     protected int getGridHeight() { return 3; }
     protected int getGridWidth() { return 3; }
     
@@ -22,7 +23,7 @@ public class NumberTicTacToeCanvas extends GameCanvas_FancyGrid {
     
     @Override
     protected Set<String> getLegalMovesForCell(int xCell, int yCell) {
-        return gameStateHasLegalMovesMatching("\\( mark " + xCell + " " + yCell + " (.*) \\)");
+        return gameStateHasLegalMovesMatching("\\( mark " + xCell + " " + yCell + " \\)");
     }
     
     @Override
@@ -33,14 +34,5 @@ public class NumberTicTacToeCanvas extends GameCanvas_FancyGrid {
             g.setColor(Color.BLACK);
             CommonGraphics.fillWithString(g, cellFacts[4], 1.2);
         }
-    }   
-    
-    @Override
-    protected void renderMoveSelectionForCell(Graphics g, int xCell, int yCell, String theMove) {
-        if(!isSelectedCell(xCell, yCell)) return;
-        
-        g.setColor(Color.GREEN);
-        String[] moveFacts = theMove.split(" ");        
-        CommonGraphics.fillWithString(g, "" + moveFacts[4], 1.2);
     }
 }

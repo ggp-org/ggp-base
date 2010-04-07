@@ -15,8 +15,8 @@ import java.awt.Graphics;
 public abstract class GameCanvas_Chessboard extends GameCanvas_FancyGrid {
     private static final long serialVersionUID = 1L;
 
-    protected final int getGridHeight() { return 8; }
-    protected final int getGridWidth() { return 8; }
+    protected int getGridHeight() { return 8; }
+    protected int getGridWidth() { return 8; }
 
     protected final boolean useGridVisualization() { return true; }
     protected final boolean coordinatesStartAtOne() { return true; }
