@@ -258,5 +258,3 @@
 (goalMap 18 85)
 (goalMap 19 90)
 (goalMap 20 100)
-( base gameover )
-( base step ( val 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 ) )

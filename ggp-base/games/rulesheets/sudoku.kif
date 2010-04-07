@@ -1,425 +1,217 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 ;;;
-
 ;;; Sudoku (by Sam Schreiber)
-
 ;;;
-
+;;; Quick note: This description for Sudoku may be difficult for the theorem
+;;; prover to handle, given the propositions with large numbers of variables.
+;;; I haven't done testing recently enough to say for sure.
+;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 ;;; ROLE Relations
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-
 
 (role sudokuPlayer)
 
-
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 ;; INIT Relations
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 ;; LEGAL Relations
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-
 
 (<= (legal sudokuPlayer (play ?i ?j ?m))
-
     (validMark ?m)
-
     (emptyCell ?i ?j))
-
     
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 ;; NEXT Relations
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-
-
 (<= (next (mark ?i ?j ?m))
-
     (does sudokuPlayer (play ?i ?j ?m)))
-
 (<= (next (mark ?i ?j ?m))
-
     (true (mark ?i ?j ?m)))
 
-
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 ;; TERMINAL Relations
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-
 
 (<= terminal
-
     (not (emptyCell ?i ?j)))
 
-
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 ;; GOAL Relations
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-
 
 (<= (goal sudokuPlayer 100)
-
     (true (victoryState)))
 
-
-
 (<= (goal sudokuPlayer 0)
-
     (not (true (victoryState))))
 
-
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 ;; View Definitions
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-
 
 (<= (exactlyFirst ?z ?x1 ?x2 ?x3 ?x4 ?x5 ?x6 ?x7 ?x8 ?9)
-
     (true (eq ?z ?x1))
-
     (not (true (eq ?z ?x2)))
-
     (not (true (eq ?z ?x3)))
-
     (not (true (eq ?z ?x4)))
-
     (not (true (eq ?z ?x5)))
-
     (not (true (eq ?z ?x6)))
-
     (not (true (eq ?z ?x7)))
-
     (not (true (eq ?z ?x8)))
-
     (not (true (eq ?z ?x9))))
 
-
+(<= (exactlyOne ?z ?x1 ?x2 ?x3 ?x4 ?x5 ?x6 ?x7 ?x8 ?9)
+    (exactlyFirst ?z ?x1 ?x2 ?x3 ?x4 ?x5 ?x6 ?x7 ?x8 ?9)) 
 
 (<= (exactlyOne ?z ?x1 ?x2 ?x3 ?x4 ?x5 ?x6 ?x7 ?x8 ?9)
-
-    (exactlyFirst ?z ?x1 ?x2 ?x3 ?x4 ?x5 ?x6 ?x7 ?x8 ?9))
-
-    
-
-(<= (exactlyOne ?z ?x1 ?x2 ?x3 ?x4 ?x5 ?x6 ?x7 ?x8 ?9)
-
     (exactlyFirst ?z ?x2 ?x1 ?x3 ?x4 ?x5 ?x6 ?x7 ?x8 ?9))
 
-
-
 (<= (exactlyOne ?z ?x1 ?x2 ?x3 ?x4 ?x5 ?x6 ?x7 ?x8 ?9)
-
     (exactlyFirst ?z ?x3 ?x1 ?x2 ?x4 ?x5 ?x6 ?x7 ?x8 ?9))    
 
-
-
 (<= (exactlyOne ?z ?x1 ?x2 ?x3 ?x4 ?x5 ?x6 ?x7 ?x8 ?9)
-
     (exactlyFirst ?z ?x4 ?x1 ?x2 ?x3 ?x5 ?x6 ?x7 ?x8 ?9))    
 
-
-
 (<= (exactlyOne ?z ?x1 ?x2 ?x3 ?x4 ?x5 ?x6 ?x7 ?x8 ?9)
-
     (exactlyFirst ?z ?x5 ?x1 ?x2 ?x3 ?x4 ?x6 ?x7 ?x8 ?9))    
 
-
-
 (<= (exactlyOne ?z ?x1 ?x2 ?x3 ?x4 ?x5 ?x6 ?x7 ?x8 ?9)
-
     (exactlyFirst ?z ?x6 ?x1 ?x2 ?x3 ?x4 ?x5 ?x7 ?x8 ?9))    
 
-
-
 (<= (exactlyOne ?z ?x1 ?x2 ?x3 ?x4 ?x5 ?x6 ?x7 ?x8 ?9)
-
     (exactlyFirst ?z ?x7 ?x1 ?x2 ?x3 ?x4 ?x5 ?x6 ?x8 ?9))    
 
-
-
 (<= (exactlyOne ?z ?x1 ?x2 ?x3 ?x4 ?x5 ?x6 ?x7 ?x8 ?9)
-
     (exactlyFirst ?z ?x8 ?x1 ?x2 ?x3 ?x4 ?x5 ?x6 ?x7 ?9))    
 
-
-
 (<= (exactlyOne ?z ?x1 ?x2 ?x3 ?x4 ?x5 ?x6 ?x7 ?x8 ?9)
-
     (exactlyFirst ?z ?x9 ?x1 ?x2 ?x3 ?x4 ?x5 ?x6 ?x7 ?8))    
 
-
-
 (<= (goodRow ?i)
-
     (mark ?i 1 ?m1)
-
     (mark ?i 2 ?m2)
-
     (mark ?i 3 ?m3)
-
     (mark ?i 4 ?m4)
-
     (mark ?i 5 ?m5)
-
     (mark ?i 6 ?m6)
-
     (mark ?i 7 ?m7)
-
     (mark ?i 8 ?m8)
-
     (mark ?i 9 ?m9)
-
     (exactlyOne 1 ?m1 ?m2 ?m3 ?m4 ?m5 ?m6 ?m7 ?m8 ?m9)
-
     (exactlyOne 2 ?m1 ?m2 ?m3 ?m4 ?m5 ?m6 ?m7 ?m8 ?m9)
-
     (exactlyOne 3 ?m1 ?m2 ?m3 ?m4 ?m5 ?m6 ?m7 ?m8 ?m9)
-
     (exactlyOne 4 ?m1 ?m2 ?m3 ?m4 ?m5 ?m6 ?m7 ?m8 ?m9)
-
     (exactlyOne 5 ?m1 ?m2 ?m3 ?m4 ?m5 ?m6 ?m7 ?m8 ?m9)
-
     (exactlyOne 6 ?m1 ?m2 ?m3 ?m4 ?m5 ?m6 ?m7 ?m8 ?m9)
-
     (exactlyOne 7 ?m1 ?m2 ?m3 ?m4 ?m5 ?m6 ?m7 ?m8 ?m9)
-
     (exactlyOne 8 ?m1 ?m2 ?m3 ?m4 ?m5 ?m6 ?m7 ?m8 ?m9)
-
     (exactlyOne 9 ?m1 ?m2 ?m3 ?m4 ?m5 ?m6 ?m7 ?m8 ?m9))
-
-
 
 (<= (goodColumn ?i)
-
     (mark 1 ?i ?m1)
-
     (mark 2 ?i ?m2)
-
     (mark 3 ?i ?m3)
-
     (mark 4 ?i ?m4)
-
     (mark 5 ?i ?m5)
-
     (mark 6 ?i ?m6)
-
     (mark 7 ?i ?m7)
-
     (mark 8 ?i ?m8)
-
     (mark 9 ?i ?m9)
-
     (exactlyOne 1 ?m1 ?m2 ?m3 ?m4 ?m5 ?m6 ?m7 ?m8 ?m9)
-
     (exactlyOne 2 ?m1 ?m2 ?m3 ?m4 ?m5 ?m6 ?m7 ?m8 ?m9)
-
     (exactlyOne 3 ?m1 ?m2 ?m3 ?m4 ?m5 ?m6 ?m7 ?m8 ?m9)
-
     (exactlyOne 4 ?m1 ?m2 ?m3 ?m4 ?m5 ?m6 ?m7 ?m8 ?m9)
-
     (exactlyOne 5 ?m1 ?m2 ?m3 ?m4 ?m5 ?m6 ?m7 ?m8 ?m9)
-
     (exactlyOne 6 ?m1 ?m2 ?m3 ?m4 ?m5 ?m6 ?m7 ?m8 ?m9)
-
     (exactlyOne 7 ?m1 ?m2 ?m3 ?m4 ?m5 ?m6 ?m7 ?m8 ?m9)
-
     (exactlyOne 8 ?m1 ?m2 ?m3 ?m4 ?m5 ?m6 ?m7 ?m8 ?m9)
-
     (exactlyOne 9 ?m1 ?m2 ?m3 ?m4 ?m5 ?m6 ?m7 ?m8 ?m9))
-
-
 
 (<= (goodSquare ?i ?j)
-
     (succ ?i ?i2)
-
     (succ ?j ?j2)
-
     (succ ?i2 ?i3)    
-
     (succ ?j2 ?j3)
-
     (mark ?i ?j ?m1)
-
     (mark ?i ?j2 ?m2)
-
     (mark ?i ?j3 ?m3)
-
     (mark ?i2 ?j ?m4)
-
     (mark ?i2 ?j2 ?m5)
-
     (mark ?i2 ?j3 ?m6)
-
     (mark ?i3 ?j ?m7)
-
     (mark ?i3 ?j2 ?m8)
-
     (mark ?i3 ?j3 ?m9)    
-
     (exactlyOne 1 ?m1 ?m2 ?m3 ?m4 ?m5 ?m6 ?m7 ?m8 ?m9)
-
     (exactlyOne 2 ?m1 ?m2 ?m3 ?m4 ?m5 ?m6 ?m7 ?m8 ?m9)
-
     (exactlyOne 3 ?m1 ?m2 ?m3 ?m4 ?m5 ?m6 ?m7 ?m8 ?m9)
-
     (exactlyOne 4 ?m1 ?m2 ?m3 ?m4 ?m5 ?m6 ?m7 ?m8 ?m9)
-
     (exactlyOne 5 ?m1 ?m2 ?m3 ?m4 ?m5 ?m6 ?m7 ?m8 ?m9)
-
     (exactlyOne 6 ?m1 ?m2 ?m3 ?m4 ?m5 ?m6 ?m7 ?m8 ?m9)
-
     (exactlyOne 7 ?m1 ?m2 ?m3 ?m4 ?m5 ?m6 ?m7 ?m8 ?m9)
-
     (exactlyOne 8 ?m1 ?m2 ?m3 ?m4 ?m5 ?m6 ?m7 ?m8 ?m9)
-
     (exactlyOne 9 ?m1 ?m2 ?m3 ?m4 ?m5 ?m6 ?m7 ?m8 ?m9))
 
-
-
 (<= victoryState
-
     (goodRow 1)
-
     (goodRow 2)
-
     (goodRow 3)
-
     (goodRow 4)
-
     (goodRow 5)
-
     (goodRow 6)
-
     (goodRow 7)
-
     (goodRow 8)
-
     (goodRow 9)
-
     (goodColumn 1)
-
     (goodColumn 2)
-
     (goodColumn 3)
-
     (goodColumn 4)
-
     (goodColumn 5)
-
     (goodColumn 6)
-
     (goodColumn 7)
-
     (goodColumn 8)
-
     (goodColumn 9)
-
     (goodSquare 1 1)
-
     (goodSquare 1 4)
-
     (goodSquare 1 7)
-
     (goodSquare 4 1)
-
     (goodSquare 4 4)
-
     (goodSquare 4 7)
-
     (goodSquare 7 1)
-
     (goodSquare 7 4)
-
     (goodSquare 7 7))
 
-
-
 (<= (emptyCell ?i ?j)
-
     (index ?i)
-
     (index ?j)
-
     (not (true (mark ?i ?j ?anyMark))))
 
-
-
 (<= (validMark ?x)
-
     (index ?x))
 
-
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 ;; Static Relations
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-
 
 (index 1) (index 2) (index 3)
-
 (index 4) (index 5) (index 6)
-
 (index 7) (index 8) (index 9)
 
-
-
 (eq 1 1) (eq 2 2) (eq 3 3)
-
 (eq 4 4) (eq 5 5) (eq 6 6)
-
 (eq 7 7) (eq 8 8) (eq 9 9)
 
-
-
 (succ 1 2)
-
 (succ 2 3)
-
 (succ 3 4)
-
 (succ 4 5)
-
 (succ 5 6)
-
 (succ 6 7)
-
 (succ 7 8)
-
-(succ 8 9)( base mark ( val 1 2 3 4 5 6 7 8 9 ) ( val 1 2 3 4 5 6 7 8 9 ) ( val 1 2 3 4 5 6 7 8 9 ) )
+(succ 8 9)

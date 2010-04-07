@@ -132,6 +132,3 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (index 1) (index 2) (index 3)
-
-(base control (player xPlayer oPlayer))
-(base mark (x 1 2 3) (y 1 2 3) (mark x o))

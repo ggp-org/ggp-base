@@ -407,6 +407,4 @@
 
 (stepCount  1  2) (stepCount  2  3) (stepCount  3  4) (stepCount  4  5) (stepCount  5  6) (stepCount  6  7) (stepCount  7  8) (stepCount  8  9) (stepCount  9 10) (stepCount 10 11)
 (stepCount 11 12) (stepCount 12 13) (stepCount 13 14) (stepCount 14 15) (stepCount 15 16) (stepCount 16 17) (stepCount 17 18) (stepCount 18 19) (stepCount 19 20) (stepCount 20 21)
-(stepCount 21 22) (stepCount 22 23) (stepCount 23 24) (stepCount 24 25) (stepCount 25 26) (stepCount 26 27) (stepCount 27 28) (stepCount 28 29) (stepCount 29 30) (stepCount 30 31)( base control ( val blue red yellow ) )
-( base cell ( val 1 2 3 4 5 6 7 ) ( val 1 2 3 4 5 6 7 ) ( val bluechecker bluedisc blueknight bluepawn redchecker reddisc redknight redpawn yellowchecker yellowdisc yellowknight yellowpawn ) )
-( base step ( val 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 ) )
+(stepCount 21 22) (stepCount 22 23) (stepCount 23 24) (stepCount 24 25) (stepCount 25 26) (stepCount 26 27) (stepCount 27 28) (stepCount 28 29) (stepCount 29 30) (stepCount 30 31)

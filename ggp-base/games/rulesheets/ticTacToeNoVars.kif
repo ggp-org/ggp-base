@@ -411,5 +411,3 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (index 1) (index 2) (index 3)
-( base control ( val oplayer xplayer ) )
-( base mark ( val 1 2 3 ) ( val 1 2 3 ) ( val o x ) )

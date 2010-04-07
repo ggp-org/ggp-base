@@ -102,7 +102,3 @@
 (direction c2)
 (direction c3)
 (direction c4)
-
-( base choice ( val level1 level2 level3 level4 level5 ) ( val c1 c2 c3 c4 ) )
-( base depth ( val level1 level2 level3 level4 level5 ) )
-( base prev-goal ( val 0 25 50 75 100 ) )

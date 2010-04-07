@@ -2,154 +2,144 @@
 ;;; Tictictoe
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-  (role xplayer)
-  (role oplayer)
+(role xplayer)
+(role oplayer)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-  (init (cell 1 1 b))
-  (init (cell 1 2 b))
-  (init (cell 1 3 b))
-  (init (cell 2 1 b))
-  (init (cell 2 2 b))
-  (init (cell 2 3 b))
-  (init (cell 3 1 b))
-  (init (cell 3 2 b))
-  (init (cell 3 3 b))
-  (init (step 1))
+(init (cell 1 1 b))
+(init (cell 1 2 b))
+(init (cell 1 3 b))
+(init (cell 2 1 b))
+(init (cell 2 2 b))
+(init (cell 2 3 b))
+(init (cell 3 1 b))
+(init (cell 3 2 b))
+(init (cell 3 3 b))
+(init (step 1))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-  (<= (next (cell ?j ?k x))
-      (true (cell ?j ?k b))
-      (does xplayer (mark ?j ?k))
-      (does oplayer (mark ?m ?n))
-      (or (distinct ?j ?m) (distinct ?k ?n)))
+(<= (next (cell ?j ?k x))
+    (true (cell ?j ?k b))
+    (does xplayer (mark ?j ?k))
+    (does oplayer (mark ?m ?n))
+    (or (distinct ?j ?m) (distinct ?k ?n)))
 
-  (<= (next (cell ?m ?n o))
-      (true (cell ?m ?n b))
-      (does xplayer (mark ?j ?k))
-      (does oplayer (mark ?m ?n))
-      (or (distinct ?j ?m) (distinct ?k ?n)))
+(<= (next (cell ?m ?n o))
+    (true (cell ?m ?n b))
+    (does xplayer (mark ?j ?k))
+    (does oplayer (mark ?m ?n))
+    (or (distinct ?j ?m) (distinct ?k ?n)))
 
-  (<= (next (cell ?m ?n b))
-      (true (cell ?m ?n b))
-      (does xplayer (mark ?m ?n))
-      (does oplayer (mark ?m ?n)))
+(<= (next (cell ?m ?n b))
+    (true (cell ?m ?n b))
+    (does xplayer (mark ?m ?n))
+    (does oplayer (mark ?m ?n)))
 
-  (<= (next (cell ?p ?q b))
-      (true (cell ?p ?q b))
-      (does xplayer (mark ?j ?k))
-      (does oplayer (mark ?m ?n))
-      (or (distinct ?j ?p) (distinct ?k ?q))
-      (or (distinct ?m ?p) (distinct ?n ?q)))
-
-  (<= (next (cell ?m ?n ?w))
-      (true (cell ?m ?n ?w))
-      (distinct ?w b))
-
-
-  (<= (next (step ?y))
-      (true (step ?x))
-      (succ ?x ?y))
+(<= (next (cell ?p ?q b))
+    (true (cell ?p ?q b))
+    (does xplayer (mark ?j ?k))
+    (does oplayer (mark ?m ?n))
+    (or (distinct ?j ?p) (distinct ?k ?q))
+    (or (distinct ?m ?p) (distinct ?n ?q)))
+    
+(<= (next (cell ?m ?n ?w))
+    (true (cell ?m ?n ?w))
+    (distinct ?w b))
 
 
-  (succ 1 2)
-  (succ 2 3)
-  (succ 3 4)
-  (succ 4 5)
-  (succ 5 6)
-  (succ 6 7)
+(<= (next (step ?y))
+    (true (step ?x))
+    (succ ?x ?y))
 
+(succ 1 2)
+(succ 2 3)
+(succ 3 4)
+(succ 4 5)
+(succ 5 6)
+(succ 6 7)
 
-  (<= (row ?m ?x)
-      (true (cell ?m 1 ?x))
-      (true (cell ?m 2 ?x))
-      (true (cell ?m 3 ?x)))
+(<= (row ?m ?x)
+    (true (cell ?m 1 ?x))
+    (true (cell ?m 2 ?x))
+    (true (cell ?m 3 ?x)))
 
-  (<= (column ?n ?x)
-      (true (cell 1 ?n ?x))
-      (true (cell 2 ?n ?x))
-      (true (cell 3 ?n ?x)))
+(<= (column ?n ?x)
+    (true (cell 1 ?n ?x))
+    (true (cell 2 ?n ?x))
+    (true (cell 3 ?n ?x)))
 
-  (<= (diagonal ?x)
-      (true (cell 1 1 ?x))
-      (true (cell 2 2 ?x))
-      (true (cell 3 3 ?x)))
+(<= (diagonal ?x)
+    (true (cell 1 1 ?x))
+    (true (cell 2 2 ?x))
+    (true (cell 3 3 ?x)))
 
-  (<= (diagonal ?x)
-      (true (cell 1 3 ?x))
-      (true (cell 2 2 ?x))
-      (true (cell 3 1 ?x)))
+(<= (diagonal ?x)
+    (true (cell 1 3 ?x))
+    (true (cell 2 2 ?x))
+    (true (cell 3 1 ?x)))
 
-  (<= (line ?x) (row ?m ?x))
-  (<= (line ?x) (column ?m ?x))
-  (<= (line ?x) (diagonal ?x))
+(<= (line ?x) (row ?m ?x))
+(<= (line ?x) (column ?m ?x))
+(<= (line ?x) (diagonal ?x))
 
-
-  (<= nolinex
-      (not (line x)))
-  (<= nolineo
-      (not (line o)))
+(<= nolinex
+    (not (line x)))
+(<= nolineo
+    (not (line o)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-  (<= (legal xplayer (mark ?x ?y))
-      (true (cell ?x ?y b)))
+(<= (legal xplayer (mark ?x ?y))
+    (true (cell ?x ?y b)))
 
-  (<= (legal oplayer (mark ?x ?y))
-      (true (cell ?x ?y b)))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-  (<= (goal xplayer 50)
-      (line x)
-      (line o))
-
-  (<= (goal xplayer 100)
-      (line x)
-      nolineo)
-
-  (<= (goal xplayer 0)
-      nolinex
-      (line o))
-
-  (<= (goal xplayer 50)
-      nolinex
-      nolineo
-      (true (step 7)))
-
-
-  (<= (goal oplayer 50)
-      (line x)
-      (line o))
-
-  (<= (goal oplayer 100)
-      nolinex
-      (line o))
-
-  (<= (goal oplayer 0)
-      (line x)
-      nolineo)
-
-  (<= (goal oplayer 50)
-      nolinex
-      nolineo
-      (true (step 7)))
+(<= (legal oplayer (mark ?x ?y))
+    (true (cell ?x ?y b)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-  (<= terminal
-      (true (step 7)))
+(<= (goal xplayer 50)
+    (line x)
+    (line o))
 
-  (<= terminal
-      (line x))
+(<= (goal xplayer 100)
+    (line x)
+    nolineo)
 
-  (<= terminal
-      (line o))
+(<= (goal xplayer 0)
+    nolinex
+    (line o))
+    
+(<= (goal xplayer 50)
+    nolinex
+    nolineo
+    (true (step 7)))
+
+(<= (goal oplayer 50)
+    (line x)
+    (line o))
+
+(<= (goal oplayer 100)
+    nolinex
+    (line o))
+
+(<= (goal oplayer 0)
+    (line x)
+    nolineo)
+
+(<= (goal oplayer 50)
+    nolinex
+    nolineo
+    (true (step 7)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-( base step ( val 1 2 3 4 5 6 7 ) )
-( base cell ( val 1 2 3 ) ( val 1 2 3 ) ( val b o x ) )
+
+(<= terminal
+    (true (step 7)))
+
+(<= terminal
+    (line x))
+
+(<= terminal
+    (line o))
