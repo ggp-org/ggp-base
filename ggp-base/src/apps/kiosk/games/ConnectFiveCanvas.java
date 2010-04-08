@@ -33,6 +33,6 @@ public class ConnectFiveCanvas extends GameCanvas_Chessboard {
         if(cellFacts[4].equals("b")) return;
         
         g.setColor(Color.BLACK);
-        CommonGraphics.fillWithString(g, cellFacts[4], 1.2);
+        CommonGraphics.fillWithString(g, cellFacts[4].toUpperCase(), 1.2);
     }   
 }
