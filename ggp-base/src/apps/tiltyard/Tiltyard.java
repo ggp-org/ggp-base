@@ -1,0 +1,255 @@
+package apps.tiltyard;
+
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.swing.AbstractAction;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+import javax.swing.border.TitledBorder;
+
+import apps.common.NativeUI;
+
+import player.gamer.Gamer;
+import util.configuration.ProjectConfiguration;
+import util.gdl.factory.exceptions.GdlFormatException;
+import util.gdl.grammar.Gdl;
+import util.kif.KifReader;
+import util.match.Match;
+import util.reflection.ProjectSearcher;
+import util.statemachine.Role;
+import util.statemachine.StateMachine;
+import util.statemachine.implementation.prover.ProverStateMachine;
+import util.symbol.factory.exceptions.SymbolFormatException;
+
+/**
+ * Tiltyard is an application which allows you to quickly run a large number
+ * of matches of a single game between multiple players on the local machine.
+ * This can be used to understand which players are stronger than which other
+ * players on a particular game, and is a great tool for performing automated
+ * experiments on players you're developing.
+ * 
+ * Since both players will be running on the same machine, they may run into
+ * resource contention issues: for example, both may attempt to use all of the
+ * available memory and processor cycles. Tiltyard does not prevent this: for
+ * best performance, ensure that at least one of the two players is a simple
+ * player (like RandomGamer, LegalGamer, or SimpleSearchLightGamer) that will
+ * not attempt to use the majority of the machine's resources. Ensuring that
+ * resource contention between multiple resource-intensive players is resolved
+ * fairly is well beyond the scope of Tiltyard.
+ * 
+ * TiltyardPanel is the GUI for the Tiltyard application.
+ * 
+ * @author Sam Schreiber
+ */
+@SuppressWarnings("serial")
+public final class Tiltyard extends JPanel {
+    private static void createAndShowGUI(Tiltyard playerPanel) {
+        JFrame frame = new JFrame("General Gaming Tiltyard");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        frame.setPreferredSize(new Dimension(1024, 768));
+        frame.getContentPane().add(playerPanel);
+
+        frame.pack();
+        frame.setVisible(true);
+    }
+
+    public static void main(String[] args) throws IOException {
+        NativeUI.setNativeUI();
+        
+        final Tiltyard tiltyardPanel = new Tiltyard();
+        javax.swing.SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                createAndShowGUI(tiltyardPanel);
+            }
+        });
+    }
+
+    private final JButton runButton;
+    private final JButton sourceButton;
+    private final JTextField sourceTextField;        
+    private final JTextField playClockTextField;
+    private final JTextField startClockTextField;
+    private final JTextField numRepsTextField;  
+    
+    private List<Class<?>> gamers = ProjectSearcher.getAllClassesThatAre(Gamer.class);
+    private List<JComboBox> playerBoxes;
+    private final JPanel playerBoxesPanel;
+    
+    private final TiltyardEventsPanel eventsPanel;
+
+    private JComboBox getFreshPlayerComboBox() {
+        JComboBox newBox = new JComboBox();
+
+        for (Class<?> gamer : gamers) {
+            Gamer g;
+            try {
+                g = (Gamer) gamer.newInstance();
+                
+                // TODO: Come up with a more elegant way to exclude
+                // the HumanPlayer, which doesn't fit the Tiltyard model.
+                if(g.getName().equals("Human")) throw new RuntimeException();
+                
+                newBox.addItem(g.getName());
+            } catch (Exception ex) {}            
+        }	
+
+        newBox.setSelectedItem("Random");
+        return newBox;
+    }
+    
+    public Tiltyard() {
+        super(new GridBagLayout());
+
+        // Create the game-selection controls
+        sourceButton = new JButton(sourceButtonMethod(this));
+        sourceTextField = new JTextField("Click to select a .kif file");
+        sourceTextField.setEnabled(false);
+        sourceTextField.setColumns(15);
+        startClockTextField = new JTextField("30");
+        playClockTextField = new JTextField("15");
+        numRepsTextField = new JTextField("100");
+
+        // Create the player-selection controls
+        playerBoxes = new ArrayList<JComboBox>();
+        playerBoxesPanel = new JPanel(new GridBagLayout());        
+        
+        // Create the panel at the bottom with the buttons
+        JPanel buttonPanel = new JPanel(new FlowLayout());
+        runButton = new JButton(runButtonMethod());
+        runButton.setEnabled(false);
+        buttonPanel.add(runButton);
+        
+        // Create the panel that shows the actual events
+        eventsPanel = new TiltyardEventsPanel();                
+
+        int nGridRow = 0;
+        JPanel managerPanel = new JPanel(new GridBagLayout());
+        managerPanel.setBorder(new TitledBorder("Manager"));        
+        managerPanel.add(sourceButton, new GridBagConstraints(0, nGridRow, 1, 1, 0.0, 0.0, GridBagConstraints.NORTH, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 0, 0));
+        managerPanel.add(sourceTextField, new GridBagConstraints(1, nGridRow++, 1, 1, 0.0, 0.0, GridBagConstraints.NORTH, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 5, 5));
+        managerPanel.add(new JLabel("Start Clock:"), new GridBagConstraints(0, nGridRow, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 5, 5));
+        managerPanel.add(startClockTextField, new GridBagConstraints(1, nGridRow++, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 5, 5));
+        managerPanel.add(new JLabel("Play Clock:"), new GridBagConstraints(0, nGridRow, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 5, 5));
+        managerPanel.add(playClockTextField, new GridBagConstraints(1, nGridRow++, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 5, 5));
+        managerPanel.add(new JLabel("Repetitions:"), new GridBagConstraints(0, nGridRow, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 5, 5));
+        managerPanel.add(numRepsTextField, new GridBagConstraints(1, nGridRow++, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 5, 5));                
+        managerPanel.add(playerBoxesPanel, new GridBagConstraints(0, nGridRow++, 2, 1, 1.0, 1.0, GridBagConstraints.NORTH, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 0, 0));        
+        managerPanel.add(buttonPanel, new GridBagConstraints(1, nGridRow++, 1, 1, 1.0, 1.0, GridBagConstraints.SOUTH, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 0, 0));
+
+        JPanel gamesPanel = new JPanel(new GridBagLayout());
+        gamesPanel.setBorder(new TitledBorder("Tiltyard Games"));
+        gamesPanel.add(eventsPanel, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 5, 5));
+        this.add(managerPanel, new GridBagConstraints(0, 0, 1, 2, 0.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 5, 5));
+        this.add(gamesPanel, new GridBagConstraints(1, 1, 1, 1, 1.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 5, 5));
+        
+        validate();
+    }
+
+    private void runTiltyard() {
+        try {
+            List<Class<?>> thePlayers = new ArrayList<Class<?>>();
+            for(int i = 0; i < playerBoxes.size(); i++) {
+                thePlayers.add(gamers.get(playerBoxes.get(i).getSelectedIndex()));
+            }
+
+            int playClock = Integer.parseInt(playClockTextField.getText());
+            int startClock = Integer.parseInt(startClockTextField.getText());
+            int numReps = Integer.parseInt(numRepsTextField.getText());
+            
+            Match theMatchModel = new Match("MatchID", startClock, playClock, description);
+            
+            TiltyardManager theManager = new TiltyardManager(thePlayers, theMatchModel, gameName, numReps, eventsPanel);
+            theManager.start();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private AbstractAction runButtonMethod() {
+        return new AbstractAction("Run Tiltyard") {
+            public void actionPerformed(ActionEvent evt) {
+                javax.swing.SwingUtilities.invokeLater(new Runnable() {
+                    public void run() {
+                        runTiltyard();
+                    }
+                });
+            }
+        };
+    }
+    
+    private String gameName;
+    private List<Gdl> description;
+    private AbstractAction sourceButtonMethod(final Tiltyard tiltyardPanel)
+    {
+        return new AbstractAction("Source")
+        {
+            public void actionPerformed(ActionEvent evt)
+            {
+                JFileChooser fileChooser = new JFileChooser(ProjectConfiguration.gameRulesheetsPath);
+                if (fileChooser.showOpenDialog(Tiltyard.this) == JFileChooser.APPROVE_OPTION)
+                {                   
+                    try {
+                        File file = fileChooser.getSelectedFile();
+                        description = KifReader.read(file.getAbsolutePath());
+                        sourceTextField.setText(file.getName());
+                        gameName = file.getName().replaceAll("\\..*?$",""); //strip file ending
+
+                        StateMachine stateMachine = new ProverStateMachine();
+                        stateMachine.initialize(description);
+                        List<Role> roles = stateMachine.getRoles();
+                        int nRoles = roles.size();
+
+                        while(playerBoxes.size() > nRoles) {
+                            playerBoxes.remove(playerBoxes.size()-1);       
+                        }
+
+                        while(playerBoxes.size() < nRoles) {
+                            playerBoxes.add(getFreshPlayerComboBox());
+                        }
+
+                        List<Integer> currentSelections = new ArrayList<Integer>();
+                        for(int i = 0; i < playerBoxes.size(); i++) {
+                            currentSelections.add(playerBoxes.get(i).getSelectedIndex());
+                        }
+
+                        playerBoxesPanel.removeAll();
+                        for(int i = 0; i < roles.size(); i++) {
+                            playerBoxesPanel.add(new JLabel("Player " + (i+1) + " Type:"), new GridBagConstraints(0, i, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 0, 0));
+                            playerBoxesPanel.add(playerBoxes.get(i), new GridBagConstraints(1, i, 1, 1, 1.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 0, 0));
+                        }
+
+                        for(int i = 0; i < playerBoxes.size(); i++) {
+                            playerBoxes.get(i).setSelectedIndex(currentSelections.get(i));
+                        }       
+
+                        playerBoxesPanel.validate();  
+                        tiltyardPanel.validate();
+
+                        runButton.setEnabled(true);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    } catch (SymbolFormatException e) {
+                        e.printStackTrace();
+                    } catch (GdlFormatException e) {
+                        e.printStackTrace();
+                    }                   
+                }
+            }
+        };
+    }    
+}
