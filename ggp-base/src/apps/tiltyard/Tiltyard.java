@@ -51,8 +51,6 @@ import util.symbol.factory.exceptions.SymbolFormatException;
  * resource contention between multiple resource-intensive players is resolved
  * fairly is well beyond the scope of Tiltyard.
  * 
- * TiltyardPanel is the GUI for the Tiltyard application.
- * 
  * @author Sam Schreiber
  */
 @SuppressWarnings("serial")
