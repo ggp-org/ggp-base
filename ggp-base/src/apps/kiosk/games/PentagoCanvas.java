@@ -17,16 +17,16 @@ public class PentagoCanvas extends GameCanvas_FancyGrid {
     @Override
     protected Set<String> getFactsAboutCell(int xCell, int yCell) {
         int nQuad = getQuadrant(xCell, yCell);
-        xCell = (xCell > 3) ? (xCell - 3) : xCell;
-        yCell = (yCell > 3) ? (yCell - 3) : yCell;        
+        xCell = ((xCell > 3) ? (xCell - 3) : xCell);
+        yCell = ((yCell > 3) ? (yCell - 3) : yCell);        
         return gameStateHasFactsMatching("\\( cellholds " + nQuad + " " + xCell + " " + yCell + " (.*) \\)");
     }
 
     @Override
     protected Set<String> getLegalMovesForCell(int xCell, int yCell) {
         int nQuad = getQuadrant(xCell, yCell);
-        xCell = (xCell > 3) ? (xCell - 3) : xCell;
-        yCell = (yCell > 3) ? (yCell - 3) : yCell;
+        xCell = ((xCell > 3) ? (xCell - 3) : xCell);
+        yCell = ((yCell > 3) ? (yCell - 3) : yCell);
         Set<String> theMoves = gameStateHasLegalMovesMatching("\\( place " + nQuad + " " + xCell + " " + yCell + " \\)");
         theMoves.addAll(gameStateHasLegalMovesMatching("\\( rotate " + nQuad + " (.*) \\)"));
         return theMoves;
@@ -66,10 +66,10 @@ public class PentagoCanvas extends GameCanvas_FancyGrid {
     private int getQuadrant(int xCell, int yCell) {
         if(xCell > 3) {
             if(yCell > 3) return 1;
-            else return 3;
+            else return 4;
         } else {
             if (yCell > 3) return 2;
-            else return 4;
+            else return 3;
         }
     }
 }
