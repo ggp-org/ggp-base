@@ -32,28 +32,32 @@ public abstract class StyledGameCanvas extends GameCanvas {
         if(renderedState != null)
             return renderedState;
         
-        String XML = gameState.toXML();
-        String XSL = getXSL();
-        Dimension d = GameStateRenderPanel.getDefaultSize();
-        BufferedImage backimage = this.getGraphicsConfiguration().createCompatibleImage(d.width,d.height);        
-        try { Thread.sleep(200); } catch(Exception e) { e.printStackTrace(); }
-        GameStateRenderPanel.renderImagefromGameXML(XML, XSL, backimage);
-        try {
-            ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            ImageIO.write(backimage, "png", bos);
-            byte[] compressed = bos.toByteArray();
-            
-            BufferedImage img2;
-            img2 = ImageIO.read(new ByteArrayInputStream(compressed));
-            renderedState = img2;
-        } catch (Exception ex) {ex.printStackTrace();}
+        synchronized(this) {
+            String XML = gameState.toXML();
+            String XSL = getXSL();
+            Dimension d = GameStateRenderPanel.getDefaultSize();
+            BufferedImage backimage = this.getGraphicsConfiguration().createCompatibleImage(d.width,d.height);        
+            try { Thread.sleep(200); } catch(Exception e) { e.printStackTrace(); }
+            GameStateRenderPanel.renderImagefromGameXML(XML, XSL, backimage);
+            try {
+                ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                ImageIO.write(backimage, "png", bos);
+                byte[] compressed = bos.toByteArray();
+                
+                BufferedImage img2;
+                img2 = ImageIO.read(new ByteArrayInputStream(compressed));
+                renderedState = img2;
+            } catch (Exception ex) {ex.printStackTrace();}
+        }
         return renderedState;
     }
     
     // When the game state changes, clear our cache of the rendered game state.
-    public void updateGameState(MachineState gameState) {        
-        super.updateGameState(gameState);
-        renderedState = null;
+    public void updateGameState(MachineState gameState) {
+        synchronized(this) {
+            super.updateGameState(gameState);
+            renderedState = null;
+        }
         repaint();
     }        
     
