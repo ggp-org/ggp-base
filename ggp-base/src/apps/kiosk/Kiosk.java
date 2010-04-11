@@ -110,7 +110,7 @@ public final class Kiosk extends JPanel implements ActionListener
     
     private final JComboBox playerComboBox;
     private List<Class<?>> gamers = ProjectSearcher.getAllClassesThatAre(Gamer.class);
-    
+
     public Kiosk()
     {
         super(new GridBagLayout());
