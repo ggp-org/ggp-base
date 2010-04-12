@@ -223,8 +223,10 @@ public abstract class GameCanvas extends JPanel implements Subject {
             }
             return theMatches;
         } catch (MoveDefinitionException e) {
-            e.printStackTrace();
-            return null;
+            // This can happen in games where the terminal state
+            // has no legal moves defined for a player.
+            //e.printStackTrace();
+            return new HashSet<String>();
         }        
     }
     

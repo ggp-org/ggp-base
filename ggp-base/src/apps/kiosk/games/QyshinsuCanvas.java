@@ -76,7 +76,7 @@ public class QyshinsuCanvas extends StyledGameCanvas_FancyRectangles {
         double rectHeight = 50.0/727.0;
         List<Rectangle2D> theRectangles = new ArrayList<Rectangle2D>();
         for(Point2D thePoint : thePiecePoints) {
-            theRectangles.add(new Rectangle2D.Double(thePoint.getX()-rectWidth/2, thePoint.getY()-rectHeight/2, rectWidth, rectHeight));
+            theRectangles.add(new Rectangle2D.Double(thePoint.getX()-2*rectWidth/3, thePoint.getY()-2*rectHeight/3, rectWidth, rectHeight));
         }
         return theRectangles;
     }
