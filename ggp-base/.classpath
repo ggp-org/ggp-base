@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.launching.macosx.MacOSXType/JVM 1.6.0"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="src/external/FlyingSaucer/core-renderer.jar"/>
 	<classpathentry kind="lib" path="src/external/JTidy/Tidy.jar"/>
 	<classpathentry kind="lib" path="src/external/JGoodiesForms/forms-1.2.1.jar"/>
