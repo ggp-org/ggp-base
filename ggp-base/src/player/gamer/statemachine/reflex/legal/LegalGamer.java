@@ -25,13 +25,19 @@ import apps.player.detail.DetailPanel;
  */
 public final class LegalGamer extends StateMachineGamer
 {
-
+	
+	/**
+	 * Does nothing for the metagame
+	 */
 	@Override
 	public void stateMachineMetaGame(long timeout) throws TransitionDefinitionException, MoveDefinitionException, GoalDefinitionException
 	{
 		// Do nothing.
 	}
-
+	
+	/**
+	 * Selects the first legal move
+	 */
 	@Override
 	public Move stateMachineSelectMove(long timeout) throws TransitionDefinitionException, MoveDefinitionException, GoalDefinitionException
 	{
@@ -45,12 +51,13 @@ public final class LegalGamer extends StateMachineGamer
 		notifyObservers(new ReflexMoveSelectionEvent(moves, selection, stop - start));
 		return selection;
 	}
-
+	/**
+	 * Uses a CachedProverStateMachine
+	 */
 	@Override
 	public StateMachine getInitialStateMachine() {
 		return new CachedProverStateMachine();
 	}
-
 	@Override
 	public String getName() {
 		return "Legal";

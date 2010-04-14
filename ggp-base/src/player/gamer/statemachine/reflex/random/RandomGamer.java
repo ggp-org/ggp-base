@@ -26,13 +26,17 @@ import apps.player.detail.DetailPanel;
  */
 public final class RandomGamer extends StateMachineGamer
 {
-
+	/**
+	 * Does nothing
+	 */
 	@Override
 	public void stateMachineMetaGame(long timeout) throws TransitionDefinitionException, MoveDefinitionException, GoalDefinitionException
 	{
 		// Do nothing.
 	}
-
+	/**
+	 * Selects a random legal move
+	 */
 	@Override
 	public Move stateMachineSelectMove(long timeout) throws TransitionDefinitionException, MoveDefinitionException, GoalDefinitionException
 	{
@@ -46,7 +50,9 @@ public final class RandomGamer extends StateMachineGamer
 		notifyObservers(new ReflexMoveSelectionEvent(moves, selection, stop - start));
 		return selection;
 	}
-
+	/**
+	 * Uses a CachedProverStateMachine
+	 */
 	@Override
 	public StateMachine getInitialStateMachine() {
 		return new CachedProverStateMachine();

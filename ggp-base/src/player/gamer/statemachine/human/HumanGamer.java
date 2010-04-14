@@ -17,18 +17,27 @@ import apps.player.detail.DetailPanel;
 public final class HumanGamer extends StateMachineGamer
 {
 	private Move move;
-
+	
+	/**
+	 * Sets the currentMove
+	 * @param move 
+	 */
 	public void setMove(Move move)
 	{
 		this.move = move;
 	}
-
+	/**
+	 * Default constructor
+	 */
 	@Override
 	public void stateMachineMetaGame(long timeout) throws TransitionDefinitionException, MoveDefinitionException, GoalDefinitionException
 	{
 		// Do nothing.
 	}
-
+	
+	/**
+	 * Selects the default move as the first legal move, and then waits while the Human sets their move
+	 */
 	@Override
 	public synchronized Move stateMachineSelectMove(long timeout) throws TransitionDefinitionException, MoveDefinitionException, GoalDefinitionException
 	{
@@ -48,17 +57,21 @@ public final class HumanGamer extends StateMachineGamer
 
 		return move;
 	}
-
+	
+	/**
+	 * Uses a CachedProverStateMachine
+	 */
 	@Override
 	public StateMachine getInitialStateMachine() {
 		return new CachedProverStateMachine();
 	}
-
+	
 	@Override
 	public String getName() {
 		return "Human";
 	}
-
+	
+	
 	@Override
 	public DetailPanel getDetailPanel() {
 		return new HumanDetailPanel();

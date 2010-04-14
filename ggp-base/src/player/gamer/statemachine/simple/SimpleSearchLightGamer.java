@@ -39,6 +39,9 @@ import apps.player.detail.DetailPanel;
  */
 public final class SimpleSearchLightGamer extends StateMachineGamer
 {
+	/**
+	 * Does nothing
+	 */
 	@Override
 	public void stateMachineMetaGame(long timeout) throws TransitionDefinitionException, MoveDefinitionException, GoalDefinitionException
 	{
@@ -47,6 +50,17 @@ public final class SimpleSearchLightGamer extends StateMachineGamer
 
 	private Random theRandom = new Random();
 	
+	/**
+	 * Employs a simple "Search Light" algorithm.  First selects a default legal move.  
+	 * It then iterates through all of the legal moves in random order, updating the current move selection 
+	 * using the following criteria.
+	 * <ol>
+	 * 	<li> If a move produces a 1 step victory (given a random joint action) select it </li>
+	 * 	<li> If a move produces a 1 step loss avoid it </li>
+	 * 	<li> If a move allows a 2 step forced loss avoid it </li>
+	 * 	<li> Otherwise select the move </li>
+	 * </ol>
+	 */
 	@Override
 	public Move stateMachineSelectMove(long timeout) throws TransitionDefinitionException, MoveDefinitionException, GoalDefinitionException
 	{
@@ -141,7 +155,9 @@ public final class SimpleSearchLightGamer extends StateMachineGamer
 		notifyObservers(new ReflexMoveSelectionEvent(moves, selection, stop - start));
 		return selection;
 	}
-
+	/**
+	 * Uses a CachedProverStateMachine
+	 */
 	@Override
 	public StateMachine getInitialStateMachine() {
 		return new CachedProverStateMachine();
