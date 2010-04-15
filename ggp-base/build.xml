@@ -15,12 +15,17 @@
   <property name="docs.home"     value="${basedir}/docs"/>
   <property name="src.home"      value="${basedir}/src"/>
   <property name="javadoc.home"  value="${basedir}/javadoc"/>
+  <path id="compile.classpath">
+    	<pathelement path="${classpath}"/>
+		<fileset dir = "${basedir}/src/external">
+  			<include name = "**/*.jar"/>
+  		</fileset>
+  </path>
 
   <property name="compile.debug"       value="true"/>
   <property name="compile.deprecation" value="false"/>
   <property name="compile.optimize"    value="true"/>
   <property name="compile.source"      value="1.6" />
-
 
 
 <!-- ==================== All Target ====================================== -->
@@ -69,12 +74,7 @@
       deprecation="${compile.deprecation}"
          optimize="${compile.optimize}"
 	   source="${compile.source}">
-	   <classpath>
-    		<pathelement path="${classpath}"/>
-  			<fileset dir = "${basedir}/src/external">
-  				<include name = "**/*.jar"/>
-  			</fileset>
-  		</classpath>
+	<classpath refid="compile.classpath"/>
     </javac>
 
   </target>
@@ -97,8 +97,8 @@
               maxmemory="128m"
                  author="true"      
                  source="1.6"
-                Overview="${src.home}/cs227b/overview.html"
-           packagenames="*">
+           packagenames="player.gamer.*,util.*"
+	       Overview="${basedir}/overview.html">
       <classpath refid="compile.classpath"/>
       <link href="http://java.sun.com/j2se/1.5/docs/api"/>
     </javadoc>
