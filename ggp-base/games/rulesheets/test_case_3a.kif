@@ -1,0 +1,47 @@
+; Not actually clear this is a good test case;
+; standard prover does "correct_failure", even
+; though it seems like both should be correct.
+; -Sam
+
+(role xplayer)
+
+(init (cell 1 1 b))
+
+(<= open1
+	(true (cell ?x ?y b)))
+(<= (open2)
+	(true (cell ?x ?y b)))
+	
+(<= (legal xplayer (move correct_correct))
+    open1
+    open2)
+    
+(<= (legal xplayer (move correct_failure))
+    open1
+    (not open2))
+    
+(<= (legal xplayer (move failure_correct))
+    (not open1)
+    open2)
+    
+(<= (legal xplayer (move failure_failure))
+    (not open1)
+    (not open2))    
+
+(<= (next ?x)
+    (does xplayer (move ?x)))
+    
+(<= (goal xplayer 100)
+    (true correct_correct))
+    
+(<= (goal xplayer 75)
+    (true correct_failure))
+
+(<= (goal xplayer 50)
+    (true failure_correct))
+    
+(<= (goal xplayer 25)
+    (true failure_failure))   
+    
+(<= terminal
+    (not (true (cell 1 1 b))))

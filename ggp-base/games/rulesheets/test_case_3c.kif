@@ -1,0 +1,15 @@
+; This test case ensures that a state machine behaves
+; properly when presented with a proposition that isn't
+; defined anywhere (i.e. "squee").
+
+(role xplayer)
+
+(<= (legal xplayer lose) squee)
+(<= (legal xplayer win) (not squee))
+
+(<= (next winner) (does xplayer win))
+(<= (next loser) (does xplayer lose))
+
+(<= (goal xplayer 100) (true winner))
+(<= (goal xplayer 0) (true loser))
+(<= terminal (or (true winner) (true loser)))

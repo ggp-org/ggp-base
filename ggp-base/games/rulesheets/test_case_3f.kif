@@ -1,0 +1,16 @@
+; This test case ensures that a state machine can handle
+; role variables in the "legal" and "goal" rules, along
+; with a restricted set of roles to which those apply.
+
+(role xplayer)
+(role yplayer)
+(role zplayer)
+
+(cell 1 1)
+(<= terminal (cell 1 1))
+(<= (legal ?p ?p) (cell 1 1))
+(<= (goal ?p 100) (on_list ?p))
+(<= (goal ?p 0) (not (on_list ?p)))
+
+(on_list xplayer)
+(on_list zplayer)

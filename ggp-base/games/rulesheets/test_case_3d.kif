@@ -1,0 +1,19 @@
+; This test case ensures that a state machine can
+; compute the initial state of a game correctly.
+
+(role xplayer)
+
+(init (cell alpha))
+
+(<= (next (cell beta))
+    (not (true (cell alpha))))
+    
+(<= (legal xplayer lose) (true (cell beta)))
+(<= (legal xplayer win) (not (true (cell beta))))
+
+(<= (next winner) (does xplayer win))
+(<= (next loser) (does xplayer lose))
+
+(<= (goal xplayer 100) (true winner))
+(<= (goal xplayer 0) (true loser))
+(<= terminal (or (true winner) (true loser)))

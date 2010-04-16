@@ -1,0 +1,14 @@
+; This test case verifies that a state machine can handle
+; the kind of distinct-based definitions that appear in
+; the ticTacToeClassic game. These definitions are very
+; broad and may be hard to handle in a bottom-up solver.
+
+(role xplayer)
+
+(cell 1 1)
+(<= terminal (cell 1 1))
+(<= (legal xplayer noop) (cell 1 1))
+(<= (goal xplayer 100) (cell 1 1))
+
+(<= (distinctCell ?x ?y ?m ?n) (distinct ?y ?n))
+(<= (distinctCell ?x ?y ?m ?n) (distinct ?x ?m))  
