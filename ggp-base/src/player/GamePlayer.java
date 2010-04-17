@@ -92,4 +92,26 @@ public final class GamePlayer extends Thread implements Subject
 			}
 		}
 	}
+	
+	public static void main(String[] args)
+	{
+		if (args.length != 1)
+		{
+			System.err.println("Usage GamePlayer <port>");
+			System.exit(1);
+
+		}
+		try {
+			GamePlayer player = new GamePlayer(Integer.valueOf(args[0]), Gamer.defaultGamer());
+			player.run();
+		} catch (NumberFormatException e) {
+			System.err.println("Illegal port number");
+			System.exit(2);
+			e.printStackTrace();
+		} catch (IOException e) {
+			System.err.println("IO exception");
+			System.exit(3);
+			e.printStackTrace();
+		}
+	}
 }
