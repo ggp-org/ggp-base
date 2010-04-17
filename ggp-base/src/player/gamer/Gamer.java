@@ -5,6 +5,7 @@ import java.util.List;
 
 import player.gamer.exception.MetaGamingException;
 import player.gamer.exception.MoveSelectionException;
+import player.gamer.statemachine.reflex.random.RandomGamer;
 import util.gdl.grammar.GdlProposition;
 import util.gdl.grammar.GdlSentence;
 import util.match.Match;
@@ -24,6 +25,11 @@ import apps.player.detail.EmptyDetailPanel;
  */
 public abstract class Gamer implements Subject
 {
+	public static Gamer defaultGamer()
+	{
+		return new RandomGamer();
+	}
+	
 	private Match match;
 	private GdlProposition roleName;
 
@@ -95,4 +101,5 @@ public abstract class Gamer implements Subject
 			observer.observe(event);
 		}
 	}
+	
 }
