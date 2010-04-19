@@ -91,6 +91,7 @@ public final class SimpleSearchLightGamer extends StateMachineGamer
 		// upon a move which would cause us to win: if we find such a move, we will just
 		// immediately take it.
 		boolean reasonableMoveFound = false;
+		int maxGoal = 0;
 		for(Move moveUnderConsideration : movesInRandomOrder) {
 		    // Check to see if there's time to continue.
 		    if(System.currentTimeMillis() > finishBy) break;
@@ -110,13 +111,21 @@ public final class SimpleSearchLightGamer extends StateMachineGamer
 		    
 		    // Does the move under consideration end the game? If it does, do we win
 		    // or lose? If we lose, don't bother considering it. If we win, then we
-		    // definitely want to take this move.
+		    // definitely want to take this move. If its goal is better than our current
+		    // best goal, go ahead and tentatively select it
 		    if(theMachine.isTerminal(nextState)) {
 		        if(theMachine.getGoal(nextState, getRole()) == 0) {
 		            continue;
 		        } else if(theMachine.getGoal(nextState, getRole()) == 100) {
 	                selection = moveUnderConsideration;
 	                break;
+		        } else { 	
+		        	if (theMachine.getGoal(nextState, getRole()) > maxGoal)
+		        	{
+		        		selection = moveUnderConsideration;
+		        		maxGoal = theMachine.getGoal(nextState, getRole()); 
+		        	}
+		        	continue;
 		        }
 		    }
 		    
