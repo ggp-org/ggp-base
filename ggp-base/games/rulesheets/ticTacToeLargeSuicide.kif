@@ -67,7 +67,7 @@
     (line x))
 (<= (goal xPlayer 50)
     (not (line x))
-    (not (line y))
+    (not (line o))
     (not open))
 (<= (goal xPlayer 100)
     (line o))
@@ -77,7 +77,7 @@
     open)
 
 (<= (goal oPlayer 0)
-    (line 0))
+    (line o))
 (<= (goal oPlayer 50)
     (not (line x))
     (not (line o))
