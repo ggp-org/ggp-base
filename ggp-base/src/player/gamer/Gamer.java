@@ -12,7 +12,6 @@ import util.match.Match;
 import util.observer.Event;
 import util.observer.Observer;
 import util.observer.Subject;
-import util.statemachine.StateMachine;
 import apps.player.config.ConfigPanel;
 import apps.player.config.EmptyConfigPanel;
 import apps.player.detail.DetailPanel;
@@ -46,15 +45,13 @@ public abstract class Gamer implements Subject
     public static final long PREFERRED_METAGAME_BUFFER = 3900;
     public static final long PREFERRED_PLAY_BUFFER = 1900;    
 	
-	// ====The meat====
+	// ==== The Gaming Algorithms ====
 	public abstract void metaGame(long timeout) throws MetaGamingException;
 	
 	public abstract GdlSentence selectMove(long timeout) throws MoveSelectionException;
 	
-	// ====Gamer Profile and Configuration====
+	// ==== Gamer Profile and Configuration ====
 	public abstract String getName();
-	
-	public abstract StateMachine getInitialStateMachine();
 	
 	public ConfigPanel getConfigPanel()
 	{
@@ -66,7 +63,7 @@ public abstract class Gamer implements Subject
 		return new EmptyDetailPanel();
 	}
 
-	//====Accessors====	
+	// ==== Accessors ====	
 	public final Match getMatch()
 	{
 		return match;
@@ -96,10 +93,8 @@ public abstract class Gamer implements Subject
 	
 	public final void notifyObservers(Event event)
 	{
-		for (Observer observer : observers)
-		{
+		for (Observer observer : observers) {
 			observer.observe(event);
 		}
-	}
-	
+	}	
 }
