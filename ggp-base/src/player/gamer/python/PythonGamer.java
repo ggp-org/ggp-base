@@ -27,6 +27,7 @@ import player.gamer.exception.MoveSelectionException;
  * the Java framework using the PythonGamer stubs.
  * 
  * @author Sam
+ * @author evancox
  */
 public abstract class PythonGamer extends Gamer
 {
@@ -73,7 +74,7 @@ public abstract class PythonGamer extends Gamer
             thePythonGamer.metaGame(timeout);
         } catch(RuntimeException e) {
             GamerLogger.logError("GamePlayer", "Caught exception in Python stateMachineMetaGame:");
-            e.printStackTrace();
+            GamerLogger.logStackTrace("GamePlayer", e);
         }
     }
     
@@ -85,7 +86,7 @@ public abstract class PythonGamer extends Gamer
             return thePythonGamer.selectMove(timeout);
         } catch(RuntimeException e) {
             GamerLogger.logError("GamePlayer", "Caught exception in Python stateMachineSelectMove:");
-            e.printStackTrace();
+            GamerLogger.logStackTrace("GamePlayer", e);
             return null;
         }
     }
@@ -96,7 +97,7 @@ public abstract class PythonGamer extends Gamer
             return thePythonGamer.getName();
         } catch(RuntimeException e) {
             GamerLogger.logError("GamePlayer", "Caught exception in Python getName:");
-            e.printStackTrace();
+            GamerLogger.logStackTrace("GamePlayer", e);
             return this.getClass().getSimpleName();
         }
     }    
