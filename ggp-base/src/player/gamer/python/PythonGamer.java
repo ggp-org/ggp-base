@@ -41,14 +41,7 @@ public abstract class PythonGamer extends Gamer
         
         try {
             // Load in the Python gamer, using a Jython intepreter.
-            //
-            // TODO: The sys path modification is very hacky, and I strongly suspect
-            //       that there is a cleaner solution. Ideally we would be able to store
-            //       Python files in directories as well, and address the directories in
-            //       the same way Java does (i.e. "directory.subdirectory.file").
             PythonInterpreter interpreter = new PythonInterpreter();
-            interpreter.exec("import sys");
-            interpreter.exec("sys.path.append(\"__pyclasspath__/../pysrc/\")");
             interpreter.exec("from " + getPythonGamerModule() + " import " + getPythonGamerName());
             PyObject thePyClass = interpreter.get(getPythonGamerName());
             PyObject PyGamerObject = thePyClass.__call__();

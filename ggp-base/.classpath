@@ -1,10 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="src" path="src_py"/>
+	<classpathentry kind="src" path="src_lisp"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="src/external/FlyingSaucer/core-renderer.jar"/>
 	<classpathentry kind="lib" path="src/external/JTidy/Tidy.jar"/>
 	<classpathentry kind="lib" path="src/external/JGoodiesForms/forms-1.2.1.jar"/>
 	<classpathentry kind="lib" path="src/external/Jython/jython.jar"/>
+	<classpathentry kind="lib" path="src/external/Clojure/clojure.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

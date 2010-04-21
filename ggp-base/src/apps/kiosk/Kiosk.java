@@ -29,15 +29,18 @@ import apps.kiosk.server.KioskGameServer;
 import player.GamePlayer;
 import player.gamer.Gamer;
 
+import server.event.ServerIllegalMoveEvent;
 import util.configuration.ProjectConfiguration;
 import util.gdl.grammar.Gdl;
 import util.kif.KifReader;
 import util.logging.GamerLogger;
 import util.match.Match;
+import util.observer.Event;
+import util.observer.Observer;
 import util.reflection.ProjectSearcher;
 
 @SuppressWarnings("serial")
-public final class Kiosk extends JPanel implements ActionListener
+public final class Kiosk extends JPanel implements ActionListener, Observer
 {    
     private static void createAndShowGUI(Kiosk serverPanel)
     {
@@ -257,10 +260,19 @@ public final class Kiosk extends JPanel implements ActionListener
                 GamerLogger.startFileLogging(match, "kiosk");
                 KioskGameServer kioskServer = new KioskGameServer(match, hosts, ports, playerNames, (flipRoles.isSelected()? 1 : 0));
                 kioskServer.addObserver(theHumanGamer);
+                kioskServer.addObserver(this);
                 kioskServer.start();
             } catch(Exception ex) {
                 ex.printStackTrace();
             }
+        }
+    }
+
+    @Override
+    public void observe(Event event) {
+        if(event instanceof ServerIllegalMoveEvent) {
+            ServerIllegalMoveEvent x = (ServerIllegalMoveEvent)event;
+            System.err.println("Got illegal move [" + x.getMove() + "] by role [" + x.getRole() + "].");
         }
     }
 }
