@@ -93,7 +93,8 @@ public final class Tiltyard extends JPanel {
     private JComboBox getFreshPlayerComboBox() {
         JComboBox newBox = new JComboBox();
 
-        for (Class<?> gamer : gamers) {
+        List<Class<?>> gamersCopy = new ArrayList<Class<?>>(gamers);
+        for (Class<?> gamer : gamersCopy) {
             Gamer g;
             try {
                 g = (Gamer) gamer.newInstance();
@@ -103,7 +104,9 @@ public final class Tiltyard extends JPanel {
                 if(g.getName().equals("Human")) throw new RuntimeException();
                 
                 newBox.addItem(g.getName());
-            } catch (Exception ex) {}            
+            } catch (Exception ex) {
+            	gamers.remove(gamer);
+            }            
         }	
 
         newBox.setSelectedItem("Random");
