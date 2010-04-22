@@ -18,7 +18,7 @@ import player.gamer.exception.MoveSelectionException;
  *    getPythonGamerModule() to indicate where the Python source code file is.
  *    This is the Java stub that refers to the real Python gamer class.
  *    
- * 2) Create the Python source code file, in the /pysrc/ directory in the root
+ * 2) Create the Python source code file, in the /src_py/ directory in the root
  *    directory for this project. Make sure that the stub points to this class,
  *    and that the Python class is a valid subclass of Gamer.
  *    

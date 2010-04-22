@@ -2,7 +2,7 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="src_py"/>
-	<classpathentry kind="src" path="src_lisp"/>
+	<classpathentry kind="src" path="src_clj"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="src/external/FlyingSaucer/core-renderer.jar"/>
 	<classpathentry kind="lib" path="src/external/JTidy/Tidy.jar"/>

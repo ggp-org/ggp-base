@@ -8,7 +8,7 @@
 (defn LegalGamer []
   (proxy [player.gamer.statemachine.StateMachineGamer] []
     (getName []
-      "LegalGamer (Lisp)")
+      "LegalGamer (Clojure)")
 
     (getInitialStateMachine []
       (new util.statemachine.implementation.prover.ProverStateMachine))
