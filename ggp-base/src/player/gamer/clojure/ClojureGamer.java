@@ -11,7 +11,6 @@ import util.match.Match;
 
 import clojure.lang.RT;
 import clojure.lang.Var;
-import clojure.lang.Symbol;
 
 import player.gamer.Gamer;
 import player.gamer.clojure.stubs.ClojureLegalGamerStub;
@@ -104,20 +103,6 @@ public abstract class ClojureGamer extends Gamer
         }
     } 
 
-    // A utility function to get a Clojure console.
-    @SuppressWarnings("unused")
-    private static void CreateClojureConsole() {
-        Symbol CLOJURE_MAIN = Symbol.intern("clojure.main");
-        Var REQUIRE = RT.var("clojure.core", "require");
-        Var MAIN = RT.var("clojure.main", "main");
-        try {
-            REQUIRE.invoke(CLOJURE_MAIN);
-            MAIN.applyTo(RT.seq(new String[]{}));
-        } catch(Exception e) {
-            e.printStackTrace();
-        }
-    }
-    
     // TODO: This code should be put somewhere more general.
     public static void main(String args[]) {
         try {
