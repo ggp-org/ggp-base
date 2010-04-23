@@ -9,10 +9,11 @@ import org.python.util.PythonInterpreter;
  * This allows you to quickly experiment with the classes, without having to
  * write a full-blown Java program.
  * 
- * TODO: This could use some helper scripts, to allow it to quickly load game
- *       rulesheets and so on. Right now you have to manually load everything
- *       when you want to create a state machine that's initialized to a game,
- *       which is pretty bothersome.
+ * TODO: This isn't a great implementation of a Python console. It would be
+ *       excellent if there were a way to hook Idle, or another full-featured
+ *       Python console implementation, into this so that it could access the
+ *       GGP Base classes and also provide features like code completion, and
+ *       hitting 'UP' to get previous lines, and so on.
  * 
  * @author Sam
  */
@@ -29,7 +30,20 @@ public class PythonConsole {
                 try {
                     interpreter.exec(line);
                 } catch(Exception e2) {
-                    System.err.println(e2);
+                    if(e2.toString().startsWith("SyntaxError: (\"mismatched input '<EOF>' expecting INDENT\",")) {
+                        String inLine = in.nextLine();
+                        while(inLine.length() > 0) {
+                            line = line + '\n' + inLine;
+                            inLine = in.nextLine();
+                        }
+                        try {
+                            interpreter.exec(line);
+                        } catch(Exception e3) {
+                            System.err.println(e3);
+                        }
+                    } else {
+                        System.err.println(e2);
+                    }
                 }
             }
         }
