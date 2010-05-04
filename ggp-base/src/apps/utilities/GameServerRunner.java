@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import server.GameServer;
+import util.configuration.ProjectConfiguration;
 import util.gdl.factory.exceptions.GdlFormatException;
 import util.gdl.grammar.Gdl;
 import util.kif.KifReader;
@@ -18,6 +19,8 @@ import util.symbol.factory.exceptions.SymbolFormatException;
 /**
  * GameServerRunner is a utility program that lets you start up a match
  * directly from the command line.
+ * 
+ * @author Evan Cox
  */
 public final class GameServerRunner
 {
@@ -33,6 +36,8 @@ public final class GameServerRunner
 	}
 
 	/**
+	 * TODO: Evan, is this comment still accurate? -Sam
+	 * 
 	 * Main method for running 
 	 * args[0] = name of the game (e.g. tic tac toe)
 	 * args[1] = startclock
@@ -50,7 +55,7 @@ public final class GameServerRunner
 	{
 		String tourneyName = args[0];
 		String gamename = args[1];
-		String rulesheet = "games/rulesheets/" + gamename + ".kif";
+		String rulesheet = ProjectConfiguration.gameRulesheetsPath + gamename + ".kif";
 		List<Gdl> description = KifReader.read(rulesheet);
 		int startClock = Integer.valueOf(args[2]); 
 		int playClock = Integer.valueOf(args[3]);
