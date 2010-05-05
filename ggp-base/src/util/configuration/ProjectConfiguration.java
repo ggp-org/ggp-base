@@ -38,6 +38,10 @@ public class ProjectConfiguration {
         System.out.println("Games stylesheets directory: " + gameStylesheetsPath);
     }
     
+    /* Cached serialized propnet information */
+    private static final String propNetCacheDirectoryPath = "propnet_cache";
+    public static final File propNetCacheDirectory = new File(propNetCacheDirectoryPath);
+    
     /* Class object file information */
     public static final String[] classRoots = new String[] {"bin"};    
 }
