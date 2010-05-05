@@ -5,7 +5,7 @@ public final class GdlNot extends GdlLiteral
 {
 
 	private final GdlLiteral body;
-	private Boolean ground;
+	private transient Boolean ground;
 
 	GdlNot(GdlLiteral body)
 	{

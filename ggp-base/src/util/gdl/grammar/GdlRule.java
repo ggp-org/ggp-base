@@ -7,7 +7,7 @@ public final class GdlRule extends Gdl
 {
 
 	private final List<GdlLiteral> body;
-	private Boolean ground;
+	private transient Boolean ground;
 	private final GdlSentence head;
 
 	GdlRule(GdlSentence head, List<GdlLiteral> body)

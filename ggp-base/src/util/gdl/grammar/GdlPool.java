@@ -1,5 +1,6 @@
 package util.gdl.grammar;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -8,7 +9,6 @@ import java.util.concurrent.ConcurrentMap;
 
 public final class GdlPool
 {
-
 	private static final ConcurrentMap<String, GdlConstant> constantPool = new ConcurrentHashMap<String, GdlConstant>();
 	private static final ConcurrentMap<GdlTerm, ConcurrentMap<GdlTerm, GdlDistinct>> distinctPool = new ConcurrentHashMap<GdlTerm, ConcurrentMap<GdlTerm, GdlDistinct>>();
 	private static final ConcurrentMap<GdlConstant, ConcurrentMap<List<GdlTerm>, GdlFunction>> functionPool = new ConcurrentHashMap<GdlConstant, ConcurrentMap<List<GdlTerm>, GdlFunction>>();
@@ -58,7 +58,7 @@ public final class GdlPool
 		else
 			return prevValue;
 	}
-			
+
 	public static GdlConstant getConstant(String value)
 	{
 		GdlConstant ret = constantPool.get(value);
@@ -195,4 +195,60 @@ public final class GdlPool
 		return ret;
 	}
 
+	/**
+	 * This method should only rarely be used. It takes a foreign GDL object
+	 * (one that wasn't constructed through the GdlPool) and returns a version
+	 * that lives in the GdlPool. Various parts of the prover infrastructure
+	 * expect that all GDL objects live in the GdlPool, and so it's important
+	 * that any foreign GDL objects created outside the GdlPool be immersed
+	 * before being used. Since every GDL object should be created through the
+	 * GdlPool, immerse should only need to be called on GDL that appears from
+	 * outside sources: for example, being deserialized from a file.
+	 */
+	public static Gdl immerse(Gdl foreignGdl) {
+        if(foreignGdl instanceof GdlDistinct) {
+            return GdlPool.getDistinct((GdlTerm)immerse(((GdlDistinct) foreignGdl).getArg1()), (GdlTerm)immerse(((GdlDistinct) foreignGdl).getArg2()));
+        } else if(foreignGdl instanceof GdlNot) {
+            return GdlPool.getNot((GdlLiteral)immerse(((GdlNot) foreignGdl).getBody()));
+        } else if(foreignGdl instanceof GdlOr) {
+            GdlOr or = (GdlOr)foreignGdl;
+            List<GdlLiteral> rval = new ArrayList<GdlLiteral>();
+            for(int i=0; i<or.arity(); i++)
+            {
+                rval.add((GdlLiteral) immerse(or.get(i)));                
+            }
+            return GdlPool.getOr(rval);
+        } else if(foreignGdl instanceof GdlProposition) {
+            return GdlPool.getProposition((GdlConstant)immerse(((GdlProposition) foreignGdl).getName()));
+        } else if(foreignGdl instanceof GdlRelation) {
+            GdlRelation rel = (GdlRelation)foreignGdl;
+            List<GdlTerm> rval = new ArrayList<GdlTerm>();
+            for(int i=0; i<rel.arity(); i++)
+            {
+                rval.add((GdlTerm) immerse(rel.get(i)));                
+            }   
+            return GdlPool.getRelation((GdlConstant)immerse(rel.getName()), rval);
+        } else if(foreignGdl instanceof GdlRule) {
+            GdlRule rule = (GdlRule)foreignGdl;
+            List<GdlLiteral> rval = new ArrayList<GdlLiteral>();
+            for(int i=0; i<rule.arity(); i++)
+            {
+                rval.add((GdlLiteral) immerse(rule.get(i)));                
+            }
+            return GdlPool.getRule((GdlSentence) immerse(rule.getHead()), rval);             
+        } else if(foreignGdl instanceof GdlConstant) {
+            return GdlPool.getConstant(((GdlConstant) foreignGdl).getValue());
+        } else if(foreignGdl instanceof GdlFunction) {
+            GdlFunction func = (GdlFunction)foreignGdl;
+            List<GdlTerm> rval = new ArrayList<GdlTerm>();
+            for(int i=0; i<func.arity(); i++)
+            {
+                rval.add((GdlTerm) immerse(func.get(i)));                
+            }   
+            return GdlPool.getFunction((GdlConstant) immerse(func.getName()), rval);
+        } else if(foreignGdl instanceof GdlVariable) {
+            return GdlPool.getVariable(((GdlVariable) foreignGdl).getName());
+        } else
+            throw new RuntimeException("Uh oh, gdl hierarchy must have been extended without updating this code.");
+	}
 }

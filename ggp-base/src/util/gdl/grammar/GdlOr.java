@@ -7,7 +7,7 @@ public final class GdlOr extends GdlLiteral
 {
 
 	private final List<GdlLiteral> disjuncts;
-	private Boolean ground;
+	private transient Boolean ground;
 
 	GdlOr(List<GdlLiteral> disjuncts)
 	{

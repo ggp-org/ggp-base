@@ -6,7 +6,7 @@ public final class GdlDistinct extends GdlLiteral
 
 	private final GdlTerm arg1;
 	private final GdlTerm arg2;
-	private Boolean ground;
+	private transient Boolean ground;
 
 	GdlDistinct(GdlTerm arg1, GdlTerm arg2)
 	{

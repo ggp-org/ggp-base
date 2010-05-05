@@ -7,7 +7,7 @@ public final class GdlFunction extends GdlTerm
 {
 
 	private final List<GdlTerm> body;
-	private Boolean ground;
+	private transient Boolean ground;
 	private final GdlConstant name;
 
 	GdlFunction(GdlConstant name, List<GdlTerm> body)

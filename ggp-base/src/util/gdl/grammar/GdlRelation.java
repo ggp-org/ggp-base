@@ -7,7 +7,7 @@ public final class GdlRelation extends GdlSentence
 {
 
 	private final List<GdlTerm> body;
-	private Boolean ground;
+	private transient Boolean ground;
 	private final GdlConstant name;
 
 	GdlRelation(GdlConstant name, List<GdlTerm> body)
