@@ -239,5 +239,3 @@ checkmate)
 (true (step 10)))
 (<= terminal
 stuck)
-
-

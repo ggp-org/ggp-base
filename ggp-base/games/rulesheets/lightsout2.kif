@@ -102,4 +102,3 @@
 (coord 1) (coord 2) (coord 3) (coord 4) (coord 5)
 (adj 1 2) (adj 2 3) (adj 3 4) (adj 4 5)
 (nextstep 0 1) (nextstep 1 2) (nextstep 2 3) (nextstep 3 4) (nextstep 4 5) (nextstep 5 6) (nextstep 6 7) (nextstep 7 8) (nextstep 8 9) (nextstep 9 10) (nextstep 10 11) (nextstep 11 12) (nextstep 12 13) (nextstep 13 14) (nextstep 14 15) (nextstep 15 16) (nextstep 16 17) (nextstep 17 18) (nextstep 18 19) (nextstep 19 20)
-
