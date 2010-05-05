@@ -92,6 +92,8 @@ public class PropNetCache {
             return null;
         }
         
+        GamerLogger.log("StateMachine", "Loading propnet from cache file: " + theCacheFile.getName());
+        
         // Deserialize the original description and network.
         PropNet theRawNetwork;
         List<Gdl> oldDescription;
