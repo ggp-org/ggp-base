@@ -10,6 +10,7 @@ import util.gdl.grammar.GdlConstant;
 import util.gdl.grammar.GdlProposition;
 import util.gdl.grammar.GdlRelation;
 import util.gdl.grammar.GdlSentence;
+import util.logging.GamerLogger;
 import util.prover.Prover;
 import util.prover.aima.AimaProver;
 import util.statemachine.MachineState;
@@ -75,6 +76,7 @@ public class ProverStateMachine extends StateMachine
 
 		if (results.size() != 1)
 		{
+		    GamerLogger.logError("StateMachine", "Got goal results of size: " + results.size() + " when expecting size one.");
 			throw new GoalDefinitionException(state, role);
 		}
 
