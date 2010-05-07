@@ -4,17 +4,24 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 
+import util.gdl.grammar.Gdl;
 import util.gdl.grammar.GdlConstant;
 import util.gdl.grammar.GdlFunction;
+import util.gdl.grammar.GdlProposition;
+import util.gdl.grammar.GdlRelation;
 import util.gdl.grammar.GdlTerm;
 import util.logging.GamerLogger;
 import util.propnet.architecture.components.Proposition;
 import util.propnet.architecture.components.Transition;
+import util.statemachine.Role;
+import util.statemachine.implementation.propnet.PropNetRole;
 
 /**
  * The PropNet class is designed to represent Propositional Networks.
@@ -72,16 +79,20 @@ public final class PropNet implements Serializable
 	 * References to every LegalProposition in the PropNet, indexed by player
 	 * name.
 	 */
-	private final Map<String, Set<Proposition>> legalPropositions;
+	private final Map<Role, Set<Proposition>> legalPropositions;
 	/**
 	 * References to every GoalProposition in the PropNet, indexed by player
 	 * name.
 	 */
-	private final Map<String, Set<Proposition>> goalPropositions;
+	private final Map<Role, Set<Proposition>> goalPropositions;
 	/** A reference to the single, unique, InitProposition. */
 	private final Proposition initProposition;
 	/** A reference to the single, unique, TerminalProposition. */
 	private final Proposition terminalProposition;
+	
+	private final Map<Proposition, Proposition> legalInputMap;
+	
+	//private final List<Role> roles;
 
 	/**
 	 * Creates a new PropNet from a list of Components, along with indices over
@@ -100,8 +111,34 @@ public final class PropNet implements Serializable
 		this.goalPropositions = recordGoalPropositions();
 		this.initProposition = recordInitProposition();
 		this.terminalProposition = recordTerminalProposition();
+		this.legalInputMap = makeLegalInputMap();
+	}
+	
+	public Map<Proposition, Proposition> getLegalInputMap()
+	{
+		return legalInputMap;
 	}
 
+	private Map<Proposition, Proposition> makeLegalInputMap() {
+		Map<Proposition, Proposition> legalInputMap = new HashMap<Proposition, Proposition>();
+		for (Proposition inputProp : inputPropositions.values())
+		{
+			List<GdlTerm> inputPropBody = ((GdlFunction)inputProp.getName()).getBody();
+			for (Set<Proposition> legalProps : legalPropositions.values())
+			{
+				for (Proposition legalProp : legalProps)
+				{
+					List<GdlTerm> legalPropBody = ((GdlFunction)legalProp.getName()).getBody();
+					if (legalPropBody.equals(inputPropBody))
+					{
+						legalInputMap.put(inputProp, legalProp);
+						legalInputMap.put(legalProp, inputProp);	
+					}
+				}
+			}
+		}
+		return legalInputMap;
+	}
 	/**
 	 * Getter method.
 	 * 
@@ -129,7 +166,7 @@ public final class PropNet implements Serializable
 	 * @return References to every GoalProposition in the PropNet, indexed by
 	 *         player name.
 	 */
-	public Map<String, Set<Proposition>> getGoalPropositions()
+	public Map<Role, Set<Proposition>> getGoalPropositions()
 	{
 		return goalPropositions;
 	}
@@ -161,7 +198,7 @@ public final class PropNet implements Serializable
 	 * @return References to every LegalProposition in the PropNet, indexed by
 	 *         player name.
 	 */
-	public Map<String, Set<Proposition>> getLegalPropositions()
+	public Map<Role, Set<Proposition>> getLegalPropositions()
 	{
 		return legalPropositions;
 	}
@@ -253,9 +290,9 @@ public final class PropNet implements Serializable
 	 * 
 	 * @return An index over the GoalPropositions in the PropNet.
 	 */
-	private Map<String, Set<Proposition>> recordGoalPropositions()
+	private Map<Role, Set<Proposition>> recordGoalPropositions()
 	{
-		Map<String, Set<Proposition>> goalPropositions = new HashMap<String, Set<Proposition>>();
+		Map<Role, Set<Proposition>> goalPropositions = new HashMap<Role, Set<Proposition>>();
 		for ( Proposition proposition : propositions )
 		{
 			if ( proposition.getName() instanceof GdlFunction )
@@ -264,11 +301,13 @@ public final class PropNet implements Serializable
 				if ( function.getName().getValue().equals("goal") )
 				{
 					GdlConstant name = (GdlConstant) function.get(0);
-					if ( !goalPropositions.containsKey(name.getValue()) )
+					GdlProposition prop = (GdlProposition)name.toSentence();
+					Role r = new PropNetRole(prop);
+					if ( !goalPropositions.containsKey(r) )
 					{
-						goalPropositions.put(name.getValue(), new HashSet<Proposition>());
+						goalPropositions.put(r, new HashSet<Proposition>());
 					}
-					goalPropositions.get(name.getValue()).add(proposition);
+					goalPropositions.get(r).add(proposition);
 				}
 			}
 		}
@@ -326,9 +365,9 @@ public final class PropNet implements Serializable
 	 * 
 	 * @return An index over the LegalPropositions in the PropNet.
 	 */
-	private Map<String, Set<Proposition>> recordLegalPropositions()
+	private Map<Role, Set<Proposition>> recordLegalPropositions()
 	{
-		Map<String, Set<Proposition>> legalPropositions = new HashMap<String, Set<Proposition>>();
+		Map<Role, Set<Proposition>> legalPropositions = new HashMap<Role, Set<Proposition>>();
 		for ( Proposition proposition : propositions )
 		{
 			if ( proposition.getName() instanceof GdlFunction )
@@ -337,11 +376,14 @@ public final class PropNet implements Serializable
 				if ( function.getName().getValue().equals("legal") )
 				{
 					GdlConstant name = (GdlConstant) function.get(0);
-					if ( !legalPropositions.containsKey(name.getValue()) )
+					GdlProposition prop = (GdlProposition)name.toSentence();
+					Role r = new PropNetRole(prop);
+					if ( !legalPropositions.containsKey(r) )
 					{
-						legalPropositions.put(name.getValue(), new HashSet<Proposition>());
+						legalPropositions.put(r, new HashSet<Proposition>());
 					}
-					legalPropositions.get(name.getValue()).add(proposition);
+					legalPropositions.get(r).add(proposition);
+					
 				}
 			}
 		}
