@@ -1,6 +1,5 @@
 package util.statemachine.implementation.propnet;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -10,7 +9,6 @@ import java.util.Set;
 
 import util.gdl.grammar.Gdl;
 import util.gdl.grammar.GdlConstant;
-import util.gdl.grammar.GdlFunction;
 import util.gdl.grammar.GdlProposition;
 import util.gdl.grammar.GdlRelation;
 import util.gdl.grammar.GdlSentence;
@@ -26,11 +24,10 @@ import util.statemachine.StateMachine;
 import util.statemachine.exceptions.GoalDefinitionException;
 import util.statemachine.exceptions.MoveDefinitionException;
 import util.statemachine.exceptions.TransitionDefinitionException;
-import util.statemachine.implementation.prover.ProverRole;
 import util.statemachine.implementation.prover.query.ProverQueryBuilder;
 
+@SuppressWarnings("unused")
 public class PropNetStateMachine extends StateMachine {
-	
 	/**
 	 * Computes if the state is terminal.  Should return the value of the terminal proposition for the state.
 	 */
@@ -39,7 +36,6 @@ public class PropNetStateMachine extends StateMachine {
 		//TODO compute if the MachineState is terminal
 		return false;
 	}
-	
 	
 	/**
 	 * Computes the goal for a role in the current state. Should return the value of the goal proposition that is true for 
@@ -61,7 +57,6 @@ public class PropNetStateMachine extends StateMachine {
 		//TODO compute the initial state
 		return null;
 	}
-	
 	
 	/**
 	 * Computes the legal moves for role in state
@@ -127,10 +122,7 @@ public class PropNetStateMachine extends StateMachine {
 	public List<Role> getRoles() {
 		return roles;
 	}
-	
-	
 
-	
 	/** The underlying proposition network  */
 	private PropNet pnet;
 	/** An index from GdlTerms to Base Propositions.  The truth value of base propositions determines the state */
@@ -209,9 +201,8 @@ public class PropNetStateMachine extends StateMachine {
 	 * Helper method for parsing the value of a goal proposition
 	 * @param goalProposition
 	 * @return the integer value of the goal proposition
-	 */
-	
-	private int getGoalValue(Proposition goalProposition)
+	 */	
+    private int getGoalValue(Proposition goalProposition)
 	{
 		GdlRelation relation = (GdlRelation) goalProposition.getName().toSentence();
 		GdlConstant constant = (GdlConstant) relation.get(1);
@@ -223,8 +214,7 @@ public class PropNetStateMachine extends StateMachine {
 	 * from the true BasePropositions.  This is correct but slower than more advanced implementations
 	 * You need not use this method!
 	 * @return PropNetMachineState
-	 */
-	
+	 */	
 	public PropNetMachineState getStateFromBase()
 	{
 		Set<GdlSentence> contents = new HashSet<GdlSentence>();
@@ -239,6 +229,7 @@ public class PropNetStateMachine extends StateMachine {
 		}
 		return new PropNetMachineState(contents);
 	}
+
 	/**
 	 * Helper method, used to get compute roles.  You should only be using this
 	 * for Role indexing (because of compatibility with the GameServer state machine's roles)
@@ -261,6 +252,4 @@ public class PropNetStateMachine extends StateMachine {
 		}
 		return roles;
 	}
-		
-
 }

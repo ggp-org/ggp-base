@@ -1,17 +1,16 @@
 package util.statemachine.implementation.propnet;
 
 import util.gdl.grammar.GdlSentence;
-import util.gdl.grammar.GdlTerm;
 import util.statemachine.Move;
-import util.statemachine.implementation.prover.ProverMove;
 
-public class PropNetMove implements Move {
-	
+public class PropNetMove implements Move {	
 	private GdlSentence contents;
+	
 	public PropNetMove(GdlSentence contents)
 	{
 		this.contents = contents;
 	}
+	
 	@Override
 	public GdlSentence getContents() {
 		return contents;
@@ -40,5 +39,4 @@ public class PropNetMove implements Move {
 	{
 		return contents.toString();
 	}
-
 }

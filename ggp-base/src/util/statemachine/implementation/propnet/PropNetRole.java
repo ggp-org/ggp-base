@@ -2,16 +2,15 @@ package util.statemachine.implementation.propnet;
 
 import util.gdl.grammar.GdlProposition;
 import util.statemachine.Role;
-import util.statemachine.implementation.prover.ProverRole;
 
-public class PropNetRole implements Role {
-	
+public class PropNetRole implements Role {	
 	private GdlProposition name;
 
 	public PropNetRole(GdlProposition name)
 	{
 		this.name = name;
 	}
+	
 	@Override
 	public GdlProposition getName() {
 		return name;
@@ -40,5 +39,4 @@ public class PropNetRole implements Role {
 	{
 		return name.toString();
 	}
-
 }
