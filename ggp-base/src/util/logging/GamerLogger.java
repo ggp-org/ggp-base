@@ -124,7 +124,7 @@ public class GamerLogger {
             
             // If we are also displaying this file, write it to the standard output.
             if(filesToDisplay.contains(toFile) || logLevel >= minLevelToDisplay) {
-                ordinaryOutput.print("[" + toFile + "] " + message);
+                ordinaryOutput.println("[" + toFile + "] " + message);
             }
             
             // When constructing filename, if we are not writing to a particular directory,
