@@ -4,18 +4,15 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 
-import util.gdl.grammar.Gdl;
 import util.gdl.grammar.GdlConstant;
 import util.gdl.grammar.GdlFunction;
 import util.gdl.grammar.GdlProposition;
-import util.gdl.grammar.GdlRelation;
 import util.gdl.grammar.GdlTerm;
 import util.logging.GamerLogger;
 import util.propnet.architecture.components.Proposition;
