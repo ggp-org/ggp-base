@@ -1,14 +1,13 @@
 package apps.utilities;
 
-import java.io.File;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import util.configuration.ProjectConfiguration;
+import apps.common.GameLoader;
+
 import util.gdl.grammar.Gdl;
 import util.gdl.grammar.GdlSentence;
-import util.kif.KifReader;
 import util.statemachine.MachineState;
 import util.statemachine.Move;
 import util.statemachine.Role;
@@ -30,17 +29,12 @@ import util.statemachine.verifier.StateMachineVerifier;
  * @author Sam Schreiber
  */
 public class SimpleGameSim {
-    public static final String gameName = "tictactoe";
     public static final boolean hideStepCounter = true;
     public static final boolean hideControlProposition = true;
     public static final boolean showCurrentState = false;
     
     public static void main(String[] args) {
-        List<Gdl> description = null;
-        try {
-            File file = new File(ProjectConfiguration.gameRulesheetsPath + gameName + ".kif");
-            description = KifReader.read(file.getAbsolutePath());
-        } catch(Exception ex) { ex.printStackTrace(); }
+        List<Gdl> description = GameLoader.loadGame("tictactoe");
         
         // ---------------------------------------------------------
         // Construct the machine: change this to select which machine

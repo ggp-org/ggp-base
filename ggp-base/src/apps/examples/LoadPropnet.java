@@ -1,11 +1,10 @@
 package apps.examples;
 
-import java.io.File;
 import java.util.List;
 
-import util.configuration.ProjectConfiguration;
+import apps.common.GameLoader;
+
 import util.gdl.grammar.Gdl;
-import util.kif.KifReader;
 import util.propnet.architecture.PropNet;
 import util.propnet.factory.CachedPropNetFactory;
 
@@ -24,14 +23,8 @@ import util.propnet.factory.CachedPropNetFactory;
  * @author Sam Schreiber
  */
 public class LoadPropnet {
-    public static final String gameName = "CephalopodMicro";
-    
     public static void main(String[] args) {
-        List<Gdl> description = null;
-        try {
-            File file = new File(ProjectConfiguration.gameRulesheetsPath + gameName + ".kif");
-            description = KifReader.read(file.getAbsolutePath());
-        } catch(Exception ex) { ex.printStackTrace(); }
+        List<Gdl> description = GameLoader.loadGame("CephalopodMicro");
         
         PropNet theNetwork = CachedPropNetFactory.create(description);
         System.out.println("- - - - - - - - - -");
