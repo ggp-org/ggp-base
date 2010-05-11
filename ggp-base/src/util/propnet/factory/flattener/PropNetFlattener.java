@@ -1,6 +1,5 @@
 package util.propnet.factory.flattener;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -9,7 +8,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import util.configuration.ProjectConfiguration;
+import apps.common.GameLoader;
+
 import util.gdl.grammar.Gdl;
 import util.gdl.grammar.GdlConstant;
 import util.gdl.grammar.GdlDistinct;
@@ -24,7 +24,6 @@ import util.gdl.grammar.GdlRule;
 import util.gdl.grammar.GdlSentence;
 import util.gdl.grammar.GdlTerm;
 import util.gdl.grammar.GdlVariable;
-import util.kif.KifReader;
 import util.logging.GamerLogger;
 
 /**
@@ -779,15 +778,11 @@ public class PropNetFlattener {
      * @param args
      */
     public static void main(String[] args) {
-        File c4 = new File(ProjectConfiguration.gameRulesheetsDirectory, "conn4.kif");
-        List<Gdl> description = null;
-        try {
-            description = KifReader.read(c4.getAbsolutePath());
-        } catch(Exception ex) {ex.printStackTrace();}
+        List<Gdl> description = GameLoader.loadGame("conn4");
         
-        PropNetFlattener aa = new PropNetFlattener(description);
-        List<GdlRule> flattened = aa.flatten();
-        System.out.println("Flattened description for connect four contains: \n"+flattened.size()+"\n\n");
+        PropNetFlattener flattener = new PropNetFlattener(description);
+        List<GdlRule> flattened = flattener.flatten();
+        System.out.println("Flattened description for connect four contains: \n" + flattened.size() + "\n\n");
         
         List<String> strings = new ArrayList<String>();
         for(GdlRule rule : flattened)

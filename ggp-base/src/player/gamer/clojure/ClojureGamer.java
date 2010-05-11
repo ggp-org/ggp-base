@@ -1,11 +1,9 @@
 package player.gamer.clojure;
 
-import java.io.File;
+import apps.common.GameLoader;
 
-import util.configuration.ProjectConfiguration;
 import util.gdl.grammar.GdlPool;
 import util.gdl.grammar.GdlSentence;
-import util.kif.KifReader;
 import util.logging.GamerLogger;
 import util.match.Match;
 
@@ -33,7 +31,7 @@ import player.gamer.exception.MoveSelectionException;
  * which is implemented in Clojure and hook into the Java framework using the
  * ClojureGamer stub.
  * 
- * @author Sam
+ * @author Sam Schreiber
  */
 public abstract class ClojureGamer extends Gamer
 {
@@ -109,8 +107,7 @@ public abstract class ClojureGamer extends Gamer
             Gamer g = new ClojureLegalGamerStub();
             System.out.println(g.getName());
 
-            File file = new File(ProjectConfiguration.gameRulesheetsPath + "tictactoe.kif");
-            Match m = new Match("", 1000, 1000, KifReader.read(file.getAbsolutePath()));
+            Match m = new Match("", 1000, 1000, GameLoader.loadGame("tictactoe"));
             g.setMatch(m);
             g.setRoleName(GdlPool.getProposition(GdlPool.getConstant("xplayer")));
             g.metaGame(1000);
