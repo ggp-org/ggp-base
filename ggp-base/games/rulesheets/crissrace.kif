@@ -72,20 +72,20 @@
     (not reseted))
     
 (<= reseted
-(does ?player reset))
+    (does ?player reset))
 
 ; when reset occurs, next state is the init state of racetrack and the scores
-;   for crisscross
+; for crisscross
 (<= (next ?x)
-(init2 ?x)
-reseted)
+    (init2 ?x)
+    reseted)
 (<= (next (crissscores ?x ?y)) 
-reseted 
-(crissfinished ?x ?y))
+    reseted 
+    (crissfinished ?x ?y))
 (<= (next (crissscores ?x ?y))
-(true (crissscores ?x ?y)))
+    (true (crissscores ?x ?y)))
 (<= crissscorz
-(true (crissscores ?x ?y)))
+    (true (crissscores ?x ?y)))
 
 (<= (legal ?player (move ?b ?e))
     (true (control ?player))
@@ -114,8 +114,8 @@ reseted
     (stuck ?b4 ?player)
     (not crissfin))
 (<= (legal ?player reset)
-(role ?player)
-crissfin)
+    (role ?player)
+    crissfin)
 
 (<= (stuck ?b ?player)
     (not (movableplayer ?player ?b))
@@ -265,7 +265,7 @@ crissfin)
     (role ?player))
 
 (<= crissfin
-(crissfinished ?x ?y))
+    (crissfinished ?x ?y))
 (<= (crissfinished ?x ?y)
     (true (step 40))
     (crissgoal red ?x)
@@ -473,10 +473,12 @@ crissfin)
     (greaterthan ?n 0)
     (opponentlane ?player ?lane)
     (true (wall ?lane ?row none)))
+    
 (playerlane red wlane)
 (playerlane teal blane)
 (opponentlane red blane)
 (opponentlane teal wlane)
+
 (<= (pawnmover ?lane ?r1 1 ?r2 1)
     (nrow ?r1 ?r2)
     (true (wall ?lane ?r1 none)))
@@ -504,6 +506,7 @@ crissfin)
 (<= (pawnmover ?lane ?r 3 ?r 2)
     (playerlane ?c ?lane)
     (coordinate ?r))
+    
 (nrow a b)
 (nrow b c)
 (nrow c d)
@@ -528,11 +531,13 @@ crissfin)
 (succr 17 18)
 (succr 18 19)
 (succr 19 20)
+
 (<= (greaterthan ?larger ?smaller)
     (succr ?smaller ?larger))
 (<= (greaterthan ?larger ?smaller)
     (succr ?next ?larger)
     (greaterthan ?next ?smaller))
+    
 (coordinate a)
 (coordinate b)
 (coordinate c)
@@ -597,21 +602,21 @@ crissfin)
     (role ?role))
     
 (<= terminal
-crissscorz
+    crissscorz
     (true (stepr 20)))
 (<= terminal
-crissscorz
+    crissscorz
     (true (cellr ?lane e ?r ?p))
     (distinct ?p b))
     
 (<= (goal red ?sum)
-(true (crissscores ?x ?y))
-(racegoal red ?z)
-(sum ?x ?z ?sum))
+    (true (crissscores ?x ?y))
+    (racegoal red ?z)
+    (sum ?x ?z ?sum))
 (<= (goal teal ?sum)
-(true (crissscores ?x ?y))
-(racegoal teal ?z)
-(sum ?y ?z ?sum))
+    (true (crissscores ?x ?y))
+    (racegoal teal ?z)
+    (sum ?y ?z ?sum))
 
 (sum 0 2 2)
 (sum 0 5 5)

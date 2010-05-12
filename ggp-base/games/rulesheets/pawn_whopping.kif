@@ -1,0 +1,145 @@
+; Pawnville Pawn whopping from Learning to Play Chess with Fritz and Chesster.
+; Goal is to either move a pawn to the opposite side or capture all the 
+; opponent's pawns.
+; The game is played on a 8 x 8 board. This version ignores en passant.
+(role x)
+(role o)
+
+; Initial conditions
+(init (cell 1 7 o))
+(init (cell 2 7 o))
+(init (cell 3 7 o))
+(init (cell 4 7 o))
+(init (cell 5 7 o))
+(init (cell 6 7 o))
+(init (cell 7 7 o))
+(init (cell 8 7 o))
+(init (cell 1 2 x))
+(init (cell 2 2 x))
+(init (cell 3 2 x))
+(init (cell 4 2 x))
+(init (cell 5 2 x))
+(init (cell 6 2 x))
+(init (cell 7 2 x))
+(init (cell 8 2 x))
+(init (control x))
+
+; Legal moves
+(<= (legal ?p noop)
+    (role ?p)
+    (not (true (control ?p))))
+(<= (legal ?p ?move)
+    (true (control ?p))
+    (can_move ?p ?move))
+(<= (legal ?p noop)
+    (role ?p)
+    (not (can_move_somewhere ?p)))
+; Move forward
+(<= (can_move x (move ?x ?y1 ?x ?y2))
+    (true (cell ?x ?y1 x))
+    (succ ?y1 ?y2)
+    (not (occupied ?x ?y2)))
+(<= (occupied ?x ?y)
+    (role ?r)
+    (true (cell ?x ?y ?r)))
+(<= (can_move o (move ?x ?y1 ?x ?y2))
+    (true (cell ?x ?y1 o))
+    (succ ?y2 ?y1)
+    (not (occupied ?x ?y2)))
+; First move can be a double.
+(<= (can_move x (move ?x 2 ?x 4))
+    (true (cell ?x 2 x))
+    (not (occupied ?x 3))
+    (not (occupied ?x 4)))
+(<= (can_move o (move ?x 8 ?x 6))
+    (true (cell ?x 8 o))
+    (not (occupied ?x 7))
+    (not (occupied ?x 6)))
+; Capture diagonally
+(<= (can_move x (capture ?x1 ?y1 ?x2 ?y2))
+    (true (cell ?x1 ?y1 x))
+    (true (cell ?x2 ?y2 o))
+    (succ ?y1 ?y2)
+    (or (succ ?x1 ?x2)
+        (succ ?x2 ?x1)))
+(<= (can_move o (capture ?x1 ?y1 ?x2 ?y2))
+    (true (cell ?x1 ?y1 o))
+    (true (cell ?x2 ?y2 x))
+    (succ ?y2 ?y1)
+    (or (succ ?x1 ?x2)
+        (succ ?x2 ?x1)))
+
+; Transition rules
+(<= (next (cell ?x ?y ?p))
+    (true (cell ?x ?y ?p))
+    (not (changes ?x ?y)))
+(<= (next (cell ?x ?y ?p))
+    (does ?p (move ?any_x ?any_y ?x ?y)))
+(<= (next (cell ?x ?y ?p))
+    (does ?p (capture ?any_x ?any_y ?x ?y)))
+
+(<= (changes ?x ?y)
+    (does ?r (move ?x ?y ?any_x ?any_y)))
+(<= (changes ?x ?y)
+    (does ?r (capture ?x ?y ?any_x ?any_y)))
+(<= (changes ?x ?y)
+    (does ?r (capture ?any_x ?any_y ?x ?y)))
+
+; Control
+(<= (next (control o))
+    (true (control x)))
+(<= (next (control x))
+    (true (control o)))
+
+; Goal
+(<= (goal x 100)
+    xwins)
+
+(<= (goal o 100)
+    owins)
+
+(<= (has_pieces ?p)
+    (true (cell ?x ?y ?p)))
+
+(<= (goal ?p 50)
+    (role ?p)
+    (not (can_move_somewhere x))
+    (not (can_move_somewhere o))
+    (not xwins)
+    (not owins))
+
+(<= (goal x 0)
+    owins)
+
+(<= (goal o 0)
+    xwins)
+
+(<= xwins
+    (true (cell ?any_x 8 x)))
+(<= xwins
+    (not (has_pieces o)))
+
+(<= owins
+    (true (cell ?any_x 1 o)))
+(<= owins
+    (not (has_pieces x)))
+
+; Terminal conditions
+(<= terminal
+    (goal ?role 100))
+
+(<= terminal
+    (not (can_move_somewhere x))
+    (not (can_move_somewhere o)))
+
+(<= (can_move_somewhere ?p)
+    (can_move ?p ?m))
+
+; Successor axioms
+(succ 1 2)
+(succ 2 3)
+(succ 3 4)
+(succ 4 5)
+(succ 5 6)
+(succ 6 7)
+(succ 7 8)
