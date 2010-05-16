@@ -33,6 +33,10 @@ public final class HttpWriter
 		pw.println("HTTP/1.0 200 OK");
 		pw.println("Content-type: text/acl");
 		pw.println("Content-length: " + data.length());
+		pw.println("Access-Control-Allow-Origin: *");
+		pw.println("Access-Control-Allow-Methods: POST, GET, OPTIONS");
+		pw.println("Access-Control-Allow-Headers: *");
+		pw.println("Access-Control-Allow-Age: 86400");
 		pw.println();
 		pw.println(data);
 

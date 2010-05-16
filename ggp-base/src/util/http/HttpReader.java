@@ -8,68 +8,83 @@ import java.net.SocketTimeoutException;
 
 public final class HttpReader
 {
-
+    // Wrapper methods to support socket timeouts for reading requests/responses.
+    
+    public static String readAsClient(Socket socket, int timeout) throws IOException, SocketTimeoutException
+    {
+        socket.setSoTimeout(timeout);
+        return readAsClient(socket);
+    }
+    
+    public static String readAsServer(Socket socket, int timeout) throws IOException, SocketTimeoutException
+    {
+        socket.setSoTimeout(timeout);
+        return readAsServer(socket);
+    }
+    
+    // Implementations of reading HTTP responses (readAsClient) and
+    // HTTP requests (readAsServer) for the purpose of communicating
+    // with other general game playing systems.
+    
 	public static String readAsClient(Socket socket) throws IOException
 	{
 		BufferedReader br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-
+		
+		// The first line of the HTTP response is the status line.
+		// For now, we ignore it, assuming that it is always OK.
 		br.readLine();
-		br.readLine();
-		int length = readLength(br);
-		br.readLine();
+		
+		String message = readHeadersAndMessage(br);
 
-		char rawData[] = new char[length];
-		for (int i = 0; i < length; i++)
-		{
-			rawData[i] = (char) br.read();
-		}
-
-		return new String(rawData);
-	}
-
-	public static String readAsClient(Socket socket, int timeout) throws IOException, SocketTimeoutException
-	{
-		socket.setSoTimeout(timeout);
-		return readAsClient(socket);
+		return message;
 	}
 
 	public static String readAsServer(Socket socket) throws IOException
 	{
 		BufferedReader br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
-		br.readLine();
-		br.readLine();
-		br.readLine();
-		br.readLine();
-		br.readLine();
-		int length = readLength(br);
-		br.readLine();
-
-		char rawData[] = new char[length];
-		for (int i = 0; i < length; i++)
-		{
-			rawData[i] = (char) br.read();
+		// The first line of the HTTP request is the request line.
+		String requestLine = br.readLine().toUpperCase();
+		String message;
+		if(requestLine.startsWith("GET ")) {
+		    message = requestLine.substring(4, requestLine.lastIndexOf(' '));
+		    readHeadersAndMessage(br);
+		} else {
+		    message = readHeadersAndMessage(br);
 		}
 
-		return new String(rawData);
-	}
+		return message;
+	}	
+	
+	// Private helper methods that handle common HTTP tasks.
 
-	public static String readAsServer(Socket socket, int timeout) throws IOException, SocketTimeoutException
-	{
-		socket.setSoTimeout(timeout);
-		return readAsServer(socket);
-	}
+	private static String readHeadersAndMessage(BufferedReader br) throws IOException {
+	    // We are reading a HTTP request, as per the HTTP 1.1 spec (RFC 2616).        
+	    // This method assumes that we have read the first line, which is the
+	    // request line in a request, or the response line in a response.
+	    //
+        // Subsequent lines, up until the first blank line, are headers.
+        // We are currently interested only in the "Content-length" header,
+        // which indicates the length of the message body. 
+        String line;
+        int length = -1;
+        do {
+            line = br.readLine();
+            if(line.toLowerCase().startsWith("content-length: ")) {
+                length = Integer.valueOf(line.substring(16));
+            }
+        } while(line.length() > 0);   
+        
+        if(length == -1)
+            throw new IOException("Could not find HTTP message length.");
 
-	private static int readLength(BufferedReader br) throws IOException
-	{
-		try
-		{
-			return Integer.valueOf(br.readLine().substring(16));
-		}
-		catch (Exception e)
-		{
-			throw new IOException("Unable to parse length!");
-		}
-	}
+        // Finally, we have the message body. 
+        char rawData[] = new char[length];
+        for (int i = 0; i < length; i++)
+        {
+            rawData[i] = (char) br.read();
+        }
 
+        return new String(rawData);	    
+	}
 }
