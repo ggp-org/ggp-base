@@ -48,7 +48,7 @@ public final class RequestFactory
 		}
 		catch (Exception e)
 		{
-			throw new RequestFormatException(source);
+			throw new RequestFormatException(source, e);
 		}
 	}
 

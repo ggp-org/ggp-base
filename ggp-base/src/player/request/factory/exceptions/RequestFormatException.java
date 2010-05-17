@@ -3,12 +3,13 @@ package player.request.factory.exceptions;
 @SuppressWarnings("serial")
 public final class RequestFormatException extends Exception
 {
-
 	private final String source;
+	private final Exception bad;
 
-	public RequestFormatException(String source)
+	public RequestFormatException(String source, Exception bad)
 	{
 		this.source = source;
+		this.bad = bad;
 	}
 
 	public String getSource()
@@ -19,7 +20,7 @@ public final class RequestFormatException extends Exception
 	@Override
 	public String toString()
 	{
-		return "Improperly formatted request: " + source;
+		return "Improperly formatted request: " + source + ", resulting in exception: " + bad;
 	}
 
 }

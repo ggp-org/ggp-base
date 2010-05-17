@@ -6,6 +6,7 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.URLEncoder;
 
 import junit.framework.TestCase;
 
@@ -84,7 +85,7 @@ public class Test_Http extends TestCase {
         BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(writeOutTo.getOutputStream()));
         PrintWriter pw = new PrintWriter(bw);
     
-        pw.println("GET " + data + " HTTP/1.0");
+        pw.println("GET /" + URLEncoder.encode(data, "UTF-8") + " HTTP/1.0");
         if(headers.length() > 0) pw.println(headers);
         pw.println("Content-length: 0");
         pw.println();

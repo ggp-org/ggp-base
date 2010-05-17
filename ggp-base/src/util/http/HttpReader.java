@@ -1,5 +1,6 @@
 package util.http;
 
+import java.net.URLDecoder;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -47,12 +48,13 @@ public final class HttpReader
 		String requestLine = br.readLine().toUpperCase();
 		String message;
 		if(requestLine.startsWith("GET ")) {
-		    message = requestLine.substring(4, requestLine.lastIndexOf(' '));
+		    message = requestLine.substring(5, requestLine.lastIndexOf(' '));
+		    message = URLDecoder.decode(message, "UTF-8");
 		    readHeadersAndMessage(br);
 		} else {
 		    message = readHeadersAndMessage(br);
-		}
-
+		}		
+		
 		return message;
 	}	
 	
@@ -67,7 +69,7 @@ public final class HttpReader
         // We are currently interested only in the "Content-length" header,
         // which indicates the length of the message body. 
         String line;
-        int length = -1;
+        int length = 0;
         do {
             line = br.readLine();
             if(line.toLowerCase().startsWith("content-length: ")) {
@@ -75,8 +77,8 @@ public final class HttpReader
             }
         } while(line.length() > 0);   
         
-        if(length == -1)
-            throw new IOException("Could not find HTTP message length.");
+        if(length == 0)
+            return "";
 
         // Finally, we have the message body. 
         char rawData[] = new char[length];
