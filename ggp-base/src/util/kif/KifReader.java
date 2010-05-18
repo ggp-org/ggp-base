@@ -15,7 +15,6 @@ import util.symbol.grammar.SymbolList;
 
 public final class KifReader
 {
-
 	public static List<Gdl> read(String filename) throws IOException, SymbolFormatException, GdlFormatException
 	{
 		List<Gdl> contents = new ArrayList<Gdl>();
@@ -47,5 +46,4 @@ public final class KifReader
 
 		return sb.toString();
 	}
-
 }
