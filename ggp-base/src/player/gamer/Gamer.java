@@ -5,7 +5,6 @@ import java.util.List;
 
 import player.gamer.exception.MetaGamingException;
 import player.gamer.exception.MoveSelectionException;
-import player.gamer.statemachine.reflex.random.RandomGamer;
 import util.gdl.grammar.GdlProposition;
 import util.gdl.grammar.GdlSentence;
 import util.match.Match;
@@ -23,19 +22,19 @@ import apps.player.detail.EmptyDetailPanel;
  * design pattern.
  */
 public abstract class Gamer implements Subject
-{
-	public static Gamer defaultGamer()
-	{
-		return new RandomGamer();
-	}
-	
+{	
 	private Match match;
 	private GdlProposition roleName;
 
 	public Gamer()
 	{
 		observers = new ArrayList<Observer>();
-		match = new Match();
+		
+		// When not playing a match, the variables 'match'
+		// and 'roleName' should be NULL. This indicates that
+		// the player is available for starting a new match.
+		match = null;
+		roleName = null;
 	}
 
 	/* The following values are recommendations to the implementations
@@ -53,34 +52,28 @@ public abstract class Gamer implements Subject
 	// ==== Gamer Profile and Configuration ====
 	public abstract String getName();
 	
-	public ConfigPanel getConfigPanel()
-	{
+	public ConfigPanel getConfigPanel() {
 		return new EmptyConfigPanel();
 	}
 	
-	public DetailPanel getDetailPanel()
-	{
+	public DetailPanel getDetailPanel() {
 		return new EmptyDetailPanel();
 	}
 
 	// ==== Accessors ====	
-	public final Match getMatch()
-	{
+	public final Match getMatch() {
 		return match;
 	}
 	
-	public final void setMatch(Match match)
-	{
+	public final void setMatch(Match match) {
 		this.match = match;
 	}
 
-	public final GdlProposition getRoleName()
-	{
+	public final GdlProposition getRoleName() {
 		return roleName;
 	}
 	
-	public final void setRoleName(GdlProposition roleName)
-	{
+	public final void setRoleName(GdlProposition roleName) {
 		this.roleName = roleName;
 	}
 	

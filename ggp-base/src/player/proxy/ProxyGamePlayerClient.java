@@ -41,15 +41,14 @@ public final class ProxyGamePlayerClient extends Thread implements Subject, Obse
 		GamerLogger.setSpilloverLogfile("spilloverLog");
         GamerLogger.log("Proxy", "Starting the ProxyGamePlayerClient program.");
         
-        if(!(args.length==2 ))
-        {
+        if (!(args.length == 2)) {
             GamerLogger.logError("Proxy", "Usage is: \n\tProxyGamePlayerClient gamer port");
             return;
         }
+        
         int port = 9147;
         Gamer gamer = null;
-        try
-        {
+        try {
             port = Integer.valueOf(args[1]);
         } catch(Exception e) {
             GamerLogger.logError("Proxy", args[1]+" is not a valid port.");
@@ -65,18 +64,17 @@ public final class ProxyGamePlayerClient extends Thread implements Subject, Obse
         }
         
         int idx = gamerNames.indexOf(args[0]);
-        if(idx == -1)
-        {
-            GamerLogger.logError("Proxy", args[0]+" is not a subclass of gamer.  Valid options are:");
+        if (idx == -1) {
+            GamerLogger.logError("Proxy", args[0] + " is not a subclass of gamer.  Valid options are:");
             for(String s : gamerNames)
                 GamerLogger.logError("Proxy", "\t"+s);
             return;
         }
-        try
-        {
+        
+        try {
             gamer = (Gamer)(gamers.get(idx).newInstance());
         } catch(Exception ex) {
-            GamerLogger.logError("Proxy", "Cannot create instance of "+args[0]);
+            GamerLogger.logError("Proxy", "Cannot create instance of " + args[0]);
             return;
         }       
         

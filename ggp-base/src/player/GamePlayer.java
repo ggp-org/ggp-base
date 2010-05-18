@@ -6,10 +6,11 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 
+import player.gamer.Gamer;
+import player.gamer.statemachine.reflex.random.RandomGamer;
 import player.event.PlayerDroppedPacketEvent;
 import player.event.PlayerReceivedMessageEvent;
 import player.event.PlayerSentMessageEvent;
-import player.gamer.Gamer;
 import player.request.factory.RequestFactory;
 import player.request.grammar.Request;
 import util.http.HttpReader;
@@ -92,26 +93,28 @@ public final class GamePlayer extends Thread implements Subject
 			}
 		}
 	}
-	
+
+	// Simple main function that starts a RandomGamer on a specified port.
+	// It might make sense to factor this out into a separate app sometime,
+	// so that the GamePlayer class doesn't have to import RandomGamer.
 	public static void main(String[] args)
 	{
-		if (args.length != 1)
-		{
-			System.err.println("Usage GamePlayer <port>");
+		if (args.length != 1) {
+			System.err.println("Usage: GamePlayer <port>");
 			System.exit(1);
-
 		}
+		
 		try {
-			GamePlayer player = new GamePlayer(Integer.valueOf(args[0]), Gamer.defaultGamer());
+			GamePlayer player = new GamePlayer(Integer.valueOf(args[0]), new RandomGamer());
 			player.run();
 		} catch (NumberFormatException e) {
-			System.err.println("Illegal port number");
+			System.err.println("Illegal port number: " + args[0]);			
+			e.printStackTrace();
 			System.exit(2);
-			e.printStackTrace();
 		} catch (IOException e) {
-			System.err.println("IO exception");
-			System.exit(3);
+			System.err.println("IO Exception: " + e);			
 			e.printStackTrace();
+			System.exit(3);
 		}
 	}
 }

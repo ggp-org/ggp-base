@@ -19,14 +19,23 @@ public final class StopRequest extends Request
 	@Override
 	public String process(long receptionTime)
 	{
-		if (!gamer.getMatch().getMatchId().equals(matchId))
+        // First, check to ensure that this stop request is for the match
+        // we're currently playing. If we're not playing a match, or we're
+        // playing a different match, send back "busy".	    
+		if (gamer.getMatch() == null || !gamer.getMatch().getMatchId().equals(matchId))
 		{
-		    GamerLogger.logError("Gamer", "Got stop message not intended for current game: ignoring.");
+		    GamerLogger.logError("GamePlayer", "Got stop message not intended for current game: ignoring.");
 			gamer.notifyObservers(new GamerUnrecognizedMatchEvent(matchId));
-			return "(not done)";
+			return "busy";
 		}
 
 		gamer.notifyObservers(new GamerCompletedMatchEvent());
+		
+		// Once the match has ended, set 'roleName' and 'match'
+		// to NULL to indicate that we're ready to begin a new match.
+		gamer.setRoleName(null);
+	    gamer.setMatch(null);
+	    
 		return "done";
 	}
 

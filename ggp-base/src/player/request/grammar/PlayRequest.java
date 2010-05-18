@@ -24,26 +24,24 @@ public final class PlayRequest extends Request
 	@Override
 	public String process(long receptionTime)
 	{
-		if (!gamer.getMatch().getMatchId().equals(matchId))
-		{
+	    // First, check to ensure that this play request is for the match
+	    // we're currently playing. If we're not playing a match, or we're
+	    // playing a different match, send back "busy".
+		if (gamer.getMatch() == null || !gamer.getMatch().getMatchId().equals(matchId)) {
 			gamer.notifyObservers(new GamerUnrecognizedMatchEvent(matchId));
-			GamerLogger.logError("Gamer", "Got play message not intended for current game: ignoring.");
-			return "nil";
+			GamerLogger.logError("GamePlayer", "Got play message not intended for current game: ignoring.");
+			return "busy";
 		}
 
-		if (moves != null)
-		{
+		if (moves != null) {
 			gamer.getMatch().appendMoves(moves);
 		}
 
-		try
-		{
+		try {
 			gamer.notifyObservers(new PlayerTimeEvent(gamer.getMatch().getPlayClock() * 1000));
 			return gamer.selectMove(gamer.getMatch().getPlayClock() * 1000 + receptionTime).toString();
-		}
-		catch (Exception e)
-		{
-		    GamerLogger.logStackTrace("Gamer", e);
+		} catch (Exception e) {
+		    GamerLogger.logStackTrace("GamePlayer", e);
 			return "nil";
 		}
 	}

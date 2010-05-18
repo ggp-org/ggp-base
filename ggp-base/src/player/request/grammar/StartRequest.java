@@ -5,6 +5,7 @@ import java.util.List;
 import player.event.PlayerTimeEvent;
 import player.gamer.Gamer;
 import player.gamer.event.GamerNewMatchEvent;
+import player.gamer.event.GamerUnrecognizedMatchEvent;
 import util.gdl.grammar.Gdl;
 import util.gdl.grammar.GdlProposition;
 import util.logging.GamerLogger;
@@ -32,22 +33,34 @@ public final class StartRequest extends Request
 	@Override
 	public String process(long receptionTime)
 	{
-		Match match = new Match(matchId, startClock, playClock, description);
-
+	    // Ensure that we aren't already playing a match. If we are,
+	    // ignore the message, saying that we're busy.
+        if (gamer.getMatch() != null) {
+            GamerLogger.logError("GamePlayer", "Got start message while already busy playing a game: ignoring.");
+            gamer.notifyObservers(new GamerUnrecognizedMatchEvent(matchId));
+            return "busy";
+        }
+	    
+        // Create the new match, and handle all of the associated logistics
+        // in the gamer to indicate that we're starting a new match.
+		Match match = new Match(matchId, startClock, playClock, description);		
 		gamer.setMatch(match);
 		gamer.setRoleName(roleName);
 		gamer.notifyObservers(new GamerNewMatchEvent(match, roleName));
 
-		try
-		{
+		// Finally, have the gamer begin metagaming.
+		try {
 			gamer.notifyObservers(new PlayerTimeEvent(gamer.getMatch().getStartClock() * 1000));
 			gamer.metaGame(gamer.getMatch().getStartClock() * 1000 + receptionTime);
-		}
-		catch (Exception e)
-		{		    
-		    GamerLogger.logStackTrace("Gamer", e);		    
-			gamer.setMatch(new Match());			
-			return "(not ready)";
+		} catch (Exception e) {		    
+		    GamerLogger.logStackTrace("GamePlayer", e);
+
+		    // Upon encountering an uncaught exception during metagaming,
+		    // assume that indicates that we aren't actually able to play
+		    // right now, and tell the server that we're busy.
+			gamer.setMatch(null);
+			gamer.setRoleName(null);
+			return "busy";
 		}
 
 		return "ready";
