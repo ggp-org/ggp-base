@@ -70,9 +70,9 @@ public final class RequestFactory
 
 	private StartRequest createStart(Gamer gamer, SymbolList list) throws GdlFormatException
 	{
-		if (list.size() != 6)
+		if (list.size() < 6)
 		{
-			throw new IllegalArgumentException("Expected exactly 5 arguments!");
+			throw new IllegalArgumentException("Expected at least 5 arguments!");
 		}
 
 		SymbolAtom arg1 = (SymbolAtom) list.get(1);
@@ -86,6 +86,11 @@ public final class RequestFactory
 		List<Gdl> description = parseDescription(arg3);
 		int startClock = Integer.valueOf(arg4.getValue());
 		int playClock = Integer.valueOf(arg5.getValue());
+
+		// TODO: There may be more than five arguments. These may be worth
+		// parsing, once we find a meaningful way to handle them. They aren't
+		// yet standardized, but, for example, one might be the URL of an XSL
+		// stylesheet for visualizing a state of the game.
 
 		return new StartRequest(gamer, matchId, roleName, description, startClock, playClock);
 	}
