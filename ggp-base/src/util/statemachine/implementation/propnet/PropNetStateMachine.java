@@ -28,43 +28,67 @@ import util.statemachine.implementation.prover.query.ProverQueryBuilder;
 
 @SuppressWarnings("unused")
 public class PropNetStateMachine extends StateMachine {
+    /** The underlying proposition network  */
+    private PropNet propNet;
+    /** The topological ordering of the propositions */
+    private List<Proposition> ordering;
+    /** The player roles */
+    private List<Role> roles;
+    
+    /**
+     * Initializes the PropNetStateMachine. You should compute the topological
+     * ordering here. Additionally you may compute the initial state here, at
+     * your discretion.
+     */
+    @Override
+    public void initialize(List<Gdl> description) {
+        propNet = CachedPropNetFactory.create(description);
+        roles = propNet.getRoles();
+        ordering = getOrdering();
+    }    
+    
 	/**
-	 * Computes if the state is terminal.  Should return the value of the terminal proposition for the state.
+	 * Computes if the state is terminal. Should return the value
+	 * of the terminal proposition for the state.
 	 */
 	@Override
 	public boolean isTerminal(MachineState state) {
-		//TODO compute if the MachineState is terminal
+		// TODO: Compute whether the MachineState is terminal.
 		return false;
 	}
 	
 	/**
-	 * Computes the goal for a role in the current state. Should return the value of the goal proposition that is true for 
-	 * role.  If the number of goals that are true for role != 1, then you should throw a GoalDefinitionException
+	 * Computes the goal for a role in the current state.
+	 * Should return the value of the goal proposition that
+	 * is true for that role. If there is not exactly one goal
+	 * proposition true for that role, then you should throw a
+	 * GoalDefinitionException because the goal is ill-defined. 
 	 */
 	@Override
 	public int getGoal(MachineState state, Role role)
 	throws GoalDefinitionException {
-		//TODO compute the goal for role in state
+		// TODO: Compute the goal for role in state.
 		return -1;
 	}
 	
 	/**
-	 * Returns the initial state.  The initial state can be computed by only setting the truth value of the init 
-	 * proposition to true, and then computing the resulting state.
+	 * Returns the initial state. The initial state can be computed
+	 * by only setting the truth value of the INIT proposition to true,
+	 * and then computing the resulting state.
 	 */
 	@Override
 	public MachineState getInitialState() {
-		//TODO compute the initial state
+		// TODO: Compute the initial state.
 		return null;
 	}
 	
 	/**
-	 * Computes the legal moves for role in state
+	 * Computes the legal moves for role in state.
 	 */
 	@Override
 	public List<Move> getLegalMoves(MachineState state, Role role)
 	throws MoveDefinitionException {
-		//TODO compute legal moves
+		// TODO: Compute legal moves.
 		return null;
 	}
 	
@@ -74,7 +98,7 @@ public class PropNetStateMachine extends StateMachine {
 	@Override
 	public MachineState getNextState(MachineState state, List<Move> moves)
 	throws TransitionDefinitionException {
-		//TODO compute the next state
+		// TODO: Compute the next state.
 		return null;
 	}
 	
@@ -82,93 +106,66 @@ public class PropNetStateMachine extends StateMachine {
 	 * This should compute the topological ordering of propositions.
 	 * Each component is either a proposition, logical gate, or transition.
 	 * Logical gates and transitions only have propositions as inputs.
-	 * The base propositions and input propositions should always be exempt from this ordering
-	 * The base propositions values are set from the MachineState that operations are performed on and the
-	 * input propositions are set from the Moves that operations are performed on as well (if any).
+	 * 
+	 * The base propositions and input propositions should always be exempt
+	 * from this ordering.
+	 * 
+	 * The base propositions values are set from the MachineState that
+	 * operations are performed on and the input propositions are set from
+	 * the Moves that operations are performed on as well (if any).
+	 * 
 	 * @return The order in which the truth values of propositions need to be set.
 	 */
 	public List<Proposition> getOrdering()
 	{
-		//TODO compute the topological ordering
-		List<Proposition> order = new LinkedList<Proposition>();
-		//All of the components in the PropNet
-		List<Component> components = new ArrayList<Component>(pnet.getComponents());
-		//All of the propositions in the prop net
-		List<Proposition> propositions = new ArrayList<Proposition>(pnet.getPropositions());
+	    // List to contain the topological ordering.
+	    List<Proposition> order = new LinkedList<Proposition>();
+	    				
+		// All of the components in the PropNet
+		List<Component> components = new ArrayList<Component>(propNet.getComponents());
+		
+		// All of the propositions in the PropNet.
+		List<Proposition> propositions = new ArrayList<Proposition>(propNet.getPropositions());
+		
+	    // TODO: Compute the topological ordering.		
+		
 		return order;
 	}
 	
-	/** Already implemented for you */
+	/* Already implemented for you */
 	@Override
 	public Move getMoveFromSentence(GdlSentence sentence) {
 		return new PropNetMove(sentence);
 	}
 	
-	/** Already implemented for you */
+	/* Already implemented for you */
 	@Override
 	public MachineState getMachineStateFromSentenceList(
 			Set<GdlSentence> sentenceList) {
 		return new PropNetMachineState(sentenceList);
 	}
 	
-	/** Already implemented for you */
+	/* Already implemented for you */
 	@Override
 	public Role getRoleFromProp(GdlProposition proposition) {
 		return new PropNetRole(proposition);
 	}
 	
-	/** Already implemented for you */
+	/* Already implemented for you */
 	@Override
 	public List<Role> getRoles() {
 		return roles;
 	}
 
-	/** The underlying proposition network  */
-	private PropNet pnet;
-	/** An index from GdlTerms to Base Propositions.  The truth value of base propositions determines the state */
-	private Map<GdlTerm, Proposition> basePropositions;
-	/** An index from GdlTerms to Input Proposiitons.  Input propositions correspond to moves a player can take */
-	private Map<GdlTerm, Proposition> inputPropositions;
-	/** The terminal proposition.  If the terminal proposition's value is true, the game is over */
-	private Proposition terminal;
-	/** Maps roles to their legal propositions */
-	private Map<Role, Set<Proposition>> legalPropositions;
-	/** Maps roles to their goal propositions */
-	private Map<Role, Set<Proposition>> goalPropositions;
-	/** The topological ordering of the propositions */
-	private List<Proposition> ordering;
-	/** Set to true and everything else false, then propagate the truth values to compute the initial state*/
-	private Proposition init;
-	/** The roles of different players in the game */
-	private List<Role> roles;
-	/** A map between legal and input propositions.  The map contains mappings in both directions*/
-	private Map<Proposition, Proposition> legalInputMap;
-
+	/* Helper methods */
+		
 	/**
-	 * Initializes the PropNetStateMachine.  You should compute the topological ordering here.
-	 * Additionally you can compute the initial state here, if you want.
-	 */
-	@Override
-	public void initialize(List<Gdl> description) {
-		pnet = CachedPropNetFactory.create(description);
-		roles = computeRoles(description);
-		basePropositions = pnet.getBasePropositions();
-		inputPropositions = pnet.getInputPropositions();
-		terminal = pnet.getTerminalProposition();
-		legalPropositions = pnet.getLegalPropositions();
-		init = pnet.getInitProposition();
-		goalPropositions = pnet.getGoalPropositions();
-		legalInputMap = pnet.getLegalInputMap();
-		ordering = getOrdering();
-	}
-
-/*Helper methods*/
-	/**
-	 * The Input propositions are indexed by (does ?player ?action)
-	 * This translates a List of Moves (backed by a sentence that is simply ?action)
-	 * to GdlTerms that can be used to get Propositions from inputPropositions
-	 *  and accordingly set their values etc.  This is a naive implementation when coupled with 
-	 *  setting input values, feel free to change this for a more efficient implementation.
+	 * The Input propositions are indexed by (does ?player ?action).
+	 * 
+	 * This translates a list of Moves (backed by a sentence that is simply ?action)
+	 * into GdlTerms that can be used to get Propositions from inputPropositions.
+	 * and accordingly set their values etc.  This is a naive implementation when coupled with 
+	 * setting input values, feel free to change this for a more efficient implementation.
 	 * 
 	 * @param moves
 	 * @return
@@ -191,7 +188,6 @@ public class PropNetStateMachine extends StateMachine {
 	 * @param p
 	 * @return a PropNetMove
 	 */
-	
 	public static Move getMoveFromProposition(Proposition p)
 	{
 		return new PropNetMove(p.getName().toSentence().get(1).toSentence());
@@ -218,7 +214,7 @@ public class PropNetStateMachine extends StateMachine {
 	public PropNetMachineState getStateFromBase()
 	{
 		Set<GdlSentence> contents = new HashSet<GdlSentence>();
-		for (Proposition p : basePropositions.values())
+		for (Proposition p : propNet.getBasePropositions().values())
 		{
 			p.setValue(p.getSingleInput().getValue());
 			if (p.getValue())
@@ -228,28 +224,5 @@ public class PropNetStateMachine extends StateMachine {
 
 		}
 		return new PropNetMachineState(contents);
-	}
-
-	/**
-	 * Helper method, used to get compute roles.  You should only be using this
-	 * for Role indexing (because of compatibility with the GameServer state machine's roles)
-	 * @param description
-	 * @return the list of roles for the current game.  Compatible with the GameServer's state machine.
-	 */
-	private List<Role> computeRoles(List<Gdl> description)
-	{
-		List<Role> roles = new ArrayList<Role>();
-		for (Gdl gdl : description)
-		{
-			if (gdl instanceof GdlRelation)
-			{
-				GdlRelation relation = (GdlRelation) gdl;				
-				if (relation.getName().getValue().equals("role"))
-				{
-					roles.add(new PropNetRole((GdlProposition) relation.get(0).toSentence()));
-				}
-			}
-		}
-		return roles;
 	}
 }

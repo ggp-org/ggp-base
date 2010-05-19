@@ -18,7 +18,6 @@ import util.logging.GamerLogger;
 import util.propnet.architecture.components.Proposition;
 import util.propnet.architecture.components.Transition;
 import util.statemachine.Role;
-import util.statemachine.implementation.propnet.PropNetRole;
 
 /**
  * The PropNet class is designed to represent Propositional Networks.
@@ -66,30 +65,33 @@ public final class PropNet implements Serializable
 {
 	/** References to every component in the PropNet. */
 	private final Set<Component> components;
+	
 	/** References to every Proposition in the PropNet. */
 	private final Set<Proposition> propositions;
+	
 	/** References to every BaseProposition in the PropNet, indexed by name. */
 	private final Map<GdlTerm, Proposition> basePropositions;
+	
 	/** References to every InputProposition in the PropNet, indexed by name. */
 	private final Map<GdlTerm, Proposition> inputPropositions;
-	/**
-	 * References to every LegalProposition in the PropNet, indexed by player
-	 * name.
-	 */
+	
+	/** References to every LegalProposition in the PropNet, indexed by role. */
 	private final Map<Role, Set<Proposition>> legalPropositions;
-	/**
-	 * References to every GoalProposition in the PropNet, indexed by player
-	 * name.
-	 */
+	
+	/** References to every GoalProposition in the PropNet, indexed by role. */
 	private final Map<Role, Set<Proposition>> goalPropositions;
+	
 	/** A reference to the single, unique, InitProposition. */
 	private final Proposition initProposition;
+	
 	/** A reference to the single, unique, TerminalProposition. */
 	private final Proposition terminalProposition;
 	
+	/** A helper mapping between input/legal propositions. */
 	private final Map<Proposition, Proposition> legalInputMap;
 	
-	//private final List<Role> roles;
+	/** A helper list of all of the roles. */
+	private final List<Role> roles;
 
 	/**
 	 * Creates a new PropNet from a list of Components, along with indices over
@@ -98,8 +100,9 @@ public final class PropNet implements Serializable
 	 * @param components
 	 *            A list of Components.
 	 */
-	public PropNet(Set<Component> components)
+	public PropNet(List<Role> roles, Set<Component> components)
 	{
+	    this.roles = roles;
 		this.components = components;
 		this.propositions = recordPropositions();
 		this.basePropositions = recordBasePropositions();
@@ -109,6 +112,11 @@ public final class PropNet implements Serializable
 		this.initProposition = recordInitProposition();
 		this.terminalProposition = recordTerminalProposition();
 		this.legalInputMap = makeLegalInputMap();
+	}
+	
+	public List<Role> getRoles()
+	{
+	    return roles;
 	}
 	
 	public Map<Proposition, Proposition> getLegalInputMap()
@@ -136,6 +144,7 @@ public final class PropNet implements Serializable
 		}
 		return legalInputMap;
 	}
+	
 	/**
 	 * Getter method.
 	 * 
@@ -299,7 +308,7 @@ public final class PropNet implements Serializable
 				{
 					GdlConstant name = (GdlConstant) function.get(0);
 					GdlProposition prop = (GdlProposition)name.toSentence();
-					Role r = new PropNetRole(prop);
+					Role r = new Role(prop);
 					if ( !goalPropositions.containsKey(r) )
 					{
 						goalPropositions.put(r, new HashSet<Proposition>());
@@ -374,7 +383,7 @@ public final class PropNet implements Serializable
 				{
 					GdlConstant name = (GdlConstant) function.get(0);
 					GdlProposition prop = (GdlProposition)name.toSentence();
-					Role r = new PropNetRole(prop);
+					Role r = new Role(prop);
 					if ( !legalPropositions.containsKey(r) )
 					{
 						legalPropositions.put(r, new HashSet<Proposition>());

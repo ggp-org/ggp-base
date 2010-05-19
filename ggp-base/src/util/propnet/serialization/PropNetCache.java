@@ -6,6 +6,7 @@ import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.security.MessageDigest;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
@@ -14,11 +15,13 @@ import sun.misc.BASE64Encoder;
 import util.configuration.ProjectConfiguration;
 import util.gdl.grammar.Gdl;
 import util.gdl.grammar.GdlPool;
+import util.gdl.grammar.GdlProposition;
 import util.gdl.grammar.GdlTerm;
 import util.logging.GamerLogger;
 import util.propnet.architecture.Component;
 import util.propnet.architecture.PropNet;
 import util.propnet.architecture.components.Proposition;
+import util.statemachine.Role;
 
 /**
  * PropNetCache provides a mechanism for loading saved propnets based on their
@@ -134,7 +137,12 @@ public class PropNetCache {
             p.setName((GdlTerm)GdlPool.immerse(p.getName()));
         }
         
-        return theRawNetwork;
+        List<Role> immersedRoles = new ArrayList<Role>();
+        for(Role r : theRawNetwork.getRoles()) {
+            immersedRoles.add(new Role((GdlProposition)GdlPool.immerse(r.getName())));
+        }
+
+        return new PropNet(immersedRoles, theRawNetwork.getComponents());
     }
     
     public static void saveNetworkToCache(List<Gdl> description, PropNet theNetwork) {

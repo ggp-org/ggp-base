@@ -24,6 +24,7 @@ import util.propnet.architecture.components.Not;
 import util.propnet.architecture.components.Or;
 import util.propnet.architecture.components.Proposition;
 import util.propnet.architecture.components.Transition;
+import util.statemachine.Role;
 
 /**
  * The PropNetConverter class defines PropNet conversion for the PropNetFactory
@@ -71,8 +72,8 @@ public final class PropNetConverter
 
 		fixDisjunctions();
 		addMissingInputs();
-
-		return new PropNet(components);
+		
+		return new PropNet(Role.computeRoles(description), components);
 	}
 
 	/**
