@@ -15,6 +15,11 @@ public final class StopRequest extends Request
 		this.gamer = gamer;
 		this.matchId = matchId;
 	}
+	
+	@Override
+	public String getMatchId() {
+		return matchId;
+	}
 
 	@Override
 	public String process(long receptionTime)

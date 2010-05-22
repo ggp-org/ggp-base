@@ -22,6 +22,11 @@ public final class PlayRequest extends Request
 	}
 
 	@Override
+	public String getMatchId() {
+		return matchId;
+	}
+	
+	@Override
 	public String process(long receptionTime)
 	{
 	    // First, check to ensure that this play request is for the match

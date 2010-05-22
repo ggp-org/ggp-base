@@ -29,6 +29,11 @@ public final class StartRequest extends Request
 		this.startClock = startClock;
 		this.playClock = playClock;
 	}
+	
+	@Override
+	public String getMatchId() {
+		return matchId;
+	}
 
 	@Override
 	public String process(long receptionTime)
