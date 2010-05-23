@@ -13,11 +13,8 @@ import java.util.regex.Pattern;
 
 import javax.swing.JPanel;
 
-import util.configuration.ProjectConfiguration;
 import util.gdl.factory.GdlFactory;
-import util.gdl.grammar.Gdl;
 import util.gdl.grammar.GdlSentence;
-import util.kif.KifReader;
 import util.observer.Event;
 import util.observer.Observer;
 import util.observer.Subject;
@@ -26,7 +23,6 @@ import util.statemachine.Move;
 import util.statemachine.Role;
 import util.statemachine.StateMachine;
 import util.statemachine.exceptions.MoveDefinitionException;
-import util.statemachine.implementation.prover.ProverStateMachine;
 
 public abstract class GameCanvas extends JPanel implements Subject {
     public static final long serialVersionUID = 0x1;
@@ -80,20 +76,11 @@ public abstract class GameCanvas extends JPanel implements Subject {
                 lastClickX = e.getX();
                 lastClickY = e.getY();
             }            
-        });
-
-        // Load an appropriate state machine, for processing moves.
-        String gameName = getGameKIF();
-        if(gameName.length() > 0) {
-            try {
-                String descriptionPath = ProjectConfiguration.gameRulesheetsPath + gameName + ".kif";
-                List<Gdl> description = KifReader.read(descriptionPath);
-                stateMachine = new ProverStateMachine();
-                stateMachine.initialize(description);
-            } catch(Exception e) {
-                e.printStackTrace();
-            }
-        }
+        });        
+    }
+    
+    public void setStateMachine(StateMachine s) {
+    	stateMachine = s;
     }
     
     public void setRole(Role r) {

@@ -56,6 +56,8 @@ public final class Kiosk extends JPanel implements ActionListener, Observer
 
     public static void main(String[] args)
     {
+    	GamerLogger.setFileToDisplay("GamePlayer");
+    	
         NativeUI.setNativeUI();
     
         final Kiosk serverPanel = new Kiosk();
@@ -211,7 +213,7 @@ public final class Kiosk extends JPanel implements ActionListener, Observer
                 
                 String gameDirectory = ProjectConfiguration.gameRulesheetsPath;
                 List<Gdl> description = KifReader.read(gameDirectory + kifFile + ".kif");
-                
+
                 String matchId = "kiosk." + kifFile + "-" + System.currentTimeMillis();
                 int startClock = Integer.valueOf(startClockTextField.getText());
                 int playClock = Integer.valueOf(playClockTextField.getText());
