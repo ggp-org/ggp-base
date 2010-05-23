@@ -13,7 +13,7 @@ import util.symbol.factory.SymbolFactory;
 import util.symbol.factory.exceptions.SymbolFormatException;
 import util.symbol.grammar.SymbolList;
 
-public final class KifReader
+public class KifReader
 {
 	public static List<Gdl> read(String filename) throws IOException, SymbolFormatException, GdlFormatException
 	{
@@ -29,7 +29,7 @@ public final class KifReader
 		return contents;
 	}
 
-	private static String readFile(String filename) throws IOException
+	protected static String readFile(String filename) throws IOException
 	{
 		StringBuilder sb = new StringBuilder();
 		String line = null;
