@@ -29,7 +29,9 @@ import apps.kiosk.server.KioskGameServer;
 import player.GamePlayer;
 import player.gamer.Gamer;
 
+import server.event.ServerConnectionErrorEvent;
 import server.event.ServerIllegalMoveEvent;
+import server.event.ServerTimeoutEvent;
 import util.configuration.ProjectConfiguration;
 import util.gdl.grammar.Gdl;
 import util.kif.KifReader;
@@ -275,6 +277,12 @@ public final class Kiosk extends JPanel implements ActionListener, Observer
         if(event instanceof ServerIllegalMoveEvent) {
             ServerIllegalMoveEvent x = (ServerIllegalMoveEvent)event;
             System.err.println("Got illegal move [" + x.getMove() + "] by role [" + x.getRole() + "].");
+        } else if (event instanceof ServerTimeoutEvent) {
+            ServerTimeoutEvent x = (ServerTimeoutEvent)event;
+            System.err.println("Timeout when communicating with role [" + x.getRole() + "].");            
+        } else if (event instanceof ServerConnectionErrorEvent) {
+            ServerConnectionErrorEvent x = (ServerConnectionErrorEvent)event;
+            System.err.println("Connection error when communicating with role [" + x.getRole() + "].");            
         }
     }
 }
