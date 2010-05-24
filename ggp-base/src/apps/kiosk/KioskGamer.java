@@ -46,6 +46,7 @@ public class KioskGamer extends StateMachineGamer implements Observer {
         
         theGUI = new GameGUI(theCanvas);
         theGUI.setRole(getRole());
+        theGUI.setBackground(theGUIPanel.getBackground());
         theGUI.updateGameState(getStateMachine().getInitialState());
         theGUI.addObserver(this);
         
@@ -54,7 +55,9 @@ public class KioskGamer extends StateMachineGamer implements Observer {
         theGUIPanel.repaint();
         
         theGUIPanel.setVisible(false);
-        theGUIPanel.setVisible(true);
+        theGUIPanel.setVisible(true);                     
+        theGUIPanel.validate();
+        theGUIPanel.repaint();
     }
 
     @Override
@@ -112,6 +115,5 @@ public class KioskGamer extends StateMachineGamer implements Observer {
             
             theGUI.showFinalMessage(finalMessage.toString());
         }
-    }
-    
+    }    
 }

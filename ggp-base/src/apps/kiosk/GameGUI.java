@@ -68,6 +68,11 @@ public class GameGUI extends JPanel implements Subject, Observer, ActionListener
         add("North", northPanel);
         add("Center", theCanvas);
         add("South", southPanel);
+        
+        northPanel.setBackground(theCanvas.getBackground());
+        southPanel.setBackground(theCanvas.getBackground());
+        southEastPanel.setBackground(theCanvas.getBackground());
+        southCenterPanel.setBackground(theCanvas.getBackground());
 
         theCanvas.addObserver(this);
         updateControls();
