@@ -126,6 +126,9 @@ public class GameGUI extends JPanel implements Subject, Observer, ActionListener
         workingMoveLabel.setForeground(Color.RED);
         gameOver = true;
         updateControls();
+        
+        validate();
+        repaint();        
     }
 
     @Override
