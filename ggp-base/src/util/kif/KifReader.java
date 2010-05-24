@@ -3,6 +3,8 @@ package util.kif;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,35 +17,44 @@ import util.symbol.grammar.SymbolList;
 
 public class KifReader
 {
-	public static List<Gdl> read(String filename) throws IOException, SymbolFormatException, GdlFormatException
-	{
-		List<Gdl> contents = new ArrayList<Gdl>();
-
-		String string = "(" + readFile(filename) + ")";
-		SymbolList list = (SymbolList) SymbolFactory.create(string);
-		for (int i = 0; i < list.size(); i++)
-		{
-			contents.add(GdlFactory.create(list.get(i)));
-		}
-
-		return contents;
+	public static List<Gdl> read(String filename) throws IOException, SymbolFormatException, GdlFormatException {
+	    return convertIntoGdl("(" + readFile(filename) + ")");
+	}
+	
+    public static List<Gdl> readStream(InputStream in) throws IOException, SymbolFormatException, GdlFormatException {
+        return convertIntoGdl("(" + readStream(new BufferedReader(new InputStreamReader(in))) + ")");
+    }	
+	
+	protected static List<Gdl> convertIntoGdl(String gameDescription) throws IOException, SymbolFormatException, GdlFormatException {
+        List<Gdl> contents = new ArrayList<Gdl>();
+        
+        SymbolList list = (SymbolList) SymbolFactory.create(gameDescription);
+        for (int i = 0; i < list.size(); i++)
+        {
+        contents.add(GdlFactory.create(list.get(i)));
+        }
+        
+        return contents;
 	}
 
-	protected static String readFile(String filename) throws IOException
-	{
-		StringBuilder sb = new StringBuilder();
-		String line = null;
-
+	protected static String readFile(String filename) throws IOException {
 		BufferedReader br = new BufferedReader(new FileReader(filename));
-		while ((line = br.readLine()) != null)
-		{
-			int comment = line.indexOf(';');
-			int cutoff = (comment == -1) ? line.length() : comment;
+		return readStream(br);
+	}
+	
+	protected static String readStream(BufferedReader br) throws IOException {
+        StringBuilder sb = new StringBuilder();
+        String line = null;
 
-			sb.append(line.substring(0, cutoff));
-			sb.append(" ");
-		}
+        while ((line = br.readLine()) != null)
+        {
+            int comment = line.indexOf(';');
+            int cutoff = (comment == -1) ? line.length() : comment;
 
-		return sb.toString();
+            sb.append(line.substring(0, cutoff));
+            sb.append(" ");
+        }
+
+        return sb.toString();
 	}
 }
