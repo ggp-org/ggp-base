@@ -66,7 +66,6 @@ public class GamerConfiguration {
                 if(line.length() == 0) continue;
                 if(line.charAt(0) == '#') continue;                
                 String[] splitLine = line.split("\\s+");
-                System.out.println(splitLine.length);
                 if(splitLine[0].equals(strProfileName)) {
                     nMemoryForGamer = Integer.parseInt(splitLine[1]);
                     strProfileName = splitLine[2];
