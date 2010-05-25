@@ -15,7 +15,9 @@
  *      
  *  When the program begins, GamerConfiguration will automatically determine
  * which profile is applicable, and which operating system is running. From
- * then on, it can be called upon to provide information.
+ * then on, it can be called upon to provide information. If you want to add
+ * a default profile, add an entry with (system name) equal to "*", and when
+ * none of the earlier profiles match, that profile will be used.
  * 
  * @author Sam Schreiber
  */
@@ -23,6 +25,7 @@
 package util.configuration;
 
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.net.InetAddress;
 
@@ -62,8 +65,14 @@ public class GamerConfiguration {
             while((line = in.readLine()) != null) {
                 if(line.length() == 0) continue;
                 if(line.charAt(0) == '#') continue;                
-                String[] splitLine = line.split("\t");
+                String[] splitLine = line.split("\\s+");
+                System.out.println(splitLine.length);
                 if(splitLine[0].equals(strProfileName)) {
+                    nMemoryForGamer = Integer.parseInt(splitLine[1]);
+                    strProfileName = splitLine[2];
+                    foundProfile = true;
+                    break;
+                } else if(splitLine[0].equals("*")) {
                     nMemoryForGamer = Integer.parseInt(splitLine[1]);
                     strProfileName = splitLine[2];
                     foundProfile = true;
@@ -71,8 +80,10 @@ public class GamerConfiguration {
                 }
             }
             in.close();
-        } catch (Exception e) {
+        } catch (FileNotFoundException fe) {
             ;
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         
         if(!foundProfile) {
