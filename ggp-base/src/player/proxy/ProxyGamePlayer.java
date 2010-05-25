@@ -213,6 +213,7 @@ public final class ProxyGamePlayer extends Thread implements Subject
 	    }
 	}
 
+	public final int myPort;
 	public ProxyGamePlayer(int port, Class<? extends Gamer> gamer) throws IOException
 	{
 	    // Use a random gamer as our "default" gamer, that we fall back to
@@ -231,6 +232,7 @@ public final class ProxyGamePlayer extends Thread implements Subject
 				GamerLogger.logError("Proxy", "Failed to start gamer on port: "+(port-1)+" trying port "+port);
 			}				
 		}
+		myPort = port;
 		
 		// Start up the socket for communicating with clients
 		int clientPort = 17147;
@@ -246,6 +248,10 @@ public final class ProxyGamePlayer extends Thread implements Subject
 		
 		// Start up the first ProxyClient
 		gamerName = gamer.getSimpleName();
+	}
+	
+	public int getGamerPort() {
+	    return myPort;
 	}
 
 	public void addObserver(Observer observer)
