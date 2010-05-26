@@ -6,24 +6,39 @@ import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.io.File;
+import java.net.URL;
 import java.util.Random;
 
 import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
 
 import util.configuration.ProjectConfiguration;
 
 public class CommonGraphics {
+    public static Object loadFrom = "";
+    
     public static Image getImage(String imageName) {
         return getImage("", imageName);
     }
 
     public static Image getImage(String dirName, String imageName) {
         try {
-            File file = new File(ProjectConfiguration.gameImagesPath + dirName, imageName);
+            File file = new File(ProjectConfiguration.gameImagesPath + dirName, imageName);            
             return ImageIO.read(file);
         } catch(Exception e) {
-            e.printStackTrace();
-            return null;
+            try {
+                // TODO: Clean this up, so it's more general.
+                if(dirName.length() > 0 && !dirName.endsWith("/")) dirName += "/";
+                String resourceName = "/games/images/" + dirName + imageName;
+                URL imageLocation = loadFrom.getClass().getResource(resourceName);
+                if(imageLocation == null) System.err.println("Could not open: " + resourceName + ", based on loading from: " + loadFrom.getClass().getSimpleName());
+                ImageIcon icon = new ImageIcon(imageLocation);
+                return icon.getImage();
+            } catch(Exception ee) {
+                e.printStackTrace();
+                ee.printStackTrace();
+                return null;
+            }
         }
     }
 
@@ -71,6 +86,17 @@ public class CommonGraphics {
             g.drawOval(xB-rB, yB-rB, rB*2, rB*2);
         }
     }
+
+    public static void drawDisc(Graphics g) {
+        int width = g.getClipBounds().width;
+        int height = g.getClipBounds().height;           
+        
+        Color theColor = g.getColor();
+        g.setColor(Color.DARK_GRAY);
+        g.fillOval(4, 4, width-8, height-8);
+        g.setColor(theColor);
+        g.fillOval(6, 6, width-12, height-12);
+    }    
     
     public static void drawCheckersPiece(Graphics g, String checkersPiece) {
         int width = g.getClipBounds().width;
@@ -87,6 +113,9 @@ public class CommonGraphics {
         g.setColor(theColor);
         g.fillOval(6, 6, width-12, height-12);
         if(isKing) {
+            if(theCrownImage == null)
+                theCrownImage = getImage("crown.png");
+            
             g.setColor(Color.YELLOW);
             g.drawImage(theCrownImage, width/5, 2*height/7, 3*width/5, 3*height/7, null);
         }
@@ -96,6 +125,9 @@ public class CommonGraphics {
         int width = g.getClipBounds().width;
         int height = g.getClipBounds().height;        
 
+        if (blackPawnImage == null)
+            lazyLoadChessPieces();
+        
         Image toDraw = null;
         if(chessPiece.charAt(0) == 'w') {
             if(chessPiece.equals("wp")) toDraw = whitePawnImage;
@@ -118,22 +150,37 @@ public class CommonGraphics {
         } else {
             System.err.println("Could not process chess piece [" + chessPiece + "].");
         }
-    }     
+    }
+    
+    private static void lazyLoadChessPieces() {
+        blackPawnImage   = getImage("Chess", "Black_Pawn.png");
+        blackRookImage   = getImage("Chess", "Black_Rook.png");
+        blackBishopImage = getImage("Chess", "Black_Bishop.png");
+        blackKnightImage = getImage("Chess", "Black_Knight.png");
+        blackKingImage   = getImage("Chess", "Black_King.png");
+        blackQueenImage  = getImage("Chess", "Black_Queen.png");
+        whitePawnImage   = getImage("Chess", "White_Pawn.png");
+        whiteRookImage   = getImage("Chess", "White_Rook.png");
+        whiteBishopImage = getImage("Chess", "White_Bishop.png");
+        whiteKnightImage = getImage("Chess", "White_Knight.png");
+        whiteKingImage   = getImage("Chess", "White_King.png");
+        whiteQueenImage  = getImage("Chess", "White_Queen.png");        
+    }
     
     // Checkers images
-    private static final Image theCrownImage = getImage("crown.png");
+    private static Image theCrownImage;
     
     // Chess images
-    private static final Image blackPawnImage   = getImage("Chess","Black_Pawn.png");
-    private static final Image blackRookImage   = getImage("Chess","Black_Rook.png");
-    private static final Image blackBishopImage = getImage("Chess","Black_Bishop.png");
-    private static final Image blackKnightImage = getImage("Chess","Black_Knight.png");
-    private static final Image blackKingImage   = getImage("Chess","Black_King.png");
-    private static final Image blackQueenImage  = getImage("Chess","Black_Queen.png");
-    private static final Image whitePawnImage   = getImage("Chess","White_Pawn.png");
-    private static final Image whiteRookImage   = getImage("Chess","White_Rook.png");
-    private static final Image whiteBishopImage = getImage("Chess","White_Bishop.png");
-    private static final Image whiteKnightImage = getImage("Chess","White_Knight.png");
-    private static final Image whiteKingImage   = getImage("Chess","White_King.png");
-    private static final Image whiteQueenImage  = getImage("Chess","White_Queen.png");
+    private static Image blackPawnImage;
+    private static Image blackRookImage;
+    private static Image blackBishopImage;
+    private static Image blackKnightImage;
+    private static Image blackKingImage;
+    private static Image blackQueenImage;
+    private static Image whitePawnImage;
+    private static Image whiteRookImage;
+    private static Image whiteBishopImage;
+    private static Image whiteKnightImage;
+    private static Image whiteKingImage;
+    private static Image whiteQueenImage;
 }

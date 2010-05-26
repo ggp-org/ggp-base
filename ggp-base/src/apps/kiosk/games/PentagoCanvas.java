@@ -1,6 +1,7 @@
 package apps.kiosk.games;
 
 import java.awt.Graphics;
+import java.awt.Image;
 import java.util.Set;
 
 import apps.kiosk.templates.CommonGraphics;
@@ -39,6 +40,9 @@ public class PentagoCanvas extends GameCanvas_FancyGrid {
         String cellPlayer = cellFacts[5];
         CommonGraphics.drawCheckersPiece(g, cellPlayer.equals("red") ? "wp" : "bp");
     }
+
+    private Image left_arrow = CommonGraphics.getImage("BlueCircleArrowCCW.png");
+    private Image right_arrow = CommonGraphics.getImage("BlueCircleArrowCW.png");
     
     @Override
     protected void renderMoveSelectionForCell(Graphics g, int xCell, int yCell, String theMove) {
@@ -48,16 +52,17 @@ public class PentagoCanvas extends GameCanvas_FancyGrid {
             if(getQuadrant(xCell, yCell) == nQuad) {
                 CommonGraphics.drawSelectionBox(g);
                 
+                if(!(xCell == 2 || xCell == 5)) return;
+                if(!(yCell == 2 || yCell == 5)) return;
+                
                 // TODO: Better visualizations for curved arrows,
                 // to indicate clockwise/counterclockwise rotation.
                 int width = g.getClipBounds().width;
                 int height = g.getClipBounds().height;
                 if(moveParts[3].equals("clockwise")) {
-                    g.drawArc(15, 15, width-30, height-30, 0, -90);
-                    g.fillOval(width-15 -width/40, height/2, width/20, height/20);
+                    g.drawImage(left_arrow, 15, 15, width-30, height-30, null);
                 } else {
-                    g.drawArc(15, 15, width-30, height-30, 0, 90);
-                    g.fillOval(width-15 -width/40, height/2, width/20, height/20);                    
+                    g.drawImage(right_arrow, 15, 15, width-30, height-30, null);                    
                 }
             }
         }
