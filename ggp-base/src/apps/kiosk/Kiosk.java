@@ -43,7 +43,9 @@ import util.reflection.ProjectSearcher;
 
 @SuppressWarnings("serial")
 public final class Kiosk extends JPanel implements ActionListener, Observer
-{    
+{
+    public static final String remotePlayerString = "[REMOTE PLAYER]";
+    
     private static void createAndShowGUI(Kiosk serverPanel)
     {
         JFrame frame = new JFrame("Gaming Kiosk");
@@ -117,6 +119,7 @@ public final class Kiosk extends JPanel implements ActionListener, Observer
     
     private final JComboBox playerComboBox;
     private List<Class<?>> gamers = ProjectSearcher.getAllClassesThatAre(Gamer.class);
+    private final JTextField computerAddress;
 
     public Kiosk()
     {
@@ -156,7 +159,12 @@ public final class Kiosk extends JPanel implements ActionListener, Observer
             } catch(Exception ex) {
                 gamers.remove(gamer);
             }
-        }        
+        }
+        playerComboBox.addItem(remotePlayerString);
+        playerComboBox.addActionListener(this);
+        
+        computerAddress = new JTextField("127.0.0.1:31415");
+        computerAddress.setVisible(false);
         
         runButton = new JButton("Run!");
         runButton.addActionListener(this);
@@ -173,6 +181,7 @@ public final class Kiosk extends JPanel implements ActionListener, Observer
         managerPanel.setBorder(new TitledBorder("Kiosk Control"));
         managerPanel.add(new JLabel("Opponent:"), new GridBagConstraints(0, nRowCount, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 5, 5));
         managerPanel.add(playerComboBox, new GridBagConstraints(1, nRowCount++, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 5, 5));
+        managerPanel.add(computerAddress, new GridBagConstraints(1, nRowCount++, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 5, 5));
         managerPanel.add(new JLabel("Start Clock:"), new GridBagConstraints(0, nRowCount, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 5, 5));
         managerPanel.add(startClockTextField, new GridBagConstraints(1, nRowCount++, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 5, 5));
         managerPanel.add(new JLabel("Play Clock:"), new GridBagConstraints(0, nRowCount, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 5, 5));
@@ -233,12 +242,15 @@ public final class Kiosk extends JPanel implements ActionListener, Observer
                 // Start a new player if necessary
                 if(theComputerPlayer == null) {
                     Gamer gamer = null;
-                    Class<?> gamerClass = gamers.get(playerComboBox.getSelectedIndex());
-                    try {
-                        gamer = (Gamer) gamerClass.newInstance();
-                    } catch(Exception ex) { throw new RuntimeException(ex); }
-                    theComputerPlayer = new GamePlayer(COMPUTER_PORT, gamer);
-                    theComputerPlayer.start();
+                    
+                    if(!playerComboBox.getSelectedItem().equals(remotePlayerString)) {
+                        Class<?> gamerClass = gamers.get(playerComboBox.getSelectedIndex());
+                        try {
+                            gamer = (Gamer) gamerClass.newInstance();
+                        } catch(Exception ex) { throw new RuntimeException(ex); }
+                        theComputerPlayer = new GamePlayer(COMPUTER_PORT, gamer);
+                        theComputerPlayer.start();
+                    }
                 }
                 
                 List<String> hosts = new ArrayList<String>();
@@ -251,9 +263,24 @@ public final class Kiosk extends JPanel implements ActionListener, Observer
                     playerNames.add("Human");                                   
                 }                                
                 
-                hosts.add("127.0.0.1");
-                ports.add(theComputerPlayer.getGamerPort());                    
-                playerNames.add("Computer");
+                if(playerComboBox.getSelectedItem().equals(remotePlayerString)) {
+                    try {
+                        String[] splitAddress = computerAddress.getText().split(":");
+                        String hostname = splitAddress[0];
+                        int port = Integer.parseInt(splitAddress[1]);
+                        
+                        hosts.add(hostname);
+                        ports.add(port);                    
+                        playerNames.add("Computer");                    
+                    } catch(Exception ex) {
+                        ex.printStackTrace();
+                        return;
+                    }                    
+                } else {
+                    hosts.add("127.0.0.1");
+                    ports.add(theComputerPlayer.getGamerPort());                    
+                    playerNames.add("Computer");
+                }
                 
                 if(flipRoles.isSelected()) {
                     hosts.add("127.0.0.1");
@@ -269,7 +296,14 @@ public final class Kiosk extends JPanel implements ActionListener, Observer
             } catch(Exception ex) {
                 ex.printStackTrace();
             }
-        }
+        } else if(e.getSource() == playerComboBox) {
+            if(playerComboBox.getSelectedItem().equals(remotePlayerString)) {
+                computerAddress.setVisible(true);
+            } else {
+                computerAddress.setVisible(false);
+            }
+            validate();
+        }        
     }
 
     @Override
