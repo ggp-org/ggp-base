@@ -164,7 +164,9 @@ public final class Kiosk extends JPanel implements ActionListener, Observer
         playerComboBox.addActionListener(this);
         
         computerAddress = new JTextField("127.0.0.1:31415");
-        computerAddress.setVisible(false);
+        if(playerComboBox.getItemCount() > 1) {
+            computerAddress.setVisible(false);
+        }
         
         runButton = new JButton("Run!");
         runButton.addActionListener(this);
