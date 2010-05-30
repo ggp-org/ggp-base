@@ -23,7 +23,7 @@ public abstract class StyledGameCanvas extends GameCanvas {
     private String xslCache = "";
     protected final String getXSL() {
         if(!xslCache.isEmpty()) return xslCache;        
-        xslCache = GameStateRenderPanel.getXSLfromFile(getGameXSL() + ".xsl", 1);
+        xslCache = GameStateRenderPanel.getXSLfromFile(getGameXSL(), 1);
         return xslCache;
     }
     

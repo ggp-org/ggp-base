@@ -8,6 +8,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -23,7 +24,9 @@ import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.border.TitledBorder;
 
+import apps.common.ConsolePanel;
 import apps.common.NativeUI;
+import apps.kiosk.games.*;
 import apps.kiosk.server.KioskGameServer;
 
 import player.GamePlayer;
@@ -32,15 +35,22 @@ import player.gamer.Gamer;
 import server.event.ServerConnectionErrorEvent;
 import server.event.ServerIllegalMoveEvent;
 import server.event.ServerTimeoutEvent;
-import util.configuration.ProjectConfiguration;
+import util.configuration.ResourceLoader;
 import util.gdl.grammar.Gdl;
-import util.kif.KifReader;
 import util.logging.GamerLogger;
 import util.match.Match;
 import util.observer.Event;
 import util.observer.Observer;
 import util.reflection.ProjectSearcher;
 
+/**
+ * Kiosk is a program for running two-player human-vs-computer matches
+ * with clean visualizations and intuitive human interfaces. Originally
+ * designed for running matches against players implemented using the
+ * standard Java stack, it can also connect to remote players as need be.
+ * 
+ * @author Sam
+ */
 @SuppressWarnings("serial")
 public final class Kiosk extends JPanel implements ActionListener, Observer
 {
@@ -50,26 +60,17 @@ public final class Kiosk extends JPanel implements ActionListener, Observer
     {
         JFrame frame = new JFrame("Gaming Kiosk");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
-        frame.setPreferredSize(new Dimension(1050, 900));
         frame.getContentPane().add(serverPanel);
-
         frame.pack();
         frame.setVisible(true);
     }
 
     public static void main(String[] args)
     {
-    	GamerLogger.setFileToDisplay("GamePlayer");
-    	
         NativeUI.setNativeUI();
-    
         final Kiosk serverPanel = new Kiosk();
-        javax.swing.SwingUtilities.invokeLater(new Runnable()
-        {
-
-            public void run()
-            {
+        javax.swing.SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
                 createAndShowGUI(serverPanel);
             }
         });
@@ -85,46 +86,20 @@ public final class Kiosk extends JPanel implements ActionListener, Observer
     private final JCheckBox flipRoles;
 
     private final JPanel theGUIPanel;
-    
-    class AvailableGame implements Comparable<AvailableGame> {
-        private String gameName, kifFile;
-        private Class<?> theCanvasClass;
         
-        public AvailableGame(String gameName, String kifFile, Class<?> theCanvasClass) {
-            this.gameName = gameName;
-            this.kifFile = kifFile;
-            this.theCanvasClass = theCanvasClass;
-        }
-        
-        public String toString() {
-            return gameName;
-        }
-        
-        public GameCanvas getCanvas() {
-            try {
-                return (GameCanvas)theCanvasClass.newInstance();
-            } catch (InstantiationException e) {
-                e.printStackTrace();
-            } catch (IllegalAccessException e) {
-                e.printStackTrace();
-            }
-            return null;
-        }
-
-        @Override
-        public int compareTo(AvailableGame o) {
-            return gameName.compareTo(((AvailableGame)o).gameName);
-        }
-    }
-    
     private final JComboBox playerComboBox;
     private List<Class<?>> gamers = ProjectSearcher.getAllClassesThatAre(Gamer.class);
     private final JTextField computerAddress;
 
     public Kiosk()
-    {
+    {        
         super(new GridBagLayout());
+        ResourceLoader.setLocalResourceLoader(this);        
+        setPreferredSize(new Dimension(1050, 900));
 
+        NativeUI.setNativeUI();
+        GamerLogger.setFileToDisplay("GamePlayer");
+        
         SortedSet<AvailableGame> theAvailableGames = new TreeSet<AvailableGame>();
         List<Class<?>> theAvailableCanvasList = ProjectSearcher.getAllClassesThatAre(GameCanvas.class);
         for(Class<?> availableCanvas : theAvailableCanvasList) {
@@ -134,6 +109,9 @@ public final class Kiosk extends JPanel implements ActionListener, Observer
             } catch(Exception e) {
                 ;
             }
+        }
+        if(theAvailableGames.size() == 0) {
+            theAvailableGames = getFakeAvailableGames();
         }
         
         flipRoles = new JCheckBox("Flip roles?");
@@ -190,7 +168,8 @@ public final class Kiosk extends JPanel implements ActionListener, Observer
         managerPanel.add(playClockTextField, new GridBagConstraints(1, nRowCount++, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 5, 5));
         managerPanel.add(flipRoles, new GridBagConstraints(1, nRowCount++, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 5, 5));
         managerPanel.add(new JLabel("Game:"), new GridBagConstraints(0, nRowCount, 1, 1, 0.0, 0.0, GridBagConstraints.NORTH, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 5, 5));
-        managerPanel.add(selectedGamePane, new GridBagConstraints(1, nRowCount++, 1, 1, 0.0, 5.0, GridBagConstraints.CENTER, GridBagConstraints.VERTICAL, new Insets(5, 5, 5, 5), 5, 5));                                        
+        managerPanel.add(selectedGamePane, new GridBagConstraints(1, nRowCount++, 1, 1, 0.0, 5.0, GridBagConstraints.CENTER, GridBagConstraints.VERTICAL, new Insets(5, 5, 5, 5), 5, 5));
+        managerPanel.add(new ConsolePanel(), new GridBagConstraints(0, nRowCount++, 2, 1, 0.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 5, 5));        
         managerPanel.add(runButton, new GridBagConstraints(1, nRowCount++, 1, 1, 0.0, 1.0, GridBagConstraints.SOUTH, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 0, 0));
 
         JPanel gamePanel = new JPanel(new GridBagLayout());
@@ -205,29 +184,59 @@ public final class Kiosk extends JPanel implements ActionListener, Observer
         // Start up the gamers!
         try {
             theHumanGamer = new KioskGamer(theGUIPanel);
-            GamePlayer humanPlayer = new GamePlayer(HUMAN_PORT, theHumanGamer);
-            humanPlayer.start();
+            theHumanPlayer = new GamePlayer(DEFAULT_HUMAN_PORT, theHumanGamer);
+            theHumanPlayer.start();
         } catch(Exception e) {
             e.printStackTrace();
         }
     }
     
+    class AvailableGame implements Comparable<AvailableGame> {
+        private String gameName, kifFile;
+        private Class<?> theCanvasClass;
+        
+        public AvailableGame(String gameName, String kifFile, Class<?> theCanvasClass) {
+            this.gameName = gameName;
+            this.kifFile = kifFile;
+            this.theCanvasClass = theCanvasClass;
+        }
+        
+        public String toString() {
+            return gameName;
+        }
+        
+        public GameCanvas getCanvas() {
+            try {
+                return (GameCanvas)theCanvasClass.newInstance();
+            } catch (InstantiationException e) {
+                e.printStackTrace();
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
+        public int compareTo(AvailableGame o) {
+            return gameName.compareTo(((AvailableGame)o).gameName);
+        }
+    }    
+    
     private GamePlayer theComputerPlayer = null;
+    private GamePlayer theHumanPlayer = null;
     private KioskGamer theHumanGamer;
-    private final static int HUMAN_PORT = 9184;
-    private final static int COMPUTER_PORT = 9185;
+    
+    private static final int DEFAULT_HUMAN_PORT = 3333;
+    private static final int DEFAULT_COMPUTER_PORT = 3334;
     
     @Override
     public void actionPerformed(ActionEvent e) {
         if(e.getSource() == runButton) {
             try {
                 AvailableGame theGame = (AvailableGame) (selectedGame.getSelectedValue());
-                String kifFile = theGame.kifFile;
-                
-                String gameDirectory = ProjectConfiguration.gameRulesheetsPath;
-                List<Gdl> description = KifReader.read(gameDirectory + kifFile + ".kif");
+                List<Gdl> description = ResourceLoader.loadGame(theGame.kifFile);
 
-                String matchId = "kiosk." + kifFile + "-" + System.currentTimeMillis();
+                String matchId = "kiosk." + theGame.kifFile + "-" + System.currentTimeMillis();
                 int startClock = Integer.valueOf(startClockTextField.getText());
                 int playClock = Integer.valueOf(playClockTextField.getText());
                 Match match = new Match(matchId, startClock, playClock, description);
@@ -250,7 +259,7 @@ public final class Kiosk extends JPanel implements ActionListener, Observer
                         try {
                             gamer = (Gamer) gamerClass.newInstance();
                         } catch(Exception ex) { throw new RuntimeException(ex); }
-                        theComputerPlayer = new GamePlayer(COMPUTER_PORT, gamer);
+                        theComputerPlayer = new GamePlayer(DEFAULT_COMPUTER_PORT, gamer);
                         theComputerPlayer.start();
                     }
                 }
@@ -261,7 +270,7 @@ public final class Kiosk extends JPanel implements ActionListener, Observer
 
                 if(!flipRoles.isSelected()) {
                     hosts.add("127.0.0.1");
-                    ports.add(HUMAN_PORT);
+                    ports.add(theHumanPlayer.getGamerPort());
                     playerNames.add("Human");                                   
                 }                                
                 
@@ -286,7 +295,7 @@ public final class Kiosk extends JPanel implements ActionListener, Observer
                 
                 if(flipRoles.isSelected()) {
                     hosts.add("127.0.0.1");
-                    ports.add(HUMAN_PORT);
+                    ports.add(theHumanPlayer.getGamerPort());
                     playerNames.add("Human");                                   
                 }                
                                 
@@ -321,4 +330,46 @@ public final class Kiosk extends JPanel implements ActionListener, Observer
             System.err.println("Connection error when communicating with role [" + x.getRole() + "].");            
         }
     }
+    
+    // TODO: Fix things so that this isn't necessary.
+    // Right now this is here for applets/self-executing-JARs.
+    private void addToSet(Set<AvailableGame> theSet, Class<?> availableCanvas) {
+        try {
+            GameCanvas theCanvas = (GameCanvas) availableCanvas.newInstance();
+            theSet.add(new AvailableGame(theCanvas.getGameName(), theCanvas.getGameKIF(), availableCanvas));
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+    }    
+    private SortedSet<AvailableGame> getFakeAvailableGames() {        
+        SortedSet<AvailableGame> theAvailableGames = new TreeSet<AvailableGame>();
+        addToSet(theAvailableGames, BattleCanvas.class);
+        addToSet(theAvailableGames, BiddingTicTacToeCanvas.class);
+        addToSet(theAvailableGames, BlockerCanvas.class);
+        addToSet(theAvailableGames, BreakthroughCanvas.class);
+        addToSet(theAvailableGames, BreakthroughHolesCanvas.class);
+        addToSet(theAvailableGames, BreakthroughSmallCanvas.class);
+        addToSet(theAvailableGames, CephalopodCanvas.class);
+        addToSet(theAvailableGames, CheckersCanvas.class);
+        addToSet(theAvailableGames, CheckersSmallCanvas.class);
+        addToSet(theAvailableGames, CheckersTinyCanvas.class);
+        addToSet(theAvailableGames, ChessCanvas.class);
+        addToSet(theAvailableGames, ChickenTicTacToeCanvas.class);
+        addToSet(theAvailableGames, ConnectFiveCanvas.class);
+        addToSet(theAvailableGames, ConnectFourCanvas.class);
+        addToSet(theAvailableGames, FFACanvas.class);
+        addToSet(theAvailableGames, GoldenRectangleCanvas.class);
+        addToSet(theAvailableGames, KnightFightCanvas.class);
+        addToSet(theAvailableGames, KnightthroughCanvas.class);
+        addToSet(theAvailableGames, NumberTicTacToeCanvas.class);
+        addToSet(theAvailableGames, PawnWhoppingCanvas.class);
+        addToSet(theAvailableGames, PentagoCanvas.class);
+        addToSet(theAvailableGames, QyshinsuCanvas.class);
+        addToSet(theAvailableGames, TicTacToeCanvas.class);
+        addToSet(theAvailableGames, TTCC4Canvas.class);
+        addToSet(theAvailableGames, TTCC4SmallCanvas.class);
+        addToSet(theAvailableGames, TTCCanvas.class);
+        addToSet(theAvailableGames, TTTxNineCanvas.class);
+        return theAvailableGames;
+    }        
 }

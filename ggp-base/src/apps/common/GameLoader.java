@@ -7,21 +7,16 @@ import javax.swing.JFileChooser;
 import javax.swing.JPanel;
 
 import util.configuration.ProjectConfiguration;
+import util.configuration.ResourceLoader;
 import util.gdl.grammar.Gdl;
 import util.kif.KifReader;
 
 public class GameLoader {
     public static List<Gdl> loadGame(String gameName) {
-        List<Gdl> description = null;
-        try {
-            File file = new File(ProjectConfiguration.gameRulesheetsPath + gameName + ".kif");
-            description = KifReader.read(file.getAbsolutePath());
-        } catch(Exception ex) {
-            ex.printStackTrace();
-            System.exit(1);
-        }
-        
-        return description;
+        // TODO: Eventually this method should become deprecated,
+        // in favor of the ResourceLoader version. Possibly, this
+        // entire class should be deprecated.
+        return ResourceLoader.loadGame(gameName);
     }
     
     public static List<Gdl> loadGameUsingPrompt() {

@@ -1,6 +1,5 @@
 package util.propnet.factory.annotater;
 
-import java.io.File;
 import java.math.BigInteger;
 import java.text.Collator;
 import java.util.ArrayList;
@@ -11,7 +10,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import util.configuration.ProjectConfiguration;
+import util.configuration.ResourceLoader;
 import util.gdl.grammar.Gdl;
 import util.gdl.grammar.GdlConstant;
 import util.gdl.grammar.GdlDistinct;
@@ -26,7 +25,6 @@ import util.gdl.grammar.GdlRule;
 import util.gdl.grammar.GdlSentence;
 import util.gdl.grammar.GdlTerm;
 import util.gdl.grammar.GdlVariable;
-import util.kif.KifReader;
 
 /**
  * Annotater generates ( base ?x ) annotations that explicitly specify the
@@ -683,11 +681,7 @@ public class PropNetAnnotater {
      * @param args
      */
     public static void main(String[] args) {
-        File c4 = new File(ProjectConfiguration.gameRulesheetsDirectory,"conn4.kif");
-        List<Gdl> description = null;
-        try {
-            description = KifReader.read(c4.getAbsolutePath());
-        } catch(Exception ex) {ex.printStackTrace();}
+        List<Gdl> description = ResourceLoader.loadGame("conn4");
         
         PropNetAnnotater aa = new PropNetAnnotater(description);
         System.out.println("Annotations for connect four are: \n"+aa.getAnnotations());

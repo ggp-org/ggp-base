@@ -24,7 +24,7 @@ public class RenderThread extends Thread {
 		JPanel newPanel = null;
 		try {
 			String XML = s.toXML();
-			String XSL = GameStateRenderPanel.getXSLfromFile(gameName+".xsl", 1); //1 because machinestate XMLs only ever have 1 state
+			String XSL = GameStateRenderPanel.getXSLfromFile(gameName, 1); //1 because machinestate XMLs only ever have 1 state
 			newPanel = new VizContainerPanel(XML, XSL, parent);
 		} catch(Exception ex) {}
 		

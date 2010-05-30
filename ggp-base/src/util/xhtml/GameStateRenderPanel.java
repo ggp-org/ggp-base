@@ -38,7 +38,7 @@ import org.xhtmlrenderer.swing.NaiveUserAgent;
 import org.xhtmlrenderer.util.XRLog;
 import org.xml.sax.InputSource;
 
-import util.configuration.ProjectConfiguration;
+import util.configuration.ResourceLoader;
 import util.files.FileUtils;
 
 
@@ -121,10 +121,9 @@ public class GameStateRenderPanel extends JPanel {
 		return tcontent;
 	}
 	
-	public static String getXSLfromFile(String XSLfileName, Integer turnToShow)
+	public static String getXSLfromFile(String xslName, Integer turnToShow)
 	{
-		File xslFile = new File(ProjectConfiguration.gameStylesheetsDirectory, XSLfileName);
-		String XSL = FileUtils.readFileAsString(xslFile);
+		String XSL = ResourceLoader.loadStylesheet(xslName);
 		String CustomXSL = getCustomXSL(XSL);
 		File templateFile = new File(new File(new File("src", "util"), "xhtml"), "template.xsl");
 		String template = FileUtils.readFileAsString(templateFile);

@@ -8,10 +8,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import server.GameServer;
-import util.configuration.ProjectConfiguration;
+import util.configuration.ResourceLoader;
 import util.gdl.factory.exceptions.GdlFormatException;
 import util.gdl.grammar.Gdl;
-import util.kif.KifReader;
 import util.match.Match;
 import util.statemachine.exceptions.GoalDefinitionException;
 import util.symbol.factory.exceptions.SymbolFormatException;
@@ -55,8 +54,7 @@ public final class GameServerRunner
 	{
 		String tourneyName = args[0];
 		String gamename = args[1];
-		String rulesheet = ProjectConfiguration.gameRulesheetsPath + gamename + ".kif";
-		List<Gdl> description = KifReader.read(rulesheet);
+		List<Gdl> description = ResourceLoader.loadGame(gamename);
 		int startClock = Integer.valueOf(args[2]); 
 		int playClock = Integer.valueOf(args[3]);
 		if ((args.length - 4) % 3 != 0)
