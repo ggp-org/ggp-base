@@ -87,7 +87,7 @@ public final class Kiosk extends JPanel implements ActionListener, Observer
     private final JPanel theGUIPanel;
         
     private final JComboBox playerComboBox;
-    private List<Class<?>> gamers = ProjectSearcher.getAllClassesThatAre(Gamer.class);
+    private List<Class<?>> gamers = null;
     private final JTextField computerAddress;
 
     public Kiosk()
@@ -121,24 +121,8 @@ public final class Kiosk extends JPanel implements ActionListener, Observer
         JScrollPane selectedGamePane = new JScrollPane(selectedGame);
         
         playerComboBox = new JComboBox();
-        List<Class<?>> gamersCopy = new ArrayList<Class<?>>(gamers);
-        for(Class<?> gamer : gamersCopy)
-        {
-            Gamer g;
-            try {
-                g = (Gamer) gamer.newInstance();
-                
-                // TODO: Come up with a more elegant way to exclude
-                // the HumanPlayer, which doesn't fit the Kiosk model.
-                if(g.getName().equals("Human")) throw new RuntimeException();
-                
-                playerComboBox.addItem(g.getName());
-            } catch(Exception ex) {
-                gamers.remove(gamer);
-            }
-        }
-        playerComboBox.addItem(remotePlayerString);
         playerComboBox.addActionListener(this);
+        new FindGamersThread().start();
         
         computerAddress = new JTextField("127.0.0.1:31415");
         if(playerComboBox.getItemCount() > 1) {
@@ -187,6 +171,33 @@ public final class Kiosk extends JPanel implements ActionListener, Observer
             theHumanPlayer.start();
         } catch(Exception e) {
             e.printStackTrace();
+        }
+    }
+    
+    // Load the gamers asynchronously, so that we don't stall when loading
+    // gamers that require Python/Clojure runtimes to be activated before
+    // we can look up their names.
+    class FindGamersThread extends Thread {
+        @Override
+        public void run() {
+            gamers = ProjectSearcher.getAllClassesThatAre(Gamer.class);
+            List<Class<?>> gamersCopy = new ArrayList<Class<?>>(gamers);
+            for(Class<?> gamer : gamersCopy)
+            {
+                Gamer g;
+                try {
+                    g = (Gamer) gamer.newInstance();
+                    
+                    // TODO: Come up with a more elegant way to exclude
+                    // the HumanPlayer, which doesn't fit the Kiosk model.
+                    if(g.getName().equals("Human")) throw new RuntimeException();
+                    
+                    playerComboBox.addItem(g.getName());
+                } catch(Exception ex) {
+                    gamers.remove(gamer);
+                }
+            }
+            playerComboBox.addItem(remotePlayerString);
         }
     }
     
