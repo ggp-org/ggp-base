@@ -1,0 +1,322 @@
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Blokbox Duo
+;;;
+;;; A game where two players place colored shapes on a grid, in such a way
+;;; that the shapes don't overlap and satisfy certain other constraints. 
+;;;
+;;; Written by Sam Schreiber
+;;;
+;;; UNDER DEVELOPMENT
+;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(role purple)
+(role orange)
+
+;; CONTROL PROPOSITIONS
+(init (control purple))
+(<= (next (control orange))
+    (true (control purple)))
+(<= (next (control purple))
+    (true (control orange)))
+
+;; OWNERSHIP PROPOSITIONS
+(<= (init (owns ?color ?num))
+    (role ?color)
+    (pieceIndex ?num))
+
+(<= (hasPieces ?color)
+    (pieceIndex ?x)
+    (true (owns ?color ?x)))
+
+;; STUB
+(<= terminal
+    (true (control ?color))
+    (not (hasPieces ?color)))
+
+;; STUB
+(<= (goal ?color 100)
+    (role ?color))
+
+(<= (legal ?color noop)
+    (role ?color)
+    (not (true (control ?color))))
+
+(<= (next (cell ?x ?y ?color))
+    (true (cell ?x ?y ?color)))
+
+(<= (next (cell ?x ?y ?color))
+    (does ?color (place ?num ?orientation ?rx ?ry))
+    (pieceOriented ?num ?orientation ?dx ?dy)
+    (sum ?rx ?dx ?x)
+    (sum ?ry ?dy ?y))
+
+(<= (next (owns ?color ?num))
+    (true (owns ?color ?num))
+    (not (does ?color (place ?num ?orientation ?x ?y))))
+
+(<= (legal ?color (place ?num ?orientation ?x ?y))
+    (true (control ?color))
+    (true (owns ?color ?num))
+    (board ?x)
+    (board ?y)
+    (orientation ?orientation)
+;;    (not (orientation_dup ?num ?orientation))
+    (not (collision ?num ?orientation ?x ?y))
+;;    (cornerTouching ?num ?orientation ?x ?y ?color)
+;;    (not (sideTouching ?num ?orientation ?x ?y ?color))
+    )
+
+(<= (collision ?num ?orientation ?x ?y)
+    (pieceOriented ?num ?orientation ?dx ?dy)
+    (sum ?x ?dx ?cx)
+    (sum ?y ?dy ?cy)
+    (role ?color)
+    (true (cell ?cx ?cy ?color)))
+    
+;;(<= (cornerTouching ?num ?orientation ?x ?y ?color)
+;;    (pieceOriented ?num ?orientation ?dx ?dy)
+;;    (diagNeighbor ?dx ?dy ?nx ?ny)
+;;    (sum ?x ?dx ?nx)
+;;    (sum ?y ?dy ?ny)
+;;    (true (cell ?nx ?ny ?color)))
+    
+;;(<= (sideTouching ?num ?orientation ?x ?y ?color)
+;;    (pieceOriented ?num ?orientation ?dx ?dy)
+;;    (sideNeighbor ?dx ?dy ?nx ?ny)
+;;    (sum ?x ?dx ?nx)
+;;    (sum ?y ?dy ?ny)
+;;    (true (cell ?nx ?ny ?color)))
+
+;; NEED TO IMPLEMENT: diagNeighbor, sideNeighbor
+
+(<= (pieceOriented ?num ?orientation ?nx ?ny)
+    (piece ?num ?dx ?dy)
+    (reorient ?orientation ?dx ?dy ?nx ?ny))
+
+(<= (reorient 1 ?dx ?dy ?dx ?dy) (board 1) )
+;; MORE COMPLEX ORIENTATIONS
+;; DISABLED UNTIL LATER
+;;
+;; (<= (reorient 5 ?dx ?dy ?dy ?dx))
+;; (<= (reorient ?o ?dx ?dy ?nx ?zy)
+;;     (reorient ?base ?dx ?dy ?zx ?zy)
+;;     (neg ?zx ?nx)
+;;     (oBasal ?base)
+;;     (sum ?base 2 ?o))
+;; (<= (reorient ?o ?dx ?dy ?zx ?ny)
+;;     (reorient ?base ?dx ?dy ?zx ?zy)
+;;     (neg ?zy ?ny)
+;;     (oBasalTwo ?base)
+;;     (sum ?base 1 ?o))
+;;
+;; (oBasal 1)
+;; (oBasal 5)
+;; (oBasalTwo 1)
+;; (oBasalTwo 3)
+;; (oBasalTwo 5)
+;; (oBasalTwo 7)
+
+(orientation 1)
+;;(orientation 2)
+;;(orientation 3)
+;;(orientation 4)
+;;(orientation 5)
+;;(orientation 6)
+;;(orientation 7)
+;;(orientation 8)
+
+(pieceIndex 1)
+(pieceIndex 2)
+(pieceIndex 3)
+(pieceIndex 4)
+(pieceIndex 5)
+(pieceIndex 6)
+(pieceIndex 7)
+(pieceIndex 8)
+(pieceIndex 9)
+(pieceIndex 10)
+(pieceIndex 11)
+(pieceIndex 12)
+(pieceIndex 13)
+(pieceIndex 14)
+(pieceIndex 15)
+(pieceIndex 16)
+(pieceIndex 17)
+(pieceIndex 18)
+(pieceIndex 19)
+(pieceIndex 20)
+(pieceIndex 21)
+
+;; PIECE 1: 2x2 SQUARE
+(piece 1 0 0)
+(piece 1 0 1)
+(piece 1 1 0)
+(piece 1 1 1)
+
+;; PIECE 2: THREE-HIGH L-SHAPE
+(piece 2 1 0)
+(piece 2 0 0)
+(piece 2 0 1)
+(piece 2 0 2)
+
+;; PIECE 3: FOUR-HIGH L-SHAPE
+(piece 3 1 0)
+(piece 3 0 0)
+(piece 3 0 1)
+(piece 3 0 2)
+(piece 3 0 3)
+
+;; PIECE 4: 1x1 SQUARE
+(piece 4 0 0)
+
+;; PIECE 5: 1x2 BLOCK
+(piece 5 0 0)
+(piece 5 0 1)
+
+;; PIECE 6: TWO-HIGH L-SHAPE
+(piece 6 1 0)
+(piece 6 0 0)
+(piece 6 0 1)
+
+;; PIECE 7: 1x3 BLOCK
+(piece 7 0 0)
+(piece 7 0 1)
+(piece 7 0 2)
+
+;; PIECE 8: 2x3 T-SHAPE
+(piece 8 0 0)
+(piece 8 0 1)
+(piece 8 0 2)
+(piece 8 1 1)
+
+;; PIECE 9: 1x4 BLOCK
+(piece 9 0 0)
+(piece 9 0 1)
+(piece 9 0 2)
+(piece 9 0 3)
+ 
+;; PIECE 10: ZIG-ZAG BLOCK
+(piece 10 0 0)
+(piece 10 1 0)
+(piece 10 1 1)
+(piece 10 2 1)
+
+;; PIECE 11: 3x3 T-SHAPE
+(piece 11 0 0)
+(piece 11 1 0)
+(piece 11 2 0)
+(piece 11 1 1)
+(piece 11 1 2)
+
+;; PIECE 12: L-CORNER
+(piece 12 0 0)
+(piece 12 0 1)
+(piece 12 0 2)
+(piece 12 1 0)
+(piece 12 2 0)
+
+;; PIECE 13: SHORT-ZIG-LONG-ZAG
+(piece 13 0 0)
+(piece 13 1 0)
+(piece 13 1 1)
+(piece 13 2 1)
+(piece 13 3 1)
+
+;; PIECE 14: Z-SHAPE
+(piece 14 0 0)
+(piece 14 0 1)
+(piece 14 1 1)
+(piece 14 2 1)
+(piece 14 2 2)
+
+;; PIECE 15: 1x5 BLOCK
+(piece 15 0 0)
+(piece 15 0 1)
+(piece 15 0 2)
+(piece 15 0 3)
+(piece 15 0 4)
+
+;; PIECE 16: ROUND BLOCK
+(piece 16 0 0)
+(piece 16 0 1)
+(piece 16 1 0)
+(piece 16 1 1)
+(piece 16 0 2)
+
+;; PIECE 17: STAIRS
+(piece 17 0 0)
+(piece 17 0 1)
+(piece 17 1 1)
+(piece 17 2 1)
+(piece 17 0 0)
+
+;; PIECE 18: U-TUBE
+(piece 18 0 0)
+(piece 18 0 1)
+(piece 18 0 2)
+(piece 18 1 0)
+(piece 18 1 2)
+
+;; PIECE 19: CACTUS
+(piece 19 0 1)
+(piece 19 1 0)
+(piece 19 1 1)
+(piece 19 1 2)
+(piece 19 2 2)
+
+;; PIECE 20: X
+(piece 20 0 1)
+(piece 20 1 0)
+(piece 20 1 1)
+(piece 20 1 2)
+(piece 20 0 1)
+
+;; PIECE 21: THING
+(piece 21 0 0)
+(piece 21 1 0)
+(piece 21 2 0)
+(piece 21 3 0)
+(piece 21 1 1)
+
+;; ARITHMETIC DEFINITIONS
+(board 1)
+(board 2)
+(board 3)
+(board 4)
+(board 5)
+(board 6)
+(board 7)
+(board 8)
+(board 9)
+(board 10)
+(board 11)
+(board 12)
+(board 13)
+(board 14)
+
+(<= (sum ?x 0 ?x) (board 1) )
+(<= (sum ?x 1 ?z)
+    (succ ?x ?z))
+(<= (sum ?x 2 ?z)
+    (succ ?x ?y)
+    (succ ?y ?z))
+(<= (sum ?x 3 ?z)
+    (succ ?x ?a)
+    (succ ?a ?b)
+    (succ ?b ?z))  
+
+(succ 1 2)
+(succ 2 3)
+(succ 3 4)
+(succ 4 5)
+(succ 5 6)
+(succ 6 7)
+(succ 7 8)
+(succ 8 9)
+(succ 9 10)
+(succ 10 11)
+(succ 11 12)
+(succ 12 13)
+(succ 13 14)
