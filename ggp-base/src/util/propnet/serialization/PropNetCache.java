@@ -7,13 +7,16 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.security.MessageDigest;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
 import sun.misc.BASE64Encoder;
 import util.configuration.ProjectConfiguration;
 import util.gdl.grammar.Gdl;
+import util.gdl.grammar.GdlConstant;
 import util.gdl.grammar.GdlPool;
 import util.gdl.grammar.GdlProposition;
 import util.gdl.grammar.GdlTerm;
@@ -126,6 +129,26 @@ public class PropNetCache {
                 return null;
             }
         }
+        
+        Set<Proposition> toAdd = new HashSet<Proposition>();
+        for (Component c : theRawNetwork.getComponents())
+        {
+        	if (c instanceof Proposition) continue;
+        	Proposition dummy = new Proposition(GdlPool.getConstant("anon"));
+        	Set<Component> outputs = new HashSet<Component>(c.getOutputs());
+        	for (Component out : outputs)
+        	{
+        		if (out instanceof Proposition) continue;
+        		out.removeInput(c);
+        		c.removeOutput(out);
+        		c.addOutput(dummy);
+        		dummy.addInput(c);
+        		dummy.addOutput(out);
+        		out.addInput(dummy);
+        		toAdd.add(dummy);
+        	}
+        }
+        for (Proposition p : toAdd) theRawNetwork.addComponent(p);
                 
         // Immerse all of the GDL that we just deserialized.
         GamerLogger.log("StateMachine", "Loaded propnet from cache. Immersing in GDL pool...");        
