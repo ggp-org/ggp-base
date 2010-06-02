@@ -1,0 +1,413 @@
+(role white)
+(role black)
+(init (control white))
+(init (stepcounter 1))
+
+(<= (legal white (put ?piece1 ?piece2 ?piece3))
+		(true (stepcounter 1))
+		(piece ?piece1 ?type1 white)
+		(piece ?piece2 ?type2 white)
+		(piece ?piece3 ?type3 white))
+
+(<= (legal black (put ?piece1 ?piece2 ?piece3))
+		(true (stepcounter 1))
+		(piece ?piece1 ?type1 black)
+		(piece ?piece2 ?type2 black)
+		(piece ?piece3 ?type3 black))
+
+(<= (next (cell 1 1 ?piece1))
+	(does white (put ?piece1 ?piece2 ?piece3)))
+	
+(<= (next (cell 2 1 ?piece1))
+	(does white (put ?piece1 ?piece2 ?piece3)))
+	
+(<= (next (cell 3 1 ?piece1))
+	(does white (put ?piece1 ?piece2 ?piece3)))
+	
+(<= (next (cell 4 1 ?piece1))
+	(does white (put ?piece1 ?piece2 ?piece3)))
+	
+(<= (next (cell 5 1 ?piece1))
+	(does white (put ?piece1 ?piece2 ?piece3)))
+	
+(<= (next (cell 6 1 ?piece1))
+	(does white (put ?piece1 ?piece2 ?piece3)))
+	
+(<= (next (cell 7 1 ?piece1))
+	(does white (put ?piece1 ?piece2 ?piece3)))
+	
+(<= (next (cell 8 1 ?piece1))
+	(does white (put ?piece1 ?piece2 ?piece3)))
+	
+(<= (next (cell 1 2 ?piece2))
+	(does white (put ?piece1 ?piece2 ?piece3)))
+	
+(<= (next (cell 2 2 ?piece2))
+	(does white (put ?piece1 ?piece2 ?piece3)))
+	
+(<= (next (cell 3 2 ?piece2))
+	(does white (put ?piece1 ?piece2 ?piece3)))
+	
+(<= (next (cell 4 2 ?piece2))
+	(does white (put ?piece1 ?piece2 ?piece3)))
+	
+(<= (next (cell 5 2 ?piece3))
+	(does white (put ?piece1 ?piece2 ?piece3)))
+	
+(<= (next (cell 6 2 ?piece3))
+	(does white (put ?piece1 ?piece2 ?piece3)))
+	
+(<= (next (cell 7 2 ?piece3))
+	(does white (put ?piece1 ?piece2 ?piece3)))
+	
+(<= (next (cell 8 2 ?piece3))
+	(does white (put ?piece1 ?piece2 ?piece3)))
+
+(<= (next (cell 1 7 ?piece1))
+	(does black (put ?piece1 ?piece2 ?piece3)))
+	
+(<= (next (cell 2 7 ?piece1))
+	(does black (put ?piece1 ?piece2 ?piece3)))
+	
+(<= (next (cell 3 7 ?piece1))
+	(does black (put ?piece1 ?piece2 ?piece3)))
+	
+(<= (next (cell 4 7 ?piece1))
+	(does black (put ?piece1 ?piece2 ?piece3)))
+	
+(<= (next (cell 5 7 ?piece1))
+	(does black (put ?piece1 ?piece2 ?piece3)))
+	
+(<= (next (cell 6 7 ?piece1))
+	(does black (put ?piece1 ?piece2 ?piece3)))
+	
+(<= (next (cell 7 7 ?piece1))
+	(does black (put ?piece1 ?piece2 ?piece3)))
+	
+(<= (next (cell 8 7 ?piece1))
+	(does black (put ?piece1 ?piece2 ?piece3)))
+	
+(<= (next (cell 1 8 ?piece2))
+	(does black (put ?piece1 ?piece2 ?piece3)))
+	
+(<= (next (cell 2 8 ?piece2))
+	(does black (put ?piece1 ?piece2 ?piece3)))
+	
+(<= (next (cell 3 8 ?piece2))
+	(does black (put ?piece1 ?piece2 ?piece3)))
+	
+(<= (next (cell 4 8 ?piece2))
+	(does black (put ?piece1 ?piece2 ?piece3)))
+	
+(<= (next (cell 5 8 ?piece3))
+	(does black (put ?piece1 ?piece2 ?piece3)))
+	
+(<= (next (cell 6 8 ?piece3))
+	(does black (put ?piece1 ?piece2 ?piece3)))
+	
+(<= (next (cell 7 8 ?piece3))
+	(does black (put ?piece1 ?piece2 ?piece3)))
+	
+(<= (next (cell 8 8 ?piece3))
+	(does black (put ?piece1 ?piece2 ?piece3)))
+
+(<= (legal white noop)
+    (true (control black)))
+    
+(<= (legal black noop)
+	(not (true (stepcounter 1)))
+    (true (control white)))
+   
+    
+(<= (legal white (move ?x1 ?y1 ?x2 ?y2))
+    (true (control white))
+    (true (cell ?x1 ?y1 ?piece))
+    (piece ?piece ?type white)
+    (piecemove ?x1 ?y1 ?x2 ?y2 ?piece)
+    (not (samecoloron ?x2 ?y2 white)))
+ 
+(<= (legal black (move ?x1 ?y1 ?x2 ?y2))
+    (true (control black))
+    (true (cell ?x1 ?y1 ?piece))
+    (piece ?piece ?type black)
+    (piecemove ?x1 ?y1 ?x2 ?y2 ?piece)
+    (not (samecoloron ?x2 ?y2 black)))
+   
+(<= (next (cell ?x ?y ?state))
+    (true (cell ?x ?y ?state))
+    (does ?player (move ?x1 ?y1 ?x2 ?y2))
+    (distinctcell ?x ?y ?x1 ?y1)
+    (distinctcell ?x ?y ?x2 ?y2))
+ 
+(<= (next (stepcounter ?x))
+	(true (stepcounter ?x1))
+	(++ ?x1 ?x))
+
+    
+(<= (next (cell ?x2 ?y2 ?piece))
+	(true (cell ?x1 ?y1 ?piece))
+    (does ?player (move ?x1 ?y1 ?x2 ?y2)))
+    
+(<= (next (control black))
+    (true (control white)))
+    
+(<= (next (control white))
+    (true (control black)))
+
+
+;;;;;;WINNING AND TERMINAL;;;;;;;
+ 
+(<= terminal
+    whitewin)
+
+(<= terminal
+	(true (stepcounter 60)))
+    
+(<= terminal
+    blackwin)
+    
+(<= (goal white 100)
+    whitewin)
+    
+(<= (goal white 0)
+    (not whitewin))
+    
+(<= (goal black 100)
+    blackwin)
+    
+(<= (goal black 0)
+	(not blackwin))
+	
+(<= whitewin
+    (index ?x)
+    (true (cell ?x 8 ?piece))
+    (piece ?piece ?type white))  
+
+(<= blackwin
+    (index ?x)
+    (true (cell ?x 1 ?piece))
+    (piece ?piece ?type black))
+   
+(<= blackwin
+	(not (true (stepcounter 1)))
+	(not whitecell))
+
+(<= whitewin
+	(not (true (stepcounter 1)))
+	(not blackcell))
+
+(<= whitecell
+	(index ?x)
+	(index ?y)
+	(true (cell ?x ?y ?piece))
+	(piece ?piece ?type white))
+	
+(<= blackcell
+	(index ?x)
+	(index ?y)
+	(true (cell ?x ?y ?piece))
+	(piece ?piece ?type black))
+	
+
+
+;;;;;;MOVEMENT RELATIONS;;;;;;;
+
+(<= (piecemove ?x1 ?y1 ?x2 ?y2 ?type)
+	(piece ?type knight white)
+	(whiteknightmove ?x1 ?y1 ?x2 ?y2))
+
+(<= (piecemove ?x1 ?y1 ?x2 ?y2 ?type)
+	(piece ?type pawn white)
+	(whitepawnmove ?x1 ?y1 ?x2 ?y2))
+
+(<= (piecemove ?x1 ?y1 ?x2 ?y2 ?type)
+	(piece ?type knight black)
+	(blackknightmove ?x1 ?y1 ?x2 ?y2))
+
+(<= (piecemove ?x1 ?y1 ?x2 ?y2 ?type)
+	(piece ?type pawn black)
+	(blackpawnmove ?x1 ?y1 ?x2 ?y2))
+
+
+;;;;;;PAWN RELATIONS ;;;;;;;;;
+
+(<= (whitepawnmove ?x1 ?y1 ?x2 ?y2)
+	(plus 1 ?x1 ?x2)
+	(plus 1 ?y1 ?y2))
+
+(<= (whitepawnmove ?x1 ?y1 ?x2 ?y2)
+	(plus 1 ?x2 ?x1)
+	(plus 1 ?y1 ?y2))
+
+(<= (whitepawnmove ?x1 ?y1 ?x2 ?y2)
+	(plus 0 ?x2 ?x1)
+	(plus 1 ?y1 ?y2))
+
+(<= (blackpawnmove ?x1 ?y1 ?x2 ?y2)
+	(plus 1 ?x1 ?x2)
+	(plus 1 ?y2 ?y1))
+
+(<= (blackpawnmove ?x1 ?y1 ?x2 ?y2)
+	(plus 1 ?x2 ?x1)
+	(plus 1 ?y2 ?y1))
+
+(<= (blackpawnmove ?x1 ?y1 ?x2 ?y2)
+	(plus 0 ?x2 ?x1)
+	(plus 1 ?y2 ?y1))
+
+;;;; KNIGHT RELATIONS ;;;;
+
+(<= (whiteknightmove ?x1 ?y1 ?x2 ?y2)
+    (plus 1 ?x1 ?x2)
+    (plus 2 ?y1 ?y2))
+    
+(<= (whiteknightmove ?x1 ?y1 ?x2 ?y2)
+    (plus 1 ?x2 ?x1)
+    (plus 2 ?y1 ?y2))
+    
+(<= (whiteknightmove ?x1 ?y1 ?x2 ?y2)
+    (plus 2 ?x1 ?x2)
+    (plus 1 ?y1 ?y2))
+    
+(<= (whiteknightmove ?x1 ?y1 ?x2 ?y2)
+    (plus 2 ?x2 ?x1)
+    (plus 1 ?y1 ?y2))
+    
+(<= (blackknightmove ?x1 ?y1 ?x2 ?y2)
+    (plus 1 ?x1 ?x2)
+    (plus 2 ?y2 ?y1))
+    
+(<= (blackknightmove ?x1 ?y1 ?x2 ?y2)
+    (plus 1 ?x2 ?x1)
+    (plus 2 ?y2 ?y1))
+    
+(<= (blackknightmove ?x1 ?y1 ?x2 ?y2)
+    (plus 2 ?x1 ?x2)
+    (plus 1 ?y2 ?y1))
+    
+(<= (blackknightmove ?x1 ?y1 ?x2 ?y2)
+    (plus 2 ?x2 ?x1)
+    (plus 1 ?y2 ?y1))
+
+(<= (samecoloron ?x ?y ?color)
+	(true (cell ?x ?y ?piece))
+	(piece ?piece ?type ?color))
+
+(<= (cell ?x ?y)
+    (index ?x)
+    (index ?y))
+    
+(<= (distinctcell ?x1 ?y1 ?x2 ?y2)
+    (cell ?x1 ?y1)
+    (cell ?x2 ?y2)
+    (distinct ?x1 ?x2))
+    
+(<= (distinctcell ?x1 ?y1 ?x2 ?y2)
+    (cell ?x1 ?y1)
+    (cell ?x2 ?y2)
+    (distinct ?y1 ?y2))
+
+(<= (emptyCell ?x ?y)
+	(index ?x)
+	(index ?y)
+	(not (true (cell ?x ?y whitepawn)))
+	(not (true (cell ?x ?y whiteknight)))
+	(not (true (cell ?x ?y blackpawn)))
+	(not (true (cell ?x ?y blackknight))))
+
+;;;;;LOCATION RELATIONS;;;;;;;;
+
+(index 1)
+(index 2)
+(index 3)
+(index 4)
+(index 5)
+(index 6)
+(index 7)
+(index 8)
+(plus 0 1 1)
+(plus 0 2 2)
+(plus 0 3 3)
+(plus 0 4 4)
+(plus 0 5 5)
+(plus 0 6 6)
+(plus 0 7 7)
+(plus 0 8 8)
+(plus 1 1 2)
+(plus 1 2 3)
+(plus 1 3 4)
+(plus 1 4 5)
+(plus 1 5 6)
+(plus 1 6 7)
+(plus 1 7 8)
+(plus 2 1 3)
+(plus 2 2 4)
+(plus 2 3 5)
+(plus 2 4 6)
+(plus 2 5 7)
+(plus 2 6 8) 
+
+(++ 1 2)
+(++ 2 3)
+(++ 3 4)
+(++ 4 5)
+(++ 5 6)
+(++ 6 7)
+(++ 7 8)
+(++ 8 9)
+(++ 9 10)
+(++ 10 11)
+(++ 11 12)
+(++ 12 13)
+(++ 13 14)
+(++ 14 15)
+(++ 15 16)
+(++ 16 17)
+(++ 17 18)
+(++ 18 19)
+(++ 19 20)
+(++ 20 21)
+(++ 21 22)
+(++ 22 23)
+(++ 23 24)
+(++ 24 25)
+(++ 25 26)
+(++ 26 27)
+(++ 27 28)
+(++ 28 29)
+(++ 29 30)
+(++ 30 31)
+(++ 31 32)
+(++ 32 33)
+(++ 33 34)
+(++ 34 35)
+(++ 35 36)
+(++ 36 37)
+(++ 37 38)
+(++ 38 39)
+(++ 39 40)
+(++ 40 41)
+(++ 41 42)
+(++ 42 43)
+(++ 43 44)
+(++ 44 45)
+(++ 45 46)
+(++ 46 47)
+(++ 47 48)
+(++ 48 49)
+(++ 49 50)
+(++ 50 51)
+(++ 51 52)
+(++ 52 53)
+(++ 53 54)
+(++ 54 55)
+(++ 55 56)
+(++ 56 57)
+(++ 57 58)
+(++ 58 59)
+(++ 59 60)
+
+;;;;;;;;;; PIECE RELATIONS ;;;;;;;;;
+
+(piece whiteknight knight white) (piece whitepawn pawn white) 
+(piece blackknight knight black) (piece blackpawn pawn black)
