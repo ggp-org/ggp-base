@@ -60,9 +60,11 @@ import util.statemachine.Role;
  * 
  * @author Sam Schreiber
  */
-@SuppressWarnings("serial")
+
 public final class PropNet implements Serializable
 {
+	
+	private static final long serialVersionUID = -6425163053203784512L;
 	/** References to every component in the PropNet. */
 	private final Set<Component> components;
 	
@@ -92,6 +94,12 @@ public final class PropNet implements Serializable
 	
 	/** A helper list of all of the roles. */
 	private final List<Role> roles;
+	
+	public void addComponent(Component c)
+	{
+		components.add(c);
+		if (c instanceof Proposition) propositions.add((Proposition)c);
+	}
 
 	/**
 	 * Creates a new PropNet from a list of Components, along with indices over
@@ -102,6 +110,7 @@ public final class PropNet implements Serializable
 	 */
 	public PropNet(List<Role> roles, Set<Component> components)
 	{
+		 
 	    this.roles = roles;
 		this.components = components;
 		this.propositions = recordPropositions();
@@ -112,6 +121,19 @@ public final class PropNet implements Serializable
 		this.initProposition = recordInitProposition();
 		this.terminalProposition = recordTerminalProposition();
 		this.legalInputMap = makeLegalInputMap();
+		for (Proposition p : propositions)
+		{
+			for (Component c : p.getOutputs())
+			{
+				for (Component c2 : c.getOutputs())
+				{
+					if (!(c2 instanceof Proposition))
+					{
+						System.out.println(p + " " + c + " " + c2);
+					}
+				}
+			}
+		}
 	}
 	
 	public List<Role> getRoles()
