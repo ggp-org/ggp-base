@@ -156,17 +156,17 @@
 (piece 1 1 1)
 
 ;; PIECE 2: THREE-HIGH L-SHAPE
-(piece 2 1 0)
-(piece 2 0 0)
 (piece 2 0 1)
-(piece 2 0 2)
+(piece 2 1 1)
+(piece 2 2 1)
+(piece 2 2 0)
 
 ;; PIECE 3: FOUR-HIGH L-SHAPE
-(piece 3 1 0)
 (piece 3 0 0)
-(piece 3 0 1)
-(piece 3 0 2)
-(piece 3 0 3)
+(piece 3 1 0)
+(piece 3 1 1)
+(piece 3 1 2)
+(piece 3 1 3)
 
 ;; PIECE 4: 1x1 SQUARE
 (piece 4 0 0)
@@ -177,13 +177,13 @@
 
 ;; PIECE 6: TWO-HIGH L-SHAPE
 (piece 6 1 0)
-(piece 6 0 0)
+(piece 6 1 1)
 (piece 6 0 1)
 
 ;; PIECE 7: 1x3 BLOCK
 (piece 7 0 0)
-(piece 7 0 1)
-(piece 7 0 2)
+(piece 7 1 0)
+(piece 7 2 0)
 
 ;; PIECE 8: 2x3 T-SHAPE
 (piece 8 0 0)
@@ -205,10 +205,10 @@
 
 ;; PIECE 11: 3x3 T-SHAPE
 (piece 11 0 0)
-(piece 11 1 0)
-(piece 11 2 0)
+(piece 11 0 1)
+(piece 11 0 2)
 (piece 11 1 1)
-(piece 11 1 2)
+(piece 11 2 1)
 
 ;; PIECE 12: L-CORNER
 (piece 12 0 0)
@@ -217,44 +217,44 @@
 (piece 12 1 0)
 (piece 12 2 0)
 
-;; PIECE 13: SHORT-ZIG-LONG-ZAG
+;; PIECE 13: STAIRS
 (piece 13 0 0)
-(piece 13 1 0)
+(piece 13 0 1)
 (piece 13 1 1)
-(piece 13 2 1)
-(piece 13 3 1)
+(piece 13 1 2)
+(piece 13 2 2)
 
 ;; PIECE 14: Z-SHAPE
-(piece 14 0 0)
-(piece 14 0 1)
-(piece 14 1 1)
+(piece 14 2 0)
 (piece 14 2 1)
-(piece 14 2 2)
+(piece 14 1 1)
+(piece 14 0 1)
+(piece 14 0 2)
 
 ;; PIECE 15: 1x5 BLOCK
 (piece 15 0 0)
-(piece 15 0 1)
-(piece 15 0 2)
-(piece 15 0 3)
-(piece 15 0 4)
+(piece 15 1 0)
+(piece 15 2 0)
+(piece 15 3 0)
+(piece 15 4 0)
 
 ;; PIECE 16: ROUND BLOCK
-(piece 16 0 0)
 (piece 16 0 1)
 (piece 16 1 0)
 (piece 16 1 1)
 (piece 16 0 2)
+(piece 16 1 2)
 
-;; PIECE 17: STAIRS
+;; PIECE 17: SHORT-ZIG-LONG-ZAG
 (piece 17 0 0)
-(piece 17 0 1)
+(piece 17 1 0)
 (piece 17 1 1)
 (piece 17 2 1)
-(piece 17 0 0)
+(piece 17 3 1)
 
 ;; PIECE 18: U-TUBE
 (piece 18 0 0)
-(piece 18 0 1)
+(piece 18 1 1)
 (piece 18 0 2)
 (piece 18 1 0)
 (piece 18 1 2)
@@ -263,15 +263,15 @@
 (piece 19 0 1)
 (piece 19 1 0)
 (piece 19 1 1)
-(piece 19 1 2)
-(piece 19 2 2)
+(piece 19 2 1)
+(piece 19 0 2)
 
 ;; PIECE 20: X
 (piece 20 0 1)
 (piece 20 1 0)
 (piece 20 1 1)
 (piece 20 1 2)
-(piece 20 0 1)
+(piece 20 2 1)
 
 ;; PIECE 21: THING
 (piece 21 0 0)
@@ -306,6 +306,11 @@
     (succ ?x ?a)
     (succ ?a ?b)
     (succ ?b ?z))  
+(<= (sum ?x 4 ?z)
+    (succ ?x ?a)
+    (succ ?a ?b)
+    (succ ?b ?c)
+    (succ ?c ?z))     
 
 (succ 1 2)
 (succ 2 3)
