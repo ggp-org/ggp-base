@@ -9,9 +9,11 @@ import java.util.Set;
  * nodes in a PropNet. The general contract of derived classes is to override
  * all methods.
  */
-@SuppressWarnings("serial")
+
 public abstract class Component implements Serializable
 {
+	
+	private static final long serialVersionUID = 352524175700224447L;
     /** The inputs to the component. */
     private final Set<Component> inputs;
     /** The outputs of the component. */
@@ -35,6 +37,16 @@ public abstract class Component implements Serializable
     public void addInput(Component input)
     {
         inputs.add(input);
+    }
+    
+    public void removeInput(Component input)
+    {
+    	inputs.remove(input);
+    }
+    
+    public void removeOutput(Component output)
+    {
+    	outputs.remove(output);
     }
 
     /**
