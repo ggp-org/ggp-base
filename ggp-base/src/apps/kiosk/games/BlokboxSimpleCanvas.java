@@ -15,12 +15,11 @@ import util.statemachine.MachineState;
 import apps.kiosk.templates.CommonGraphics;
 import apps.kiosk.templates.GameCanvas_SimpleGrid;
 
-// NOTE: UNDER DEVELOPMENT
-public class BlokboxDuoCanvas extends GameCanvas_SimpleGrid {
+public class BlokboxSimpleCanvas extends GameCanvas_SimpleGrid {
     private static final long serialVersionUID = 1L;
 
-    public String getGameName() { return "Blokbox Duo"; }
-    protected String getGameKIF() { return "blokbox_duo"; }
+    public String getGameName() { return "Blokbox Simple"; }
+    protected String getGameKIF() { return "blokbox_simple"; }
     protected int getGridHeight() { return 20; }
     protected int getGridWidth() { return 20; }
     
@@ -35,7 +34,7 @@ public class BlokboxDuoCanvas extends GameCanvas_SimpleGrid {
     
     protected Set<String> getLegalMovesForCell(int xCell, int yCell) {
         if(selectedPiece == -1) return new HashSet<String>();
-        return gameStateHasLegalMovesMatching("\\( place " + selectedPiece + " (.*) " + xCell + " " + yCell + " \\)");
+        return gameStateHasLegalMovesMatching("\\( place " + selectedPiece + " " + xCell + " " + yCell + " \\)");
     }
     
     private int[][] pieceGrid = new int[][] {
