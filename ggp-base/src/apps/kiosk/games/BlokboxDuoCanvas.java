@@ -19,7 +19,7 @@ import apps.kiosk.templates.GameCanvas_SimpleGrid;
 public class BlokboxDuoCanvas extends GameCanvas_SimpleGrid {
     private static final long serialVersionUID = 1L;
 
-    public String getGameName() { return "Blokbox Duo"; }
+    public String getGameName() { return "Blokbox Duo [Not Done Yet!]"; }
     protected String getGameKIF() { return "blokbox_duo"; }
     protected int getGridHeight() { return 20; }
     protected int getGridWidth() { return 20; }
@@ -153,7 +153,7 @@ public class BlokboxDuoCanvas extends GameCanvas_SimpleGrid {
         }        
     }
     
-    private int selectedPiece = -1;
+    protected int selectedPiece = -1;
     
     private int selectedRow = -1;
     private int selectedColumn = -1; 
