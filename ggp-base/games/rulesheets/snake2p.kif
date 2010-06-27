@@ -122,10 +122,10 @@
 (<= hasBlank
   (index ?y)
   (index ?x)
-  (not (cell ?x ?y redHead))
-  (not (cell ?x ?y blueHead))
-  (not (cell ?x ?y f))
-  (not (cell ?x ?y w)))
+  (not (true (cell ?x ?y redHead)))
+  (not (true (cell ?x ?y blueHead)))
+  (not (true (cell ?x ?y f)))
+  (not (true (cell ?x ?y w))))
 
 ;;;;;;;;;;;; ERRORS ;;;;;;;;;;;;;
 

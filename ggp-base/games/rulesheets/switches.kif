@@ -69,11 +69,11 @@
     (does ?player ?a)
     (true ?p))
     
-(<= (next ?r)
-    (trans ?p ?q ?a ?r)
-    (does ?player ?a)
-    (true ?p)
-    (true ?q))
+;(<= (next ?r)
+;    (trans ?p ?q ?a ?r)
+;    (does ?player ?a)
+;    (true ?p)
+;    (true ?q))
     
 (<= (conn ?x ?y) (affects ?x ?z) (affects ?y ?z))
     

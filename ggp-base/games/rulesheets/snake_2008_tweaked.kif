@@ -220,7 +220,7 @@
 (<= (next (cell ?x ?y b))
 (true evenmove)
 (true (tailpos ?x ?y))
-(not (pos ?x ?y)))
+(not (true (pos ?x ?y))))
 
 
 ;---Keeping state of the other fields-------------------------------------------

@@ -184,7 +184,8 @@
         (true (open tw ?c))
         (distinct ?c blank))
 
-    (legal ?player pass)
+    (<= (legal ?player pass)
+    	(role ?player))
     
     
     (<= (movable ?x ?y)

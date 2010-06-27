@@ -1052,7 +1052,7 @@
     (queenvalue white ?q)
     (+ ?k ?q ?n))
 
-(<= (kingvalue ?player 10)
+(<= (kingvalue ?player 55)
     (piece-owner-type ?king ?player king)
     (true (cell ?x ?y ?king)))
 
@@ -1060,7 +1060,7 @@
     (piece-owner-type ?king ?player king)
     (not (true (cell ?x ?y ?king))))
 
-(<= (queenvalue ?player 9)
+(<= (queenvalue ?player 45)
     (piece-owner-type ?queen ?player queen)
     (true (cell ?x ?y ?queen)))
 
@@ -1126,6 +1126,19 @@
 (is_castle_move wk e 1 g 1)
 (is_castle_move bk e 8 c 8)
 (is_castle_move bk e 8 g 8)
+
+(piece-owner-type wr white rook)
+(piece-owner-type wn white knight)
+(piece-owner-type wb white bishop)
+(piece-owner-type wp white pawn)
+(piece-owner-type wk white king)
+(piece-owner-type wq white queen)
+(piece-owner-type br black rook)
+(piece-owner-type bn black knight)
+(piece-owner-type bb black bishop)
+(piece-owner-type bp black pawn)
+(piece-owner-type bk black king)
+(piece-owner-type bq black queen)
 
 (next_rank 1 2)
 (next_rank 2 3)
@@ -1360,3 +1373,8 @@
 (succ 198 199)
 (succ 199 200)
 (succ 200 201)
+
+(+ 55 45 100)
+(+ 55 0 55)
+(+ 0 45 45)
+(+ 0 0 0)
