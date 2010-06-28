@@ -1,0 +1,74 @@
+package util.gdl.transforms.standalone;
+
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.List;
+
+import util.gdl.factory.exceptions.GdlFormatException;
+import util.gdl.grammar.Gdl;
+import util.gdl.transforms.VariableConstrainer;
+import util.kif.KifReader;
+import util.symbol.factory.exceptions.SymbolFormatException;
+
+/**
+ * The standalone version of VariableConstrainer can be run as its own
+ * program. It takes a .kif file as input and generates a new .kif file
+ * with the modified output. The new filename is (original name)_VARCONST.kif.
+ * 
+ * The new file is not intended to be particularly legible; it is
+ * intended mainly for use by other programs.
+ * 
+ * @author Alex Landau
+ *
+ */
+public class StandaloneVariableConstrainer {
+
+	/**
+	 * @param args
+	 */
+	public static void main(String[] args) {
+		if(args.length < 1 || !args[0].endsWith(".kif")) {
+			System.out.println("Please enter the path of a .kif file as an argument.");
+			return;
+		}
+		
+		String filename = args[0];
+		
+		List<Gdl> description;
+		try {
+			description = KifReader.read(filename);
+		} catch (IOException e) {
+			System.err.println("Problem reading the file " + filename + ".");
+			e.printStackTrace();
+			return;
+		} catch (SymbolFormatException e) {
+			System.err.println("The file is not a GDL file, or it contains errors.");
+			e.printStackTrace();
+			return;
+		} catch (GdlFormatException e) {
+			System.err.println("The file is not a GDL file, or it contains errors.");
+			e.printStackTrace();
+			return;
+		}
+		
+		List<Gdl> transformedDescription = VariableConstrainer.replaceFunctionValuedVariables(description);
+
+		String newFilename = filename.substring(0, filename.lastIndexOf(".kif")) + "_VARCONST.kif";
+		
+		try {
+			BufferedWriter out = new BufferedWriter(new FileWriter(new File(newFilename)));
+			
+			for(Gdl gdl : transformedDescription) {
+				out.write(gdl.toString());
+				out.newLine();
+			}
+			out.close();
+		} catch (IOException e) {
+			System.err.println("There was an error writing the translated GDL file " + newFilename + ".");
+			e.printStackTrace();
+		}
+	}
+
+}
