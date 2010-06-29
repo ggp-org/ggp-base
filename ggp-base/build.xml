@@ -1,132 +1,154 @@
-<!-- build.xml file for ant for cs227b -->
-
-
-<!-- A "project" describes a set of targets that may be requested
-     when Ant is executed.  The "default" attribute defines the
-     target which is executed if no specific target is requested,
-     and the "basedir" attribute defines the current working directory
-     from which Ant executes the requested task.  This is normally
-     set to the current working directory.
--->
-
-<project name="GGP" default="compile" basedir=".">
-
-  <property name="build.home"    value="${basedir}/classes"/>
-  <property name="docs.home"     value="${basedir}/docs"/>
-  <property name="src.home"      value="${basedir}/src"/>
-  <property name="javadoc.home"  value="${basedir}/javadoc"/>
-  <path id="compile.classpath">
-    	<pathelement path="${classpath}"/>
-		<fileset dir = "${basedir}/src/external">
-  			<include name = "**/*.jar"/>
-  		</fileset>
-  </path>
-
-  <property name="compile.debug"       value="true"/>
-  <property name="compile.deprecation" value="false"/>
-  <property name="compile.optimize"    value="true"/>
-  <property name="compile.source"      value="1.6" />
-
-
-<!-- ==================== All Target ====================================== -->
-
-<!--
-
-  The "all" target is a shortcut for running the "clean" target followed
-  by the "compile" target, to force a complete recompile.
-
--->
-
-  <target name="all" depends="clean,compile"
-   description="Clean build and dist directories, then compile"/>
-
-
-
-<!-- ==================== Clean Target ==================================== -->
-
-<!--
-
-  The "clean" target deletes any previous "build" and "dist" directory,
-  so that you can be ensured the application can be built from scratch.
-
--->
-
-  <target name="clean" description="Delete old classes">
-    <delete dir="${build.home}"/>
-  </target>
-
-
-
-<!-- ==================== Compile Target ================================== -->
-
-<!--
-
-  The "compile" target transforms source files (from your "src" directory)
-  into object files in the appropriate location in the build directory.
-
--->
-
-  <target name="compile" depends="prepare" description="Compile Java sources">
-    <mkdir    dir="${build.home}"/>
-    <javac srcdir="${src.home}"
-          destdir="${build.home}"
-            debug="${compile.debug}"
-      deprecation="${compile.deprecation}"
-         optimize="${compile.optimize}"
-	   source="${compile.source}">
-	<classpath refid="compile.classpath"/>
-    </javac>
-
-  </target>
-
-
-<!-- ==================== Javadoc Target ================================== -->
-
-<!--
-
-  The "javadoc" target creates Javadoc API documentation for the Java
-  classes included in your application.
-
--->
-
-  <target name="javadoc" depends="compile" description="Create Javadoc API documentation">
-
-    <mkdir          dir="${javadoc.home}"/>
-    <javadoc sourcepath="${src.home}"
-                destdir="${javadoc.home}"
-              maxmemory="128m"
-                 author="true"      
-                 source="1.6"
-           packagenames="player.gamer.*,util.*"
-	       Overview="${basedir}/overview.html">
-      <classpath refid="compile.classpath"/>
-      <link href="http://java.sun.com/j2se/1.5/docs/api"/>
-    </javadoc>
-
-  </target>
-
-
-<!-- ==================== Prepare Target ================================== -->
-
-<!--
-
-  The "prepare" target is used to create the "build" destination directory,
-  and copy the static contents of your web application to it.  If you need
-  to copy static files from external dependencies, you can customize the
-  contents of this task.
-
-  Normally, this task is executed indirectly when needed.
-
--->
-
-  <target name="prepare">
-
-    <!-- Create build directories as needed -->
-    <mkdir  dir="${build.home}"/>
-
-  </target>
-
-
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- WARNING: Eclipse auto-generated file.
+              Any modifications will be overwritten.
+              To include a user specific buildfile here, simply create one in the same
+              directory with the processing instruction <?eclipse.ant.import?>
+              as the first entry and export the buildfile again. -->
+<project basedir="." default="build" name="GGP_Base">
+    <property environment="env"/>
+    <property name="ECLIPSE_HOME" value="/usr/lib64/eclipse"/>
+    <property name="junit.output.dir" value="junit"/>
+    <property name="debuglevel" value="source,lines,vars"/>
+    <property name="target" value="1.6"/>
+    <property name="source" value="1.6"/>
+    <path id="JUnit 3.libraryclasspath">
+        <pathelement location="${ECLIPSE_HOME}/plugins/org.junit_3.8.2.v20090203-1005/junit.jar"/>
+    </path>
+    <path id="GGP_Base.classpath">
+        <pathelement location="bin"/>
+        <pathelement location="src/external/FlyingSaucer/core-renderer.jar"/>
+        <pathelement location="src/external/JTidy/Tidy.jar"/>
+        <pathelement location="src/external/JGoodiesForms/forms-1.2.1.jar"/>
+        <pathelement location="src/external/Jython/jython.jar"/>
+        <pathelement location="src/external/Clojure/clojure.jar"/>
+        <path refid="JUnit 3.libraryclasspath"/>
+    </path>
+    <target name="init">
+        <mkdir dir="bin"/>
+        <copy includeemptydirs="false" todir="bin">
+            <fileset dir="src">
+                <exclude name="**/*.launch"/>
+                <exclude name="**/*.java"/>
+            </fileset>
+        </copy>
+        <copy includeemptydirs="false" todir="bin">
+            <fileset dir="src_py">
+                <exclude name="**/*.launch"/>
+                <exclude name="**/*.java"/>
+            </fileset>
+        </copy>
+        <copy includeemptydirs="false" todir="bin">
+            <fileset dir="src_clj">
+                <exclude name="**/*.launch"/>
+                <exclude name="**/*.java"/>
+            </fileset>
+        </copy>
+    </target>
+    <target name="clean">
+        <delete dir="bin"/>
+    </target>
+    <target depends="clean" name="cleanall"/>
+    <target depends="build-subprojects,build-project" name="build"/>
+    <target name="build-subprojects"/>
+    <target depends="init" name="build-project">
+        <echo message="${ant.project.name}: ${ant.file}"/>
+        <javac debug="true" debuglevel="${debuglevel}" destdir="bin" source="${source}" target="${target}">
+            <src path="src"/>
+            <classpath refid="GGP_Base.classpath"/>
+        </javac>
+        <javac debug="true" debuglevel="${debuglevel}" destdir="bin" source="${source}" target="${target}">
+            <src path="src_py"/>
+            <classpath refid="GGP_Base.classpath"/>
+        </javac>
+        <javac debug="true" debuglevel="${debuglevel}" destdir="bin" source="${source}" target="${target}">
+            <src path="src_clj"/>
+            <classpath refid="GGP_Base.classpath"/>
+        </javac>
+    </target>
+    <target description="copy Eclipse compiler jars to ant lib directory" name="init-eclipse-compiler">
+        <copy todir="${ant.library.dir}">
+            <fileset dir="${ECLIPSE_HOME}/plugins" includes="org.eclipse.jdt.core_*.jar"/>
+        </copy>
+        <unzip dest="${ant.library.dir}">
+            <patternset includes="jdtCompilerAdapter.jar"/>
+            <fileset dir="${ECLIPSE_HOME}/plugins" includes="org.eclipse.jdt.core_*.jar"/>
+        </unzip>
+    </target>
+    <target description="compile project with Eclipse compiler" name="build-eclipse-compiler">
+        <property name="build.compiler" value="org.eclipse.jdt.core.JDTCompilerAdapter"/>
+        <antcall target="build"/>
+    </target>
+    <target name="ClojureConsole">
+        <java classname="apps.consoles.ClojureConsole" failonerror="true" fork="yes">
+            <classpath refid="GGP_Base.classpath"/>
+        </java>
+    </target>
+    <target name="ClojureGamer">
+        <java classname="player.gamer.clojure.ClojureGamer" failonerror="true" fork="yes">
+            <classpath refid="GGP_Base.classpath"/>
+        </java>
+    </target>
+    <target name="GameStateRenderPanel">
+        <java classname="util.xhtml.GameStateRenderPanel" failonerror="true" fork="yes">
+            <classpath refid="GGP_Base.classpath"/>
+        </java>
+    </target>
+    <target name="Kiosk">
+        <java classname="apps.kiosk.Kiosk" failonerror="true" fork="yes">
+            <jvmarg line="-mx1500m -server -XX:-DontCompileHugeMethods -XX:MinHeapFreeRatio=10 -XX:MaxHeapFreeRatio=10"/>
+            <classpath refid="GGP_Base.classpath"/>
+        </java>
+    </target>
+    <target name="LoadPropnet">
+        <java classname="apps.examples.LoadPropnet" failonerror="true" fork="yes">
+            <jvmarg line="-mx1500m -Xss20m -server -XX:-DontCompileHugeMethods -XX:MinHeapFreeRatio=10 -XX:MaxHeapFreeRatio=10"/>
+            <classpath refid="GGP_Base.classpath"/>
+        </java>
+    </target>
+    <target name="PythonConsole">
+        <java classname="apps.consoles.PythonConsole" failonerror="true" fork="yes">
+            <classpath refid="GGP_Base.classpath"/>
+        </java>
+    </target>
+    <target name="ServerPanel">
+        <java classname="apps.server.ServerPanel" failonerror="true" fork="yes">
+            <classpath refid="GGP_Base.classpath"/>
+        </java>
+    </target>
+    <target name="SimpleGameSim (1)">
+        <java classname="apps.utilities.SimpleGameSim" failonerror="true" fork="yes">
+            <classpath refid="GGP_Base.classpath"/>
+        </java>
+    </target>
+    <target name="Tiltyard">
+        <java classname="apps.tiltyard.Tiltyard" failonerror="true" fork="yes">
+            <classpath refid="GGP_Base.classpath"/>
+        </java>
+    </target>
+    <target name="Test_Http">
+        <mkdir dir="${junit.output.dir}"/>
+        <junit fork="yes" printsummary="withOutAndErr">
+            <formatter type="xml"/>
+            <test name="util.http.Test_Http" todir="${junit.output.dir}"/>
+            <classpath refid="GGP_Base.classpath"/>
+        </junit>
+    </target>
+    <target name="PlayerPanel">
+        <java classname="apps.player.PlayerPanel" failonerror="true" fork="yes">
+            <classpath refid="GGP_Base.classpath"/>
+        </java>
+    </target>
+    <target name="PropNetAnnotater">
+        <java classname="util.propnet.factory.annotater.PropNetAnnotater" failonerror="true" fork="yes">
+            <classpath refid="GGP_Base.classpath"/>
+        </java>
+    </target>
+    <target name="junitreport">
+        <junitreport todir="${junit.output.dir}">
+            <fileset dir="${junit.output.dir}">
+                <include name="TEST-*.xml"/>
+            </fileset>
+            <report format="frames" todir="${junit.output.dir}"/>
+        </junitreport>
+    </target>
 </project>
-
-
