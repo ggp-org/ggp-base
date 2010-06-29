@@ -16,7 +16,6 @@ import java.util.zip.GZIPOutputStream;
 import sun.misc.BASE64Encoder;
 import util.configuration.ProjectConfiguration;
 import util.gdl.grammar.Gdl;
-import util.gdl.grammar.GdlConstant;
 import util.gdl.grammar.GdlPool;
 import util.gdl.grammar.GdlProposition;
 import util.gdl.grammar.GdlTerm;
