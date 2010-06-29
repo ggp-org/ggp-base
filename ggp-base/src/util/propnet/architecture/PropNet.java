@@ -121,19 +121,6 @@ public final class PropNet implements Serializable
 		this.initProposition = recordInitProposition();
 		this.terminalProposition = recordTerminalProposition();
 		this.legalInputMap = makeLegalInputMap();
-		for (Proposition p : propositions)
-		{
-			for (Component c : p.getOutputs())
-			{
-				for (Component c2 : c.getOutputs())
-				{
-					if (!(c2 instanceof Proposition))
-					{
-						System.out.println(p + " " + c + " " + c2);
-					}
-				}
-			}
-		}
 	}
 	
 	public List<Role> getRoles()
