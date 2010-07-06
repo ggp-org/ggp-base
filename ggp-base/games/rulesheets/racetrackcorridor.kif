@@ -104,7 +104,7 @@
     (<= (next (walls ?player ?walls))
         (does ?player (place ?row ?side))
         (true (walls ?player ?pwalls))
-        (successor ?pwalls walls))
+        (successor ?pwalls ?walls))
     
     (<= (next (step ?y))
         (true (step ?x))
@@ -251,14 +251,16 @@
         (true (cell wlane e ?x white))
         (true (cell blane e ?x1 black))
         (true (walls white ?n))
-        (true (walls black ?n)))
+        (true (walls black ?n))
+        (role ?role))
     
     (<= (goal ?role 50)
         (true (step 20))
         (true (cell wlane ?r1 ?x1 white))
         (true (cell blane ?r2 ?x2 black))
         (distinct ?r1 e)
-        (distinct ?r2 e))
+        (distinct ?r2 e)
+        (role ?role))
     
     ;;;;
     
