@@ -1,0 +1,12 @@
+; This test case ensures that a gamer can handle
+; "base" and "input" propositions.
+
+( role robot )
+( base p )
+( base q )
+( input robot a )
+( init p )
+( legal robot a )
+( <= ( next q ) ( true p ) )
+( <= terminal ( true q ) )
+( goal robot 100 )
