@@ -20,6 +20,7 @@ import player.event.PlayerSentMessageEvent;
 import player.gamer.Gamer;
 import player.gamer.statemachine.reflex.random.RandomGamer;
 import player.request.factory.RequestFactory;
+import player.request.grammar.AbortRequest;
 import player.request.grammar.PlayRequest;
 import player.request.grammar.Request;
 import player.request.grammar.StartRequest;
@@ -317,7 +318,7 @@ public final class ProxyGamePlayer extends Thread implements Subject
 				// Update the move codes and prepare to send the request on to the client.
 				receivedClientMove = false;
 		        currentMoveCode = 1 + theRandomGenerator.nextLong();
-		        if(request instanceof StopRequest)
+		        if(request instanceof StopRequest || request instanceof AbortRequest)
 		            theClientManager.expectStop = true;
 
 				// Send the request on to the client, along with the move code.
@@ -428,7 +429,7 @@ public final class ProxyGamePlayer extends Thread implements Subject
                 timeToSleep = timeToFinish - System.currentTimeMillis();
                 if(timeToSleep > 0)
                     Thread.sleep(timeToSleep);
-    	   } else if(theRequest instanceof StopRequest) {
+    	   } else if(theRequest instanceof StopRequest || theRequest instanceof AbortRequest) {
     	       GamerLogger.stopFileLogging();
     	       needRestart = true;
     	   }

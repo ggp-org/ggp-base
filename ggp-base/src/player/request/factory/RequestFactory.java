@@ -5,6 +5,7 @@ import java.util.List;
 
 import player.gamer.Gamer;
 import player.request.factory.exceptions.RequestFormatException;
+import player.request.grammar.AbortRequest;
 import player.request.grammar.PlayRequest;
 import player.request.grammar.Request;
 import player.request.grammar.StartRequest;
@@ -40,6 +41,10 @@ public final class RequestFactory
 			else if (type.equals("stop"))
 			{
 				return createStop(gamer, list);
+			}
+			else if (type.equals("abort"))
+			{
+			    return createAbort(gamer, list);
 			}
 			else
 			{
@@ -107,6 +112,19 @@ public final class RequestFactory
 
 		return new StopRequest(gamer, matchId);
 	}
+	
+    private AbortRequest createAbort(Gamer gamer, SymbolList list) throws GdlFormatException
+    {
+        if (list.size() != 2)
+        {
+            throw new IllegalArgumentException("Expected exactly 2 arguments!");
+        }
+
+        SymbolAtom arg1 = (SymbolAtom) list.get(1);
+        String matchId = arg1.getValue();
+
+        return new AbortRequest(gamer, matchId);
+    }	
 
 	private List<Gdl> parseDescription(SymbolList list) throws GdlFormatException
 	{

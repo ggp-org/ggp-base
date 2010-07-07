@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Set;
 
 import player.request.factory.RequestFactory;
+import player.request.grammar.AbortRequest;
 import player.request.grammar.Request;
 import player.request.grammar.StartRequest;
 import player.request.grammar.StopRequest;
@@ -204,7 +205,7 @@ public final class Frontend extends Thread
 				// Start a separate thread to open a connection to the backend
 				// and wait for the response, and pass it back to the actual
 				// server as soon as the backend responds.
-				RequestHandler handler = new RequestHandler(connection, in, b, request instanceof StopRequest);
+				RequestHandler handler = new RequestHandler(connection, in, b, request instanceof StopRequest || request instanceof AbortRequest);
 				handler.start();
 			}
 			catch (Exception e)

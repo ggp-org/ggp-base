@@ -14,6 +14,7 @@ import player.event.PlayerSentMessageEvent;
 import player.gamer.Gamer;
 import player.gamer.statemachine.reflex.legal.LegalGamer;
 import player.request.factory.RequestFactory;
+import player.request.grammar.AbortRequest;
 import player.request.grammar.Request;
 import player.request.grammar.StartRequest;
 import player.request.grammar.StopRequest;
@@ -145,6 +146,10 @@ public final class ProxyGamePlayerClient extends Thread implements Subject, Obse
 				    GamerLogger.log("Proxy", "[ProxyClient] Got stop request, shutting down.");
 				    System.exit(0);
 				}
+                if(request instanceof AbortRequest) {
+                    GamerLogger.log("Proxy", "[ProxyClient] Got abort request, shutting down.");
+                    System.exit(0);
+                }				
 			}
 			catch (Exception e)
 			{
