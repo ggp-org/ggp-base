@@ -234,8 +234,3 @@
 (bitNIs 4 p1101 1) (bitNIs 3 p1101 1) (bitNIs 2 p1101 0) (bitNIs 1 p1101 1)
 (bitNIs 4 p1110 1) (bitNIs 3 p1110 1) (bitNIs 2 p1110 1) (bitNIs 1 p1110 0)
 (bitNIs 4 p1111 1) (bitNIs 3 p1111 1) (bitNIs 2 p1111 1) (bitNIs 1 p1111 1)
-( base selectcontrol ( val black white ) )
-( base cell ( val 1 2 3 4 ) ( val 1 2 3 4 ) ( val empty p0000 p0001 p0010 p0011 p0100 p0101 p0110 p0111 p1000 p1001 p1010 p1011 p1100 p1101 p1110 p1111 ) )
-( base selected ( val p0000 p0001 p0010 p0011 p0100 p0101 p0110 p0111 p1000 p1001 p1010 p1011 p1100 p1101 p1110 p1111 ) )
-( base placecontrol ( val black white ) )
-( base pool ( val p0000 p0001 p0010 p0011 p0100 p0101 p0110 p0111 p1000 p1001 p1010 p1011 p1100 p1101 p1110 p1111 ) )

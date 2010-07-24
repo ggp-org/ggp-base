@@ -50,10 +50,18 @@
         (distinct ?q b))
 
     (<= (distpair ?w ?x ?y ?z)
-        (distinct ?w ?x))
+        (distinct ?w ?x)
+        (file ?w)
+        (file ?x)
+        (rank ?y)
+        (rank ?z))
 
     (<= (distpair ?w ?x ?y ?z)
-        (distinct ?y ?z))
+        (distinct ?y ?z)
+        (file ?w)
+        (file ?x)
+        (rank ?y)
+        (rank ?z))
     
     
     (<= (next (control white))
@@ -111,10 +119,12 @@
     
     
     (<= (kingmove ?u ?v ?u ?y)
-        (adj ?v ?y))
+        (adj ?v ?y)
+        (file ?u))
     
     (<= (kingmove ?u ?v ?x ?v)
-        (nxt ?u ?x))
+        (nxt ?u ?x)
+        (rank ?v))
     
     (<= (kingmove ?u ?v ?x ?y)
         (nxt ?u ?x)
@@ -236,6 +246,15 @@
     (nextcolumn a b)
     (nextcolumn b c)
     (nextcolumn c d)
+    
+    (file a)
+    (file b)
+    (file c)
+    (file d)
+    (rank 1)
+    (rank 2)
+    (rank 3)
+    (rank 4)
     
 ;;;;
 

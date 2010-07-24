@@ -118,7 +118,8 @@
 	
 (<= (open ?i)
 	(x ?x)
-	(y ?y)	
+	(y ?y)
+	(index ?i)
 	(not (true (cell ?i ?x ?y snake)))
 	(not (true (cell ?i ?x ?y body))))
 

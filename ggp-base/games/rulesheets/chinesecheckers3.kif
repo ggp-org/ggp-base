@@ -147,7 +147,8 @@
         (true (control ?player))
         (movable ?player ?b ?e))
     
-    (<= (legal ?player noop))
+    (<= (legal ?player noop)
+    	(role ?player))
     
     
     (<= (movable ?player ?b ?e)

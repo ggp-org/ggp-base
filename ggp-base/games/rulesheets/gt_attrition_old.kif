@@ -111,7 +111,8 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (<= (goal ?p 0)
-    (not (true (gameOver))))
+    (not (true (gameOver)))
+    (role ?p))
 
 (<= (goal ?p ?x)
     (true (gameOver))

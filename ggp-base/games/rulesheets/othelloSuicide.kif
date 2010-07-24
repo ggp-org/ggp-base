@@ -85,8 +85,7 @@
     (lessThan ?red ?black))
 (<= (goal black 50)
     gameOver
-    (tally ?black ?red)
-    (not (distinct ?black ?red)))
+    (tally ?tied ?tied))
 (<= (goal black 100)
     gameOver
     (tally ?black ?red)
@@ -100,8 +99,7 @@
     (lessThan ?black ?red))
 (<= (goal red 50)
     gameOver
-    (tally ?black ?red)
-    (not (distinct ?black ?red)))
+    (tally ?tied ?tied))
 (<= (goal red 100)
     gameOver
     (tally ?black ?red)

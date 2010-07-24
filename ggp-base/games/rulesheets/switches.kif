@@ -26,7 +26,7 @@
 (trans bright e bright)
 (trans bright f dim)
 (trans dim f dim)
-(trans start end)
+(trans2 start end)
 
 (legal red a)
 (legal red b)
@@ -61,7 +61,7 @@
     (true end))
     
 (<= (next ?q)
-    (trans ?p ?q)
+    (trans2 ?p ?q)
     (true ?p))
     
 (<= (next ?q)

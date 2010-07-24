@@ -255,6 +255,4 @@
 (direction clockwise) (direction counterclockwise)
 
 (++  1 2) (++  2 3) (++  3 4) (++  4 5) (++  5 6)
-(+ 3 1 4) (+ 3 2 5) (+ 3 3 6)( base cellholds ( val 1 2 3 4 ) ( val 1 2 3 ) ( val 1 2 3 ) ( val black red ) )
-( base rotatecontrol ( val black red ) )
-( base placecontrol ( val black red ) )
+(+ 3 1 4) (+ 3 2 5) (+ 3 3 6)

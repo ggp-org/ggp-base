@@ -153,10 +153,12 @@
 
 
 (<= (kingmove ?u ?v ?u ?y)
-    (or (adjacent ?v ?y) (adjacent ?y ?v)))
+    (or (adjacent ?v ?y) (adjacent ?y ?v))
+    (file ?u))
 
 (<= (kingmove ?u ?v ?x ?v)
-    (or (nextcolumn ?u ?x) (nextcolumn ?x ?u)))
+    (or (nextcolumn ?u ?x) (nextcolumn ?x ?u))
+    (rank ?v))
 
 (<= (kingmove ?u ?v ?x ?y)
     (or (nextcolumn ?u ?x) (nextcolumn ?x ?u))
@@ -221,7 +223,8 @@
 
 
 (<= (clearcolumn ?u ?v ?y)
-    (adjacent ?v ?y))
+    (adjacent ?v ?y)
+    (file ?u))
 
 (<= (clearcolumn ?u ?v ?y)
     (adjacent ?v ?w)
@@ -229,7 +232,8 @@
     (clearcolumn ?u ?w ?y))
 
 (<= (clearrow ?u ?x ?v)
-    (nextcolumn ?u ?x))
+    (nextcolumn ?u ?x)
+    (rank ?v))
 
 (<= (clearrow ?u ?x ?v)
     (nextcolumn ?u ?w)
@@ -252,6 +256,11 @@
 (nextcolumn e f)
 (nextcolumn f g)
 (nextcolumn g h)
+
+(<= (rank ?y)
+	(or (adjacent ?x ?y) (adjacent ?y ?x)))
+(<= (file ?x)
+	(or (nextcolumn ?x ?y) (nextcolumn ?y ?x)))
 
 ;;;;
 

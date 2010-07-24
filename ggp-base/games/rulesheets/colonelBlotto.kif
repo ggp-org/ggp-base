@@ -165,7 +165,7 @@
     (does black (troops ?y1 ?y2 ?x3)))
 
 (<= (sum ?x 0 ?x)
-    (succ 0 1))
+    (or (succ ?x ?y) (succ ?y ?x)))
     
 (<= (sum ?x ?y ?z)
     (succ ?y0 ?y)

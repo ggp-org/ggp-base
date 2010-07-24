@@ -227,5 +227,3 @@
 (index 3)
 
 (index 4)
-
-(base cell (x 1 2 3 4) (y 1 2 3 4) (val 0 1 2 3 4))
