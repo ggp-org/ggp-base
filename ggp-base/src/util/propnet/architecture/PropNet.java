@@ -15,6 +15,9 @@ import util.gdl.grammar.GdlFunction;
 import util.gdl.grammar.GdlProposition;
 import util.gdl.grammar.GdlTerm;
 import util.logging.GamerLogger;
+import util.propnet.architecture.components.And;
+import util.propnet.architecture.components.Not;
+import util.propnet.architecture.components.Or;
 import util.propnet.architecture.components.Proposition;
 import util.propnet.architecture.components.Transition;
 import util.statemachine.Role;
@@ -135,7 +138,7 @@ public final class PropNet implements Serializable
 
 	private Map<Proposition, Proposition> makeLegalInputMap() {
 		Map<Proposition, Proposition> legalInputMap = new HashMap<Proposition, Proposition>();
-		for (Proposition inputProp : inputPropositions.values())
+		/*for (Proposition inputProp : inputPropositions.values())
 		{
 			List<GdlTerm> inputPropBody = ((GdlFunction)inputProp.getName()).getBody();
 			for (Set<Proposition> legalProps : legalPropositions.values())
@@ -149,6 +152,21 @@ public final class PropNet implements Serializable
 						legalInputMap.put(legalProp, inputProp);	
 					}
 				}
+			}
+		}*/
+		//This function hangs on certain games (e.g. knightfight)
+		//Let's speed it up a bit, shall we...
+		Map<List<GdlTerm>, Proposition> inputPropsByBody = new HashMap<List<GdlTerm>, Proposition>();
+		for(Proposition inputProp : inputPropositions.values()) {
+			List<GdlTerm> inputPropBody = ((GdlFunction)inputProp.getName()).getBody();
+			inputPropsByBody.put(inputPropBody, inputProp);
+		}
+		for(Set<Proposition> legalProps : legalPropositions.values()) {
+			for(Proposition legalProp : legalProps) {
+				List<GdlTerm> legalPropBody = ((GdlFunction)legalProp.getName()).getBody();
+				Proposition inputProp = inputPropsByBody.get(legalPropBody);
+				legalInputMap.put(inputProp, legalProp);
+				legalInputMap.put(legalProp, inputProp);
 			}
 		}
 		return legalInputMap;
@@ -294,6 +312,10 @@ public final class PropNet implements Serializable
 				{
 					basePropositions.put(proposition.getName(), proposition);
 				}
+				/*if(proposition.getName() instanceof GdlFunction) {
+					if(((GdlFunction)proposition.getName()).equals(GdlPool.getConstant("true")))
+						basePropositions.put(proposition.getName(), proposition);
+				}*/
 			}
 		}
 
@@ -446,4 +468,43 @@ public final class PropNet implements Serializable
 
 		return null;
 	}		
+	
+	public int getSize() {
+		return components.size();
+	}
+
+	public int getNumAnds() {
+		int andCount = 0;
+		for(Component c : components) {
+			if(c instanceof And)
+				andCount++;
+		}
+		return andCount;
+	}
+	
+	public int getNumOrs() {
+		int orCount = 0;
+		for(Component c : components) {
+			if(c instanceof Or)
+				orCount++;
+		}
+		return orCount;
+	}
+	
+	public int getNumNots() {
+		int notCount = 0;
+		for(Component c : components) {
+			if(c instanceof Not)
+				notCount++;
+		}
+		return notCount;
+	}
+
+	public int getNumLinks() {
+		int linkCount = 0;
+		for(Component c : components) {
+			linkCount += c.getOutputs().size();
+		}
+		return linkCount;
+	}
 }

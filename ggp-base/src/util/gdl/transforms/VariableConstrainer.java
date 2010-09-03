@@ -140,8 +140,9 @@ public class VariableConstrainer {
 			Entry<String, List<TermModel>> f, Set<String> usedVarNames) {
 		//Here we get the GdlFunctions that could match the function model
 		//(without including any function-valued variables)
-		String functionKey = f.getKey();
-		String functionName = functionKey.substring(0, functionKey.lastIndexOf("_"));
+		//String functionKey = f.getKey();
+		//String functionName = functionKey.substring(0, functionKey.lastIndexOf("_"));
+		String functionName = f.getKey();
 		List<TermModel> bodyModel = f.getValue();
 		List<GdlTerm> functionBodySoFar = new ArrayList<GdlTerm>();
 		//We recursively fill in the terms of the function according to the model

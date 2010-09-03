@@ -48,6 +48,16 @@ public abstract class Component implements Serializable
     {
     	outputs.remove(output);
     }
+    
+    public void removeAllInputs()
+    {
+		inputs.clear();
+	}
+    
+	public void removeAllOutputs()
+	{
+		outputs.clear();
+	}
 
     /**
      * Adds a new output.
@@ -142,4 +152,5 @@ public abstract class Component implements Serializable
 
         return sb.toString();
     }
+
 }
