@@ -238,10 +238,10 @@
     (true (step2 ?n))
     (not game1Over))
     
-(<= (next (game1OverLock))
+(<= (next game1OverLock)
     game1TermCond)
-(<= (next (game1OverLock))
-    (true (game1OverLock)))    
+(<= (next game1OverLock)
+    (true game1OverLock))    
     
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; TERMINAL Relations
@@ -293,7 +293,7 @@
 (<= game1Over
     game1TermCond)
 (<= game1Over
-    (true (game1OverLock)))
+    (true game1OverLock))
     
 (<= game1TermCond
     stopped1)

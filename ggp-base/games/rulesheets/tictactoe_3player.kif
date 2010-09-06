@@ -185,22 +185,25 @@
 
 (<= (goal ?p 66)
 (role ?p)
-(not (line ?p))
-(line3 ?p))
+(sign ?p ?s)
+(not (line ?s))
+(line3 ?s))
 
 (<= (goal ?p 33)
 (role ?p)
+(sign ?p ?s)
 (not (line x))
 (not (line o))
 (not (line z))
-(not (line3 ?p)))
+(not (line3 ?s)))
 
 (<= (goal ?p 0)
 (role ?p)
-(not (line3 ?p))
-(sign ?p1 ?s)
+(sign ?p ?s)
+(not (line3 ?s))
+(sign ?p1 ?s2)
 (distinct ?p1 ?p)
-(line ?s))
+(line ?s2))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 

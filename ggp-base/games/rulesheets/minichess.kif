@@ -202,6 +202,8 @@
     
     
     (<= (clearcolumn ?p ?x ?y1 ?y2)
+    	(piece ?p)
+    	(file ?x)
         (adjacent ?y1 ?y2))
     
     (<= (clearcolumn ?p ?x ?y1 ?y3)
@@ -218,6 +220,8 @@
     
     
     (<= (clearrow ?p ?x1 ?x2 ?y)
+    	(piece ?p)
+    	(rank ?y)
         (nextcolumn ?x1 ?x2))
     
     (<= (clearrow ?p ?x1 ?x3 ?y)
@@ -233,6 +237,7 @@
         (safe ?x3 ?y ?p))
     
     (<= (safe ?x ?y ?p)
+    	(piece ?p)
         (true (cell ?x ?y b)))
 
     (<= (safe ?x ?y ?p)
@@ -255,6 +260,9 @@
     (rank 2)
     (rank 3)
     (rank 4)
+    (piece bk)
+    (piece wk)
+    (piece wr)
     
 ;;;;
 

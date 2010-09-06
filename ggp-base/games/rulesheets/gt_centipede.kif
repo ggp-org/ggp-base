@@ -113,10 +113,10 @@
     (true (blackPayoff ?x))
     (does white finish))    
 
-(<= (next (gameOver))
+(<= (next gameOver)
     (does white finish))
 
-(<= (next (gameOver))
+(<= (next gameOver)
     (does black finish))
 
 (<= (next (control black))
@@ -125,7 +125,7 @@
 (<= (next (control white))
     (true (control black)))
 
-(<= (next (gameOver))
+(<= (next gameOver)
     (true (blackPayoff 95)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -133,25 +133,25 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (<= terminal
-    (true (gameOver)))
+    (true gameOver))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; GOAL Relations
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (<= (goal white ?x)
-    (true (gameOver))
+    (true gameOver)
     (true (whitePayoff ?x)))
 
 (<= (goal black ?x)
-	(true (gameOver))
+	(true gameOver)
     (true (blackPayoff ?x)))
 
 (<= (goal white 0)
-    (not (true (gameOver))))
+    (not (true gameOver)))
     
 (<= (goal black 0)
-    (not (true (gameOver))))    
+    (not (true gameOver)))    
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Static Relations

@@ -112,6 +112,13 @@
       (true (on p))
       (true (on q))
       (true (on r)))
+      
+  (<= (goal robot 0)
+      (not (true (on p))))
+  (<= (goal robot 0)
+      (not (true (on q))))
+  (<= (goal robot 0)
+      (not (true (on r))))
   
   ;;;;
   

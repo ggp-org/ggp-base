@@ -152,7 +152,6 @@
 (<= (openCell ?x ?y)
 	(onBoard ?x ?y)
 	(not (true (cell ?x ?y red)))
-	(not (true (cell ?x ?y yellow)))
 	(not (true (cell ?x ?y blue))))
 	
 (<= (onBoard ?x ?y)

@@ -65,7 +65,7 @@
 (<= (next (claim_made_by ?p))
     (does ?p lay_claim))
 
-(<= (next (gameOver))
+(<= (next gameOver)
     (does ?p end_game))
 
 (<= (next (score ?p ?x))
@@ -104,18 +104,18 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (<= terminal
-	(true (gameOver)))
+	(true gameOver))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; GOAL Relations
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (<= (goal ?p 0)
-    (not (true (gameOver)))
+    (not (true gameOver))
     (role ?p))
 
 (<= (goal ?p ?x)
-    (true (gameOver))
+    (true gameOver)
     (true (score ?p ?x)))
     
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

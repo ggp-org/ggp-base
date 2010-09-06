@@ -172,7 +172,7 @@
 (<= terminal
 (or (connfour x)
 (connfour o)))
-(<= (not-filled)
+(<= not-filled
 (true (cell ?c 6 b)))
 (<= terminal
-(not (not-filled)))
+(not not-filled))
