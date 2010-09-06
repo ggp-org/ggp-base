@@ -1,7 +1,7 @@
 package util.gdl.model;
 
-import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
 import util.gdl.grammar.GdlConstant;
@@ -38,31 +38,26 @@ public class Mutex {
 		if(!form.matches(sentence))
 			return false;
 		if(sentence instanceof GdlRelation) {
-			List<Integer> index = new ArrayList<Integer>(1);
-			index.add(0);
-			if(!bodyMatches(sentence.getBody(), index))
+			Iterator<GdlConstant> tupleItr = tuple.iterator();
+			if(!bodyMatches(sentence.getBody(), tupleItr))
 				return false;
 		}
 		return true;
 	}
 
-	private boolean bodyMatches(List<GdlTerm> body, List<Integer> index) {
+	private boolean bodyMatches(List<GdlTerm> body, Iterator<GdlConstant> tupleItr) {
 		for(GdlTerm term : body) {
-			GdlConstant ourConstant = tuple.get(index.get(0));
 			if(term instanceof GdlVariable) {
-				if(ourConstant != null)
+				if(tupleItr.next() != null)
 					return false;
-				
-				index.set(0, 1 + index.get(0));
 			} else if(term instanceof GdlConstant) {
+				GdlConstant ourConstant = tupleItr.next();
 				if(ourConstant != null && ourConstant != term)
 					return false;
-				
-				index.set(0, 1 + index.get(0));
 			} else if(term instanceof GdlFunction) {
 				GdlFunction function = (GdlFunction) term;
 				List<GdlTerm> functionBody = function.getBody();
-				if(!bodyMatches(functionBody, index))
+				if(!bodyMatches(functionBody, tupleItr))
 					return false;
 			} else {
 				throw new RuntimeException("New GDL term type added, error in Mutex");

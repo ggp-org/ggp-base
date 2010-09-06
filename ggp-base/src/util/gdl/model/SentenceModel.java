@@ -946,31 +946,30 @@ public class SentenceModel {
 			if(sentence instanceof GdlProposition)
 				return functionalElements.isEmpty();
 			GdlRelation relation = (GdlRelation) sentence;
-			List<Integer> index = new ArrayList<Integer>(1);
-			index.add(0);
-			return elementsMatchBody(relation.getBody(), index);
+			Iterator<GdlConstant> elementItr = functionalElements.iterator();
+			Iterator<Integer> arityItr = arities.iterator();
+			return elementsMatchBody(relation.getBody(), elementItr, arityItr);
 		}
-		private boolean elementsMatchBody(List<GdlTerm> body, List<Integer> index) {
+		private boolean elementsMatchBody(List<GdlTerm> body, Iterator<GdlConstant> elementItr, Iterator<Integer> arityItr) {
 			//Go through the body, increase the index as we go
 			for(GdlTerm term : body) {
 				if(term instanceof GdlFunction) {
 					GdlFunction function = (GdlFunction) term;
-					if(functionalElements.get(index.get(0)) != function.getName()) {
+					if(elementItr.next() != function.getName()) {
 						return false;
 					}
-					if(arities.get(index.get(0)) != function.arity()) {
+					if(arityItr.next() != function.arity()) {
 						return false;
 					}
 					//Check the function body
-					index.set(0, 1 + index.get(0));
-					if(!elementsMatchBody(function.getBody(), index)) {
+					if(!elementsMatchBody(function.getBody(), elementItr, arityItr)) {
 						return false;
 					}
 				} else {
-					if(functionalElements.get(index.get(0)) != null)
+					if(elementItr.next() != null)
 						return false;
+					arityItr.next();
 				}
-				index.set(0, 1 + index.get(0));
 			}
 			return true;
 		}
@@ -1070,34 +1069,31 @@ public class SentenceModel {
 			if(tuple.size() == 0)
 				return GdlPool.getProposition(sentenceName);
 			//Make the GdlRelation corresponding to this as a tuple
-			List<Integer> index = new ArrayList<Integer>(2);
-			index.add(0);
-			index.add(0);
+			Iterator<GdlConstant> elementItr = functionalElements.iterator();
+			Iterator<Integer> arityItr = arities.iterator();
+			Iterator<GdlConstant> tupleItr = tuple.iterator();
 			List<GdlTerm> body = new ArrayList<GdlTerm>();
 			//we could bootstrap the arity...
 			int arity = arities.size();
 			for(int a : arities)
 				arity -= a;
-			fillBody(body, index, tuple, arity);
+			fillBody(body, elementItr, arityItr, tupleItr, arity);
 			return GdlPool.getRelation(sentenceName, body);
 		}
-		private void fillBody(List<GdlTerm> body, List<Integer> index,
-				List<GdlConstant> tuple, int arity) {
+		private void fillBody(List<GdlTerm> body, Iterator<GdlConstant> elementItr,
+				Iterator<Integer> arityItr, Iterator<GdlConstant> tupleItr, int arity) {
 			for(int i = 0; i < arity; i++) {
 				//fill in the ith element of the body
 				//starting with the index1th element of functionalElements
 				//constants filled by the index2th element of tuple
-				GdlConstant functionName = functionalElements.get(index.get(0));
+				GdlConstant functionName = elementItr.next();
+				int a = arityItr.next();
 				if(functionName == null) {
-					body.add(tuple.get(index.get(1)));
-					index.set(0, 1 + index.get(0));
-					index.set(1, 1 + index.get(1));
+					body.add(tupleItr.next());
 				} else {
 					//add the function
-					int a = arities.get(index.get(0));
 					List<GdlTerm> functionBody = new ArrayList<GdlTerm>(a);
-					index.set(0, 1 + index.get(0));
-					fillBody(functionBody, index, tuple, a);
+					fillBody(functionBody, elementItr, arityItr, tupleItr, a);
 					body.add(GdlPool.getFunction(functionName, functionBody));
 				}
 			}
