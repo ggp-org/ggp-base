@@ -86,8 +86,10 @@ public class OptimizingPropNetFactory {
 	static final private GdlConstant GOAL = GdlPool.getConstant("goal");
 	static final private GdlConstant INIT = GdlPool.getConstant("init");
 	static final private GdlConstant INIT_CAPS = GdlPool.getConstant("INIT");
-	static final private GdlConstant BASE = GdlPool.getConstant("base");
-	static final private GdlConstant INPUT = GdlPool.getConstant("input");
+	@SuppressWarnings("unused")
+    static final private GdlConstant BASE = GdlPool.getConstant("base");
+	@SuppressWarnings("unused")
+    static final private GdlConstant INPUT = GdlPool.getConstant("input");
 	static final private GdlConstant TEMP = GdlPool.getConstant("TEMP");
 
 	public static PropNet create(List<Gdl> description, boolean verbose, boolean useAdvancedCondensers, boolean moreRestraint, boolean useCrudeSplitter)

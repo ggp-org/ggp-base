@@ -70,7 +70,7 @@ public class Assignments implements Iterable<Map<GdlVariable, GdlConstant>> {
 		//Let's start by finding all the domains, a task already done.
 		valuesToIterate = new ArrayList<List<GdlConstant>>(varsToAssign.size());
 
-		for(GdlVariable var : varsToAssign) {
+		for(@SuppressWarnings("unused") GdlVariable var : varsToAssign) {
 			valuesToIterate.add(new ArrayList<GdlConstant>());
 		}
 		for(GdlLiteral conjunct : rule.getBody()) {
@@ -98,7 +98,7 @@ public class Assignments implements Iterable<Map<GdlVariable, GdlConstant>> {
 
 		//We now want to see which we can give assignment functions to
 		valuesToCompute = new ArrayList<AssignmentFunction>(varsToAssign.size());
-		for(GdlVariable var : varsToAssign) {
+		for(@SuppressWarnings("unused") GdlVariable var : varsToAssign) {
 			valuesToCompute.add(null);
 		}
 		indicesToChangeWhenNull = new ArrayList<Integer>(varsToAssign.size());
@@ -173,7 +173,8 @@ public class Assignments implements Iterable<Map<GdlVariable, GdlConstant>> {
 		//The assignment is impossible; return nothing
 		empty = true;
 	}
-	public Assignments(GdlRule rule, SentenceModel model,
+	@SuppressWarnings("unchecked")
+    public Assignments(GdlRule rule, SentenceModel model,
 			Map<SentenceForm, ConstantForm> constantForms) {
 		this(Collections.EMPTY_MAP, rule, model, constantForms);
 	}
