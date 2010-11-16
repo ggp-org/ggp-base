@@ -29,7 +29,7 @@ public final class RequestFactory
 			SymbolList list = (SymbolList) SymbolFactory.create(source);
 			SymbolAtom head = (SymbolAtom) list.get(0);
 
-			String type = head.getValue();
+			String type = head.getValue().toLowerCase();
 			if (type.equals("play"))
 			{
 				return createPlay(gamer, list);
