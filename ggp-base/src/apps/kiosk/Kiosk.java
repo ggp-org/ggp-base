@@ -6,6 +6,8 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -51,7 +53,7 @@ import util.reflection.ProjectSearcher;
  * @author Sam
  */
 @SuppressWarnings("serial")
-public final class Kiosk extends JPanel implements ActionListener, Observer
+public final class Kiosk extends JPanel implements ActionListener, ItemListener, Observer
 {
     public static final String remotePlayerString = "[REMOTE PLAYER]";
     
@@ -121,7 +123,7 @@ public final class Kiosk extends JPanel implements ActionListener, Observer
         JScrollPane selectedGamePane = new JScrollPane(selectedGame);
         
         playerComboBox = new JComboBox();
-        playerComboBox.addActionListener(this);
+        playerComboBox.addItemListener(this);
         new FindGamersThread().start();
         
         computerAddress = new JTextField("127.0.0.1:31415");
@@ -317,7 +319,12 @@ public final class Kiosk extends JPanel implements ActionListener, Observer
             } catch(Exception ex) {
                 ex.printStackTrace();
             }
-        } else if(e.getSource() == playerComboBox) {
+        }    
+    }
+    
+    @Override
+    public void itemStateChanged(ItemEvent e) {
+        if(e.getSource() == playerComboBox) {
             if(playerComboBox.getSelectedItem().equals(remotePlayerString)) {
                 computerAddress.setVisible(true);
             } else {
@@ -325,7 +332,7 @@ public final class Kiosk extends JPanel implements ActionListener, Observer
             }
             validate();
         }        
-    }
+    }        
 
     @Override
     public void observe(Event event) {
@@ -381,5 +388,5 @@ public final class Kiosk extends JPanel implements ActionListener, Observer
         addToSet(theAvailableGames, TTCCanvas.class);
         addToSet(theAvailableGames, TTTxNineCanvas.class);
         return theAvailableGames;
-    }        
+    }
 }
