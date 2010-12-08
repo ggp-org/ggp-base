@@ -126,6 +126,7 @@ public class GameFlow {
 		//System.out.println("Found a " + getNumTurns() + "-turn flow");
 	}
 	
+	@SuppressWarnings("unchecked")
 	private void addSentenceForms(List<SentenceForm> ordering,
 			Set<GdlSentence> trueFlowSentences, SentenceModel model,
 			Map<SentenceForm, ConstantForm> constForms) {

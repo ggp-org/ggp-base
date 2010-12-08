@@ -851,8 +851,9 @@ public class Assignments implements Iterable<Map<GdlVariable, GdlConstant>> {
 	
 	//Represents information about a sentence form that is constant.
 	public static class ConstantForm {
+		@SuppressWarnings("unused")
 		private SentenceForm form;
-
+		
 		private int numSlots;
 		//True iff the slot has at most one value given the other slots' values
 		private List<Boolean> dependentSlots = new ArrayList<Boolean>();
