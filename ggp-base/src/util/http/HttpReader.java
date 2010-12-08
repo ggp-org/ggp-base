@@ -45,9 +45,9 @@ public final class HttpReader
 		BufferedReader br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
 		// The first line of the HTTP request is the request line.
-		String requestLine = br.readLine().toUpperCase();
+		String requestLine = br.readLine();
 		String message;
-		if(requestLine.startsWith("GET ")) {
+		if(requestLine.toUpperCase().startsWith("GET ")) {
 		    message = requestLine.substring(5, requestLine.lastIndexOf(' '));
 		    message = URLDecoder.decode(message, "UTF-8");
 		    message = message.replace((char)13, ' ');
