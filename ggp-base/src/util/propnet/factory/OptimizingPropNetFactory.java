@@ -49,13 +49,14 @@ import util.statemachine.Role;
 /*
  * A propnet factory meant to optimize the propnet before it's even built,
  * mostly through transforming the GDL. (The transformations identify certain
- * classes of rules that have poor performance
+ * classes of rules that have poor performance and replace them with equivalent
+ * rules that have better performance, with performance measured by the size of
+ * the propnet.)
  * 
  * Known issues:
  * - Does not work on games with many advanced forms of recursion. These include:
  *   - Anything that breaks the SentenceModel
  *   - Multiple sentence forms which reference one another in rules
- *   - 
  *   - Not 100% confirmed to work on games where recursive rules have multiple
  *     recursive conjuncts
  * - Currently runs some of the transformations multiple times. A Description
@@ -72,10 +73,6 @@ import util.statemachine.Role;
  *   CondensationIsolator could solve these problems. A stopgap alternative is to
  *   try both settings and use the smaller propnet (or the first to be created,
  *   if multithreading).
- * - Fails in certain cases like the following, which should be improved upon:
- *   ( <= next_tmp6 ( does white ( triplejump ?p ?u ?v ?x3 ?y3 ?x4 ?y4 ?x ?y ) ) )
- *   This is because it tries to iterate over the variables without taking advantage
- *   of the limited range of possibilities of "does" (as defined by input).
  * 
  */
 public class OptimizingPropNetFactory {
@@ -111,8 +108,9 @@ public class OptimizingPropNetFactory {
 			if(useAdvancedCondensers)
 				description = CondensationIsolator.run(description, true, moreRestraint);
 		}
-		for(Gdl gdl : description)
-			System.out.println(gdl);
+		if(verbose)
+			for(Gdl gdl : description)
+				System.out.println(gdl);
 
 		//We want to start with a rule graph and follow the rule graph.
 		//Start with the constants, etc.
@@ -138,7 +136,13 @@ public class OptimizingPropNetFactory {
 		//Recursive loops may only contain one sentence form.
 		//This describes most games, but not all legal games.
 		Map<SentenceForm, Set<SentenceForm>> dependencyGraph = model.getDependencyGraph();
+		if(verbose) {
+			System.out.print("Computing topological ordering... ");
+			System.out.flush();
+		}
 		List<SentenceForm> topologicalOrdering = getTopologicalOrdering(model.getSentenceForms(), dependencyGraph, usingBase, usingInput);
+		if(verbose)
+			System.out.println("done");
 		//Now what?
 		//PropNet propnet = new PropNet(); This is actually the last step
 		List<Role> roles = Role.computeRoles(description);
@@ -147,6 +151,7 @@ public class OptimizingPropNetFactory {
 		Constant trueComponent = new Constant(true);
 		Constant falseComponent = new Constant(false);
 		Map<SentenceForm, ConstantForm> constantForms = new HashMap<SentenceForm, ConstantForm>();
+		Map<SentenceForm, Collection<GdlSentence>> completedSentenceFormValues = new HashMap<SentenceForm, Collection<GdlSentence>>();
 		for(SentenceForm form : topologicalOrdering) {
 			if(verbose) {
 				System.out.print("Adding sentence form " + form);
@@ -177,6 +182,7 @@ public class OptimizingPropNetFactory {
 				if(verbose)
 					System.out.println("Checking whether " + form + " is a functional constant...");
 				addToConstants(form, constantChecker, constantForms);
+				addFormToCompletedValues(form, completedSentenceFormValues, constantChecker);
 				
 				continue;
 			}
@@ -186,11 +192,12 @@ public class OptimizingPropNetFactory {
 			//Add a temporary sentence form thingy? ...
 			Map<GdlSentence, Component> temporaryComponents = new HashMap<GdlSentence, Component>();
 			Map<GdlSentence, Component> temporaryNegations = new HashMap<GdlSentence, Component>();
-			addSentenceForm(form, model, description, components, negations, trueComponent, falseComponent, usingBase, usingInput, Collections.singleton(form), temporaryComponents, temporaryNegations, constantForms, constantChecker);
+			addSentenceForm(form, model, description, components, negations, trueComponent, falseComponent, usingBase, usingInput, Collections.singleton(form), temporaryComponents, temporaryNegations, constantForms, constantChecker, completedSentenceFormValues);
 			//TODO: Pass these over groups of multiple sentence forms
 			if(verbose && !temporaryComponents.isEmpty())
 				System.out.println("Processing temporary components...");
 			processTemporaryComponents(temporaryComponents, temporaryNegations, components, negations, trueComponent, falseComponent);
+			addFormToCompletedValues(form, completedSentenceFormValues, components);
 		}
 		//Connect "next" to "true"
 		if(verbose)
@@ -217,6 +224,38 @@ public class OptimizingPropNetFactory {
 		//System.out.println(propnet);
 		//constantChecker.destroy();
 		return propnet;
+	}
+
+
+	private static void addFormToCompletedValues(
+			SentenceForm form,
+			Map<SentenceForm, Collection<GdlSentence>> completedSentenceFormValues,
+			ConstantChecker constantChecker) {
+		constantChecker.getTrueSentences(form);
+		List<GdlSentence> sentences = new ArrayList<GdlSentence>();
+		Iterator<GdlSentence> itr = constantChecker.getTrueSentences(form);
+		while(itr.hasNext())
+			sentences.add(itr.next());
+
+		completedSentenceFormValues.put(form, sentences);
+	}
+
+
+	private static void addFormToCompletedValues(
+			SentenceForm form,
+			Map<SentenceForm, Collection<GdlSentence>> completedSentenceFormValues,
+			Map<GdlSentence, Component> components) {
+		//Kind of inefficient. Could do better by collecting these as we go,
+		//then adding them back into the CSFV map once the sentence forms are complete.
+		//completedSentenceFormValues.put(form, new ArrayList<GdlSentence>());
+		List<GdlSentence> sentences = new ArrayList<GdlSentence>();
+		for(GdlSentence sentence : components.keySet()) {
+			if(form.matches(sentence)) {
+				//The sentence has a node associated with it
+				sentences.add(sentence);
+			}
+		}
+		completedSentenceFormValues.put(form, sentences);
 	}
 
 
@@ -661,7 +700,8 @@ public class OptimizingPropNetFactory {
 			boolean usingBase, boolean usingInput,
 			Set<SentenceForm> recursionForms,
 			Map<GdlSentence, Component> temporaryComponents, Map<GdlSentence, Component> temporaryNegations,
-			Map<SentenceForm, ConstantForm> constantForms, ConstantChecker constantChecker) {
+			Map<SentenceForm, ConstantForm> constantForms, ConstantChecker constantChecker,
+			Map<SentenceForm, Collection<GdlSentence>> completedSentenceFormValues) {
 		//This is the meat of it (along with the entire Assignments class).
 		//We need to enumerate the possible propositions in the sentence form...
 		//We also need to hook up the sentence form to the inputs that can make it true.
@@ -721,7 +761,7 @@ public class OptimizingPropNetFactory {
 		//Then or them together at the end
 		Map<GdlSentence, Set<Component>> inputsToOr = new HashMap<GdlSentence, Set<Component>>();
 		for(GdlRule rule : rules) {
-			Assignments assignments = Assignments.getAssignmentsForRule(rule, model, constantForms);
+			Assignments assignments = Assignments.getAssignmentsForRule(rule, model, constantForms, completedSentenceFormValues);
 
 			//System.out.println("Rule: " + rule);
 			//Do we just pass those to the Assignments class in that case?

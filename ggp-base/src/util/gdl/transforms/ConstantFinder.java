@@ -1,6 +1,7 @@
 package util.gdl.transforms;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -195,6 +196,7 @@ public class ConstantFinder {
 			};
 		}
 		
+		@SuppressWarnings("unchecked")
 		private void addConstantSentenceForm(SentenceForm form,
 				Set<GdlRelation> relations, Set<GdlRule> rules,
 				Map<SentenceForm, ConstantForm> constForms) {
@@ -216,7 +218,7 @@ public class ConstantFinder {
 			Set<GdlSentence> trueByNonRecursives = new HashSet<GdlSentence>();
 			trueByNonRecursives.addAll(relations);
 			for(GdlRule rule : nonRecursiveRules) {
-				Assignments assignments = Assignments.getAssignmentsForRule(rule, model, constForms);
+				Assignments assignments = Assignments.getAssignmentsForRule(rule, model, constForms, Collections.EMPTY_MAP);
 				GdlSentence head = rule.getHead();
 				List<GdlVariable> varsInHead = getVarsInConjunct(head);
 
@@ -275,7 +277,7 @@ public class ConstantFinder {
 				//Da da da, do rules
 				for(GdlRule rule : recursiveRules) {
 					for(GdlSentence input : recentAdditions) {
-						Assignments assignments = Assignments.getAssignmentsWithRecursiveInput(rule, model, form, input, null, false);
+						Assignments assignments = Assignments.getAssignmentsWithRecursiveInput(rule, model, form, input, null, false, Collections.EMPTY_MAP);
 						GdlSentence head = rule.getHead();
 						List<GdlVariable> varsInHead = getVarsInConjunct(head);
 

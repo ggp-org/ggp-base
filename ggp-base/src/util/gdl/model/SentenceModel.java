@@ -1124,6 +1124,34 @@ public class SentenceModel {
 		return false;
 	}
 
+	public static List<GdlTerm> getTupleFromSentence(
+			GdlSentence sentence) {
+		if(sentence instanceof GdlProposition)
+			return Collections.emptyList();
+		
+		//A simple crawl through the sentence.
+		List<GdlTerm> tuple = new ArrayList<GdlTerm>();
+		try {
+			addBodyToTuple(sentence.getBody(), tuple);
+		} catch(RuntimeException e) {
+			throw new RuntimeException(e.getMessage() + "\nSentence was " + sentence);
+		}
+		return tuple;
+	}
+	private static void addBodyToTuple(List<GdlTerm> body, List<GdlTerm> tuple) {
+		for(GdlTerm term : body) {
+			if(term instanceof GdlConstant) {
+				tuple.add(term);
+			} else if(term instanceof GdlVariable) {
+				tuple.add(term);
+			} else if(term instanceof GdlFunction){
+				GdlFunction function = (GdlFunction) term;
+				addBodyToTuple(function.getBody(), tuple);
+			} else {
+				throw new RuntimeException("Unforeseen Gdl tupe in SentenceModel.addBodyToTuple()");
+			}
+		}
+	}
 	public static List<GdlConstant> getTupleFromGroundSentence(
 			GdlSentence sentence) {
 		if(sentence instanceof GdlProposition)
@@ -1132,13 +1160,13 @@ public class SentenceModel {
 		//A simple crawl through the sentence.
 		List<GdlConstant> tuple = new ArrayList<GdlConstant>();
 		try {
-			addBodyToTuple(sentence.getBody(), tuple);
+			addBodyToGroundTuple(sentence.getBody(), tuple);
 		} catch(RuntimeException e) {
 			throw new RuntimeException(e.getMessage() + "\nSentence was " + sentence);
 		}
 		return tuple;
 	}
-	private static void addBodyToTuple(List<GdlTerm> body, List<GdlConstant> tuple) {
+	private static void addBodyToGroundTuple(List<GdlTerm> body, List<GdlConstant> tuple) {
 		for(GdlTerm term : body) {
 			if(term instanceof GdlConstant) {
 				tuple.add((GdlConstant) term);
@@ -1146,7 +1174,7 @@ public class SentenceModel {
 				throw new RuntimeException("Asking for a ground tuple of a non-ground sentence");
 			} else if(term instanceof GdlFunction){
 				GdlFunction function = (GdlFunction) term;
-				addBodyToTuple(function.getBody(), tuple);
+				addBodyToGroundTuple(function.getBody(), tuple);
 			} else {
 				throw new RuntimeException("Unforeseen Gdl tupe in SentenceModel.addBodyToTuple()");
 			}

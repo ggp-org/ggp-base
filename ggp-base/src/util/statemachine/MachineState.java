@@ -26,7 +26,11 @@ public abstract class MachineState {
 
     public String toString()
     {
-        return getContents().toString();
+    	Set<GdlSentence> contents = getContents();
+    	if(contents == null)
+    		return "(MachineState with null contents)";
+    	else
+    		return contents.toString();
     }	
 
     public boolean equals(Object o)

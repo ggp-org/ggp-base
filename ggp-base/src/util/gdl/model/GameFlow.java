@@ -139,7 +139,7 @@ public class GameFlow {
 			for(GdlRule rule : model.getRules(curForm)) {
 				GdlSentence head = rule.getHead();
 				List<GdlVariable> varsInHead = SentenceModel.getVariables(head);
-				Assignments assignments = Assignments.getAssignmentsForRule(rule, model, constForms);
+				Assignments assignments = Assignments.getAssignmentsForRule(rule, model, constForms, Collections.EMPTY_MAP);
 				
 				AssignmentIterator asnItr = assignments.getIterator();
 				while(asnItr.hasNext()) {
