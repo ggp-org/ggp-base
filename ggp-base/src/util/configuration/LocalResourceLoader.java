@@ -15,7 +15,7 @@ import util.kif.KifReader;
 import util.logging.GamerLogger;
 
 /**
- * ResourceLoader loads project resources.
+ * LocalResourceLoader loads locally-stored project resources.
  * 
  * It works regardless of whether it is being called in a stand-alone app,
  * a self-executing JAR, or a web-based applet. For this reason, it is the
@@ -23,7 +23,7 @@ import util.logging.GamerLogger;
  * 
  * @author Sam
  */
-public class ResourceLoader {
+public class LocalResourceLoader {
     private static Object loadResourcesFrom = null;
     
     public static void setLocalResourceLoader(Object o) {

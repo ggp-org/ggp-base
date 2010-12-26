@@ -2,7 +2,7 @@ package apps.kiosk;
 
 import java.applet.Applet;
 import apps.common.NativeUI;
-import util.configuration.ResourceLoader;
+import util.configuration.LocalResourceLoader;
 
 /**
  * AppletKiosk is a version of the standard Kiosk that can run in an applet.
@@ -21,6 +21,6 @@ public final class AppletKiosk extends Applet
     
     public AppletKiosk() {
         add(new Kiosk());
-        ResourceLoader.setLocalResourceLoader(this);
+        LocalResourceLoader.setLocalResourceLoader(this);
     }
 }

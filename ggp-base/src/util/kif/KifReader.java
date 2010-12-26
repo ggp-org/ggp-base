@@ -5,6 +5,8 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,30 +20,35 @@ import util.symbol.grammar.SymbolList;
 public class KifReader
 {
 	public static List<Gdl> read(String filename) throws IOException, SymbolFormatException, GdlFormatException {
-	    return convertIntoGdl("(" + readFile(filename) + ")");
+	    return convertIntoGdl("(" + readStream(new BufferedReader(new FileReader(filename))) + ")");
 	}
 	
     public static List<Gdl> readStream(InputStream in) throws IOException, SymbolFormatException, GdlFormatException {
         return convertIntoGdl("(" + readStream(new BufferedReader(new InputStreamReader(in))) + ")");
-    }	
-	
-	protected static List<Gdl> convertIntoGdl(String gameDescription) throws IOException, SymbolFormatException, GdlFormatException {
+    }
+    
+    public static List<Gdl> readURL(String theURL) throws IOException, SymbolFormatException, GdlFormatException {
+        URL url = new URL(theURL);
+        URLConnection urlConnection = url.openConnection();                
+        if (urlConnection.getContentLength() == 0)
+            throw new IOException("Could not load URL: " + theURL);
+        return convertIntoGdl("(" + readStream(new BufferedReader(new InputStreamReader(urlConnection.getInputStream()))) + ")");
+    }
+
+    /* Actually read the game rulesheet and convert it into GDL */
+	protected static List<Gdl> convertIntoGdl(String gameDescription) throws SymbolFormatException, GdlFormatException {
         List<Gdl> contents = new ArrayList<Gdl>();
         
         SymbolList list = (SymbolList) SymbolFactory.create(gameDescription);
         for (int i = 0; i < list.size(); i++)
         {
-        contents.add(GdlFactory.create(list.get(i)));
+            contents.add(GdlFactory.create(list.get(i)));
         }
         
         return contents;
 	}
 
-	protected static String readFile(String filename) throws IOException {
-		BufferedReader br = new BufferedReader(new FileReader(filename));
-		return readStream(br);
-	}
-	
+	/* Given a stream, parse out all the comments and aggregate it */
 	protected static String readStream(BufferedReader br) throws IOException {
         StringBuilder sb = new StringBuilder();
         String line = null;

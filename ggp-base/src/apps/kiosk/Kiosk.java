@@ -36,7 +36,7 @@ import player.gamer.Gamer;
 import server.event.ServerConnectionErrorEvent;
 import server.event.ServerIllegalMoveEvent;
 import server.event.ServerTimeoutEvent;
-import util.configuration.ResourceLoader;
+import util.configuration.LocalResourceLoader;
 import util.gdl.grammar.Gdl;
 import util.logging.GamerLogger;
 import util.match.Match;
@@ -95,7 +95,7 @@ public final class Kiosk extends JPanel implements ActionListener, ItemListener,
     public Kiosk()
     {
         super(new GridBagLayout());
-        ResourceLoader.setLocalResourceLoader(this);        
+        LocalResourceLoader.setLocalResourceLoader(this);        
         setPreferredSize(new Dimension(1050, 900));
 
         NativeUI.setNativeUI();
@@ -246,7 +246,7 @@ public final class Kiosk extends JPanel implements ActionListener, ItemListener,
         if(e.getSource() == runButton) {
             try {
                 AvailableGame theGame = (AvailableGame) (selectedGame.getSelectedValue());
-                List<Gdl> description = ResourceLoader.loadGame(theGame.kifFile);
+                List<Gdl> description = LocalResourceLoader.loadGame(theGame.kifFile);
 
                 String matchId = "kiosk." + theGame.kifFile + "-" + System.currentTimeMillis();
                 int startClock = Integer.valueOf(startClockTextField.getText());
