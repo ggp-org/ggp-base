@@ -1,7 +1,6 @@
 package player.gamer.clojure;
 
-import apps.common.GameLoader;
-
+import util.configuration.LocalResourceLoader;
 import util.gdl.grammar.GdlPool;
 import util.gdl.grammar.GdlSentence;
 import util.logging.GamerLogger;
@@ -107,7 +106,7 @@ public abstract class ClojureGamer extends Gamer
             Gamer g = new ClojureLegalGamerStub();
             System.out.println(g.getName());
 
-            Match m = new Match("", 1000, 1000, GameLoader.loadGame("tictactoe"));
+            Match m = new Match("", 1000, 1000, LocalResourceLoader.loadGame("tictactoe"));
             g.setMatch(m);
             g.setRoleName(GdlPool.getProposition(GdlPool.getConstant("xplayer")));
             g.metaGame(1000);

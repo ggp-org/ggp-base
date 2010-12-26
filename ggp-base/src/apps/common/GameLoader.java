@@ -7,18 +7,10 @@ import javax.swing.JFileChooser;
 import javax.swing.JPanel;
 
 import util.configuration.ProjectConfiguration;
-import util.configuration.LocalResourceLoader;
 import util.gdl.grammar.Gdl;
 import util.kif.KifReader;
 
 public class GameLoader {
-    public static List<Gdl> loadGame(String gameName) {
-        // TODO: Eventually this method should become deprecated,
-        // in favor of the ResourceLoader version. Possibly, this
-        // entire class should be deprecated.
-        return LocalResourceLoader.loadGame(gameName);
-    }
-    
     public static List<Gdl> loadGameUsingPrompt() {
         JFileChooser fileChooser = new JFileChooser(ProjectConfiguration.gameRulesheetsPath);
         int rval = fileChooser.showOpenDialog(new JPanel());

@@ -8,8 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import apps.common.GameLoader;
-
+import util.configuration.LocalResourceLoader;
 import util.gdl.grammar.Gdl;
 import util.gdl.grammar.GdlConstant;
 import util.gdl.grammar.GdlDistinct;
@@ -778,7 +777,7 @@ public class PropNetFlattener {
      * @param args
      */
     public static void main(String[] args) {
-        List<Gdl> description = GameLoader.loadGame("conn4");
+        List<Gdl> description = LocalResourceLoader.loadGame("conn4");
         
         PropNetFlattener flattener = new PropNetFlattener(description);
         List<GdlRule> flattened = flattener.flatten();

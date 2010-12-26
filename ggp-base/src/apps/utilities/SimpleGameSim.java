@@ -4,8 +4,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import apps.common.GameLoader;
-
+import util.configuration.LocalResourceLoader;
 import util.gdl.grammar.Gdl;
 import util.gdl.grammar.GdlSentence;
 import util.statemachine.MachineState;
@@ -34,7 +33,7 @@ public class SimpleGameSim {
     public static final boolean showCurrentState = false;
     
     public static void main(String[] args) {
-        List<Gdl> description = GameLoader.loadGame("tictactoe");
+        List<Gdl> description = LocalResourceLoader.loadGame("tictactoe");
         
         // ---------------------------------------------------------
         // Construct the machine: change this to select which machine
