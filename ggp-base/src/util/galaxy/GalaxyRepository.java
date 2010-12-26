@@ -11,11 +11,17 @@ import external.JSON.JSONArray;
 import external.JSON.JSONException;
 import external.JSON.JSONObject;
 
+/**
+ * GalaxyRepositoriy is a prototype system for loading game resources from a
+ * game repository server that adheres to the GGP Galaxy Fed0 protocol.
+ * 
+ * @author Sam
+ */
 public class GalaxyRepository {
     public static String[] getGamesFromRepository(String theURL) throws IOException {
         try {
             List<String> theGames = new ArrayList<String>();
-            JSONArray theArray = ResourceLoader.loadJSONArray(theURL);
+            JSONArray theArray = RemoteResourceLoader.loadJSONArray(theURL);
             
             for(int i = 0; i < theArray.length(); i++) {
                 theGames.add(theArray.getString(i));
@@ -29,7 +35,7 @@ public class GalaxyRepository {
     }
     
     public static JSONObject getGameMetadataFromRepository(String theURL, String theGame) throws IOException {
-        return ResourceLoader.loadJSON(theURL + "/games/" + theGame + "/");
+        return RemoteResourceLoader.loadJSON(theURL + "/games/" + theGame + "/");
     }
     
     public static List<Gdl> getGameRulesheetFromRepository(String theURL, String theGame) {

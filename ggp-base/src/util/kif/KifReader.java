@@ -17,6 +17,18 @@ import util.symbol.factory.SymbolFactory;
 import util.symbol.factory.exceptions.SymbolFormatException;
 import util.symbol.grammar.SymbolList;
 
+/**
+ * KifReader is responsible for loading files which are written in the
+ * Knowledge Interchange Format (KIF). Specifically, we are interested in
+ * loading game rulesheets, which are written in GDL, which is designed as
+ * a strict subset of KIF.
+ * 
+ * Given a resource identifier (a filename, a stream, or a URL), this class
+ * can load a game rulesheet from that resource, returning the GDL objects
+ * defined in the rulesheet.
+ * 
+ * More details at: http://www-ksl.stanford.edu/knowledge-sharing/kif/
+ */
 public class KifReader
 {
 	public static List<Gdl> read(String filename) throws IOException, SymbolFormatException, GdlFormatException {

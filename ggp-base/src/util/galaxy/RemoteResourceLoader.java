@@ -2,7 +2,6 @@ package util.galaxy;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
@@ -10,7 +9,13 @@ import java.net.URLConnection;
 import external.JSON.JSONArray;
 import external.JSON.JSONObject;
 
-public class ResourceLoader {
+/**
+ * RemoteResourceLoader loads remotely-stored resources. It can load resources
+ * as raw strings, JSON objects, or JSON arrays.
+ * 
+ * @author Sam
+ */
+public class RemoteResourceLoader {
     public static JSONObject loadJSON(String theURL) throws IOException {
         try {
             return new JSONObject(loadRaw(theURL));
@@ -40,13 +45,5 @@ public class ResourceLoader {
             theJSON.append(nextLine);
         } while (true);
         return theJSON.toString();
-    }
-    
-    public static InputStream openInputStreamToURL(String theURL) throws IOException {
-        URL url = new URL(theURL);
-        URLConnection urlConnection = url.openConnection();                
-        if (urlConnection.getContentLength() == 0)
-            throw new IOException("Could not load URL: " + theURL);
-        return urlConnection.getInputStream();
     }
 }
