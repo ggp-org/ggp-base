@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Set;
 
 import util.configuration.LocalResourceLoader;
+import util.galaxy.GalaxyRepository;
 import util.gdl.grammar.Gdl;
 import util.gdl.grammar.GdlSentence;
 import util.statemachine.MachineState;
@@ -27,13 +28,16 @@ import util.statemachine.verifier.StateMachineVerifier;
  * 
  * @author Sam Schreiber
  */
+@SuppressWarnings("unused")
 public class SimpleGameSim {
     public static final boolean hideStepCounter = true;
     public static final boolean hideControlProposition = true;
     public static final boolean showCurrentState = false;
     
     public static void main(String[] args) {
-        List<Gdl> description = LocalResourceLoader.loadGame("tictactoe");
+        // TODO: Reconcile these two mechanisms for loading games.
+        List<Gdl> description = GalaxyRepository.getGameRulesheetFromRepository("http://ggp-repository.appspot.com", "nineBoardTicTacToe");
+        //List<Gdl> description = LocalResourceLoader.loadGame("tictactoe");
         
         // ---------------------------------------------------------
         // Construct the machine: change this to select which machine
