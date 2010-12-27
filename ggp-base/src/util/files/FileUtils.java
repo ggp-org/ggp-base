@@ -55,6 +55,7 @@ public class FileUtils {
         catch(Exception ex)
         {
             // TODO: this might be TOO suppressed
+            // TODO: perhaps make this return NULL instead?
 //            System.err.println("Unable to read file " + file + " as string");
 //            ex.printStackTrace();
             return "";
