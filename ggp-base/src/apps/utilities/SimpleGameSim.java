@@ -4,10 +4,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import util.configuration.LocalResourceLoader;
-import util.configuration.ProjectConfiguration;
 import util.game.GameRepository;
-import util.game.RemoteGameRepository;
 import util.gdl.grammar.Gdl;
 import util.gdl.grammar.GdlSentence;
 import util.statemachine.MachineState;
@@ -30,7 +27,6 @@ import util.statemachine.verifier.StateMachineVerifier;
  * 
  * @author Sam Schreiber
  */
-@SuppressWarnings("unused")
 public class SimpleGameSim {
     public static final boolean hideStepCounter = true;
     public static final boolean hideControlProposition = true;
