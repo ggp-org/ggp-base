@@ -19,9 +19,10 @@ public class TransformTester {
         final ProverStateMachine theReference = new ProverStateMachine();
         final ProverStateMachine theMachine = new ProverStateMachine();	    
 	    
-        for(String gameKey : GameRepository.getDefaultRepository().getGameKeys()) {
+        GameRepository theRepository = GameRepository.getDefaultRepository();
+        for(String gameKey : theRepository.getGameKeys()) {
             if(gameKey.contains("laikLee")) continue;
-            List<Gdl> description = GameRepository.getDefaultRepository().getGame(gameKey).getRules();
+            List<Gdl> description = theRepository.getGame(gameKey).getRules();
             List<Gdl> newDescription = description;
             
             // Choose the transformation(s) to test here
