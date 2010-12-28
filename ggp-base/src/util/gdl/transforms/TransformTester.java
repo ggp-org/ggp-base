@@ -1,9 +1,7 @@
 package util.gdl.transforms;
 
-import java.io.File;
 import java.util.List;
 
-import util.configuration.ProjectConfiguration;
 import util.game.GameRepository;
 import util.gdl.grammar.Gdl;
 import util.statemachine.implementation.prover.ProverStateMachine;
@@ -21,21 +19,19 @@ public class TransformTester {
         final ProverStateMachine theReference = new ProverStateMachine();
         final ProverStateMachine theMachine = new ProverStateMachine();	    
 	    
-        for(File game : ProjectConfiguration.gameRulesheetsDirectory.listFiles()) {
-            if(!game.getName().endsWith(".kif")) continue;
-            if(game.getName().contains("laikLee")) continue;
-            System.out.println(game.getName());
-            List<Gdl> description = GameRepository.getDefaultRepository().getGame(game.getName().replace(".kif", "")).getRules();
+        for(String gameKey : GameRepository.getDefaultRepository().getGameKeys()) {
+            if(gameKey.contains("laikLee")) continue;
+            List<Gdl> description = GameRepository.getDefaultRepository().getGame(gameKey).getRules();
             List<Gdl> newDescription = description;
             
-            //Choose the transformation(s) to test here
+            // Choose the transformation(s) to test here
             description = DeORer.run(description);
             newDescription = VariableConstrainer.replaceFunctionValuedVariables(description);
             
             if(description.hashCode() != newDescription.hashCode()) {
                 theReference.initialize(description);
                 theMachine.initialize(newDescription);
-                System.out.println("Detected activation in game " + game.getName() + ". Checking consistency: ");
+                System.out.println("Detected activation in game " + gameKey + ". Checking consistency: ");
                 StateMachineVerifier.checkMachineConsistency(theReference, theMachine, 10000);
                 
                 if(showDiffs) {

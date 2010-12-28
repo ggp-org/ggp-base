@@ -1,9 +1,12 @@
 package util.game;
 
+import java.io.File;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import util.configuration.LocalResourceLoader;
+import util.configuration.ProjectConfiguration;
 import util.gdl.grammar.Gdl;
 
 /**
@@ -14,8 +17,12 @@ import util.gdl.grammar.Gdl;
  */
 public final class LocalGameRepository extends GameRepository {    
     public Set<String> getUncachedGameKeys() {
-        // TODO: Fill in this stub!
-        return null;
+        Set<String> theKeys = new HashSet<String>();
+        for(File game : ProjectConfiguration.gameRulesheetsDirectory.listFiles()) {
+            if(!game.getName().endsWith(".kif")) continue;
+            theKeys.add(game.getName().replace(".kif", ""));
+        }
+        return theKeys;
     }
     
     public Game getUncachedGame(String theKey) {
