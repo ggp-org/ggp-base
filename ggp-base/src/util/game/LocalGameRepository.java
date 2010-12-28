@@ -11,7 +11,7 @@ import java.util.Set;
  * 
  * @author Sam
  */
-public class LocalGameRepository implements GameRepository {
+public final class LocalGameRepository implements GameRepository {
     public LocalGameRepository() {
         ;
     }

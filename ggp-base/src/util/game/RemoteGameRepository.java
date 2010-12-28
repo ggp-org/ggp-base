@@ -22,7 +22,7 @@ import external.JSON.JSONObject;
  * 
  * @author Sam
  */
-public class RemoteGameRepository implements GameRepository {
+public final class RemoteGameRepository implements GameRepository {
     private final String theRepoURL;
     
     // Caches, which are lazily filled.

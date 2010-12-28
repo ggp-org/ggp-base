@@ -23,7 +23,7 @@ import util.gdl.grammar.Gdl;
  * 
  * @author Sam
  */
-public class Game {
+public final class Game {
     private final String theKey;
     private final String theName;
     private final String theDescription;    
