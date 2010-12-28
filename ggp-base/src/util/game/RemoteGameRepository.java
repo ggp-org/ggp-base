@@ -54,7 +54,7 @@ public final class RemoteGameRepository extends GameRepository {
             String theStylesheet = getGameResourceFromMetadata(theKey, theMetadata, "stylesheet");
             List<Gdl> theRules = getGameRulesheetFromMetadata(theKey, theMetadata);
             
-            return new Game(theKey, theName, theRepositoryURL, theDescription, theStylesheet, theRules);
+            return new Game(theKey, theName, theDescription, theRepositoryURL, theStylesheet, theRules);
         } catch(IOException e) {
             return null;
         }
