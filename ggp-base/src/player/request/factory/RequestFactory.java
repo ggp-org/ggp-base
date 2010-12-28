@@ -10,6 +10,7 @@ import player.request.grammar.PlayRequest;
 import player.request.grammar.Request;
 import player.request.grammar.StartRequest;
 import player.request.grammar.StopRequest;
+import util.game.Game;
 import util.gdl.factory.GdlFactory;
 import util.gdl.factory.exceptions.GdlFormatException;
 import util.gdl.grammar.Gdl;
@@ -88,16 +89,18 @@ public final class RequestFactory
 
 		String matchId = arg1.getValue();
 		GdlProposition roleName = (GdlProposition) GdlFactory.create(arg2);
-		List<Gdl> description = parseDescription(arg3);
+		List<Gdl> theRules = parseDescription(arg3);
 		int startClock = Integer.valueOf(arg4.getValue());
 		int playClock = Integer.valueOf(arg5.getValue());
 
 		// TODO: There may be more than five arguments. These may be worth
 		// parsing, once we find a meaningful way to handle them. They aren't
 		// yet standardized, but, for example, one might be the URL of an XSL
-		// stylesheet for visualizing a state of the game.
+		// stylesheet for visualizing a state of the game, or the URL for the
+		// game on a repository server.
 
-		return new StartRequest(gamer, matchId, roleName, description, startClock, playClock);
+		Game theReceivedGame = Game.createEphemeralGame(theRules);
+		return new StartRequest(gamer, matchId, roleName, theReceivedGame, startClock, playClock);
 	}
 
 	private StopRequest createStop(Gamer gamer, SymbolList list) throws GdlFormatException

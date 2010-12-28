@@ -3,7 +3,7 @@ package util.match;
 import java.util.ArrayList;
 import java.util.List;
 
-import util.gdl.grammar.Gdl;
+import util.game.Game;
 import util.gdl.grammar.GdlSentence;
 
 /**
@@ -20,53 +20,53 @@ public final class Match
     private final String matchId;
     private final int playClock;
     private final int startClock;
-	private final List<Gdl> description;
+    private final long startTime;
+	private final Game theGame;
 	private final List<List<GdlSentence>> history;
 
-	public Match(String matchId, int startClock, int playClock, List<Gdl> description)
+	public Match(String matchId, int startClock, int playClock, long startTime, Game theGame)
 	{
 		this.matchId = matchId;
 		this.startClock = startClock;
-		this.playClock = playClock;
-		this.description = description;
+		this.playClock = playClock;		
+		this.startTime = startTime;
+		this.theGame = theGame;
+		
 		history = new ArrayList<List<GdlSentence>>();
 	}
 
-	public void appendMoves(List<GdlSentence> moves)
-	{
+	public void appendMoves(List<GdlSentence> moves) {
 		history.add(moves);
 	}
 
-	public List<Gdl> getDescription()
-	{
-		return description;
+	public Game getGame() {
+		return theGame;
 	}
 
-	public List<List<GdlSentence>> getHistory()
-	{
+	public List<List<GdlSentence>> getHistory() {
 		return history;
 	}
 	
-	public List<GdlSentence> getMostRecentMoves()
-	{
-		if(history.size()==0)
+	public List<GdlSentence> getMostRecentMoves() {
+		if (history.size() == 0)
 			return null;
 		
 		return history.get(history.size()-1);
 	}
 
-	public String getMatchId()
-	{
+	public String getMatchId() {
 		return matchId;
 	}
 
-	public int getPlayClock()
-	{
+	public int getPlayClock() {
 		return playClock;
 	}
 
-	public int getStartClock()
-	{
+	public int getStartClock() {
 		return startClock;
+	}
+	
+	public long getStartTime() {
+	    return startTime;
 	}
 }

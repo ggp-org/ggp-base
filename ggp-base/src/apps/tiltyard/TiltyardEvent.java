@@ -72,7 +72,7 @@ public class TiltyardEvent implements Observer, Subject {
         try {
             notifyObservers(new GamerNewMatchEvent(null, null));
 
-            Match theMatch = new Match("Tiltyard." + gameName + "." + System.currentTimeMillis(), startClock, playClock, theMatchModel.getDescription());
+            Match theMatch = new Match("Tiltyard." + gameName + "." + System.currentTimeMillis(), startClock, playClock, System.currentTimeMillis(), theMatchModel.getGame());
  
             GameServer gameServer = new GameServer(theMatch, hosts, ports, names);
             gameServer.addObserver(this);

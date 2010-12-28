@@ -223,7 +223,7 @@ public final class Frontend extends Thread
 
 	public static void main(String[] args)
 	{
-		Match fakeMatch = new Match("Frontend." + System.currentTimeMillis(), 0, 0, null);
+		Match fakeMatch = new Match("Frontend." + System.currentTimeMillis(), 0, 0, System.currentTimeMillis(), null);
 		GamerLogger.startFileLogging(fakeMatch, "");		
 		
 		GamerLogger.setFileToDisplay("Frontend");

@@ -37,8 +37,8 @@ import server.event.ServerConnectionErrorEvent;
 import server.event.ServerIllegalMoveEvent;
 import server.event.ServerTimeoutEvent;
 import util.configuration.LocalResourceLoader;
+import util.game.Game;
 import util.game.GameRepository;
-import util.gdl.grammar.Gdl;
 import util.logging.GamerLogger;
 import util.match.Match;
 import util.observer.Event;
@@ -247,12 +247,12 @@ public final class Kiosk extends JPanel implements ActionListener, ItemListener,
         if(e.getSource() == runButton) {
             try {
                 AvailableGame theGame = (AvailableGame) (selectedGame.getSelectedValue());
-                List<Gdl> description = GameRepository.getDefaultRepository().getGame(theGame.kifFile).getRules();
+                Game game = GameRepository.getDefaultRepository().getGame(theGame.kifFile);
 
                 String matchId = "kiosk." + theGame.kifFile + "-" + System.currentTimeMillis();
                 int startClock = Integer.valueOf(startClockTextField.getText());
                 int playClock = Integer.valueOf(playClockTextField.getText());
-                Match match = new Match(matchId, startClock, playClock, description);
+                Match match = new Match(matchId, startClock, playClock, System.currentTimeMillis(), game);
                 theHumanGamer.setCanvas(theGame.getCanvas());
                                     
                 // Stop old player if it's not the right type

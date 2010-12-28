@@ -39,7 +39,7 @@ public final class KioskStartRequestThread extends Thread
 		try
 		{
 			Socket socket = new Socket(host, port);
-			String request = RequestBuilder.getStartRequest(match.getMatchId(), role, match.getDescription(), match.getStartClock(), match.getPlayClock());
+			String request = RequestBuilder.getStartRequest(match.getMatchId(), role, match.getGame().getRules(), match.getStartClock(), match.getPlayClock());
 
 			HttpWriter.writeAsClient(socket, request, playerName);
 			HttpReader.readAsClient(socket, match.getStartClock() * 1000);

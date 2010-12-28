@@ -50,7 +50,7 @@ public class GamerLogger {
         new File(myDirectory).mkdirs();
         
         log("Logger", "Started logging to files at: " + new Date());
-        log("Logger", "Game description: " + m.getDescription());
+        log("Logger", "Game rules: " + m.getGame().getRules());
         log("Logger", "Start clock: " + m.getStartClock());
         log("Logger", "Play clock: " + m.getPlayClock());        
     }

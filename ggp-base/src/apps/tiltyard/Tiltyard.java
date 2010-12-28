@@ -25,15 +25,13 @@ import apps.common.NativeUI;
 
 import player.gamer.Gamer;
 import util.configuration.ProjectConfiguration;
-import util.gdl.factory.exceptions.GdlFormatException;
-import util.gdl.grammar.Gdl;
-import util.kif.KifReader;
+import util.game.Game;
+import util.game.GameRepository;
 import util.match.Match;
 import util.reflection.ProjectSearcher;
 import util.statemachine.Role;
 import util.statemachine.StateMachine;
 import util.statemachine.implementation.prover.ProverStateMachine;
-import util.symbol.factory.exceptions.SymbolFormatException;
 
 /**
  * Tiltyard is an application which allows you to quickly run a large number
@@ -172,7 +170,7 @@ public final class Tiltyard extends JPanel {
             int startClock = Integer.parseInt(startClockTextField.getText());
             int numReps = Integer.parseInt(numRepsTextField.getText());
             
-            Match theMatchModel = new Match("MatchID", startClock, playClock, description);
+            Match theMatchModel = new Match("MatchID", startClock, playClock, System.currentTimeMillis(), game);
             
             TiltyardManager theManager = new TiltyardManager(thePlayers, theMatchModel, gameName, numReps, eventsPanel);
             theManager.start();
@@ -194,7 +192,7 @@ public final class Tiltyard extends JPanel {
     }
     
     private String gameName;
-    private List<Gdl> description;
+    private Game game;
     private AbstractAction sourceButtonMethod(final Tiltyard tiltyardPanel)
     {
         return new AbstractAction("Source")
@@ -204,51 +202,43 @@ public final class Tiltyard extends JPanel {
                 JFileChooser fileChooser = new JFileChooser(ProjectConfiguration.gameRulesheetsPath);
                 if (fileChooser.showOpenDialog(Tiltyard.this) == JFileChooser.APPROVE_OPTION)
                 {                   
-                    try {
-                        File file = fileChooser.getSelectedFile();
-                        description = KifReader.read(file.getAbsolutePath());
-                        sourceTextField.setText(file.getName());
-                        gameName = file.getName().replaceAll("\\..*?$",""); //strip file ending
+                    File file = fileChooser.getSelectedFile();
+                    game = GameRepository.getDefaultRepository().getGame(file.getName().replace(".kif", ""));
+                    sourceTextField.setText(file.getName());
+                    gameName = file.getName().replaceAll("\\..*?$",""); //strip file ending
 
-                        StateMachine stateMachine = new ProverStateMachine();
-                        stateMachine.initialize(description);
-                        List<Role> roles = stateMachine.getRoles();
-                        int nRoles = roles.size();
+                    StateMachine stateMachine = new ProverStateMachine();
+                    stateMachine.initialize(game.getRules());
+                    List<Role> roles = stateMachine.getRoles();
+                    int nRoles = roles.size();
 
-                        while(playerBoxes.size() > nRoles) {
-                            playerBoxes.remove(playerBoxes.size()-1);       
-                        }
+                    while(playerBoxes.size() > nRoles) {
+                        playerBoxes.remove(playerBoxes.size()-1);       
+                    }
 
-                        while(playerBoxes.size() < nRoles) {
-                            playerBoxes.add(getFreshPlayerComboBox());
-                        }
+                    while(playerBoxes.size() < nRoles) {
+                        playerBoxes.add(getFreshPlayerComboBox());
+                    }
 
-                        List<Integer> currentSelections = new ArrayList<Integer>();
-                        for(int i = 0; i < playerBoxes.size(); i++) {
-                            currentSelections.add(playerBoxes.get(i).getSelectedIndex());
-                        }
+                    List<Integer> currentSelections = new ArrayList<Integer>();
+                    for(int i = 0; i < playerBoxes.size(); i++) {
+                        currentSelections.add(playerBoxes.get(i).getSelectedIndex());
+                    }
 
-                        playerBoxesPanel.removeAll();
-                        for(int i = 0; i < roles.size(); i++) {
-                            playerBoxesPanel.add(new JLabel("Player " + (i+1) + " Type:"), new GridBagConstraints(0, i, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 0, 0));
-                            playerBoxesPanel.add(playerBoxes.get(i), new GridBagConstraints(1, i, 1, 1, 1.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 0, 0));
-                        }
+                    playerBoxesPanel.removeAll();
+                    for(int i = 0; i < roles.size(); i++) {
+                        playerBoxesPanel.add(new JLabel("Player " + (i+1) + " Type:"), new GridBagConstraints(0, i, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 0, 0));
+                        playerBoxesPanel.add(playerBoxes.get(i), new GridBagConstraints(1, i, 1, 1, 1.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 0, 0));
+                    }
 
-                        for(int i = 0; i < playerBoxes.size(); i++) {
-                            playerBoxes.get(i).setSelectedIndex(currentSelections.get(i));
-                        }       
+                    for(int i = 0; i < playerBoxes.size(); i++) {
+                        playerBoxes.get(i).setSelectedIndex(currentSelections.get(i));
+                    }       
 
-                        playerBoxesPanel.validate();  
-                        tiltyardPanel.validate();
+                    playerBoxesPanel.validate();  
+                    tiltyardPanel.validate();
 
-                        runButton.setEnabled(true);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    } catch (SymbolFormatException e) {
-                        e.printStackTrace();
-                    } catch (GdlFormatException e) {
-                        e.printStackTrace();
-                    }                   
+                    runButton.setEnabled(true);                
                 }
             }
         };

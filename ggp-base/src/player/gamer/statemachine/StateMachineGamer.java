@@ -158,7 +158,7 @@ public abstract class StateMachineGamer extends Gamer
 		try
 		{
 			stateMachine = getInitialStateMachine();
-			stateMachine.initialize(getMatch().getDescription());
+			stateMachine.initialize(getMatch().getGame().getRules());
 			currentState = stateMachine.getInitialState();
 			role = stateMachine.getRoleFromProp(getRoleName());
 

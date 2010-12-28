@@ -19,6 +19,10 @@ import util.gdl.grammar.Gdl;
  * be shown the game's name (if available) rather than the internal key, since
  * the game's name is more readable/informative than the key.
  * 
+ * There is one case in which a game will not have a key: if it has been sent
+ * from a server, rather than loaded from a repository (local or remote). These
+ * games are "ephemeral", and contain only their rules.
+ * 
  * (e.g. A game with the name "Three-Player Free-For-All" but the key "3pffa".)
  * 
  * @author Sam
@@ -30,6 +34,10 @@ public final class Game {
     private final String theRepositoryURL;
     private final String theStylesheet;
     private final List<Gdl> theRules;
+    
+    public static Game createEphemeralGame(List<Gdl> theRules) {
+        return new Game(null, null, null, null, null, theRules);
+    }
     
     protected Game (String theKey, String theName, String theDescription, String theRepositoryURL, String theStylesheet, List<Gdl> theRules) {
         this.theKey = theKey;

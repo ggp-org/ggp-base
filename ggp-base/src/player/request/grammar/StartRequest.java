@@ -1,31 +1,29 @@
 package player.request.grammar;
 
-import java.util.List;
-
 import player.event.PlayerTimeEvent;
 import player.gamer.Gamer;
 import player.gamer.event.GamerNewMatchEvent;
 import player.gamer.event.GamerUnrecognizedMatchEvent;
-import util.gdl.grammar.Gdl;
+import util.game.Game;
 import util.gdl.grammar.GdlProposition;
 import util.logging.GamerLogger;
 import util.match.Match;
 
 public final class StartRequest extends Request
 {
-	private final List<Gdl> description;
+	private final Game game;
 	private final Gamer gamer;
 	private final String matchId;
 	private final int playClock;
 	private final GdlProposition roleName;
 	private final int startClock;
 
-	public StartRequest(Gamer gamer, String matchId, GdlProposition roleName, List<Gdl> description, int startClock, int playClock)
+	public StartRequest(Gamer gamer, String matchId, GdlProposition roleName, Game theGame, int startClock, int playClock)
 	{
 		this.gamer = gamer;
 		this.matchId = matchId;
 		this.roleName = roleName;
-		this.description = description;
+		this.game = theGame;
 		this.startClock = startClock;
 		this.playClock = playClock;
 	}
@@ -48,7 +46,7 @@ public final class StartRequest extends Request
 	    
         // Create the new match, and handle all of the associated logistics
         // in the gamer to indicate that we're starting a new match.
-		Match match = new Match(matchId, startClock, playClock, description);		
+		Match match = new Match(matchId, startClock, playClock, System.currentTimeMillis(), game);		
 		gamer.setMatch(match);
 		gamer.setRoleName(roleName);
 		gamer.notifyObservers(new GamerNewMatchEvent(match, roleName));

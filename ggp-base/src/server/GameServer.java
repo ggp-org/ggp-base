@@ -47,7 +47,7 @@ public final class GameServer extends Thread implements Subject
         this.playerNames = playerNames;
 
         stateMachine = new ProverStateMachine();
-        stateMachine.initialize(match.getDescription());
+        stateMachine.initialize(match.getGame().getRules());
         currentState = stateMachine.getInitialState();
         previousMoves = null;
         

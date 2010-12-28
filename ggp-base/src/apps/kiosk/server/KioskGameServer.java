@@ -48,7 +48,7 @@ public final class KioskGameServer extends Thread implements Subject
 		this.nHumanPlayer = nHumanPlayer;
 
 		stateMachine = new ProverStateMachine();
-		stateMachine.initialize(match.getDescription());
+		stateMachine.initialize(match.getGame().getRules());
 		currentState = stateMachine.getInitialState();
 		previousMoves = null;
 
