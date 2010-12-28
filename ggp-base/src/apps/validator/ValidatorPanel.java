@@ -19,10 +19,12 @@ import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
 
-import util.configuration.ProjectConfiguration;
+import util.game.Game;
 import util.gdl.grammar.Gdl;
 import util.kif.KifReader;
 import validator.GdlValidator;
+import apps.common.GameLoaderPrompt;
+import apps.common.NativeUI;
 import apps.validator.simulation.SimulationPanel;
 
 @SuppressWarnings("serial")
@@ -43,6 +45,7 @@ public final class ValidatorPanel extends JPanel
 
 	public static void main(String[] args)
 	{
+	    NativeUI.setNativeUI();
 		final ValidatorPanel validatorPanel = new ValidatorPanel();
 		javax.swing.SwingUtilities.invokeLater(new Runnable()
 		{
@@ -118,22 +121,12 @@ public final class ValidatorPanel extends JPanel
 
 			public void actionPerformed(ActionEvent evt)
 			{
-				fileChooser = new JFileChooser(ProjectConfiguration.gameRulesheetsPath);
-				if (fileChooser.showOpenDialog(ValidatorPanel.this) == JFileChooser.APPROVE_OPTION)
-				{
-					try
-					{
-						File file = fileChooser.getSelectedFile();
-						description = KifReader.read(file.getAbsolutePath());
-
-						fileTextField.setText(file.getName());
-						validateButton.setEnabled(true);
-					}
-					catch (Exception e)
-					{
-						e.printStackTrace();
-					}
-				}
+	           Game theGame = GameLoaderPrompt.loadGameUsingPrompt();
+	           if (theGame == null) return;
+	           
+	           fileTextField.setText(theGame.getKey());
+	           validateButton.setEnabled(true);
+	           description = theGame.getRules();
 			}
 		};
 	}

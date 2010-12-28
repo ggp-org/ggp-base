@@ -5,13 +5,11 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
-import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -20,13 +18,12 @@ import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
 
 import server.GameServer;
-import util.configuration.ProjectConfiguration;
 import util.game.Game;
-import util.game.GameRepository;
 import util.match.Match;
 import util.statemachine.Role;
 import util.statemachine.StateMachine;
 import util.statemachine.implementation.prover.ProverStateMachine;
+import apps.common.GameLoaderPrompt;
 import apps.common.NativeUI;
 import apps.server.error.ErrorPanel;
 import apps.server.history.HistoryPanel;
@@ -195,57 +192,53 @@ public final class ServerPanel extends JPanel
 		{
 			public void actionPerformed(ActionEvent evt)
 			{
-				JFileChooser fileChooser = new JFileChooser(ProjectConfiguration.gameRulesheetsPath);
-				if (fileChooser.showOpenDialog(ServerPanel.this) == JFileChooser.APPROVE_OPTION)
-				{					
-					File file = fileChooser.getSelectedFile();
-					theGame = GameRepository.getDefaultRepository().getGame(file.getName().replace(".kif", ""));
-					sourceTextField.setText(file.getName());
-					gameName = file.getName().replaceAll("\\..*?$",""); //strip file ending
+			    theGame = GameLoaderPrompt.loadGameUsingPrompt();
+			    if (theGame == null) return;
+				sourceTextField.setText(theGame.getKey() + ".kif");
+				gameName = theGame.getKey();
 
-					for (int i = 0; i < roleLabels.size(); i++)
-					{
-						serverPanel.managerPanel.remove(roleLabels.get(i));
-						serverPanel.managerPanel.remove(hostTextFields.get(i));
-						serverPanel.managerPanel.remove(portTextFields.get(i));
-						serverPanel.managerPanel.remove(playerNameTextFields.get(i));
-					}
-
-					roleLabels.clear();
-					hostTextFields.clear();
-					portTextFields.clear();
-					playerNameTextFields.clear();
-
-					serverPanel.validate();
-
-					StateMachine stateMachine = new ProverStateMachine();
-					stateMachine.initialize(theGame.getRules());
-					List<Role> roles = stateMachine.getRoles();
-					Integer tempDefaultPort = defaultPort;
-					
-					for (int i = 0; i < roles.size(); i++)
-					{
-						roleLabels.add(new JLabel(roles.get(i).getName().toString() + ":"));
-						hostTextFields.add(new JTextField("localhost"));
-						portTextFields.add(new JTextField(tempDefaultPort.toString()));
-						playerNameTextFields.add(new JTextField("defaultPlayerName"));
-						tempDefaultPort++;
-
-						hostTextFields.get(i).setColumns(15);
-						portTextFields.get(i).setColumns(15);
-						playerNameTextFields.get(i).setColumns(15);
-
-						serverPanel.managerPanel.add(roleLabels.get(i), new GridBagConstraints(0, 4 + 3 * i, 1, 1, 1.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 5, 5));
-						serverPanel.managerPanel.add(hostTextFields.get(i), new GridBagConstraints(1, 4 + 3 * i, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 5, 5));
-						serverPanel.managerPanel.add(portTextFields.get(i), new GridBagConstraints(1, 5 + 3 * i, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 5, 5));
-						serverPanel.managerPanel.add(playerNameTextFields.get(i),  new GridBagConstraints(1, 6 + 3 * i, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 5, 5));
-					}
-					serverPanel.managerPanel.add(runButton, new GridBagConstraints(1, 4 + 3 * roles.size(), 1, 1, 0.0, 1.0, GridBagConstraints.SOUTH, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 0, 0));
-
-					serverPanel.validate();
-
-					runButton.setEnabled(true);
+				for (int i = 0; i < roleLabels.size(); i++)
+				{
+					serverPanel.managerPanel.remove(roleLabels.get(i));
+					serverPanel.managerPanel.remove(hostTextFields.get(i));
+					serverPanel.managerPanel.remove(portTextFields.get(i));
+					serverPanel.managerPanel.remove(playerNameTextFields.get(i));
 				}
+
+				roleLabels.clear();
+				hostTextFields.clear();
+				portTextFields.clear();
+				playerNameTextFields.clear();
+
+				serverPanel.validate();
+
+				StateMachine stateMachine = new ProverStateMachine();
+				stateMachine.initialize(theGame.getRules());
+				List<Role> roles = stateMachine.getRoles();
+				Integer tempDefaultPort = defaultPort;
+				
+				for (int i = 0; i < roles.size(); i++)
+				{
+					roleLabels.add(new JLabel(roles.get(i).getName().toString() + ":"));
+					hostTextFields.add(new JTextField("localhost"));
+					portTextFields.add(new JTextField(tempDefaultPort.toString()));
+					playerNameTextFields.add(new JTextField("defaultPlayerName"));
+					tempDefaultPort++;
+
+					hostTextFields.get(i).setColumns(15);
+					portTextFields.get(i).setColumns(15);
+					playerNameTextFields.get(i).setColumns(15);
+
+					serverPanel.managerPanel.add(roleLabels.get(i), new GridBagConstraints(0, 4 + 3 * i, 1, 1, 1.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 5, 5));
+					serverPanel.managerPanel.add(hostTextFields.get(i), new GridBagConstraints(1, 4 + 3 * i, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 5, 5));
+					serverPanel.managerPanel.add(portTextFields.get(i), new GridBagConstraints(1, 5 + 3 * i, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 5, 5));
+					serverPanel.managerPanel.add(playerNameTextFields.get(i),  new GridBagConstraints(1, 6 + 3 * i, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 5, 5));
+				}
+				serverPanel.managerPanel.add(runButton, new GridBagConstraints(1, 4 + 3 * roles.size(), 1, 1, 0.0, 1.0, GridBagConstraints.SOUTH, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 0, 0));
+
+				serverPanel.validate();
+
+				runButton.setEnabled(true);
 			}
 		};
 	}

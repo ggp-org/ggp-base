@@ -6,7 +6,6 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -14,19 +13,17 @@ import java.util.List;
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
-import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
 
+import apps.common.GameLoaderPrompt;
 import apps.common.NativeUI;
 
 import player.gamer.Gamer;
-import util.configuration.ProjectConfiguration;
 import util.game.Game;
-import util.game.GameRepository;
 import util.match.Match;
 import util.reflection.ProjectSearcher;
 import util.statemachine.Role;
@@ -199,47 +196,43 @@ public final class Tiltyard extends JPanel {
         {
             public void actionPerformed(ActionEvent evt)
             {
-                JFileChooser fileChooser = new JFileChooser(ProjectConfiguration.gameRulesheetsPath);
-                if (fileChooser.showOpenDialog(Tiltyard.this) == JFileChooser.APPROVE_OPTION)
-                {                   
-                    File file = fileChooser.getSelectedFile();
-                    game = GameRepository.getDefaultRepository().getGame(file.getName().replace(".kif", ""));
-                    sourceTextField.setText(file.getName());
-                    gameName = file.getName().replaceAll("\\..*?$",""); //strip file ending
+                game = GameLoaderPrompt.loadGameUsingPrompt();
+                if (game == null) return;
+                sourceTextField.setText(game.getKey() + ".kif");
+                gameName = game.getKey();
+                
+                StateMachine stateMachine = new ProverStateMachine();
+                stateMachine.initialize(game.getRules());
+                List<Role> roles = stateMachine.getRoles();
+                int nRoles = roles.size();
 
-                    StateMachine stateMachine = new ProverStateMachine();
-                    stateMachine.initialize(game.getRules());
-                    List<Role> roles = stateMachine.getRoles();
-                    int nRoles = roles.size();
-
-                    while(playerBoxes.size() > nRoles) {
-                        playerBoxes.remove(playerBoxes.size()-1);       
-                    }
-
-                    while(playerBoxes.size() < nRoles) {
-                        playerBoxes.add(getFreshPlayerComboBox());
-                    }
-
-                    List<Integer> currentSelections = new ArrayList<Integer>();
-                    for(int i = 0; i < playerBoxes.size(); i++) {
-                        currentSelections.add(playerBoxes.get(i).getSelectedIndex());
-                    }
-
-                    playerBoxesPanel.removeAll();
-                    for(int i = 0; i < roles.size(); i++) {
-                        playerBoxesPanel.add(new JLabel("Player " + (i+1) + " Type:"), new GridBagConstraints(0, i, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 0, 0));
-                        playerBoxesPanel.add(playerBoxes.get(i), new GridBagConstraints(1, i, 1, 1, 1.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 0, 0));
-                    }
-
-                    for(int i = 0; i < playerBoxes.size(); i++) {
-                        playerBoxes.get(i).setSelectedIndex(currentSelections.get(i));
-                    }       
-
-                    playerBoxesPanel.validate();  
-                    tiltyardPanel.validate();
-
-                    runButton.setEnabled(true);                
+                while(playerBoxes.size() > nRoles) {
+                    playerBoxes.remove(playerBoxes.size()-1);       
                 }
+
+                while(playerBoxes.size() < nRoles) {
+                    playerBoxes.add(getFreshPlayerComboBox());
+                }
+
+                List<Integer> currentSelections = new ArrayList<Integer>();
+                for(int i = 0; i < playerBoxes.size(); i++) {
+                    currentSelections.add(playerBoxes.get(i).getSelectedIndex());
+                }
+
+                playerBoxesPanel.removeAll();
+                for(int i = 0; i < roles.size(); i++) {
+                    playerBoxesPanel.add(new JLabel("Player " + (i+1) + " Type:"), new GridBagConstraints(0, i, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 0, 0));
+                    playerBoxesPanel.add(playerBoxes.get(i), new GridBagConstraints(1, i, 1, 1, 1.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 0, 0));
+                }
+
+                for(int i = 0; i < playerBoxes.size(); i++) {
+                    playerBoxes.get(i).setSelectedIndex(currentSelections.get(i));
+                }       
+
+                playerBoxesPanel.validate();  
+                tiltyardPanel.validate();
+
+                runButton.setEnabled(true);                
             }
         };
     }    
