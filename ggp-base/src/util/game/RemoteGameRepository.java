@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import util.galaxy.RemoteResourceLoader;
+import util.configuration.RemoteResourceLoader;
 import util.gdl.grammar.Gdl;
 import util.kif.KifReader;
 import external.JSON.JSONArray;
