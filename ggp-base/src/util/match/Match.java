@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 
 import util.game.Game;
 import util.gdl.grammar.GdlSentence;
@@ -15,6 +16,14 @@ import util.gdl.grammar.GdlSentence;
  * also includes other relevant metadata about the match, including some
  * unique identifiers, configuration information, and so on.
  * 
+ * NOTE: Match objects created by a player, representing state read from
+ * a server, are not completely filled out. For example, they only get an
+ * ephemeral Game object, which has a rulesheet but no key or metadata.
+ * Gamers which do not derive from StateMachineGamer also do not keep any
+ * information on what states have been observed, because (somehow) they
+ * are representing games without using state machines. In general, these
+ * player-created Match objects shouldn't be sent out into the ecosystem.
+ * 
  * @author Sam
  */
 public final class Match
@@ -25,7 +34,9 @@ public final class Match
     private final int startClock;
     private final Date startTime;
 	private final Game theGame;
-	private final List<List<GdlSentence>> history;
+	private final List<List<GdlSentence>> moveHistory;
+	private final List<Set<GdlSentence>> stateHistory;	
+	private final List<Date> stateTimeHistory;
 
 	public Match(String matchId, int startClock, int playClock, Game theGame)
 	{
@@ -36,23 +47,35 @@ public final class Match
 		
 		this.startTime = new Date();
 		this.randomToken = getRandomString(32);
-		
-		history = new ArrayList<List<GdlSentence>>();
+				
+		moveHistory = new ArrayList<List<GdlSentence>>();
+		stateHistory = new ArrayList<Set<GdlSentence>>();
+		stateTimeHistory = new ArrayList<Date>();
 	}
 	
 	/* Mutators */
 
 	public void appendMoves(List<GdlSentence> moves) {
-		history.add(moves);
+		moveHistory.add(moves);
+	}
+	
+	public void appendState(Set<GdlSentence> state) {
+	    stateHistory.add(state);
+	    stateTimeHistory.add(new Date());
 	}
 	
 	/* Complex accessors */
 	
     public List<GdlSentence> getMostRecentMoves() {
-        if (history.size() == 0)
+        if (moveHistory.size() == 0)
             return null;
-        
-        return history.get(history.size()-1);
+        return moveHistory.get(moveHistory.size()-1);
+    }
+
+    public Set<GdlSentence> getMostRecentState() {
+        if (stateHistory.size() == 0)
+            return null;
+        return stateHistory.get(stateHistory.size()-1);        
     }
     
     public String getGameName() {
@@ -77,9 +100,17 @@ public final class Match
 		return theGame;
 	}
 
-	public List<List<GdlSentence>> getHistory() {
-		return history;
+	public List<List<GdlSentence>> getMoveHistory() {
+		return moveHistory;
 	}
+	
+    public List<Set<GdlSentence>> getStateHistory() {
+        return stateHistory;
+    }
+    
+    public List<Date> getStateTimeHistory() {
+        return stateTimeHistory;
+    }    
 
 	public int getPlayClock() {
 		return playClock;

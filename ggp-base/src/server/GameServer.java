@@ -51,6 +51,8 @@ public final class GameServer extends Thread implements Subject
         currentState = stateMachine.getInitialState();
         previousMoves = null;
         
+        match.appendState(currentState.getContents());
+        
         history = new ArrayList<String>();
         observers = new ArrayList<Observer>();
     }
@@ -107,6 +109,7 @@ public final class GameServer extends Thread implements Subject
                 for(Move m : previousMoves)
                     movesAsGDL.add(m.getContents());
                 match.appendMoves(movesAsGDL);
+                match.appendState(currentState.getContents());
             }
             notifyObservers(new ServerNewGameStateEvent((ProverMachineState)currentState));
             notifyObservers(new ServerCompletedMatchEvent(getGoals()));

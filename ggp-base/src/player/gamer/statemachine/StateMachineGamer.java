@@ -122,7 +122,7 @@ public abstract class StateMachineGamer extends Gamer
             Role newRole = newStateMachine.getRoleFromProp(getRoleName());
 
             // Attempt to run through the game history in the new machine
-            List<List<GdlSentence>> theMoveHistory = getMatch().getHistory();
+            List<List<GdlSentence>> theMoveHistory = getMatch().getMoveHistory();
             for(List<GdlSentence> nextMove : theMoveHistory) {
                 List<Move> theJointMove = new ArrayList<Move>();
                 for(GdlSentence theSentence : nextMove)
@@ -161,6 +161,7 @@ public abstract class StateMachineGamer extends Gamer
 			stateMachine.initialize(getMatch().getGame().getRules());
 			currentState = stateMachine.getInitialState();
 			role = stateMachine.getRoleFromProp(getRoleName());
+			getMatch().appendState(currentState.getContents());
 
 			stateMachineMetaGame(timeout);
 		}
@@ -194,6 +195,7 @@ public abstract class StateMachineGamer extends Gamer
 				}
 
 				currentState = stateMachine.getNextState(currentState, moves);
+				getMatch().appendState(currentState.getContents());
 			}
 
 			return stateMachineSelectMove(timeout).getContents();

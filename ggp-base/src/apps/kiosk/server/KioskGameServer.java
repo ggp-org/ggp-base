@@ -24,7 +24,6 @@ import util.statemachine.implementation.prover.ProverStateMachine;
 
 public final class KioskGameServer extends Thread implements Subject
 {
-
 	private MachineState currentState;
 	private final List<String> hosts;
 	private final Match match;
@@ -51,6 +50,8 @@ public final class KioskGameServer extends Thread implements Subject
 		stateMachine.initialize(match.getGame().getRules());
 		currentState = stateMachine.getInitialState();
 		previousMoves = null;
+		
+		match.appendState(currentState.getContents());
 
 		observers = new ArrayList<Observer>();
 	}
@@ -106,6 +107,7 @@ public final class KioskGameServer extends Thread implements Subject
 				for(Move m : previousMoves)
 					movesAsGDL.add(m.getContents());
 				match.appendMoves(movesAsGDL);
+				match.appendState(currentState.getContents());
 			}
 			notifyObservers(new ServerNewGameStateEvent((ProverMachineState)currentState));
 			notifyObservers(new ServerCompletedMatchEvent(getGoals()));
