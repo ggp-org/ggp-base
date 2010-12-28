@@ -44,7 +44,7 @@ public abstract class MachineState {
         return false;
     }    
     
-    public String toXML()
+    public final String toXML()
     {
         String rval = "<match>\n\n<herstory>\n\n\t<state>\n\n";
         Set<GdlSentence> theContents = getContents();
