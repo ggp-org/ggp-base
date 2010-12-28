@@ -6,23 +6,22 @@ import java.util.List;
 import util.gdl.grammar.Gdl;
 import util.gdl.grammar.GdlSentence;
 
+/**
+ * Match encapsulates all of the information relating to a single match.
+ * A match is a single play through a game, with a complete history that
+ * lists what move each player made at each step through the match. This
+ * also includes other relevant metadata about the match, including some
+ * unique identifiers, configuration information, and so on.
+ * 
+ * @author Sam
+ */
 public final class Match
 {
-
+    private final String matchId;
+    private final int playClock;
+    private final int startClock;
 	private final List<Gdl> description;
 	private final List<List<GdlSentence>> history;
-	private String matchId;
-	private final int playClock;
-	private final int startClock;
-
-	public Match()
-	{
-		matchId = "";
-		startClock = 0;
-		playClock = 0;
-		description = new ArrayList<Gdl>();
-		history = new ArrayList<List<GdlSentence>>();
-	}
 
 	public Match(String matchId, int startClock, int playClock, List<Gdl> description)
 	{
@@ -60,11 +59,6 @@ public final class Match
 	{
 		return matchId;
 	}
-	
-	public void setMatchId(String matchId)
-	{
-		this.matchId = matchId; 
-	}
 
 	public int getPlayClock()
 	{
@@ -75,5 +69,4 @@ public final class Match
 	{
 		return startClock;
 	}
-
 }
