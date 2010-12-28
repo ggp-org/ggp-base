@@ -10,7 +10,7 @@ import util.configuration.ProjectConfiguration;
 import util.gdl.grammar.Gdl;
 import util.kif.KifReader;
 
-public class GameLoader {
+public class GameLoaderPrompt {
     public static List<Gdl> loadGameUsingPrompt() {
         JFileChooser fileChooser = new JFileChooser(ProjectConfiguration.gameRulesheetsPath);
         int rval = fileChooser.showOpenDialog(new JPanel());
