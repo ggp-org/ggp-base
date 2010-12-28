@@ -157,5 +157,5 @@ public final class Match
             else if (nVal < 62) theString += (char)('0' + (nVal-52));
         }
         return theString;
-    }	
+    }
 }
