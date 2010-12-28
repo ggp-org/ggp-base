@@ -58,7 +58,7 @@ public class LocalResourceLoader {
                 String resourceName = File.separator + ProjectConfiguration.gameStylesheetsDirectory + File.separator + xslName + ".xsl";
                 resourceName = resourceName.replace('\\', '/');
                 InputStream styleStream = loadResourcesFrom.getClass().getResourceAsStream(resourceName);
-                if(styleStream == null) System.err.println("ruleStream is NULL for: " + resourceName);
+                if(styleStream == null) System.err.println("styleStream is NULL for: " + resourceName);
                 return FileUtils.readFileAsString(styleStream);
             } catch(Exception ee) {
                 GamerLogger.logStackTrace("Resources", e);
