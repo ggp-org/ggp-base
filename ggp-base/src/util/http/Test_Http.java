@@ -10,6 +10,13 @@ import java.net.URLEncoder;
 
 import junit.framework.TestCase;
 
+/**
+ * Unit tests for the HttpReader/HttpWriter pair, which are the way that
+ * game players and game servers communicate. Please update these tests
+ * as needed when bugs are discovered, to prevent regressions. 
+ * 
+ * @author Sam
+ */
 public class Test_Http extends TestCase {
     public void testSimpleEcho() throws IOException {
         SocketPair testPair = new SocketPair();
