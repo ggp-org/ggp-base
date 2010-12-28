@@ -106,7 +106,7 @@ public abstract class ClojureGamer extends Gamer
             Gamer g = new ClojureLegalGamerStub();
             System.out.println(g.getName());
 
-            Match m = new Match("", 1000, 1000, System.currentTimeMillis(), GameRepository.getDefaultRepository().getGame("conn4"));
+            Match m = new Match("", 1000, 1000, GameRepository.getDefaultRepository().getGame("conn4"));
             g.setMatch(m);
             g.setRoleName(GdlPool.getProposition(GdlPool.getConstant("xplayer")));
             g.metaGame(1000);

@@ -137,7 +137,7 @@ public final class ServerPanel extends JPanel
 					
 					int startClock = Integer.valueOf(serverPanel.startClockTextField.getText());
 					int playClock = Integer.valueOf(serverPanel.playClockTextField.getText());
-					Match match = new Match(matchId, startClock, playClock, System.currentTimeMillis(), serverPanel.theGame);
+					Match match = new Match(matchId, startClock, playClock, serverPanel.theGame);
 
 					List<String> hosts = new ArrayList<String>(serverPanel.hostTextFields.size());
 					for (JTextField textField : serverPanel.hostTextFields)

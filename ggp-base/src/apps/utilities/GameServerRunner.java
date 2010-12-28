@@ -76,7 +76,7 @@ public final class GameServerRunner
 			playerNames.add(playerName);
 			matchname += playerName;
 		}
-		Match match = new Match(matchname, startClock, playClock, System.currentTimeMillis(), game);
+		Match match = new Match(matchname, startClock, playClock, game);
 		GameServer server = new GameServer(match, hostNames, portNumbers, playerNames);
 		server.run();
 		server.join();

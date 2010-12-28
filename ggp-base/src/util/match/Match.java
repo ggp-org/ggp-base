@@ -1,7 +1,9 @@
 package util.match;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Random;
 
 import util.game.Game;
 import util.gdl.grammar.GdlSentence;
@@ -20,17 +22,18 @@ public final class Match
     private final String matchId;
     private final int playClock;
     private final int startClock;
-    private final long startTime;
+    private final Date startTime;
 	private final Game theGame;
 	private final List<List<GdlSentence>> history;
 
-	public Match(String matchId, int startClock, int playClock, long startTime, Game theGame)
+	public Match(String matchId, int startClock, int playClock, Game theGame)
 	{
 		this.matchId = matchId;
 		this.startClock = startClock;
-		this.playClock = playClock;		
-		this.startTime = startTime;
+		this.playClock = playClock;
 		this.theGame = theGame;
+		
+		this.startTime = new Date();
 		
 		history = new ArrayList<List<GdlSentence>>();
 	}
@@ -66,7 +69,20 @@ public final class Match
 		return startClock;
 	}
 	
-	public long getStartTime() {
+	public Date getStartTime() {
 	    return startTime;
 	}
+	
+	/* Static methods */
+    public static String getRandomString(int nLength) {
+        Random theGenerator = new Random();
+        String theString = "";
+        for (int i = 0; i < nLength; i++) {
+            int nVal = theGenerator.nextInt(62);
+            if (nVal < 26) theString += (char)('a' + nVal);
+            else if (nVal < 52) theString += (char)('A' + (nVal-26));
+            else if (nVal < 62) theString += (char)('0' + (nVal-52));
+        }
+        return theString;
+    }	
 }

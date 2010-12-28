@@ -170,7 +170,7 @@ public final class Tiltyard extends JPanel {
             int startClock = Integer.parseInt(startClockTextField.getText());
             int numReps = Integer.parseInt(numRepsTextField.getText());
             
-            Match theMatchModel = new Match("MatchID", startClock, playClock, System.currentTimeMillis(), game);
+            Match theMatchModel = new Match("MatchID", startClock, playClock, game);
             
             TiltyardManager theManager = new TiltyardManager(thePlayers, theMatchModel, gameName, numReps, eventsPanel);
             theManager.start();
