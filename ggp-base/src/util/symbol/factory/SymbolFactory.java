@@ -12,7 +12,22 @@ import util.symbol.grammar.SymbolPool;
 
 public final class SymbolFactory
 {
+    public static Symbol create(String string) throws SymbolFormatException
+    {
+        try
+        {
+            String preprocessed = preprocess(string);
+            List<String> tokens = lex(preprocessed);
+            return convert(new LinkedList<String>(tokens));
+        }
+        catch (Exception e)
+        {
+            throw new SymbolFormatException(string);
+        }
+    }    
 
+    /* Private, implementation-specific methods below here */
+    
 	private static Symbol convert(LinkedList<String> tokens)
 	{
 		if (tokens.getFirst().equals("("))
@@ -44,20 +59,6 @@ public final class SymbolFactory
 		return SymbolPool.getList(contents);
 	}
 
-	public static Symbol create(String string) throws SymbolFormatException
-	{
-		try
-		{
-			String preprocessed = preprocess(string);
-			List<String> tokens = lex(preprocessed);
-			return convert(new LinkedList<String>(tokens));
-		}
-		catch (Exception e)
-		{
-			throw new SymbolFormatException(string);
-		}
-	}
-
 	private static List<String> lex(String string)
 	{
 		List<String> tokens = new ArrayList<String>();
@@ -81,5 +82,4 @@ public final class SymbolFactory
 
 		return string;
 	}
-
 }
