@@ -8,6 +8,7 @@ import java.util.Set;
 
 import util.game.Game;
 import util.gdl.grammar.GdlSentence;
+import util.statemachine.Role;
 
 /**
  * Match encapsulates all of the information relating to a single match.
@@ -34,9 +35,11 @@ public final class Match
     private final int startClock;
     private final Date startTime;
 	private final Game theGame;
+	private final List<String> theRoleNames;
 	private final List<List<GdlSentence>> moveHistory;
 	private final List<Set<GdlSentence>> stateHistory;	
 	private final List<Date> stateTimeHistory;
+	private boolean isCompleted;
 
 	public Match(String matchId, int startClock, int playClock, Game theGame)
 	{
@@ -47,10 +50,16 @@ public final class Match
 		
 		this.startTime = new Date();
 		this.randomToken = getRandomString(32);
-				
-		moveHistory = new ArrayList<List<GdlSentence>>();
-		stateHistory = new ArrayList<Set<GdlSentence>>();
-		stateTimeHistory = new ArrayList<Date>();
+		this.isCompleted = false;
+		
+		this.theRoleNames = new ArrayList<String>();
+		for(Role r : Role.computeRoles(theGame.getRules())) {
+		    this.theRoleNames.add(r.getName().getName().toString());
+		}		
+		
+		this.moveHistory = new ArrayList<List<GdlSentence>>();
+		this.stateHistory = new ArrayList<Set<GdlSentence>>();
+		this.stateTimeHistory = new ArrayList<Date>();
 	}
 	
 	/* Mutators */
@@ -62,6 +71,10 @@ public final class Match
 	public void appendState(Set<GdlSentence> state) {
 	    stateHistory.add(state);
 	    stateTimeHistory.add(new Date());
+	}
+	
+	public void markCompleted() {
+	    isCompleted = true;
 	}
 	
 	/* Complex accessors */
@@ -122,6 +135,14 @@ public final class Match
 	
 	public Date getStartTime() {
 	    return startTime;
+	}
+	
+	public List<String> getRoleNames() {
+	    return theRoleNames;
+	}
+	
+	public boolean isCompleted() {
+	    return isCompleted;
 	}
 	
 	/* Static methods */

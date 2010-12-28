@@ -8,7 +8,6 @@ import util.gdl.grammar.Gdl;
 import util.gdl.grammar.GdlProposition;
 import util.gdl.grammar.GdlRelation;
 import util.statemachine.Role;
-import util.statemachine.implementation.prover.ProverRole;
 
 @SuppressWarnings("serial")
 public class Role implements Serializable
@@ -65,7 +64,7 @@ public class Role implements Serializable
                 //TODO: check if things like ( role ?player ) are legal
                 GdlRelation relation = (GdlRelation) gdl;               
                 if (relation.getName().getValue().equals("role")) {
-                    roles.add(new ProverRole((GdlProposition) relation.get(0).toSentence()));
+                    roles.add(new Role((GdlProposition) relation.get(0).toSentence()));
                 }
             }
         }

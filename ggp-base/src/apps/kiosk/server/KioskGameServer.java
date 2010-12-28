@@ -109,6 +109,7 @@ public final class KioskGameServer extends Thread implements Subject
 				match.appendMoves(movesAsGDL);
 				match.appendState(currentState.getContents());
 			}
+			match.markCompleted();
 			notifyObservers(new ServerNewGameStateEvent((ProverMachineState)currentState));
 			notifyObservers(new ServerCompletedMatchEvent(getGoals()));
 			sendStopRequests(previousMoves);
