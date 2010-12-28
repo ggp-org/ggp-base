@@ -26,7 +26,7 @@ public class RemoteResourceLoader {
     
     public static JSONArray loadJSONArray(String theURL) throws IOException {
         try {
-            return new JSONObject("{ 'z': " + loadRaw(theURL) + "}").getJSONArray("z");
+            return new JSONArray(loadRaw(theURL));
         } catch (Exception e) {
             throw new IOException(e);
         }                

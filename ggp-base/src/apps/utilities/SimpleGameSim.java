@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Set;
 
 import util.configuration.LocalResourceLoader;
-import util.galaxy.GalaxyRepository;
+import util.game.RemoteGameRepository;
 import util.gdl.grammar.Gdl;
 import util.gdl.grammar.GdlSentence;
 import util.statemachine.MachineState;
@@ -35,8 +35,12 @@ public class SimpleGameSim {
     public static final boolean showCurrentState = false;
     
     public static void main(String[] args) {
+        for (String s : new RemoteGameRepository("http://ggp-repository.appspot.com").getGameKeys()) {
+            System.out.println(s);
+        }
+        
         // TODO: Reconcile these two mechanisms for loading games.
-        List<Gdl> description = GalaxyRepository.getGameRulesheetFromRepository("http://ggp-repository.appspot.com", "nineBoardTicTacToe");
+        List<Gdl> description = new RemoteGameRepository("http://ggp-repository.appspot.com").getGame("nineBoardTicTacToe").getRules();
         //List<Gdl> description = LocalResourceLoader.loadGame("tictactoe");
         
         // ---------------------------------------------------------
