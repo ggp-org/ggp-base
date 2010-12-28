@@ -11,17 +11,15 @@ import util.gdl.grammar.Gdl;
  * 
  * Games do not necessarily have all of these fields. Games loaded from local
  * storage will not have a repository URL, and probably will be missing other
- * metadata as well.
+ * metadata as well. Games sent over the wire from a server rather than loaded
+ * from a repository, known as "emphemeral" games, only contain rulesheets,
+ * and do not even have unique keys.
  * 
- * However, all games are guaranteed to have a key that is unique within their
+ * Aside from ephemeral games, all games have a key that is unique within their
  * containing repository (either local storage or a remote repository). Games
  * can be indexed internally using this key. Whenever possible, the user should
  * be shown the game's name (if available) rather than the internal key, since
  * the game's name is more readable/informative than the key.
- * 
- * There is one case in which a game will not have a key: if it has been sent
- * from a server, rather than loaded from a repository (local or remote). These
- * games are "ephemeral", and contain only their rules.
  * 
  * (e.g. A game with the name "Three-Player Free-For-All" but the key "3pffa".)
  * 
