@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import server.GameServer;
-import util.configuration.LocalResourceLoader;
+import util.game.GameRepository;
 import util.gdl.factory.exceptions.GdlFormatException;
 import util.gdl.grammar.Gdl;
 import util.match.Match;
@@ -54,7 +54,7 @@ public final class GameServerRunner
 	{
 		String tourneyName = args[0];
 		String gamename = args[1];
-		List<Gdl> description = LocalResourceLoader.loadGame(gamename);
+		List<Gdl> description = GameRepository.getDefaultRepository().getGame(gamename).getRules();;
 		int startClock = Integer.valueOf(args[2]); 
 		int playClock = Integer.valueOf(args[3]);
 		if ((args.length - 4) % 3 != 0)

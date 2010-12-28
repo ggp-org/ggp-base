@@ -3,8 +3,8 @@ package util.gdl.transforms;
 import java.io.File;
 import java.util.List;
 
-import util.configuration.LocalResourceLoader;
 import util.configuration.ProjectConfiguration;
+import util.game.GameRepository;
 import util.gdl.grammar.Gdl;
 import util.statemachine.implementation.prover.ProverStateMachine;
 import util.statemachine.verifier.StateMachineVerifier;
@@ -25,7 +25,7 @@ public class TransformTester {
             if(!game.getName().endsWith(".kif")) continue;
             if(game.getName().contains("laikLee")) continue;
             System.out.println(game.getName());
-            List<Gdl> description = LocalResourceLoader.loadGame(game.getName().replace(".kif", ""));
+            List<Gdl> description = GameRepository.getDefaultRepository().getGame(game.getName().replace(".kif", "")).getRules();
             List<Gdl> newDescription = description;
             
             //Choose the transformation(s) to test here

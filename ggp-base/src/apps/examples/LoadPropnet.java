@@ -2,7 +2,7 @@ package apps.examples;
 
 import java.util.List;
 
-import util.configuration.LocalResourceLoader;
+import util.game.GameRepository;
 import util.gdl.grammar.Gdl;
 import util.propnet.architecture.PropNet;
 import util.propnet.factory.CachedPropNetFactory;
@@ -23,7 +23,7 @@ import util.propnet.factory.CachedPropNetFactory;
  */
 public class LoadPropnet {
     public static void main(String[] args) {
-        List<Gdl> description = LocalResourceLoader.loadGame("CephalopodMicro");
+        List<Gdl> description = GameRepository.getDefaultRepository().getGame("conn4").getRules();
         
         PropNet theNetwork = CachedPropNetFactory.create(description);
         System.out.println("- - - - - - - - - -");
