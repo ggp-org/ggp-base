@@ -1,24 +1,25 @@
 package util.game;
 
-import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+
+import util.configuration.LocalResourceLoader;
+import util.gdl.grammar.Gdl;
 
 /**
  * Local game repositories provide access to game resources stored on the
  * local disk, bundled with the GGP Base project.
  * 
- * TODO: Fill in this stub!
- * 
  * @author Sam
  */
-public final class LocalGameRepository implements GameRepository {
-    public LocalGameRepository() {
-        ;
-    }
-    public Set<String> getGameKeys() {
-        return new HashSet<String>();
-    }
-    public Game getGame(String theKey) {
+public final class LocalGameRepository extends GameRepository {    
+    public Set<String> getUncachedGameKeys() {
+        // TODO: Fill in this stub!
         return null;
+    }
+    
+    public Game getUncachedGame(String theKey) {
+        List<Gdl> theRules = LocalResourceLoader.loadGame(theKey);
+        return new Game(theKey, null, null, null, null, theRules);
     }
 }

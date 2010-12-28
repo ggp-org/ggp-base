@@ -1,10 +1,8 @@
 package util.game;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import util.configuration.RemoteResourceLoader;
@@ -17,54 +15,17 @@ import external.JSON.JSONObject;
 /**
  * Remote game repositories provide access to game resources stored on game
  * repository servers on the web. These require a network connection to work.
- * Since network connects are potentially expensive, this class will cache any
- * game resources in memory after they are loaded.
  * 
  * @author Sam
  */
-public final class RemoteGameRepository implements GameRepository {
+public final class RemoteGameRepository extends GameRepository {
     private final String theRepoURL;
-    
-    // Caches, which are lazily filled.
-    private Set<String> theGameKeys;
-    private Map<String, Game> theGames;
     
     public RemoteGameRepository(String theURL) {
         theRepoURL = theURL;
-        theGames = new HashMap<String, Game>();
     }
     
-    public Set<String> getGameKeys() {
-        if (theGameKeys == null)
-            theGameKeys = getGameKeysFromRepository();
-        return theGameKeys;
-    }
-    
-    public Game getGame(String theKey) {
-        if (!theGames.containsKey(theKey)) {
-            try {
-                JSONObject theMetadata = getGameMetadataFromRepository(theKey);
-                
-                String theName = null;
-                try {
-                    theName = theMetadata.getString("name");
-                } catch(JSONException e) {}
-                String theRepositoryURL = theRepoURL + "/games/" + theKey + "/";
-                String theDescription = getGameResourceFromMetadata(theKey, theMetadata, "description");                
-                String theStylesheet = getGameResourceFromMetadata(theKey, theMetadata, "stylesheet");
-                List<Gdl> theRules = getGameRulesheetFromMetadata(theKey, theMetadata);
-                
-                Game theGame = new Game(theKey, theName, theRepositoryURL, theDescription, theStylesheet, theRules);
-                theGames.put(theKey, theGame);
-            } catch(IOException e) {
-                // TODO: Log this exception somewhere?
-            }
-        }
-        return theGames.get(theKey);
-    }
-    
-    // ============================================================================================
-    public Set<String> getGameKeysFromRepository() {
+    public Set<String> getUncachedGameKeys() {
         try {
             Set<String> theGameKeys = new HashSet<String>();
             JSONArray theArray = RemoteResourceLoader.loadJSONArray(theRepoURL + "/games/");
@@ -75,12 +36,31 @@ public final class RemoteGameRepository implements GameRepository {
             
             return theGameKeys;
         } catch (Exception e) {
-            System.err.println(e);
             // TODO: Log this exception somewhere?
             return null;
         }
     }
     
+    public Game getUncachedGame(String theKey) {
+        try {
+            JSONObject theMetadata = getGameMetadataFromRepository(theKey);
+            
+            String theName = null;
+            try {
+                theName = theMetadata.getString("name");
+            } catch(JSONException e) {}
+            String theRepositoryURL = theRepoURL + "/games/" + theKey + "/";
+            String theDescription = getGameResourceFromMetadata(theKey, theMetadata, "description");                
+            String theStylesheet = getGameResourceFromMetadata(theKey, theMetadata, "stylesheet");
+            List<Gdl> theRules = getGameRulesheetFromMetadata(theKey, theMetadata);
+            
+            return new Game(theKey, theName, theRepositoryURL, theDescription, theStylesheet, theRules);
+        } catch(IOException e) {
+            return null;
+        }
+    }
+    
+    // ============================================================================================
     public JSONObject getGameMetadataFromRepository(String theGame) throws IOException {
         return RemoteResourceLoader.loadJSON(theRepoURL + "/games/" + theGame + "/");
     }
