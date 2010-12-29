@@ -34,8 +34,7 @@ public class QueryPanel extends JPanel
     * Default constructor
     */
    public QueryPanel()
-   {
-       NativeUI.setNativeUI();
+   {       
        initializePanel();
    }
 
@@ -44,6 +43,7 @@ public class QueryPanel extends JPanel
     */
    public static void main(String[] args)
    {
+       NativeUI.setNativeUI();
        JFrame frame = new JFrame();
        frame.setSize(600, 400);
        frame.setLocation(100, 100);
