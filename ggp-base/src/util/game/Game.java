@@ -11,9 +11,9 @@ import util.gdl.grammar.Gdl;
  * 
  * Games do not necessarily have all of these fields. Games loaded from local
  * storage will not have a repository URL, and probably will be missing other
- * metadata as well. Games sent over the wire from a server rather than loaded
- * from a repository, known as "emphemeral" games, only contain rulesheets,
- * and do not even have unique keys.
+ * metadata as well. Games sent over the wire from a game server rather than
+ * loaded from a repository are called "emphemeral" games, and contain only
+ * their rulesheet; they have no metadata, and do not even have unique keys.
  * 
  * Aside from ephemeral games, all games have a key that is unique within their
  * containing repository (either local storage or a remote repository). Games
@@ -32,11 +32,11 @@ public final class Game {
     private final String theRepositoryURL;
     private final String theStylesheet;
     private final List<Gdl> theRules;
-    
+
     public static Game createEphemeralGame(List<Gdl> theRules) {
         return new Game(null, null, null, null, null, theRules);
     }
-    
+
     protected Game (String theKey, String theName, String theDescription, String theRepositoryURL, String theStylesheet, List<Gdl> theRules) {
         this.theKey = theKey;
         this.theName = theName;
@@ -45,28 +45,28 @@ public final class Game {
         this.theStylesheet = theStylesheet;
         this.theRules = theRules;
     }
-    
+
     public String getKey() {
         return theKey;
     }
-    
+
     public String getName() {
         return theName;
     }
-    
+
     public String getRepositoryURL() {
         return theRepositoryURL;
-    }    
-    
+    }
+
     public String getDescription() {
         return theDescription;
     }
-    
+
     public String getStylesheet() {
         return theStylesheet;
     }
-    
+
     public List<Gdl> getRules() {
         return theRules;
-    }    
+    }
 }
