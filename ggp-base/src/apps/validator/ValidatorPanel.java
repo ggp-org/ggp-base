@@ -90,8 +90,8 @@ public final class ValidatorPanel extends JPanel
 		sourcePanel.add(maxDepthTextField, new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 5, 5));
 		sourcePanel.add(new JLabel("Simulations:"), new GridBagConstraints(0, 2, 1, 1, 1.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 5, 5));
 		sourcePanel.add(simulationsTextField, new GridBagConstraints(1, 2, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 5, 5));
-		sourcePanel.add(validateButton, new GridBagConstraints(1, 3, 1, 1, 1.0, 1.0, GridBagConstraints.SOUTH, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 0, 0));
-		sourcePanel.add(stepByHandButton, new GridBagConstraints(0, 3, 1, 1, 1.0, 1.0, GridBagConstraints.SOUTH, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 0, 0));
+		sourcePanel.add(stepByHandButton, new GridBagConstraints(1, 3, 1, 1, 1.0, 1.0, GridBagConstraints.SOUTH, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 0, 0));
+        sourcePanel.add(validateButton, new GridBagConstraints(1, 4, 1, 1, 0.0, 0.0, GridBagConstraints.SOUTH, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 0, 0));		
 
 		JPanel simulationsPanel = new JPanel(new GridBagLayout());
 		simulationsPanel.setBorder(new TitledBorder("Results"));
@@ -103,7 +103,7 @@ public final class ValidatorPanel extends JPanel
 
 	private AbstractAction selectButtonMethod()
 	{
-		return new AbstractAction("Source File")
+		return new AbstractAction("Source")
 		{
 			public void actionPerformed(ActionEvent evt)
 			{
