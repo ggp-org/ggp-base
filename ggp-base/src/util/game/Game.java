@@ -23,6 +23,18 @@ import util.gdl.grammar.Gdl;
  * 
  * (e.g. A game with the name "Three-Player Free-For-All" but the key "3pffa".)
  * 
+ * NOTE: Games are different from matches. Games represent the actual game
+ * being played, whereas matches are particular instances in which players
+ * played through the game. For example, you might have a Game object that
+ * contains information about chess: it would contain the rules for chess,
+ * methods for visualizing chess matches, a human readable description of
+ * the rules of chess, and so on. On the other hand, for any particular
+ * chess match between two players, you would have a Match object that has
+ * a record of what moves were played, what states were transitioned through,
+ * when everything happened, how the match was configured, and so on. There
+ * can be many Match objects all associated with a single Game object, just
+ * as there can be many matches played of a particular game.
+ * 
  * @author Sam
  */
 public final class Game {
