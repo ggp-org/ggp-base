@@ -4,9 +4,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import util.game.Game;
 import util.game.GameRepository;
-import util.gdl.grammar.Gdl;
 import util.gdl.grammar.GdlSentence;
+import util.match.Match;
 import util.statemachine.MachineState;
 import util.statemachine.Move;
 import util.statemachine.Role;
@@ -33,29 +34,31 @@ public class SimpleGameSim {
     public static final boolean showCurrentState = false;
     
     public static void main(String[] args) {
-        List<Gdl> description = GameRepository.getDefaultRepository().getGame("nineBoardTicTacToe").getRules();
+        Game theGame = GameRepository.getDefaultRepository().getGame("nineBoardTicTacToe");
+        Match theMatch = new Match("simpleGameSim", 0, 0, theGame);
         
         // ---------------------------------------------------------
         // Construct the machine: change this to select which machine
         // you're interested in using to simulate the game.
         StateMachine theMachine = new CachedProverStateMachine();        
-        theMachine.initialize(description);
+        theMachine.initialize(theGame.getRules());
         
         // Check for consistency, before we simulate the game.
         StateMachine theProver = new ProverStateMachine();
-        theProver.initialize(description);
+        theProver.initialize(theGame.getRules());
         if(!StateMachineVerifier.checkMachineConsistency(theProver, theMachine, 1000)) {
             System.err.println("Inconsistency!");
         }
 
         // Go through and simulate one play through the game,
         // displaying the state as we go.
-        int nState = 0;
+        int nState = 0;        
         try {
             System.out.println();
             Set<GdlSentence> oldContents = new HashSet<GdlSentence>();
-            MachineState theCurrentState = theMachine.getInitialState();
-            do {         
+            MachineState theCurrentState = theMachine.getInitialState();            
+            do {
+                theMatch.appendState(theCurrentState.getContents());
                 if(nState > 0) System.out.print("State[" + nState + "]: ");
                 Set<GdlSentence> newContents = theCurrentState.getContents();
                 for(GdlSentence newSentence : newContents) {
@@ -79,11 +82,14 @@ public class SimpleGameSim {
                 List<Move> theJointMove = theMachine.getRandomJointMove(theCurrentState);
                 System.out.println("Move taken: " + theJointMove);
                 theCurrentState = theMachine.getNextStateDestructively(theCurrentState, theJointMove);
+                theMatch.appendMoves2(theJointMove);
                 nState++;
             } while(!theMachine.isTerminal(theCurrentState));
+            theMatch.markCompleted();
             
             // Game over! Display goals.
             System.out.println("State["+nState+"] Full (Terminal): " + theCurrentState);
+            System.out.println("Match information: " + theMatch.toJSON());            
             for(Role r : theMachine.getRoles())
                 System.out.println("Goal for " + r + ": " + theMachine.getGoal(theCurrentState, r));
             System.out.println("Game over.");
