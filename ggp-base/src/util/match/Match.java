@@ -210,7 +210,7 @@ public final class Match
         return theString;
     }
     
-    public static String renderArrayAsJSON(List<?> theList, boolean useQuotes) {
+    private static String renderArrayAsJSON(List<?> theList, boolean useQuotes) {
         String s = "[";
         for (int i = 0; i < theList.size(); i++) {
             Object o = theList.get(i);
@@ -227,7 +227,7 @@ public final class Match
         return s + "]";        
     }
 
-    public static List<String> renderStateHistory(List<Set<GdlSentence>> stateHistory) {
+    private static List<String> renderStateHistory(List<Set<GdlSentence>> stateHistory) {
         List<String> renderedStates = new ArrayList<String>();
         for (Set<GdlSentence> aState : stateHistory) {
             renderedStates.add(renderStateAsSymbolList(aState));
@@ -235,7 +235,7 @@ public final class Match
         return renderedStates;
     }
     
-    public static List<String> renderMoveHistory(List<List<GdlSentence>> moveHistory) {
+    private static List<String> renderMoveHistory(List<List<GdlSentence>> moveHistory) {
         List<String> renderedMoves = new ArrayList<String>();
         for (List<GdlSentence> aMove : moveHistory) {
             renderedMoves.add(renderArrayAsJSON(aMove, true));
@@ -243,7 +243,7 @@ public final class Match
         return renderedMoves;        
     }
     
-    public static String renderStateAsSymbolList(Set<GdlSentence> theState) {
+    private static String renderStateAsSymbolList(Set<GdlSentence> theState) {
         // Strip out the TRUE proposition, since those are implied for states.
         String s = "( ";
         for (GdlSentence sent : theState) {
