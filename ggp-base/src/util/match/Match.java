@@ -32,6 +32,7 @@ public final class Match
 {
     private final String matchId;
     private final String randomToken;
+    private final String spectatorAuthToken;
     private final int playClock;
     private final int startClock;
     private final Date startTime;
@@ -40,7 +41,7 @@ public final class Match
 	private final List<List<GdlSentence>> moveHistory;
 	private final List<Set<GdlSentence>> stateHistory;	
 	private final List<Date> stateTimeHistory;
-	private boolean isCompleted;
+	private boolean isCompleted;	
 
 	public Match(String matchId, int startClock, int playClock, Game theGame)
 	{
@@ -51,6 +52,7 @@ public final class Match
 		
 		this.startTime = new Date();
 		this.randomToken = getRandomString(32);
+		this.spectatorAuthToken = getRandomString(12);
 		this.isCompleted = false;
 		
 		this.theRoleNames = new ArrayList<String>();
@@ -158,6 +160,10 @@ public final class Match
     
     public String getRandomToken() {
         return randomToken;
+    }
+    
+    public String getSpectatorAuthToken() {
+        return spectatorAuthToken;
     }
 	
 	public Game getGame() {
