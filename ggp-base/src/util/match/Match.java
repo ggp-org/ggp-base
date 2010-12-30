@@ -1,6 +1,5 @@
 package util.match;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -94,7 +93,11 @@ public final class Match
 	
 	/* Complex accessors */
 	
-    public String toJSON() throws IOException {
+	public String toString() {
+	    return toJSON();
+	}
+	
+    public String toJSON() {
         StringBuilder theJSON = new StringBuilder();
         
         theJSON.append("{\n");

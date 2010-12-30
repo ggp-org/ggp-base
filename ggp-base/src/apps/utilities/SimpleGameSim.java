@@ -89,7 +89,7 @@ public class SimpleGameSim {
             
             // Game over! Display goals.
             System.out.println("State["+nState+"] Full (Terminal): " + theCurrentState);
-            System.out.println("Match information: " + theMatch.toJSON());            
+            System.out.println("Match information: " + theMatch);            
             for(Role r : theMachine.getRoles())
                 System.out.println("Goal for " + r + ": " + theMachine.getGoal(theCurrentState, r));
             System.out.println("Game over.");
