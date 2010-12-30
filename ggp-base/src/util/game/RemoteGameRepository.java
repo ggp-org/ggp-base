@@ -47,7 +47,7 @@ public final class RemoteGameRepository extends GameRepository {
             
             String theName = null;
             try {
-                theName = theMetadata.getString("name");
+                theName = theMetadata.getString("gameName");
             } catch(JSONException e) {}
             String theRepositoryURL = theRepoURL + "/games/" + theKey + "/";
             String theDescription = getGameResourceFromMetadata(theKey, theMetadata, "description");                
