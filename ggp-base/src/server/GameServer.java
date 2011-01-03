@@ -128,7 +128,7 @@ public final class GameServer extends Thread implements Subject
         for (int i = 0; i < hosts.size(); i++)
         {
             List<Move> legalMoves = stateMachine.getLegalMoves(currentState, stateMachine.getRoles().get(i));
-            threads.add(new PlayRequestThread(this, match, previousMoves, legalMoves, stateMachine.getRoles().get(i), hosts.get(i), ports.get(i), playerNames.get(i)));
+            threads.add(new PlayRequestThread(this, match, previousMoves, legalMoves, stateMachine.getRoles().get(i), hosts.get(i), ports.get(i), playerNames.get(i), false));
         }
         for (PlayRequestThread thread : threads)
         {

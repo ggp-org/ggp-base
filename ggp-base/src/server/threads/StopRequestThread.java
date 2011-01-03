@@ -17,7 +17,6 @@ import util.statemachine.Role;
 
 public final class StopRequestThread extends Thread
 {
-
 	private final GameServer gameServer;
 	private final String host;
 	private final Match match;
@@ -59,5 +58,4 @@ public final class StopRequestThread extends Thread
 			gameServer.notifyObservers(new ServerConnectionErrorEvent(role));
 		}
 	}
-
 }

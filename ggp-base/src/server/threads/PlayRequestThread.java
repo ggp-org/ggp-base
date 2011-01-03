@@ -23,19 +23,19 @@ import util.symbol.factory.exceptions.SymbolFormatException;
 
 public final class PlayRequestThread extends Thread
 {
-
 	private final GameServer gameServer;
 	private final String host;
 	private final List<Move> legalMoves;
 	private final Match match;
-	private Move move;
 	private final int port;
 	private final String playerName;
 	private final List<Move> previousMoves;
-
+	private final boolean unlimitedTime;
 	private final Role role;
+	
+	private Move move;
 
-	public PlayRequestThread(GameServer gameServer, Match match, List<Move> previousMoves, List<Move> legalMoves, Role role, String host, int port, String playerName)
+	public PlayRequestThread(GameServer gameServer, Match match, List<Move> previousMoves, List<Move> legalMoves, Role role, String host, int port, String playerName, boolean unlimitedTime)
 	{
 		this.gameServer = gameServer;
 		this.match = match;
@@ -45,6 +45,7 @@ public final class PlayRequestThread extends Thread
 		this.host = host;
 		this.port = port;
 		this.playerName = playerName;
+		this.unlimitedTime = unlimitedTime;
 
 		move = null;
 	}
@@ -63,7 +64,7 @@ public final class PlayRequestThread extends Thread
 			String request = (previousMoves == null) ? RequestBuilder.getPlayRequest(match.getMatchId()) : RequestBuilder.getPlayRequest(match.getMatchId(), previousMoves);
 
 			HttpWriter.writeAsClient(socket, request, playerName);
-			String response = HttpReader.readAsClient(socket, match.getPlayClock() * 1000 + 1000);
+			String response = unlimitedTime ? HttpReader.readAsClient(socket) : HttpReader.readAsClient(socket, match.getPlayClock() * 1000 + 1000);
 
 			move = gameServer.getStateMachine().getMoveFromSentence((GdlSentence) GdlFactory.create(response));
 			if (!new HashSet<Move>(legalMoves).contains(move))
@@ -95,5 +96,4 @@ public final class PlayRequestThread extends Thread
 			move = legalMoves.get(0);
 		}
 	}
-
 }
