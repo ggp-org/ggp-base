@@ -16,7 +16,7 @@ import util.gdl.grammar.Gdl;
  * @author Sam
  */
 public final class LocalGameRepository extends GameRepository {    
-    public Set<String> getUncachedGameKeys() {
+    protected Set<String> getUncachedGameKeys() {
         Set<String> theKeys = new HashSet<String>();
         for(File game : ProjectConfiguration.gameRulesheetsDirectory.listFiles()) {
             if(!game.getName().endsWith(".kif")) continue;
@@ -25,7 +25,7 @@ public final class LocalGameRepository extends GameRepository {
         return theKeys;
     }
     
-    public Game getUncachedGame(String theKey) {
+    protected Game getUncachedGame(String theKey) {
         String stylesheet = LocalResourceLoader.loadStylesheet(theKey);
         List<Gdl> theRules = LocalResourceLoader.loadGame(theKey);
         return new Game(theKey, null, null, null, stylesheet, theRules);

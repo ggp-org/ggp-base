@@ -25,7 +25,7 @@ public final class RemoteGameRepository extends GameRepository {
         theRepoURL = theURL;
     }
     
-    public Set<String> getUncachedGameKeys() {
+    protected Set<String> getUncachedGameKeys() {
         try {
             Set<String> theGameKeys = new HashSet<String>();
             JSONArray theArray = RemoteResourceLoader.loadJSONArray(theRepoURL + "/games/");
@@ -41,7 +41,7 @@ public final class RemoteGameRepository extends GameRepository {
         }
     }
     
-    public Game getUncachedGame(String theKey) {
+    protected Game getUncachedGame(String theKey) {
         try {
             JSONObject theMetadata = getGameMetadataFromRepository(theKey);
             
@@ -61,11 +61,11 @@ public final class RemoteGameRepository extends GameRepository {
     }
     
     // ============================================================================================
-    public JSONObject getGameMetadataFromRepository(String theGame) throws IOException {
+    private JSONObject getGameMetadataFromRepository(String theGame) throws IOException {
         return RemoteResourceLoader.loadJSON(theRepoURL + "/games/" + theGame + "/");
     }
     
-    public String getGameResourceFromMetadata(String theGame, JSONObject theMetadata, String theResource) {
+    private String getGameResourceFromMetadata(String theGame, JSONObject theMetadata, String theResource) {
         try {
             String theResourceFile = theMetadata.getString(theResource);
             return RemoteResourceLoader.loadRaw(theRepoURL + "/games/" + theGame + "/" + theResourceFile);
@@ -74,7 +74,7 @@ public final class RemoteGameRepository extends GameRepository {
         }
     } 
         
-    public List<Gdl> getGameRulesheetFromMetadata(String theGame, JSONObject theMetadata) {
+    private List<Gdl> getGameRulesheetFromMetadata(String theGame, JSONObject theMetadata) {
         try {
             String theRulesheetFile = theMetadata.getString("rulesheet");
             return KifReader.readURL(theRepoURL + "/games/" + theGame + "/" + theRulesheetFile);
