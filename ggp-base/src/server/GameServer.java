@@ -1,6 +1,7 @@
 package server;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import server.event.ServerCompletedMatchEvent;
@@ -27,24 +28,29 @@ import util.statemachine.implementation.prover.ProverStateMachine;
 
 public final class GameServer extends Thread implements Subject
 {
-    private MachineState currentState;
-    private final List<String> hosts;
     private final Match match;
+    private final StateMachine stateMachine;    
+    private MachineState currentState;    
 
-    private final List<Observer> observers;
+    private final List<String> hosts;    
     private final List<Integer> ports;
     private final List<String>  playerNames;
+    private final Boolean[] playerGetsUnlimitedTime;
+    
+    private final List<Observer> observers;        
     private List<Move> previousMoves;
     private List<String> history;
-
-    private final StateMachine stateMachine;
-
+    
     public GameServer(Match match, List<String> hosts, List<Integer> ports, List<String> playerNames)
     {
         this.match = match;
+        
         this.hosts = hosts;
-        this.ports = ports;
+        this.ports = ports;        
         this.playerNames = playerNames;
+        
+        playerGetsUnlimitedTime = new Boolean[hosts.size()];
+        Arrays.fill(playerGetsUnlimitedTime, Boolean.FALSE);        
 
         stateMachine = new ProverStateMachine();
         stateMachine.initialize(match.getGame().getRules());
@@ -56,7 +62,7 @@ public final class GameServer extends Thread implements Subject
         history = new ArrayList<String>();
         observers = new ArrayList<Observer>();
     }
-
+    
     public void addObserver(Observer observer)
     {
         observers.add(observer);
@@ -65,8 +71,7 @@ public final class GameServer extends Thread implements Subject
     public List<Integer> getGoals() throws GoalDefinitionException
     {
         List<Integer> goals = new ArrayList<Integer>();
-        for (Role role : stateMachine.getRoles())
-        {
+        for (Role role : stateMachine.getRoles()) {
             goals.add(stateMachine.getGoal(currentState, role));
         }
 
@@ -80,8 +85,7 @@ public final class GameServer extends Thread implements Subject
 
     public void notifyObservers(Event event)
     {
-        for (Observer observer : observers)
-        {
+        for (Observer observer : observers) {
             observer.observe(event);
         }
     }
@@ -128,7 +132,7 @@ public final class GameServer extends Thread implements Subject
         for (int i = 0; i < hosts.size(); i++)
         {
             List<Move> legalMoves = stateMachine.getLegalMoves(currentState, stateMachine.getRoles().get(i));
-            threads.add(new PlayRequestThread(this, match, previousMoves, legalMoves, stateMachine.getRoles().get(i), hosts.get(i), ports.get(i), playerNames.get(i), false));
+            threads.add(new PlayRequestThread(this, match, previousMoves, legalMoves, stateMachine.getRoles().get(i), hosts.get(i), ports.get(i), playerNames.get(i), playerGetsUnlimitedTime[i]));
         }
         for (PlayRequestThread thread : threads)
         {
@@ -189,5 +193,9 @@ public final class GameServer extends Thread implements Subject
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < history.size(); i++) sb.append(history.get(i));
         return sb.toString();
+    }
+    
+    public void givePlayerUnlimitedTime(int i) {
+        playerGetsUnlimitedTime[i] = true;
     }    
 }

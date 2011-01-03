@@ -28,11 +28,11 @@ import javax.swing.border.TitledBorder;
 
 import apps.common.*;
 import apps.kiosk.games.*;
-import apps.kiosk.server.KioskGameServer;
 
 import player.GamePlayer;
 import player.gamer.Gamer;
 
+import server.GameServer;
 import server.event.ServerConnectionErrorEvent;
 import server.event.ServerIllegalMoveEvent;
 import server.event.ServerTimeoutEvent;
@@ -44,6 +44,9 @@ import util.match.Match;
 import util.observer.Event;
 import util.observer.Observer;
 import util.reflection.ProjectSearcher;
+
+// TODO(schreib): There appears to be a reproducible off-by-one error when selecting
+// which Gamer to use.
 
 /**
  * Kiosk is a program for running two-player human-vs-computer matches
@@ -274,6 +277,7 @@ public final class Kiosk extends JPanel implements ActionListener, ItemListener,
                         } catch(Exception ex) { throw new RuntimeException(ex); }
                         theComputerPlayer = new GamePlayer(DEFAULT_COMPUTER_PORT, gamer);
                         theComputerPlayer.start();
+                        System.out.println("Kiosk has started a gamer named " + theComputerPlayer.getGamer().getName() + ".");
                     }
                 }
                 
@@ -313,7 +317,8 @@ public final class Kiosk extends JPanel implements ActionListener, ItemListener,
                 }                
                                 
                 GamerLogger.startFileLogging(match, "kiosk");
-                KioskGameServer kioskServer = new KioskGameServer(match, hosts, ports, playerNames, (flipRoles.isSelected()? 1 : 0));
+                GameServer kioskServer = new GameServer(match, hosts, ports, playerNames);
+                kioskServer.givePlayerUnlimitedTime((flipRoles.isSelected()? 1 : 0));
                 kioskServer.addObserver(theHumanGamer);
                 kioskServer.addObserver(this);
                 kioskServer.start();
