@@ -45,9 +45,6 @@ import util.observer.Event;
 import util.observer.Observer;
 import util.reflection.ProjectSearcher;
 
-// TODO(schreib): There appears to be a reproducible off-by-one error when selecting
-// which Gamer to use.
-
 /**
  * Kiosk is a program for running two-player human-vs-computer matches
  * with clean visualizations and intuitive human interfaces. Originally
@@ -125,15 +122,11 @@ public final class Kiosk extends JPanel implements ActionListener, ItemListener,
         selectedGame.setSelectedIndex(0);
         selectedGame.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         JScrollPane selectedGamePane = new JScrollPane(selectedGame);
-        
+
+        computerAddress = new JTextField("127.0.0.1:31415");        
         playerComboBox = new JComboBox();
         playerComboBox.addItemListener(this);
-        new FindGamersThread().start();
-        
-        computerAddress = new JTextField("127.0.0.1:31415");
-        if(playerComboBox.getItemCount() > 1) {
-            computerAddress.setVisible(false);
-        }
+        new FindGamersThread().start();        
         
         runButton = new JButton("Run!");
         runButton.addActionListener(this);
@@ -142,7 +135,6 @@ public final class Kiosk extends JPanel implements ActionListener, ItemListener,
         playClockTextField = new JTextField("10");
         managerPanel = new JPanel(new GridBagLayout());
         
-        //runButton.setEnabled(false);
         startClockTextField.setColumns(15);
         playClockTextField.setColumns(15);
 
@@ -187,12 +179,11 @@ public final class Kiosk extends JPanel implements ActionListener, ItemListener,
         @Override
         public void run() {
             gamers = ProjectSearcher.getAllClassesThatAre(Gamer.class);
-            List<Class<?>> gamersCopy = new ArrayList<Class<?>>(gamers);
+            List<Class<?>> gamersCopy = new ArrayList<Class<?>>(gamers);            
             for(Class<?> gamer : gamersCopy)
             {
-                Gamer g;
                 try {
-                    g = (Gamer) gamer.newInstance();
+                    Gamer g = (Gamer) gamer.newInstance();
                     
                     // TODO: Come up with a more elegant way to exclude
                     // the HumanPlayer, which doesn't fit the Kiosk model.
@@ -202,7 +193,7 @@ public final class Kiosk extends JPanel implements ActionListener, ItemListener,
                 } catch(Exception ex) {
                     gamers.remove(gamer);
                 }
-            }
+            }            
             playerComboBox.addItem(remotePlayerString);
         }
     }
@@ -268,8 +259,7 @@ public final class Kiosk extends JPanel implements ActionListener, ItemListener,
                 
                 // Start a new player if necessary
                 if(theComputerPlayer == null) {
-                    Gamer gamer = null;
-                    
+                    Gamer gamer = null;                    
                     if(!playerComboBox.getSelectedItem().equals(remotePlayerString)) {
                         Class<?> gamerClass = gamers.get(playerComboBox.getSelectedIndex());
                         try {
@@ -277,7 +267,7 @@ public final class Kiosk extends JPanel implements ActionListener, ItemListener,
                         } catch(Exception ex) { throw new RuntimeException(ex); }
                         theComputerPlayer = new GamePlayer(DEFAULT_COMPUTER_PORT, gamer);
                         theComputerPlayer.start();
-                        System.out.println("Kiosk has started a gamer named " + theComputerPlayer.getGamer().getName() + ".");
+                        System.out.println("Kiosk has started a gamer named " + theComputerPlayer.getGamer().getName() + ".");                        
                     }
                 }
                 
