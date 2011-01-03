@@ -6,7 +6,12 @@ import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
+import external.JSON.JSONArray;
+import external.JSON.JSONException;
+import external.JSON.JSONObject;
+
 import util.game.Game;
+import util.game.RemoteGameRepository;
 import util.gdl.grammar.GdlSentence;
 import util.statemachine.Move;
 import util.statemachine.Role;
@@ -65,6 +70,42 @@ public final class Match
 		this.stateTimeHistory = new ArrayList<Date>();
 	}
 	
+	public Match(String theJSON) throws JSONException {
+        JSONObject theMatchObject = new JSONObject(theJSON);
+
+        this.matchId = theMatchObject.getString("matchId");
+        this.startClock = theMatchObject.getInt("startClock");
+        this.playClock = theMatchObject.getInt("playClock");
+        this.theGame = RemoteGameRepository.loadSingleGame(theMatchObject.getString("gameMetaURL"));
+        
+        this.startTime = new Date(theMatchObject.getLong("startTime"));
+        this.randomToken = theMatchObject.getString("randomToken");
+        this.spectatorAuthToken = null;
+        this.isCompleted = theMatchObject.getBoolean("isCompleted");
+
+        this.theRoleNames = new ArrayList<String>();
+        for(Role r : Role.computeRoles(theGame.getRules())) {
+            this.theRoleNames.add(r.getName().getName().toString());
+        }
+        
+        this.moveHistory = new ArrayList<List<GdlSentence>>();
+        this.stateHistory = new ArrayList<Set<GdlSentence>>();
+        this.stateTimeHistory = new ArrayList<Date>();
+        
+        JSONArray theMoves = theMatchObject.getJSONArray("moves");
+        for (int i = 0; i < theMoves.length(); i++) {
+            // TODO: load the moves
+        }
+        JSONArray theStates = theMatchObject.getJSONArray("states");
+        for (int i = 0; i < theStates.length(); i++) {
+            // TODO: load the states
+        }              
+        JSONArray theStateTimes = theMatchObject.getJSONArray("stateTimes");        
+        for (int i = 0; i < theStateTimes.length(); i++) {
+            this.stateTimeHistory.add(new Date(theStateTimes.getLong(i)));
+        }
+	}
+	
 	/* Mutators */
 
 	public void appendMoves(List<GdlSentence> moves) {	    
@@ -106,7 +147,7 @@ public final class Match
         // Uniquification variables
         theJSON.append("    \"matchId\": \"" + matchId + "\",\n");
         theJSON.append("    \"randomToken\": \"" + randomToken + "\",\n");
-        theJSON.append("    \"startTime\": \"" + startTime.getTime() + "\",\n");
+        theJSON.append("    \"startTime\": " + startTime.getTime() + ",\n");
         // Game information
         if (getGameName() != null) {
             theJSON.append("    \"gameName\": \"" + getGameName() + "\",\n");
