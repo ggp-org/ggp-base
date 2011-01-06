@@ -76,15 +76,19 @@ public final class Match
 		this.stateTimeHistory = new ArrayList<Date>();
 	}
 	
-	public Match(String theJSON) throws JSONException, SymbolFormatException, GdlFormatException {
+	public Match(String theJSON, Game theGame) throws JSONException, SymbolFormatException, GdlFormatException {
         JSONObject theMatchObject = new JSONObject(theJSON);
 
         this.matchId = theMatchObject.getString("matchId");
         this.startClock = theMatchObject.getInt("startClock");
         this.playClock = theMatchObject.getInt("playClock");
-        this.theGame = RemoteGameRepository.loadSingleGame(theMatchObject.getString("gameMetaURL"));
         if (theGame == null) {
-            throw new RuntimeException("Could not find metadata for game referenced in Match object: " + theMatchObject.getString("gameMetaURL"));
+            this.theGame = RemoteGameRepository.loadSingleGame(theMatchObject.getString("gameMetaURL"));
+            if (this.theGame == null) {
+                throw new RuntimeException("Could not find metadata for game referenced in Match object: " + theMatchObject.getString("gameMetaURL"));
+            }
+        } else {
+            this.theGame = theGame;
         }
         
         this.startTime = new Date(theMatchObject.getLong("startTime"));
