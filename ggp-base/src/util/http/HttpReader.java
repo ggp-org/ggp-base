@@ -51,7 +51,6 @@ public final class HttpReader
 		    message = requestLine.substring(5, requestLine.lastIndexOf(' '));
 		    message = URLDecoder.decode(message, "UTF-8");
 		    message = message.replace((char)13, ' ');
-		    readHeadersAndMessage(br);
 		} else {
 		    message = readHeadersAndMessage(br);
 		}		
