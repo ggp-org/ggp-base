@@ -2,6 +2,7 @@ package util.match;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
@@ -12,9 +13,14 @@ import external.JSON.JSONObject;
 
 import util.game.Game;
 import util.game.RemoteGameRepository;
+import util.gdl.factory.GdlFactory;
+import util.gdl.factory.exceptions.GdlFormatException;
 import util.gdl.grammar.GdlSentence;
 import util.statemachine.Move;
 import util.statemachine.Role;
+import util.symbol.factory.SymbolFactory;
+import util.symbol.factory.exceptions.SymbolFormatException;
+import util.symbol.grammar.SymbolList;
 
 /**
  * Match encapsulates all of the information relating to a single match.
@@ -70,13 +76,16 @@ public final class Match
 		this.stateTimeHistory = new ArrayList<Date>();
 	}
 	
-	public Match(String theJSON) throws JSONException {
+	public Match(String theJSON) throws JSONException, SymbolFormatException, GdlFormatException {
         JSONObject theMatchObject = new JSONObject(theJSON);
 
         this.matchId = theMatchObject.getString("matchId");
         this.startClock = theMatchObject.getInt("startClock");
         this.playClock = theMatchObject.getInt("playClock");
         this.theGame = RemoteGameRepository.loadSingleGame(theMatchObject.getString("gameMetaURL"));
+        if (theGame == null) {
+            throw new RuntimeException("Could not find metadata for game referenced in Match object: " + theMatchObject.getString("gameMetaURL"));
+        }
         
         this.startTime = new Date(theMatchObject.getLong("startTime"));
         this.randomToken = theMatchObject.getString("randomToken");
@@ -94,11 +103,22 @@ public final class Match
         
         JSONArray theMoves = theMatchObject.getJSONArray("moves");
         for (int i = 0; i < theMoves.length(); i++) {
-            // TODO: load the moves
+            List<GdlSentence> theMove = new ArrayList<GdlSentence>();
+            JSONArray moveElements = theMoves.getJSONArray(i);
+            for (int j = 0; j < moveElements.length(); j++) {
+                theMove.add((GdlSentence)GdlFactory.create(moveElements.getString(j)));
+            }
+            moveHistory.add(theMove);
         }
         JSONArray theStates = theMatchObject.getJSONArray("states");
         for (int i = 0; i < theStates.length(); i++) {
-            // TODO: load the states
+            Set<GdlSentence> theState = new HashSet<GdlSentence>();
+            SymbolList stateElements = (SymbolList) SymbolFactory.create(theStates.getString(i));
+            for (int j = 0; j < stateElements.size(); j++)
+            {
+                theState.add((GdlSentence)GdlFactory.create("( true " + stateElements.get(j).toString() + " )"));
+            }
+            stateHistory.add(theState);
         }              
         JSONArray theStateTimes = theMatchObject.getJSONArray("stateTimes");        
         for (int i = 0; i < theStateTimes.length(); i++) {
@@ -111,7 +131,7 @@ public final class Match
 	public void appendMoves(List<GdlSentence> moves) {	    
 		moveHistory.add(moves);
 	}
-	
+
 	public void appendMoves2(List<Move> moves) {
 	    // NOTE: This is appendMoves2 because it Java can't handle two
 	    // appendMove methods that both take List objects with different
@@ -135,11 +155,7 @@ public final class Match
 	}
 	
 	/* Complex accessors */
-	
-	public String toString() {
-	    return toJSON();
-	}
-	
+		
     public String toJSON() {
         StringBuilder theJSON = new StringBuilder();
         
@@ -171,7 +187,7 @@ public final class Match
         theJSON.append("}");
         
         return theJSON.toString();
-    }	
+    }
 	
     public List<GdlSentence> getMostRecentMoves() {
         if (moveHistory.size() == 0)
@@ -192,6 +208,10 @@ public final class Match
     public String getGameRepositoryURL() {
         return getGame().getRepositoryURL();
     }
+    
+    public String toString() {
+        return toJSON();
+    }    
 	
 	/* Simple accessors */
 
@@ -281,7 +301,7 @@ public final class Match
         }
         return renderedStates;
     }
-    
+
     private static List<String> renderMoveHistory(List<List<GdlSentence>> moveHistory) {
         List<String> renderedMoves = new ArrayList<String>();
         for (List<GdlSentence> aMove : moveHistory) {
@@ -289,7 +309,7 @@ public final class Match
         }
         return renderedMoves;        
     }
-    
+
     private static String renderStateAsSymbolList(Set<GdlSentence> theState) {
         // Strip out the TRUE proposition, since those are implied for states.
         String s = "( ";
