@@ -162,13 +162,6 @@ public final class ServerPanel extends JPanel
 					tab.addTab("Visualization", visualizationPanel);
 					serverPanel.matchesTabbedPane.addTab(matchId, tab);
 					serverPanel.matchesTabbedPane.setSelectedIndex(serverPanel.matchesTabbedPane.getTabCount()-1);
-
-					Integer tempDefaultPort = defaultPort;
-					for(JTextField tf : portTextFields)
-					{
-						tf.setText(tempDefaultPort.toString());
-						tempDefaultPort++;
-					}
 					
 					GameServer gameServer = new GameServer(match, hosts, ports, playerNames);
 					gameServer.addObserver(errorPanel);
