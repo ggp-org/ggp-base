@@ -1,6 +1,7 @@
 package server.threads;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.util.HashSet;
@@ -60,10 +61,12 @@ public final class PlayRequestThread extends Thread
 	{
 		try
 		{
-			Socket socket = new Socket(host, port);
+		    InetAddress theHost = InetAddress.getByName(host);
+		    
+			Socket socket = new Socket(theHost.getHostAddress(), port);
 			String request = (previousMoves == null) ? RequestBuilder.getPlayRequest(match.getMatchId()) : RequestBuilder.getPlayRequest(match.getMatchId(), previousMoves);
 
-			HttpWriter.writeAsClient(socket, request, playerName);
+			HttpWriter.writeAsClientGET(socket, theHost.getHostName(), request, playerName);
 			String response = unlimitedTime ? HttpReader.readAsClient(socket) : HttpReader.readAsClient(socket, match.getPlayClock() * 1000 + 1000);
 
 			move = gameServer.getStateMachine().getMoveFromSentence((GdlSentence) GdlFactory.create(response));

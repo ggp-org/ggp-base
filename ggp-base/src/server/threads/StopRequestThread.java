@@ -1,6 +1,7 @@
 package server.threads;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.util.List;
@@ -41,10 +42,12 @@ public final class StopRequestThread extends Thread
 	{
 		try
 		{
-			Socket socket = new Socket(host, port);
+		    InetAddress theHost = InetAddress.getByName(host);
+		    
+			Socket socket = new Socket(theHost.getHostAddress(), port);
 			String request = (previousMoves == null) ? RequestBuilder.getStopRequest(match.getMatchId()) : RequestBuilder.getStopRequest(match.getMatchId(), previousMoves);
 
-			HttpWriter.writeAsClient(socket, request, playerName);
+			HttpWriter.writeAsClientGET(socket, theHost.getHostName(), request, playerName);
 			HttpReader.readAsClient(socket, match.getPlayClock() * 1000);
 
 			socket.close();

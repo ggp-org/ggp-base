@@ -30,7 +30,7 @@ public class RequestHandler extends Thread {
 	public void run() {
 		try {
 			Socket s = new Socket(backend.ip, backend.port);
-			HttpWriter.writeAsClient(s, input, "Frontend");
+			HttpWriter.writeAsClient(s, "", input, "Frontend");
 			
 			// NOTE: This effectively strips out the player name
 			// from the HTTP messages. This will need to be fixed if

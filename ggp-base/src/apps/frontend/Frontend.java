@@ -238,7 +238,7 @@ public final class Frontend extends Thread
 	public static void registerWithFrontend(String frontendAddress, int myPort, boolean orDie) {
 	    try {
     	    Socket connection = new Socket(frontendAddress, REGISTRATION_PORT);
-    	    HttpWriter.writeAsClient(connection, "" + myPort, "Backend");
+    	    HttpWriter.writeAsClient(connection, "", "" + myPort, "Backend");
     	    String status = HttpReader.readAsClient(connection);	    
     	    if (status.equals("REGISTERED")) {
     	        GamerLogger.log("GamePlayer", "Registered successfully with frontend server.");

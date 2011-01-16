@@ -53,7 +53,7 @@ public class Test_Http extends TestCase {
     // Helper functions for running specific checks.
     
     private void doSimpleEchoCheck(SocketPair p, String data, String playerName) throws IOException {
-        HttpWriter.writeAsClient(p.client, data, playerName);
+        HttpWriter.writeAsClient(p.client, "", data, playerName);
         String readData = HttpReader.readAsServer(p.server);
         assertEquals(readData.toUpperCase(), data.toUpperCase());
         
