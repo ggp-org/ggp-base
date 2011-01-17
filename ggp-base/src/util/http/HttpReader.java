@@ -30,14 +30,7 @@ public final class HttpReader
 	public static String readAsClient(Socket socket) throws IOException
 	{
 		BufferedReader br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-		
-		// The first line of the HTTP response is the status line.
-		// For now, we ignore it, assuming that it is always OK.
-		br.readLine();
-		
-		String message = readHeadersAndMessage(br);
-
-		return message;
+		return readMessageContent(br);
 	}
 
 	public static String readAsServer(Socket socket) throws IOException
@@ -52,41 +45,25 @@ public final class HttpReader
 		    message = URLDecoder.decode(message, "UTF-8");
 		    message = message.replace((char)13, ' ');
 		} else {
-		    message = readHeadersAndMessage(br);
+		    message = readMessageContent(br);
 		}		
 		
 		return message;
 	}	
 	
-	// Private helper methods that handle common HTTP tasks.
-
-	private static String readHeadersAndMessage(BufferedReader br) throws IOException {
-	    // We are reading a HTTP request, as per the HTTP 1.1 spec (RFC 2616).        
-	    // This method assumes that we have read the first line, which is the
-	    // request line in a request, or the response line in a response.
-	    //
-        // Subsequent lines, up until the first blank line, are headers.
-        // We are currently interested only in the "Content-length" header,
-        // which indicates the length of the message body. 
+	// Private helper methods that handle common HTTP tasks.	
+	private static String readMessageContent(BufferedReader br) throws IOException {
+        StringBuilder sb = new StringBuilder();
+        boolean reachedContent = false;
         String line;
-        int length = 0;
-        do {
-            line = br.readLine();
-            if(line.toLowerCase().startsWith("content-length: ")) {
-                length = Integer.valueOf(line.substring(16));
+        while ((line = br.readLine()) != null){
+            if (reachedContent) {
+                sb.append(line + "\n");
+            }            
+            if (line.length() == 0) {
+                reachedContent = true;
             }
-        } while(line.length() > 0);   
-        
-        if(length == 0)
-            return "";
-
-        // Finally, we have the message body. 
-        char rawData[] = new char[length];
-        for (int i = 0; i < length; i++)
-        {
-            rawData[i] = (char) br.read();
         }
-
-        return new String(rawData);	    
+        return sb.toString().trim();	    
 	}
 }

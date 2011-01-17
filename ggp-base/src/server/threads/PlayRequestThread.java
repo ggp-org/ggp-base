@@ -66,7 +66,7 @@ public final class PlayRequestThread extends Thread
 			Socket socket = new Socket(theHost.getHostAddress(), port);
 			String request = (previousMoves == null) ? RequestBuilder.getPlayRequest(match.getMatchId()) : RequestBuilder.getPlayRequest(match.getMatchId(), previousMoves);
 
-			HttpWriter.writeAsClientGET(socket, theHost.getHostName(), request, playerName);
+			HttpWriter.writeAsClient(socket, theHost.getHostName(), request, playerName);
 			String response = unlimitedTime ? HttpReader.readAsClient(socket) : HttpReader.readAsClient(socket, match.getPlayClock() * 1000 + 1000);
 
 			move = gameServer.getStateMachine().getMoveFromSentence((GdlSentence) GdlFactory.create(response));

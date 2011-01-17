@@ -44,7 +44,7 @@ public final class StartRequestThread extends Thread
 			Socket socket = new Socket(theHost.getHostAddress(), port);
 			String request = RequestBuilder.getStartRequest(match.getMatchId(), role, match.getGame().getRules(), match.getStartClock(), match.getPlayClock());
 
-			HttpWriter.writeAsClientGET(socket, theHost.getHostName(), request, playerName);
+			HttpWriter.writeAsClient(socket, theHost.getHostName(), request, playerName);
 			HttpReader.readAsClient(socket, match.getStartClock() * 1000);
 
 			socket.close();

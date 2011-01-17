@@ -47,7 +47,7 @@ public final class StopRequestThread extends Thread
 			Socket socket = new Socket(theHost.getHostAddress(), port);
 			String request = (previousMoves == null) ? RequestBuilder.getStopRequest(match.getMatchId()) : RequestBuilder.getStopRequest(match.getMatchId(), previousMoves);
 
-			HttpWriter.writeAsClientGET(socket, theHost.getHostName(), request, playerName);
+			HttpWriter.writeAsClient(socket, theHost.getHostName(), request, playerName);
 			HttpReader.readAsClient(socket, match.getPlayClock() * 1000);
 
 			socket.close();
