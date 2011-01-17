@@ -59,6 +59,8 @@ public final class HttpReader
         while ((line = br.readLine()) != null){
             if (reachedContent) {
                 sb.append(line + "\n");
+                // We assume that the message is only a single line.
+                break;
             }            
             if (line.length() == 0) {
                 reachedContent = true;
