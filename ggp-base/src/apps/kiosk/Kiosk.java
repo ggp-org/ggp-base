@@ -123,7 +123,7 @@ public final class Kiosk extends JPanel implements ActionListener, ItemListener,
         selectedGame.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         JScrollPane selectedGamePane = new JScrollPane(selectedGame);
 
-        computerAddress = new JTextField("127.0.0.1:31415");        
+        computerAddress = new JTextField("ggp-webplayer.appspot.com:80");        
         playerComboBox = new JComboBox();
         playerComboBox.addItemListener(this);
         new FindGamersThread().start();        
