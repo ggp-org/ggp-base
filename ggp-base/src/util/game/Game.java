@@ -1,7 +1,13 @@
 package util.game;
 
+import java.util.ArrayList;
 import java.util.List;
+
+import external.JSON.JSONObject;
+import util.gdl.factory.GdlFactory;
 import util.gdl.grammar.Gdl;
+import util.symbol.factory.SymbolFactory;
+import util.symbol.grammar.SymbolList;
 
 /**
  * Game objects contain all of the relevant information about a specific game,
@@ -80,5 +86,70 @@ public final class Game {
 
     public List<Gdl> getRules() {
         return theRules;
+    }
+    
+    public String serializeToJSON() {
+        try {
+            JSONObject theGameObject = new JSONObject();
+            theGameObject.put("theKey", getKey());
+            theGameObject.put("theName", getName());
+            theGameObject.put("theDescription", getDescription());
+            theGameObject.put("theRepositoryURL", getRepositoryURL());
+            theGameObject.put("theStylesheet", getStylesheet());
+            
+            // Serialize the rulesheet
+            StringBuilder theProcessedRulesheet = new StringBuilder("( ");
+            for (Gdl gdl : getRules()) {
+                theProcessedRulesheet.append(gdl + " ");
+            }
+            theProcessedRulesheet.append(" )");
+            theGameObject.put("theProcessedRulesheet", theProcessedRulesheet.toString());
+            
+            return theGameObject.toString();
+        } catch(Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+    
+    public static Game loadFromJSON(String theSerializedGame) {
+        try {
+            JSONObject theGameObject = new JSONObject(theSerializedGame);
+            String theKey = theGameObject.getString("theKey");
+            
+            String theName = null;
+            try {
+                theName = theGameObject.getString("theName");
+            } catch (Exception e) {}
+            
+            String theDescription = null;
+            try {
+                theDescription = theGameObject.getString("theDescription");
+            } catch (Exception e) {}
+
+            String theRepositoryURL = null;
+            try {
+                theRepositoryURL = theGameObject.getString("theRepositoryURL");
+            } catch (Exception e) {}
+            
+            String theStylesheet = null;
+            try {
+                theStylesheet = theGameObject.getString("theStylesheet");
+            } catch (Exception e) {}
+
+            // Deserialize the rulesheet
+            String theRulesheet = theGameObject.getString("theProcessedRulesheet");
+            SymbolList ruleList = (SymbolList) SymbolFactory.create(theRulesheet);
+            List<Gdl> theRules = new ArrayList<Gdl>();
+            for (int i = 0; i < ruleList.size(); i++)
+            {
+                theRules.add(GdlFactory.create(ruleList.get(i)));
+            } 
+            
+            return new Game(theKey, theName, theDescription, theRepositoryURL, theStylesheet, theRules);
+        } catch(Exception e) {
+            e.printStackTrace();
+            return null;
+        }        
     }
 }

@@ -46,37 +46,50 @@ public final class RemoteGameRepository extends GameRepository {
     }
     
     public static Game loadSingleGame(String theGameURL) {
+        String[] theSplitURL = theGameURL.split("/");
+        String theKey = theSplitURL[theSplitURL.length-1];
+
         try {
-            String[] theSplitURL = theGameURL.split("/");
-            String theKey = theSplitURL[theSplitURL.length-1];
-            
             JSONObject theMetadata = getGameMetadataFromRepository(theGameURL);
-            
-            String theName = null;
-            try {
-                theName = theMetadata.getString("gameName");
-            } catch(JSONException e) {}
-            
-            String theDescription = getGameResourceFromMetadata(theGameURL, theMetadata, "description");                
-            String theStylesheet = getGameResourceFromMetadata(theGameURL, theMetadata, "stylesheet");
-            List<Gdl> theRules = getGameRulesheetFromMetadata(theGameURL, theMetadata);
-            
-            return new Game(theKey, theName, theDescription, theGameURL, theStylesheet, theRules);
+            return loadSingleGameFromMetadata(theKey, theGameURL, theMetadata);            
         } catch(IOException e) {
             return null;
-        }        
-    }    
-    
-    // ============================================================================================
-    private String getGameURL(String theGame) {
-        return theRepoURL + "/games/" + theGame + "/";
+        }
     }
     
-    private static JSONObject getGameMetadataFromRepository(String theGameURL) throws IOException {
+    protected static Game loadSingleGameFromMetadata(String theKey, String theGameURL, JSONObject theMetadata) {
+        String theVersionedGameURL = null;
+        try {
+            int theVersion = theMetadata.getInt("version");
+            theVersionedGameURL = addVersionToGameURL(theGameURL, theVersion);
+        } catch(JSONException e) {}
+        
+        String theName = null;
+        try {
+            theName = theMetadata.getString("gameName");
+        } catch(JSONException e) {}
+        
+        String theDescription = getGameResourceFromMetadata(theGameURL, theMetadata, "description");                
+        String theStylesheet = getGameResourceFromMetadata(theGameURL, theMetadata, "stylesheet");
+        List<Gdl> theRules = getGameRulesheetFromMetadata(theGameURL, theMetadata);
+        
+        return new Game(theKey, theName, theDescription, theVersionedGameURL, theStylesheet, theRules);        
+    }
+    
+    // ============================================================================================
+    protected String getGameURL(String theGameKey) {
+        return theRepoURL + "/games/" + theGameKey + "/";
+    }
+    
+    protected static String addVersionToGameURL(String theGameURL, int theVersion) {
+        return theGameURL + "v" + theVersion + "/";
+    }
+
+    protected static JSONObject getGameMetadataFromRepository(String theGameURL) throws IOException {
         return RemoteResourceLoader.loadJSON(theGameURL);
     }
     
-    private static String getGameResourceFromMetadata(String theGameURL, JSONObject theMetadata, String theResource) {
+    protected static String getGameResourceFromMetadata(String theGameURL, JSONObject theMetadata, String theResource) {
         try {
             String theResourceFile = theMetadata.getString(theResource);
             return RemoteResourceLoader.loadRaw(theGameURL + theResourceFile);
@@ -85,7 +98,7 @@ public final class RemoteGameRepository extends GameRepository {
         }
     } 
         
-    private static List<Gdl> getGameRulesheetFromMetadata(String theGameURL, JSONObject theMetadata) {
+    protected static List<Gdl> getGameRulesheetFromMetadata(String theGameURL, JSONObject theMetadata) {
         try {
             String theRulesheetFile = theMetadata.getString("rulesheet");
             return KifReader.readURL(theGameURL + theRulesheetFile);
