@@ -115,7 +115,11 @@ public final class Game {
     public static Game loadFromJSON(String theSerializedGame) {
         try {
             JSONObject theGameObject = new JSONObject(theSerializedGame);
-            String theKey = theGameObject.getString("theKey");
+            
+            String theKey = null;
+            try {
+                theKey = theGameObject.getString("theKey");
+            } catch (Exception e) {}
             
             String theName = null;
             try {
