@@ -105,11 +105,10 @@ public final class CloudGameRepository extends GameRepository {
                     myVersionedRepoURL = myGameVersion.getRepositoryURL();
 
                 if (!versionedRepoURL.equals(myVersionedRepoURL)) {
+                    // Cache miss: we don't have the current version for
+                    // this game, and so we need to load it from the web.
                     Game theGame = RemoteGameRepository.loadSingleGameFromMetadata(theKey, theGameURL, theMetadata);
                     saveGameToCache(theKey, theGame);
-                    System.out.println("Cache miss: " + theKey);
-                } else {
-                    System.out.println("Cache hit: " + theKey);
                 }
             } catch (Exception e) {
                 e.printStackTrace();
