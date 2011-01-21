@@ -31,8 +31,6 @@ public class GameSelector implements ActionListener {
     GameRepository theSelectedRepository;
     Map<String, GameRepository> theCachedRepositories;
 
-    String[] repoStrings = { "Local Game Repository", "ggp-repository.appspot.com" };    
-    
     class NamedItem {
         public final String theKey;
         public final String theName;
@@ -53,12 +51,10 @@ public class GameSelector implements ActionListener {
         
         theRepositoryList = new JComboBox();
         theRepositoryList.addActionListener(this);
-        //theRepositoryList.setRenderer(new ComboBoxRenderer());
 
         theCachedRepositories = new HashMap<String, GameRepository>();
-        for (String theRepositoryNames : repoStrings) {
-            theRepositoryList.addItem(theRepositoryNames);
-        }
+        theRepositoryList.addItem("Local Game Repository");
+        theRepositoryList.addItem("ggp-repository.appspot.com");
     }
     
     @Override
@@ -83,11 +79,11 @@ public class GameSelector implements ActionListener {
         return theSelectedRepository;
     }
     
-    public void repopulateGameList() {
-        theGameList.removeAllItems();
-        GameRepository theRepository = getSelectedGameRepository();
+    public void repopulateGameList() {        
+        GameRepository theRepository = getSelectedGameRepository();        
         List<String> theKeyList = new ArrayList<String>(theRepository.getGameKeys());
         Collections.sort(theKeyList);
+        theGameList.removeAllItems();
         for (String theKey : theKeyList) {
             String theName = theRepository.getGame(theKey).getName();
             if (theName == null) {
