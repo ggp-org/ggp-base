@@ -52,9 +52,9 @@ public class GameSelector implements ActionListener {
         theRepositoryList = new JComboBox();
         theRepositoryList.addActionListener(this);
 
-        theCachedRepositories = new HashMap<String, GameRepository>();
-        theRepositoryList.addItem("Local Game Repository");
+        theCachedRepositories = new HashMap<String, GameRepository>();        
         theRepositoryList.addItem("ggp-repository.appspot.com");
+        theRepositoryList.addItem("Local Game Repository");
     }
     
     @Override
