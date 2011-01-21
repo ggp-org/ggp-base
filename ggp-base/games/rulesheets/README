@@ -1,15 +1,20 @@
 Heya,
 
-Some quick notes on the games/rulesheets/ directory. I have tried to compile
-an authoritative collection of game rulesheets in this directory, pulling the
-best-commented versions from the Stanford archive or the Dresden archive. Yet,
-there's a lot of work still to do. A small number of games in this directory
-have various flaws, and others are poorly formatted or poorly commented.
+Some quick notes on the "games/rulesheets/" directory. I am slowly moving the
+project to using web-based game repositories (plus aggressive caching, so that
+you can still play games off-line). As a result, having an extensive collection
+of rulesheets packaged into the GGP Base project is no longer necessary, since
+better and more up-to-date versions of these games can be pulled down from the
+web-based repository servers as needed.
 
-I'd like to ultimately come up with a better system for storing rulesheets and
-stylesheets, such that you always have access to the latest version of a game
-with the most accurate comments and some indication whether or not any subtle
-bugs have been discovered in it, but that's nothing more than a design doc at
-the moment.
+So: this directory is now useful only for experimenting with one's own games,
+that don't need to leave the local machine. I have left some sample test cases
+that I put together, along with a few real games as examples. All of the apps
+in the GGP Base package should support loading rulesheets from this directory,
+though not all functionality will be enabled: e.g. you won't be able to publish
+matches for online spectators to view.
+
+For more details on the move to web-based game repositories, see:
+http://code.google.com/p/ggp-galaxy/
 
 -Sam
