@@ -5,6 +5,7 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,6 +14,7 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JSeparator;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
@@ -23,14 +25,14 @@ import util.match.Match;
 import util.statemachine.Role;
 import util.statemachine.StateMachine;
 import util.statemachine.implementation.prover.ProverStateMachine;
-import apps.common.GameLoaderPrompt;
+import apps.common.GameSelector;
 import apps.common.NativeUI;
 import apps.server.error.ErrorPanel;
 import apps.server.history.HistoryPanel;
 import apps.server.visualization.VisualizationPanel;
 
 @SuppressWarnings("serial")
-public final class ServerPanel extends JPanel
+public final class ServerPanel extends JPanel implements ActionListener
 {    
 	private static void createAndShowGUI(ServerPanel serverPanel)
 	{
@@ -58,32 +60,28 @@ public final class ServerPanel extends JPanel
 			}
 		});
 	}
+	
+    private Integer defaultPort = 9147;	
 
 	private Game theGame;
 	private final List<JTextField> hostTextFields;
 	private final JPanel managerPanel;
 	private final JTabbedPane matchesTabbedPane;
-	private final JTextField matchIdTextField;
 	private final JTextField playClockTextField;
 
 	private final List<JTextField> portTextFields;
 	private final List<JTextField> playerNameTextFields;
 	private final List<JLabel> roleLabels;
 	private final JButton runButton;
-	private final JButton sourceButton;
-
-	private final JTextField sourceTextField;
 
 	private final JTextField startClockTextField;
+	private final GameSelector gameSelector;
 
 	public ServerPanel()
 	{
 		super(new GridBagLayout());
 		
 		runButton = new JButton(runButtonMethod(this));
-		sourceButton = new JButton(sourceButtonMethod(this));
-		sourceTextField = new JTextField("Click to select a .kif file");
-		matchIdTextField = new JTextField("Match.default");
 		startClockTextField = new JTextField("30");
 		playClockTextField = new JTextField("15");
 		managerPanel = new JPanel(new GridBagLayout());
@@ -96,28 +94,34 @@ public final class ServerPanel extends JPanel
 		theGame = null;
 
 		runButton.setEnabled(false);
-		sourceTextField.setEnabled(false);
-		sourceTextField.setColumns(15);
 		startClockTextField.setColumns(15);
 		playClockTextField.setColumns(15);
 
+		gameSelector = new GameSelector();
+		
+		int nRowCount = 0;
 		managerPanel.setBorder(new TitledBorder("Manager"));
-		managerPanel.add(sourceButton, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 0, 0));
-		managerPanel.add(sourceTextField, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 5, 5));
-		managerPanel.add(new JLabel("Match Id:"), new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 5, 5));
-		managerPanel.add(matchIdTextField, new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 5, 5));
-		managerPanel.add(new JLabel("Start Clock:"), new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 5, 5));
-		managerPanel.add(startClockTextField, new GridBagConstraints(1, 2, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 5, 5));
-		managerPanel.add(new JLabel("Play Clock:"), new GridBagConstraints(0, 3, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 5, 5));
-		managerPanel.add(playClockTextField, new GridBagConstraints(1, 3, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 5, 5));
-		managerPanel.add(runButton, new GridBagConstraints(1, 4, 1, 1, 0.0, 1.0, GridBagConstraints.SOUTH, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 0, 0));
+		managerPanel.add(new JLabel("Repository:"), new GridBagConstraints(0, nRowCount, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 5, 5));
+		managerPanel.add(gameSelector.getRepositoryList(), new GridBagConstraints(1, nRowCount++, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 5, 5));
+        managerPanel.add(new JLabel("Game:"), new GridBagConstraints(0, nRowCount, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 5, 5));
+        managerPanel.add(gameSelector.getGameList(), new GridBagConstraints(1, nRowCount++, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 5, 5));
+        managerPanel.add(new JSeparator(), new GridBagConstraints(0, nRowCount++, 2, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 5, 5));
+		managerPanel.add(new JLabel("Start Clock:"), new GridBagConstraints(0, nRowCount, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 5, 5));
+		managerPanel.add(startClockTextField, new GridBagConstraints(1, nRowCount++, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 5, 5));
+		managerPanel.add(new JLabel("Play Clock:"), new GridBagConstraints(0, nRowCount, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 5, 5));
+		managerPanel.add(playClockTextField, new GridBagConstraints(1, nRowCount++, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 5, 5));
+		managerPanel.add(new JSeparator(), new GridBagConstraints(0, nRowCount++, 2, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 5, 5));
+		managerPanel.add(runButton, new GridBagConstraints(1, nRowCount, 1, 1, 0.0, 1.0, GridBagConstraints.SOUTH, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 0, 0));
 
 		JPanel matchesPanel = new JPanel(new GridBagLayout());
 		matchesPanel.setBorder(new TitledBorder("Matches"));
 		matchesPanel.add(matchesTabbedPane, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 5, 5));
 
 		this.add(managerPanel, new GridBagConstraints(0, 0, 1, 1, 0.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 5, 5));
-		this.add(matchesPanel, new GridBagConstraints(1, 0, 1, 1, 1.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 5, 5));		
+		this.add(matchesPanel, new GridBagConstraints(1, 0, 1, 1, 1.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 5, 5));
+		
+        gameSelector.getGameList().addActionListener(this);
+        gameSelector.repopulateGameList();		
 	}
 
 	private AbstractAction runButtonMethod(final ServerPanel serverPanel)
@@ -128,9 +132,7 @@ public final class ServerPanel extends JPanel
 			{
 				try
 				{
-					String matchId = serverPanel.matchIdTextField.getText();
-					if(matchId.equals("Match.default"))
-					    matchId = "Match." + System.currentTimeMillis();
+					String matchId = "Match." + System.currentTimeMillis();
 					
 					int startClock = Integer.valueOf(serverPanel.startClockTextField.getText());
 					int playClock = Integer.valueOf(serverPanel.playClockTextField.getText());
@@ -154,7 +156,7 @@ public final class ServerPanel extends JPanel
 
 					HistoryPanel historyPanel = new HistoryPanel();
 					ErrorPanel errorPanel = new ErrorPanel();
-					VisualizationPanel visualizationPanel = new VisualizationPanel(gameName);
+					VisualizationPanel visualizationPanel = new VisualizationPanel(theGame.getKey());
 
 					JTabbedPane tab = new JTabbedPane();
 					tab.addTab("History", historyPanel);
@@ -177,62 +179,55 @@ public final class ServerPanel extends JPanel
 		};
 	}
 
-	private Integer defaultPort = 9147;
-	private String gameName = "";
-	private AbstractAction sourceButtonMethod(final ServerPanel serverPanel)
-	{
-		return new AbstractAction("Source")
-		{
-			public void actionPerformed(ActionEvent evt)
-			{
-			    theGame = GameLoaderPrompt.loadGameUsingPrompt();
-			    if (theGame == null) return;
-				sourceTextField.setText(theGame.getKey() + ".kif");
-				gameName = theGame.getKey();
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        if (e.getSource() == gameSelector.getGameList()) {
+            theGame = gameSelector.getSelectedGame();
 
-				for (int i = 0; i < roleLabels.size(); i++)
-				{
-					serverPanel.managerPanel.remove(roleLabels.get(i));
-					serverPanel.managerPanel.remove(hostTextFields.get(i));
-					serverPanel.managerPanel.remove(portTextFields.get(i));
-					serverPanel.managerPanel.remove(playerNameTextFields.get(i));
-				}
+            for (int i = 0; i < roleLabels.size(); i++)
+            {
+                managerPanel.remove(roleLabels.get(i));
+                managerPanel.remove(hostTextFields.get(i));
+                managerPanel.remove(portTextFields.get(i));
+                managerPanel.remove(playerNameTextFields.get(i));
+            }
 
-				roleLabels.clear();
-				hostTextFields.clear();
-				portTextFields.clear();
-				playerNameTextFields.clear();
+            roleLabels.clear();
+            hostTextFields.clear();
+            portTextFields.clear();
+            playerNameTextFields.clear();
 
-				serverPanel.validate();
+            validate();
+            runButton.setEnabled(false);
+            if (theGame == null)
+                return;            
 
-				StateMachine stateMachine = new ProverStateMachine();
-				stateMachine.initialize(theGame.getRules());
-				List<Role> roles = stateMachine.getRoles();
-				Integer tempDefaultPort = defaultPort;
-				
-				for (int i = 0; i < roles.size(); i++)
-				{
-					roleLabels.add(new JLabel(roles.get(i).getName().toString() + ":"));
-					hostTextFields.add(new JTextField("localhost"));
-					portTextFields.add(new JTextField(tempDefaultPort.toString()));
-					playerNameTextFields.add(new JTextField("defaultPlayerName"));
-					tempDefaultPort++;
+            StateMachine stateMachine = new ProverStateMachine();
+            stateMachine.initialize(theGame.getRules());
+            List<Role> roles = stateMachine.getRoles();
+            Integer tempDefaultPort = defaultPort;
+            
+            int newRowCount = 7;
+            for (int i = 0; i < roles.size(); i++) {
+                roleLabels.add(new JLabel(roles.get(i).getName().toString() + ":"));
+                hostTextFields.add(new JTextField("localhost"));
+                portTextFields.add(new JTextField(tempDefaultPort.toString()));
+                playerNameTextFields.add(new JTextField("defaultPlayerName"));
+                tempDefaultPort++;
 
-					hostTextFields.get(i).setColumns(15);
-					portTextFields.get(i).setColumns(15);
-					playerNameTextFields.get(i).setColumns(15);
+                hostTextFields.get(i).setColumns(15);
+                portTextFields.get(i).setColumns(15);
+                playerNameTextFields.get(i).setColumns(15);
 
-					serverPanel.managerPanel.add(roleLabels.get(i), new GridBagConstraints(0, 4 + 3 * i, 1, 1, 1.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 5, 5));
-					serverPanel.managerPanel.add(hostTextFields.get(i), new GridBagConstraints(1, 4 + 3 * i, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 5, 5));
-					serverPanel.managerPanel.add(portTextFields.get(i), new GridBagConstraints(1, 5 + 3 * i, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 5, 5));
-					serverPanel.managerPanel.add(playerNameTextFields.get(i),  new GridBagConstraints(1, 6 + 3 * i, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 5, 5));
-				}
-				serverPanel.managerPanel.add(runButton, new GridBagConstraints(1, 4 + 3 * roles.size(), 1, 1, 0.0, 1.0, GridBagConstraints.SOUTH, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 0, 0));
+                managerPanel.add(roleLabels.get(i), new GridBagConstraints(0, newRowCount, 1, 1, 1.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 5, 5));
+                managerPanel.add(hostTextFields.get(i), new GridBagConstraints(1, newRowCount++, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 5, 5));
+                managerPanel.add(portTextFields.get(i), new GridBagConstraints(1, newRowCount++, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 5, 5));
+                managerPanel.add(playerNameTextFields.get(i),  new GridBagConstraints(1, newRowCount++, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 5, 5));
+            }
+            managerPanel.add(runButton, new GridBagConstraints(1, newRowCount, 1, 1, 0.0, 1.0, GridBagConstraints.SOUTH, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 0, 0));
 
-				serverPanel.validate();
-
-				runButton.setEnabled(true);
-			}
-		};
-	}
+            validate();
+            runButton.setEnabled(true);
+        }        
+    }
 }

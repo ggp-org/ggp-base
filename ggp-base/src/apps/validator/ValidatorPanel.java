@@ -5,12 +5,14 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JSeparator;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
@@ -18,12 +20,12 @@ import javax.swing.table.DefaultTableModel;
 
 import util.game.Game;
 import validator.GdlValidator;
-import apps.common.GameLoaderPrompt;
+import apps.common.GameSelector;
 import apps.common.NativeUI;
 import apps.validator.simulation.SimulationPanel;
 
 @SuppressWarnings("serial")
-public final class ValidatorPanel extends JPanel
+public final class ValidatorPanel extends JPanel implements ActionListener
 {
 	private static void createAndShowGUI(ValidatorPanel validatorPanel)
 	{
@@ -51,23 +53,21 @@ public final class ValidatorPanel extends JPanel
 		});
 	}
 
-	private Game game;
-	private final JButton fileButton;
+	private Game theGame;
 	private final JButton stepByHandButton;
-	private final JTextField fileTextField;
 	private final JTextField maxDepthTextField;
 	private final JTabbedPane simulationsTabbedPane;
 	private final JTextField simulationsTextField;
 	private final JButton validateButton;
 
+    private final GameSelector gameSelector;	
+	
 	public ValidatorPanel()
 	{
 	    super(new GridBagLayout());
 
-		fileButton = new JButton(selectButtonMethod());
 		validateButton = new JButton(validateButtonMethod(this));
 		stepByHandButton = new JButton(stepByHandButtonMethod(this));
-		fileTextField = new JTextField("Select a .kif file");
 		maxDepthTextField = new JTextField("100");
 		simulationsTextField = new JTextField("10");
 		simulationsTabbedPane = new JTabbedPane();
@@ -76,22 +76,26 @@ public final class ValidatorPanel extends JPanel
 		model.addColumn("Simulation");
 		model.addColumn("Result");
 
-		fileTextField.setEnabled(false);
-		fileTextField.setColumns(15);
 		maxDepthTextField.setColumns(15);
 		simulationsTextField.setColumns(15);
 		validateButton.setEnabled(false);
 
+        gameSelector = new GameSelector();		
+		
+		int nRowCount = 0;
 		JPanel sourcePanel = new JPanel(new GridBagLayout());
 		sourcePanel.setBorder(new TitledBorder("Source"));
-		sourcePanel.add(fileButton, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 0, 0));
-		sourcePanel.add(fileTextField, new GridBagConstraints(1, 0, 1, 1, 1.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 5, 5));
-		sourcePanel.add(new JLabel("Step Limit:"), new GridBagConstraints(0, 1, 1, 1, 1.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 5, 5));
-		sourcePanel.add(maxDepthTextField, new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 5, 5));
-		sourcePanel.add(new JLabel("Simulations:"), new GridBagConstraints(0, 2, 1, 1, 1.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 5, 5));
-		sourcePanel.add(simulationsTextField, new GridBagConstraints(1, 2, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 5, 5));
-		sourcePanel.add(stepByHandButton, new GridBagConstraints(1, 3, 1, 1, 1.0, 1.0, GridBagConstraints.SOUTH, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 0, 0));
-        sourcePanel.add(validateButton, new GridBagConstraints(1, 4, 1, 1, 0.0, 0.0, GridBagConstraints.SOUTH, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 0, 0));		
+		sourcePanel.add(new JLabel("Repository:"), new GridBagConstraints(0, nRowCount, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 5, 5));
+        sourcePanel.add(gameSelector.getRepositoryList(), new GridBagConstraints(1, nRowCount++, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 5, 5));
+        sourcePanel.add(new JLabel("Game:"), new GridBagConstraints(0, nRowCount, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 5, 5));
+        sourcePanel.add(gameSelector.getGameList(), new GridBagConstraints(1, nRowCount++, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 5, 5));
+        sourcePanel.add(new JSeparator(), new GridBagConstraints(1, nRowCount++, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 5, 5));
+		sourcePanel.add(new JLabel("Step Limit:"), new GridBagConstraints(0, nRowCount, 1, 1, 1.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 5, 5));
+		sourcePanel.add(maxDepthTextField, new GridBagConstraints(1, nRowCount++, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 5, 5));
+		sourcePanel.add(new JLabel("Simulations:"), new GridBagConstraints(0, nRowCount, 1, 1, 1.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 5, 5));
+		sourcePanel.add(simulationsTextField, new GridBagConstraints(1, nRowCount++, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 5, 5));
+		sourcePanel.add(stepByHandButton, new GridBagConstraints(1, nRowCount++, 1, 1, 1.0, 1.0, GridBagConstraints.SOUTH, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 0, 0));
+        sourcePanel.add(validateButton, new GridBagConstraints(1, nRowCount++, 1, 1, 0.0, 0.0, GridBagConstraints.SOUTH, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 0, 0));		
 
 		JPanel simulationsPanel = new JPanel(new GridBagLayout());
 		simulationsPanel.setBorder(new TitledBorder("Results"));
@@ -99,23 +103,18 @@ public final class ValidatorPanel extends JPanel
 
 		this.add(sourcePanel, new GridBagConstraints(0, 0, 1, 1, 0.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 5, 5));
 		this.add(simulationsPanel, new GridBagConstraints(1, 0, 1, 1, 1.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 5, 5));
+		
+        gameSelector.getGameList().addActionListener(this);
+        gameSelector.repopulateGameList();      		
 	}
 
-	private AbstractAction selectButtonMethod()
-	{
-		return new AbstractAction("Source")
-		{
-			public void actionPerformed(ActionEvent evt)
-			{
-	           Game theGame = GameLoaderPrompt.loadGameUsingPrompt();
-	           if (theGame == null) return;
-	           
-	           game = theGame;
-	           fileTextField.setText(theGame.getKey());
-	           validateButton.setEnabled(true);	           
-			}
-		};
-	}
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        if (e.getSource() == gameSelector.getGameList()) {
+            theGame = gameSelector.getSelectedGame();
+            validateButton.setEnabled(theGame != null);               
+        }        
+    }	
 
 	private AbstractAction validateButtonMethod(final ValidatorPanel validatorPanel)
 	{
@@ -129,10 +128,10 @@ public final class ValidatorPanel extends JPanel
 
 					SimulationPanel simulationPanel = new SimulationPanel(simulations);
 
-					GdlValidator validator = new GdlValidator(game.getRules(), maxDepth, simulations);
+					GdlValidator validator = new GdlValidator(theGame.getRules(), maxDepth, simulations);
 					validator.addObserver(simulationPanel);
 
-					validatorPanel.simulationsTabbedPane.addTab(validatorPanel.fileTextField.getText(), simulationPanel);
+					validatorPanel.simulationsTabbedPane.addTab(theGame.getKey(), simulationPanel);
 					validator.start();
 				} catch (Exception e) {
 					// Do nothing.
@@ -149,7 +148,7 @@ public final class ValidatorPanel extends JPanel
 			{
 				try {
 					QueryPanel QP = new QueryPanel();
-					validatorPanel.simulationsTabbedPane.addTab(validatorPanel.fileTextField.getText()+" Stepper", QP);
+					validatorPanel.simulationsTabbedPane.addTab(theGame.getKey()+" Stepper", QP);
 				} catch (Exception e) {
 					// Do nothing.
 				}

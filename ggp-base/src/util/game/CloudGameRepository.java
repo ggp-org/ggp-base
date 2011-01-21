@@ -45,7 +45,11 @@ public final class CloudGameRepository extends GameRepository {
     private final File theCacheDirectory;
     
     public CloudGameRepository(String theURL) {
-        theRepoURL = theURL;        
+        if (!theURL.startsWith("http://"))
+            theURL = "http://" + theURL;
+        if (!theURL.endsWith("/"))
+            theURL = theURL + "/";
+        theRepoURL = theURL;
         
         // Generate a unique hash of the repository URL, to use as the
         // local directory for files for the offline cache.

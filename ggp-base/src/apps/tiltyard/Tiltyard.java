@@ -6,6 +6,7 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,10 +17,11 @@ import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JSeparator;
 import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
 
-import apps.common.GameLoaderPrompt;
+import apps.common.GameSelector;
 import apps.common.NativeUI;
 
 import player.gamer.Gamer;
@@ -49,7 +51,7 @@ import util.statemachine.implementation.prover.ProverStateMachine;
  * @author Sam Schreiber
  */
 @SuppressWarnings("serial")
-public final class Tiltyard extends JPanel {
+public final class Tiltyard extends JPanel implements ActionListener {
     private static void createAndShowGUI(Tiltyard playerPanel) {
         JFrame frame = new JFrame("General Gaming Tiltyard");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -73,8 +75,6 @@ public final class Tiltyard extends JPanel {
     }
 
     private final JButton runButton;
-    private final JButton sourceButton;
-    private final JTextField sourceTextField;        
     private final JTextField playClockTextField;
     private final JTextField startClockTextField;
     private final JTextField numRepsTextField;  
@@ -85,6 +85,8 @@ public final class Tiltyard extends JPanel {
     
     private final TiltyardEventsPanel eventsPanel;
 
+    private final GameSelector gameSelector;    
+    
     private JComboBox getFreshPlayerComboBox() {
         JComboBox newBox = new JComboBox();
 
@@ -112,10 +114,6 @@ public final class Tiltyard extends JPanel {
         super(new GridBagLayout());
 
         // Create the game-selection controls
-        sourceButton = new JButton(sourceButtonMethod(this));
-        sourceTextField = new JTextField("Click to select a .kif file");
-        sourceTextField.setEnabled(false);
-        sourceTextField.setColumns(15);
         startClockTextField = new JTextField("30");
         playClockTextField = new JTextField("15");
         numRepsTextField = new JTextField("100");
@@ -133,17 +131,23 @@ public final class Tiltyard extends JPanel {
         // Create the panel that shows the actual events
         eventsPanel = new TiltyardEventsPanel();                
 
+        gameSelector = new GameSelector();        
+        
         int nGridRow = 0;
         JPanel managerPanel = new JPanel(new GridBagLayout());
         managerPanel.setBorder(new TitledBorder("Manager"));        
-        managerPanel.add(sourceButton, new GridBagConstraints(0, nGridRow, 1, 1, 0.0, 0.0, GridBagConstraints.NORTH, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 0, 0));
-        managerPanel.add(sourceTextField, new GridBagConstraints(1, nGridRow++, 1, 1, 0.0, 0.0, GridBagConstraints.NORTH, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 5, 5));
+        managerPanel.add(new JLabel("Repository:"), new GridBagConstraints(0, nGridRow, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 5, 5));
+        managerPanel.add(gameSelector.getRepositoryList(), new GridBagConstraints(1, nGridRow++, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 5, 5));
+        managerPanel.add(new JLabel("Game:"), new GridBagConstraints(0, nGridRow, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 5, 5));
+        managerPanel.add(gameSelector.getGameList(), new GridBagConstraints(1, nGridRow++, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 5, 5));
+        managerPanel.add(new JSeparator(), new GridBagConstraints(0, nGridRow++, 2, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 5, 5));
         managerPanel.add(new JLabel("Start Clock:"), new GridBagConstraints(0, nGridRow, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 5, 5));
         managerPanel.add(startClockTextField, new GridBagConstraints(1, nGridRow++, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 5, 5));
         managerPanel.add(new JLabel("Play Clock:"), new GridBagConstraints(0, nGridRow, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 5, 5));
         managerPanel.add(playClockTextField, new GridBagConstraints(1, nGridRow++, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 5, 5));
         managerPanel.add(new JLabel("Repetitions:"), new GridBagConstraints(0, nGridRow, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 5, 5));
-        managerPanel.add(numRepsTextField, new GridBagConstraints(1, nGridRow++, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 5, 5));                
+        managerPanel.add(numRepsTextField, new GridBagConstraints(1, nGridRow++, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 5, 5));
+        managerPanel.add(new JSeparator(), new GridBagConstraints(0, nGridRow++, 2, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 5, 5));
         managerPanel.add(playerBoxesPanel, new GridBagConstraints(0, nGridRow++, 2, 1, 1.0, 1.0, GridBagConstraints.NORTH, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 0, 0));        
         managerPanel.add(buttonPanel, new GridBagConstraints(1, nGridRow++, 1, 1, 1.0, 1.0, GridBagConstraints.SOUTH, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 0, 0));
 
@@ -154,6 +158,9 @@ public final class Tiltyard extends JPanel {
         this.add(gamesPanel, new GridBagConstraints(1, 1, 1, 1, 1.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 5, 5));
         
         validate();
+        
+        gameSelector.getGameList().addActionListener(this);
+        gameSelector.repopulateGameList();
     }
 
     private void runTiltyard() {
@@ -167,7 +174,7 @@ public final class Tiltyard extends JPanel {
             int startClock = Integer.parseInt(startClockTextField.getText());
             int numReps = Integer.parseInt(numRepsTextField.getText());
             
-            Match theMatchModel = new Match("MatchID", startClock, playClock, game);
+            Match theMatchModel = new Match("MatchID", startClock, playClock, theGame);
             
             TiltyardManager theManager = new TiltyardManager(thePlayers, theMatchModel, gameName, numReps, eventsPanel);
             theManager.start();
@@ -189,51 +196,49 @@ public final class Tiltyard extends JPanel {
     }
     
     private String gameName;
-    private Game game;
-    private AbstractAction sourceButtonMethod(final Tiltyard tiltyardPanel)
-    {
-        return new AbstractAction("Source")
-        {
-            public void actionPerformed(ActionEvent evt)
-            {
-                game = GameLoaderPrompt.loadGameUsingPrompt();
-                if (game == null) return;
-                sourceTextField.setText(game.getKey() + ".kif");
-                gameName = game.getKey();
-                
-                StateMachine stateMachine = new ProverStateMachine();
-                stateMachine.initialize(game.getRules());
-                List<Role> roles = stateMachine.getRoles();
-                int nRoles = roles.size();
+    private Game theGame;
 
-                while(playerBoxes.size() > nRoles) {
-                    playerBoxes.remove(playerBoxes.size()-1);       
-                }
-
-                while(playerBoxes.size() < nRoles) {
-                    playerBoxes.add(getFreshPlayerComboBox());
-                }
-
-                List<Integer> currentSelections = new ArrayList<Integer>();
-                for(int i = 0; i < playerBoxes.size(); i++) {
-                    currentSelections.add(playerBoxes.get(i).getSelectedIndex());
-                }
-
-                playerBoxesPanel.removeAll();
-                for(int i = 0; i < roles.size(); i++) {
-                    playerBoxesPanel.add(new JLabel("Player " + (i+1) + " Type:"), new GridBagConstraints(0, i, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 0, 0));
-                    playerBoxesPanel.add(playerBoxes.get(i), new GridBagConstraints(1, i, 1, 1, 1.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 0, 0));
-                }
-
-                for(int i = 0; i < playerBoxes.size(); i++) {
-                    playerBoxes.get(i).setSelectedIndex(currentSelections.get(i));
-                }       
-
-                playerBoxesPanel.validate();  
-                tiltyardPanel.validate();
-
-                runButton.setEnabled(true);                
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        if (e.getSource() == gameSelector.getGameList()) {
+            theGame = gameSelector.getSelectedGame();
+            if (theGame == null) {
+                runButton.setEnabled(false);
+                return;
             }
-        };
+            
+            StateMachine stateMachine = new ProverStateMachine();
+            stateMachine.initialize(theGame.getRules());
+            List<Role> roles = stateMachine.getRoles();
+            int nRoles = roles.size();
+
+            while(playerBoxes.size() > nRoles) {
+                playerBoxes.remove(playerBoxes.size()-1);       
+            }
+
+            while(playerBoxes.size() < nRoles) {
+                playerBoxes.add(getFreshPlayerComboBox());
+            }
+
+            List<Integer> currentSelections = new ArrayList<Integer>();
+            for(int i = 0; i < playerBoxes.size(); i++) {
+                currentSelections.add(playerBoxes.get(i).getSelectedIndex());
+            }
+
+            playerBoxesPanel.removeAll();
+            for(int i = 0; i < roles.size(); i++) {
+                playerBoxesPanel.add(new JLabel("Player " + (i+1) + " Type:"), new GridBagConstraints(0, i, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 0, 0));
+                playerBoxesPanel.add(playerBoxes.get(i), new GridBagConstraints(1, i, 1, 1, 1.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 0, 0));
+            }
+
+            for(int i = 0; i < playerBoxes.size(); i++) {
+                playerBoxes.get(i).setSelectedIndex(currentSelections.get(i));
+            }
+
+            playerBoxesPanel.validate();  
+            validate();
+
+            runButton.setEnabled(true);  
+        }
     }    
 }
