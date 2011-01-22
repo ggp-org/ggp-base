@@ -37,6 +37,7 @@ import server.event.ServerConnectionErrorEvent;
 import server.event.ServerIllegalMoveEvent;
 import server.event.ServerTimeoutEvent;
 import util.configuration.LocalResourceLoader;
+import util.game.CloudGameRepository;
 import util.game.Game;
 import util.game.GameRepository;
 import util.logging.GamerLogger;
@@ -93,8 +94,10 @@ public final class Kiosk extends JPanel implements ActionListener, ItemListener,
     private List<Class<?>> gamers = null;
     private final JTextField computerAddress;
 
+    private final GameRepository theRepository;
+    
     public Kiosk()
-    {
+    {        
         super(new GridBagLayout());
         LocalResourceLoader.setLocalResourceLoader(this);        
         setPreferredSize(new Dimension(1050, 900));
@@ -170,6 +173,8 @@ public final class Kiosk extends JPanel implements ActionListener, ItemListener,
         } catch(Exception e) {
             e.printStackTrace();
         }
+        
+        theRepository = new CloudGameRepository("http://ggp-repository.appspot.com/");        
     }
     
     // Load the gamers asynchronously, so that we don't stall when loading
@@ -241,7 +246,7 @@ public final class Kiosk extends JPanel implements ActionListener, ItemListener,
         if(e.getSource() == runButton) {
             try {
                 AvailableGame theGame = (AvailableGame) (selectedGame.getSelectedValue());
-                Game game = GameRepository.getDefaultRepository().getGame(theGame.kifFile);
+                Game game = theRepository.getGame(theGame.kifFile);
 
                 String matchId = "kiosk." + theGame.kifFile + "-" + System.currentTimeMillis();
                 int startClock = Integer.valueOf(startClockTextField.getText());
