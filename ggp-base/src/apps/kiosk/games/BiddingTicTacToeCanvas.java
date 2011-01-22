@@ -12,7 +12,7 @@ public class BiddingTicTacToeCanvas extends GameCanvas_FancyGrid {
     private static final long serialVersionUID = 1L;
 
     public String getGameName() { return "Tic-Tac-Toe (Bidding)"; }
-    protected String getGameKIF() { return "bidding-tictactoe"; }
+    protected String getGameKIF() { return "biddingTicTacToe"; }
     protected int getGridHeight() { return 5; }
     protected int getGridWidth() { return 7; }
     

@@ -43,9 +43,9 @@ public class TTCC4Canvas extends GameCanvas_FancyGrid {
     protected Set<String> getLegalMovesForCell(int xCell, int yCell) {
         yCell = 8 - yCell;        
         
-        Set<String> theMoves = gameStateHasLegalMovesMatching("\\( pawnmove " + xCell + " " + yCell + " (.*) \\)");
-        theMoves.addAll(gameStateHasLegalMovesMatching("\\( knightmove " + xCell + " " + yCell + " (.*) \\)"));
-        theMoves.addAll(gameStateHasLegalMovesMatching("\\( checkermove " + xCell + " " + yCell + " (.*) \\)"));
+        Set<String> theMoves = gameStateHasLegalMovesMatching("\\( pawnMove " + xCell + " " + yCell + " (.*) \\)");
+        theMoves.addAll(gameStateHasLegalMovesMatching("\\( knightMove " + xCell + " " + yCell + " (.*) \\)"));
+        theMoves.addAll(gameStateHasLegalMovesMatching("\\( checkerMove " + xCell + " " + yCell + " (.*) \\)"));
         theMoves.addAll(gameStateHasLegalMovesMatching("\\( jump " + xCell + " " + yCell + " (.*) \\)"));
         
         if(theMoves.size() == 0)
@@ -72,8 +72,8 @@ public class TTCC4Canvas extends GameCanvas_FancyGrid {
         String cellType = cellFacts[4];
         if(!cellType.equals("b")) {
             Color myColor = null;
-            if(cellType.startsWith("red")) myColor = Color.red;
-            if(cellType.startsWith("blue")) myColor = Color.blue;            
+            if(cellType.startsWith("light")) myColor = Color.red;
+            if(cellType.startsWith("dark")) myColor = Color.blue;            
             if(myColor == null) {
                 System.err.println("Got weird piece: " + cellType);
                 return;
@@ -85,13 +85,13 @@ public class TTCC4Canvas extends GameCanvas_FancyGrid {
             g.setColor(myColor);
             g.fillOval(2, 2, width-4, height-4);
             
-            if(cellType.contains("pawn")) {
+            if(cellType.contains("Pawn")) {
                 CommonGraphics.drawChessPiece(g, "bp");
-            } else if(cellType.contains("knight")) {
+            } else if(cellType.contains("Knight")) {
                 CommonGraphics.drawChessPiece(g, "bn");
-            } else if(cellType.contains("checker")) {
+            } else if(cellType.contains("Checker")) {
                 CommonGraphics.drawCheckersPiece(g, "bk");
-            } else if(cellType.contains("disc")) {
+            } else if(cellType.contains("Disc")) {
                 ;
             }
         }

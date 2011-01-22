@@ -15,7 +15,7 @@ public class BreakthroughCanvas extends GameCanvas_Chessboard {
 
     @Override
     protected Set<String> getFactsAboutCell(int xCell, int yCell) {
-        return gameStateHasFactsMatching("\\( cellholds " + xCell + " " + yCell + " (.*) \\)");
+        return gameStateHasFactsMatching("\\( cellHolds " + xCell + " " + yCell + " (.*) \\)");
     }
     
     @Override

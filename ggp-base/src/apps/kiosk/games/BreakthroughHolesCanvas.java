@@ -15,8 +15,8 @@ public class BreakthroughHolesCanvas extends GameCanvas_Chessboard {
 
     @Override
     protected Set<String> getFactsAboutCell(int xCell, int yCell) {
-        Set<String> theFacts = gameStateHasFactsMatching("\\( cellholds " + xCell + " " + yCell + " (.*) \\)");
-        theFacts.addAll(gameStateHasFactsMatching("\\( cellofflimits " + xCell + " " + yCell + " \\)"));
+        Set<String> theFacts = gameStateHasFactsMatching("\\( cellHolds " + xCell + " " + yCell + " (.*) \\)");
+        theFacts.addAll(gameStateHasFactsMatching("\\( cellOffLimits " + xCell + " " + yCell + " \\)"));
         return theFacts;
     }
     
@@ -31,9 +31,9 @@ public class BreakthroughHolesCanvas extends GameCanvas_Chessboard {
         String cellType = cellFacts[4];
         if(cellType.equals("b")) return;
         
-        if(cellFacts[1].equals("cellholds")) {
+        if(cellFacts[1].equals("cellHolds")) {
             CommonGraphics.drawChessPiece(g, cellType.charAt(0) + "p");
-        } else if(cellFacts[1].equals("cellofflimits")) {
+        } else if(cellFacts[1].equals("cellOffLimits")) {
             CommonGraphics.drawBubbles(g, theFact.hashCode());
         }
     }

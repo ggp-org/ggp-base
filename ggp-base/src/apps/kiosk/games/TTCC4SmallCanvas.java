@@ -37,9 +37,9 @@ public class TTCC4SmallCanvas extends GameCanvas_FancyGrid {
     protected Set<String> getLegalMovesForCell(int xCell, int yCell) {
         yCell = 6 - yCell;        
         
-        Set<String> theMoves = gameStateHasLegalMovesMatching("\\( pawnmove " + xCell + " " + yCell + " (.*) \\)");
-        theMoves.addAll(gameStateHasLegalMovesMatching("\\( knightmove " + xCell + " " + yCell + " (.*) \\)"));
-        theMoves.addAll(gameStateHasLegalMovesMatching("\\( checkermove " + xCell + " " + yCell + " (.*) \\)"));
+        Set<String> theMoves = gameStateHasLegalMovesMatching("\\( pawnMove " + xCell + " " + yCell + " (.*) \\)");
+        theMoves.addAll(gameStateHasLegalMovesMatching("\\( knightMove " + xCell + " " + yCell + " (.*) \\)"));
+        theMoves.addAll(gameStateHasLegalMovesMatching("\\( checkerMove " + xCell + " " + yCell + " (.*) \\)"));
         theMoves.addAll(gameStateHasLegalMovesMatching("\\( jump " + xCell + " " + yCell + " (.*) \\)"));
         
         if(theMoves.size() == 0)
@@ -79,13 +79,13 @@ public class TTCC4SmallCanvas extends GameCanvas_FancyGrid {
             g.setColor(myColor);
             g.fillOval(2, 2, width-4, height-4);
             
-            if(cellType.contains("pawn")) {
+            if(cellType.contains("Pawn")) {
                 CommonGraphics.drawChessPiece(g, "bp");
-            } else if(cellType.contains("knight")) {
+            } else if(cellType.contains("Knight")) {
                 CommonGraphics.drawChessPiece(g, "bn");
-            } else if(cellType.contains("checker")) {
+            } else if(cellType.contains("Checker")) {
                 CommonGraphics.drawCheckersPiece(g, "bk");
-            } else if(cellType.contains("disc")) {
+            } else if(cellType.contains("Disc")) {
                 ;
             }
         }

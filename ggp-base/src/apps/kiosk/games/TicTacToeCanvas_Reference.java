@@ -25,7 +25,7 @@ public class TicTacToeCanvas_Reference extends GameCanvas {
     }
     
     protected String getGameKIF() {
-        return "tictactoe2";
+        return "ticTacToe";
     }    
 
     private Graphics mostRecentG;

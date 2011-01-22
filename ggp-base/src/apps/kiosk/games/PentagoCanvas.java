@@ -20,7 +20,7 @@ public class PentagoCanvas extends GameCanvas_FancyGrid {
         int nQuad = getQuadrant(xCell, yCell);
         xCell = ((xCell > 3) ? (xCell - 3) : xCell);
         yCell = ((yCell > 3) ? (yCell - 3) : yCell);        
-        return gameStateHasFactsMatching("\\( cellholds " + nQuad + " " + xCell + " " + yCell + " (.*) \\)");
+        return gameStateHasFactsMatching("\\( cellHolds " + nQuad + " " + xCell + " " + yCell + " (.*) \\)");
     }
 
     @Override
