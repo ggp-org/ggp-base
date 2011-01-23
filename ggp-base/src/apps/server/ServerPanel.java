@@ -156,7 +156,7 @@ public final class ServerPanel extends JPanel implements ActionListener
 
 					HistoryPanel historyPanel = new HistoryPanel();
 					ErrorPanel errorPanel = new ErrorPanel();
-					VisualizationPanel visualizationPanel = new VisualizationPanel(theGame.getKey());
+					VisualizationPanel visualizationPanel = new VisualizationPanel(theGame);
 
 					JTabbedPane tab = new JTabbedPane();
 					tab.addTab("History", historyPanel);

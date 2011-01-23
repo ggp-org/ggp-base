@@ -2,17 +2,18 @@ package apps.server.visualization;
 
 import javax.swing.JPanel;
 
+import util.game.Game;
 import util.statemachine.implementation.prover.ProverMachineState;
 import util.xhtml.GameStateRenderPanel;
 
 public class RenderThread extends Thread {	
-	private final String gameName;
+	private final Game theGame;
 	private final ProverMachineState s;
 	private final VisualizationPanel parent;
 	private final int stepNum;
 	
-	public RenderThread(String gameName, ProverMachineState s, VisualizationPanel parent, int stepNum) {
-		this.gameName = gameName;
+	public RenderThread(Game theGame, ProverMachineState s, VisualizationPanel parent, int stepNum) {
+		this.theGame = theGame;
 		this.s = s;
 		this.parent = parent;
 		this.stepNum = stepNum;
@@ -24,7 +25,11 @@ public class RenderThread extends Thread {
 		JPanel newPanel = null;
 		try {
 			String XML = s.toXML();
-			String XSL = GameStateRenderPanel.getXSLfromFile(gameName, 1); //1 because machinestate XMLs only ever have 1 state
+			String XSL = GameStateRenderPanel.getXSLfromFile(theGame.getKey(), 1); //1 because machinestate XMLs only ever have 1 state
+			
+			// TODO: Figure out a way to render visualizations using the web stylesheets.
+			//String XSL = theGame.getStylesheet();
+			
 			newPanel = new VizContainerPanel(XML, XSL, parent);
 		} catch(Exception ex) {}
 		

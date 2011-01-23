@@ -4,6 +4,7 @@ import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
 import server.event.ServerNewGameStateEvent;
+import util.game.Game;
 import util.observer.Event;
 import util.observer.Observer;
 import util.statemachine.implementation.prover.ProverMachineState;
@@ -11,12 +12,12 @@ import util.statemachine.implementation.prover.ProverMachineState;
 @SuppressWarnings("serial")
 public final class VisualizationPanel extends JPanel implements Observer
 {
-	private final String gameName;
+	private final Game theGame;
 	private JTabbedPane tabs = new JTabbedPane();
 
-	public VisualizationPanel(String gameName)
+	public VisualizationPanel(Game theGame)
 	{		
-		this.gameName = gameName;
+		this.theGame = theGame;
 		this.add(tabs);
 	}
 
@@ -26,7 +27,7 @@ public final class VisualizationPanel extends JPanel implements Observer
 	    if (event instanceof ServerNewGameStateEvent)
 		{
 	        ProverMachineState s = ((ServerNewGameStateEvent)event).getState();
-	        RenderThread rt = new RenderThread(gameName, s, this, stepCount++);
+	        RenderThread rt = new RenderThread(theGame, s, this, stepCount++);
 	        rt.start();
 		}
 	}
@@ -44,7 +45,7 @@ public final class VisualizationPanel extends JPanel implements Observer
 				tabs.setSelectedIndex(tabs.getTabCount()-1);
 			}
 		} catch(Exception ex) {
-			System.err.println("Adding rendered visualization panel failed for: "+gameName);
+			System.err.println("Adding rendered visualization panel failed for: " + theGame.getKey());
 		}
 
 		return true;
