@@ -47,8 +47,8 @@ public final class CloudGameRepository extends GameRepository {
     public CloudGameRepository(String theURL) {
         if (!theURL.startsWith("http://"))
             theURL = "http://" + theURL;
-        if (!theURL.endsWith("/"))
-            theURL = theURL + "/";
+        if (theURL.endsWith("/"))
+            theURL = theURL.substring(0, theURL.length()-1);
         theRepoURL = theURL;
         
         // Generate a unique hash of the repository URL, to use as the
