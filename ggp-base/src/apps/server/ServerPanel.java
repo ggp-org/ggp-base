@@ -168,8 +168,12 @@ public final class ServerPanel extends JPanel implements ActionListener
 					GameServer gameServer = new GameServer(match, hosts, ports, playerNames);
 					gameServer.addObserver(errorPanel);
 					gameServer.addObserver(historyPanel);
-					gameServer.addObserver(visualizationPanel);
-					gameServer.start();					
+					gameServer.addObserver(visualizationPanel);					
+					gameServer.start();
+
+					// TODO: Incorporate this functionality into the user interface.
+					//String theMatchKey = gameServer.startPublishingToSpectatorServer("http://ggp-spectator.appspot.com/");
+					//System.out.println("http://ggp-spectator.appspot.com/matches/" + theMatchKey + "/viz.html");
 				}
 				catch (Exception e)
 				{

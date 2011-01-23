@@ -68,8 +68,9 @@ public final class GameServer extends Thread implements Subject
         spectatorServerURL = null;
     }
     
-    public void setSpectatorServerURL(String theURL) {
+    public String startPublishingToSpectatorServer(String theURL) {
         spectatorServerURL = theURL;
+        return publishWhenNecessary();
     }
     
     public void addObserver(Observer observer) {
@@ -98,7 +99,6 @@ public final class GameServer extends Thread implements Subject
     @Override
     public void run() {
         try {
-            publishWhenNecessary();            
             notifyObservers(new ServerNewMatchEvent(stateMachine.getRoles()));                        
             notifyObservers(new ServerTimeEvent(match.getStartClock() * 1000));
             sendStartRequests();
@@ -128,14 +128,15 @@ public final class GameServer extends Thread implements Subject
         }
     }
     
-    private void publishWhenNecessary() {
+    private String publishWhenNecessary() {
         if (spectatorServerURL != null) {
             try {
-                MatchPublisher.publishToSpectatorServerAsync(spectatorServerURL, match);
+                return MatchPublisher.publishToSpectatorServer(spectatorServerURL, match);
             } catch (IOException e) {
-                e.printStackTrace();
+                e.printStackTrace();                
             }
         }
+        return null;
     }
 
     private synchronized List<Move> sendPlayRequests() throws InterruptedException, MoveDefinitionException {
