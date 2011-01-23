@@ -196,5 +196,9 @@ public final class GameServer extends Thread implements Subject
     
     public void givePlayerUnlimitedTime(int i) {
         playerGetsUnlimitedTime[i] = true;
-    }    
+    }
+    
+    public Match getMatch() {
+        return match;
+    }
 }

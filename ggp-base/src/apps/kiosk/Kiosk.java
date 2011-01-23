@@ -87,6 +87,8 @@ public final class Kiosk extends JPanel implements ActionListener, ItemListener,
     private final JButton runButton;
     private final JList selectedGame;
     private final JCheckBox flipRoles;
+    
+    private final PublishButton publishButton;
 
     private final JPanel theGUIPanel;
         
@@ -134,6 +136,8 @@ public final class Kiosk extends JPanel implements ActionListener, ItemListener,
         runButton = new JButton("Run!");
         runButton.addActionListener(this);
 
+        publishButton = new PublishButton("Publish online!");
+        
         startClockTextField = new JTextField("30");
         playClockTextField = new JTextField("10");
         managerPanel = new JPanel(new GridBagLayout());
@@ -153,7 +157,9 @@ public final class Kiosk extends JPanel implements ActionListener, ItemListener,
         managerPanel.add(flipRoles, new GridBagConstraints(1, nRowCount++, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 5, 5));
         managerPanel.add(new JLabel("Game:"), new GridBagConstraints(0, nRowCount, 1, 1, 0.0, 0.0, GridBagConstraints.NORTH, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 5, 5));
         managerPanel.add(selectedGamePane, new GridBagConstraints(1, nRowCount++, 1, 1, 0.0, 5.0, GridBagConstraints.CENTER, GridBagConstraints.VERTICAL, new Insets(5, 5, 5, 5), 5, 5));
-        //managerPanel.add(new ConsolePanel(), new GridBagConstraints(0, nRowCount++, 2, 1, 0.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 5, 5));
+        managerPanel.add(new JLabel("Publishing:"), new GridBagConstraints(0, nRowCount, 1, 1, 0.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 5, 5));
+        managerPanel.add(publishButton, new GridBagConstraints(1, nRowCount++, 1, 1, 0.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 5, 5));
+        //managerPanel.add(new ConsolePanel(), new GridBagConstraints(0, nRowCount++, 2, 1, 0.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 5, 5));        
         managerPanel.add(runButton, new GridBagConstraints(1, nRowCount++, 1, 1, 0.0, 1.0, GridBagConstraints.SOUTH, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 0, 0));
 
         JPanel gamePanel = new JPanel(new GridBagLayout());
@@ -241,6 +247,8 @@ public final class Kiosk extends JPanel implements ActionListener, ItemListener,
     private GamePlayer theHumanPlayer = null;
     private KioskGamer theHumanGamer;
     
+    private GameServer kioskServer = null;
+    
     private static final int DEFAULT_HUMAN_PORT = 3333;
     private static final int DEFAULT_COMPUTER_PORT = 3334;
     
@@ -307,27 +315,30 @@ public final class Kiosk extends JPanel implements ActionListener, ItemListener,
                     ports.add(theComputerPlayer.getGamerPort());                    
                     playerNames.add("Computer");
                 }
-                
+
                 if(flipRoles.isSelected()) {
                     hosts.add("127.0.0.1");
                     ports.add(theHumanPlayer.getGamerPort());
                     playerNames.add("Human");                                   
                 }                
-                                
+
+                if (kioskServer != null && !kioskServer.getMatch().isCompleted()) {
+                    // TODO: Figure out what the right behavior should be when the user
+                    // interrupts a match by trying to start another match.
+                }
+                
                 GamerLogger.startFileLogging(match, "kiosk");
-                GameServer kioskServer = new GameServer(match, hosts, ports, playerNames);
+                kioskServer = new GameServer(match, hosts, ports, playerNames);
                 kioskServer.givePlayerUnlimitedTime((flipRoles.isSelected()? 1 : 0));
                 kioskServer.addObserver(theHumanGamer);
                 kioskServer.addObserver(this);
                 kioskServer.start();
                 
-                // TODO: Incorporate this functionality into the user interface.
-                //String theMatchKey = kioskServer.startPublishingToSpectatorServer("http://ggp-spectator.appspot.com/");
-                //System.out.println("http://ggp-spectator.appspot.com/matches/" + theMatchKey + "/viz.html");                
+                publishButton.setServer(kioskServer);
             } catch(Exception ex) {
                 ex.printStackTrace();
             }
-        }    
+        }
     }
     
     @Override
