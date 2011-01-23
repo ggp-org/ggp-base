@@ -24,7 +24,7 @@ public class TicTacToeCanvas_Reference extends GameCanvas {
         return "Tic-Tac-Toe (Old Version)";
     }
     
-    protected String getGameKIF() {
+    protected String getGameKey() {
         return "ticTacToe";
     }    
 

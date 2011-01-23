@@ -11,7 +11,7 @@ public class PentagoCanvas extends GameCanvas_FancyGrid {
     private static final long serialVersionUID = 1L;
 
     public String getGameName() { return "Pentago"; }
-    protected String getGameKIF() { return "pentago"; }
+    protected String getGameKey() { return "pentago"; }
     protected int getGridHeight() { return 6; }
     protected int getGridWidth() { return 6; }
     

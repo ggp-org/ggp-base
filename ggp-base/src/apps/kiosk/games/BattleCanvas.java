@@ -11,7 +11,7 @@ public class BattleCanvas extends GameCanvas_Chessboard {
     private static final long serialVersionUID = 1L;
 
     public String getGameName() { return "Battle"; }
-    protected String getGameKIF() { return "battle"; }
+    protected String getGameKey() { return "battle"; }
 
     @Override
     protected Set<String> getLegalMovesForCell(int xCell, int yCell) {

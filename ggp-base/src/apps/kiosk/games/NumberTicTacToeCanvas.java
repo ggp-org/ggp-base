@@ -11,7 +11,7 @@ public class NumberTicTacToeCanvas extends GameCanvas_FancyGrid {
     public static final long serialVersionUID = 0x1;
     
     public String getGameName() { return "Tic-Tac-Toe (Numeric)"; }
-    protected String getGameKIF() { return "numbertictactoe"; }
+    protected String getGameKey() { return "numbertictactoe"; }
     protected int getGridHeight() { return 3; }
     protected int getGridWidth() { return 3; }
     

@@ -242,7 +242,7 @@ public abstract class GameCanvas extends JPanel implements Subject {
 
     public abstract String getGameName();
     
-    protected abstract String getGameKIF();
+    protected abstract String getGameKey();
 
     protected void paintGame(Graphics g) {        
         paintGameDefault(g, "paintGame not implemented");

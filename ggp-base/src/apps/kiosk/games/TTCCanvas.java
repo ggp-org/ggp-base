@@ -11,7 +11,7 @@ public class TTCCanvas extends GameCanvas_FancyGrid {
     private static final long serialVersionUID = 1L;
 
     public String getGameName() { return "Tic-Tac-Chess"; }
-    protected String getGameKIF() { return "2pttc"; }
+    protected String getGameKey() { return "2pttc"; }
     protected int getGridHeight() { return 7; }
     protected int getGridWidth() { return 7; }
 

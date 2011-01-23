@@ -18,7 +18,7 @@ public class BlokboxSimpleCanvas extends GameCanvas_SimpleGrid {
     private static final long serialVersionUID = 1L;
 
     public String getGameName() { return "Blokbox Simple"; }
-    protected String getGameKIF() { return "blokbox_simple"; }
+    protected String getGameKey() { return "blokbox_simple"; }
     
     protected Set<String> getLegalMovesForCell(int xCell, int yCell) {
         if(selectedPiece == -1) return new HashSet<String>();

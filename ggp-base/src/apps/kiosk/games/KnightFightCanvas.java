@@ -11,7 +11,7 @@ public class KnightFightCanvas extends GameCanvas_Chessboard {
     private static final long serialVersionUID = 1L;
 
     public String getGameName() { return "Knight Fight"; }
-    protected String getGameKIF() { return "knightfight"; }
+    protected String getGameKey() { return "knightfight"; }
     protected int getGridHeight() { return 10; }
     protected int getGridWidth() { return 10; }    
 

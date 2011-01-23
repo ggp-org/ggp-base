@@ -11,7 +11,7 @@ public class BreakthroughSmallCanvas extends GameCanvas_Chessboard {
     private static final long serialVersionUID = 1L;
 
     public String getGameName() { return "Breakthrough (Small)"; }
-    protected String getGameKIF() { return "breakthroughSmall"; }
+    protected String getGameKey() { return "breakthroughSmall"; }
 
     protected int getGridHeight() { return 6; }
     protected int getGridWidth() { return 6; }    

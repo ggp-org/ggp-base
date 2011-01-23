@@ -10,7 +10,7 @@ public class TTTxNineCanvas extends GameCanvas_SimpleGrid {
     private static final long serialVersionUID = 1L;
 
     public String getGameName() { return "Nine Board Tic Tac Toe"; }
-    protected String getGameKIF() { return "tictactoex9"; }
+    protected String getGameKey() { return "tictactoex9"; }
     protected int getGridHeight() { return 9; }
     protected int getGridWidth() { return 9; }
 

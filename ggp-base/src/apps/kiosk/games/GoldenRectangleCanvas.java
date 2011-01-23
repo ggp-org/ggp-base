@@ -10,7 +10,7 @@ public class GoldenRectangleCanvas extends GameCanvas_SimpleGrid {
     private static final long serialVersionUID = 1L;
 
     public String getGameName() { return "Golden Rectangle"; }
-    protected String getGameKIF() { return "golden_rectangle"; }
+    protected String getGameKey() { return "golden_rectangle"; }
     protected int getGridHeight() { return 8; }
     protected int getGridWidth() { return 7; }
 

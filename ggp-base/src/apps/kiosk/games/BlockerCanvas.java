@@ -11,7 +11,7 @@ public class BlockerCanvas extends GameCanvas_FancyGrid {
     private static final long serialVersionUID = 1L;
 
     public String getGameName() { return "Blocker"; }
-    protected String getGameKIF() { return "blocker"; }
+    protected String getGameKey() { return "blocker"; }
     protected int getGridHeight() { return 6; }
     protected int getGridWidth() { return 6; }
 

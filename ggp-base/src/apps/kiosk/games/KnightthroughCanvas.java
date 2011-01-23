@@ -11,7 +11,7 @@ public class KnightthroughCanvas extends GameCanvas_Chessboard {
     private static final long serialVersionUID = 1L;
 
     public String getGameName() { return "Knightthrough"; }
-    protected String getGameKIF() { return "knightthrough"; }
+    protected String getGameKey() { return "knightthrough"; }
 
     @Override
     protected Set<String> getFactsAboutCell(int xCell, int yCell) {

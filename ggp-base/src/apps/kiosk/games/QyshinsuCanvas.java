@@ -15,7 +15,7 @@ public class QyshinsuCanvas extends StyledGameCanvas_FancyRectangles {
     public static final long serialVersionUID = 0x1;
 
     public String getGameName() { return "Qyshinsu"; }
-    protected String getGameKIF() { return "qyshinsu"; }
+    protected String getGameKey() { return "qyshinsu"; }
     protected String getGameXSL() { return "qyshinsu"; }
     
     @Override

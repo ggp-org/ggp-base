@@ -11,7 +11,7 @@ public class CheckersSmallCanvas extends GameCanvas_Chessboard {
     private static final long serialVersionUID = 1L;    
     
     public String getGameName() { return "Checkers (Small)"; }
-    protected String getGameKIF() { return "checkersSmall"; }
+    protected String getGameKey() { return "checkersSmall"; }
     
     protected int getGridHeight() { return 8; }
     protected int getGridWidth() { return 8; }        

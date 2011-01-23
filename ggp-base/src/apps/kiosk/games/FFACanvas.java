@@ -11,7 +11,7 @@ public class FFACanvas extends GameCanvas_FancyGrid {
     private static final long serialVersionUID = 1L;
 
     public String getGameName() { return "Free-For-All"; }
-    protected String getGameKIF() { return "2pffa"; }
+    protected String getGameKey() { return "2pffa"; }
     protected int getGridHeight() { return 7; }
     protected int getGridWidth() { return 7; }
 

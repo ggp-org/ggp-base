@@ -11,7 +11,7 @@ public class BreakthroughCanvas extends GameCanvas_Chessboard {
     private static final long serialVersionUID = 1L;
 
     public String getGameName() { return "Breakthrough"; }
-    protected String getGameKIF() { return "breakthrough"; }
+    protected String getGameKey() { return "breakthrough"; }
 
     @Override
     protected Set<String> getFactsAboutCell(int xCell, int yCell) {

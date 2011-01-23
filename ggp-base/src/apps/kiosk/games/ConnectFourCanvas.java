@@ -10,7 +10,7 @@ public class ConnectFourCanvas extends GameCanvas_SimpleGrid {
     private static final long serialVersionUID = 1L;
 
     public String getGameName() { return "Connect Four"; }
-    protected String getGameKIF() { return "connectFour"; }
+    protected String getGameKey() { return "connectFour"; }
     protected int getGridHeight() { return 6; }
     protected int getGridWidth() { return 8; }
 

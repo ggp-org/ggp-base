@@ -11,7 +11,7 @@ public class TTCC4SmallCanvas extends GameCanvas_FancyGrid {
     private static final long serialVersionUID = 1L;
 
     public String getGameName() { return "TTCC4 (Small)"; }
-    protected String getGameKIF() { return "ttcc4_2player_small"; }
+    protected String getGameKey() { return "ttcc4_2player_small"; }
     protected int getGridHeight() { return 5; }
     protected int getGridWidth() { return 5; }
 

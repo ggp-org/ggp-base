@@ -110,7 +110,7 @@ public final class Kiosk extends JPanel implements ActionListener, ItemListener,
         for(Class<?> availableCanvas : theAvailableCanvasList) {
             try {
                 GameCanvas theCanvas = (GameCanvas) availableCanvas.newInstance();                
-                theAvailableGames.add(new AvailableGame(theCanvas.getGameName(), theCanvas.getGameKIF(), availableCanvas));
+                theAvailableGames.add(new AvailableGame(theCanvas.getGameName(), theCanvas.getGameKey(), availableCanvas));
             } catch(Exception e) {
                 ;
             }
@@ -173,7 +173,10 @@ public final class Kiosk extends JPanel implements ActionListener, ItemListener,
         } catch(Exception e) {
             e.printStackTrace();
         }
-        
+
+        // This is where we get the rulesheets from. Each game has a corresponding
+        // game (with rulesheet) stored on this repository server. Changing this is
+        // likely to break things unless you know what you're doing.
         theRepository = new CloudGameRepository("http://ggp-repository.appspot.com/");        
     }
     
@@ -253,7 +256,7 @@ public final class Kiosk extends JPanel implements ActionListener, ItemListener,
                 int playClock = Integer.valueOf(playClockTextField.getText());
                 Match match = new Match(matchId, startClock, playClock, game);
                 theHumanGamer.setCanvas(theGame.getCanvas());
-                                    
+
                 // Stop old player if it's not the right type
                 String computerPlayerName = (String) playerComboBox.getSelectedItem();
                 if(theComputerPlayer != null && !theComputerPlayer.getGamer().getName().equals(computerPlayerName)) {
@@ -261,7 +264,7 @@ public final class Kiosk extends JPanel implements ActionListener, ItemListener,
                     Thread.sleep(100);
                     theComputerPlayer = null;
                 }
-                
+
                 // Start a new player if necessary
                 if(theComputerPlayer == null) {
                     Gamer gamer = null;                    
@@ -275,7 +278,7 @@ public final class Kiosk extends JPanel implements ActionListener, ItemListener,
                         System.out.println("Kiosk has started a gamer named " + theComputerPlayer.getGamer().getName() + ".");                        
                     }
                 }
-                
+
                 List<String> hosts = new ArrayList<String>();
                 List<Integer> ports = new ArrayList<Integer>();
                 List<String> playerNames = new ArrayList<String>();
@@ -317,6 +320,10 @@ public final class Kiosk extends JPanel implements ActionListener, ItemListener,
                 kioskServer.addObserver(theHumanGamer);
                 kioskServer.addObserver(this);
                 kioskServer.start();
+                
+                // TODO: Incorporate this functionality into the user interface.
+                //String theMatchKey = kioskServer.startPublishingToSpectatorServer("http://ggp-spectator.appspot.com/");
+                //System.out.println("http://ggp-spectator.appspot.com/matches/" + theMatchKey + "/viz.html");                
             } catch(Exception ex) {
                 ex.printStackTrace();
             }
@@ -354,7 +361,7 @@ public final class Kiosk extends JPanel implements ActionListener, ItemListener,
     private void addToSet(Set<AvailableGame> theSet, Class<?> availableCanvas) {
         try {
             GameCanvas theCanvas = (GameCanvas) availableCanvas.newInstance();
-            theSet.add(new AvailableGame(theCanvas.getGameName(), theCanvas.getGameKIF(), availableCanvas));
+            theSet.add(new AvailableGame(theCanvas.getGameName(), theCanvas.getGameKey(), availableCanvas));
         } catch(Exception e) {
             e.printStackTrace();
         }
