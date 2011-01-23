@@ -43,27 +43,27 @@ public class MatchPublisher {
         }
     }
 
-    /*
     static class MatchPublisherThread extends Thread {
         private Match theMatch;
+        private String spectatorURL;
         
-        public MatchPublisherThread(Match theMatch) {
+        public MatchPublisherThread(String spectatorURL, Match theMatch) {
             this.theMatch = theMatch;
+            this.spectatorURL = spectatorURL;
         }
         
         @Override
         public void run() {
             try {
-                MatchPublisher.publishToSpectatorServer(theMatch);
+                MatchPublisher.publishToSpectatorServer(spectatorURL, theMatch);
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }        
     }
     
-    public static void publishToSpectatorServerAsync(MatchData theMatch) throws IOException {
-        SpectatorPublisherThread theThread = new SpectatorPublisherThread(theMatch);
+    public static void publishToSpectatorServerAsync(String spectatorURL, Match theMatch) throws IOException {
+        MatchPublisherThread theThread = new MatchPublisherThread(spectatorURL, theMatch);
         theThread.start();
     }
-    */    
 }
