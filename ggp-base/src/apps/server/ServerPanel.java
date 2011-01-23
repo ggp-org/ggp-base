@@ -29,6 +29,7 @@ import apps.common.GameSelector;
 import apps.common.NativeUI;
 import apps.server.error.ErrorPanel;
 import apps.server.history.HistoryPanel;
+import apps.server.publishing.PublishingPanel;
 import apps.server.visualization.VisualizationPanel;
 
 @SuppressWarnings("serial")
@@ -170,10 +171,8 @@ public final class ServerPanel extends JPanel implements ActionListener
 					gameServer.addObserver(historyPanel);
 					gameServer.addObserver(visualizationPanel);					
 					gameServer.start();
-
-					// TODO: Incorporate this functionality into the user interface.
-					//String theMatchKey = gameServer.startPublishingToSpectatorServer("http://ggp-spectator.appspot.com/");
-					//System.out.println("http://ggp-spectator.appspot.com/matches/" + theMatchKey + "/viz.html");
+					
+					tab.addTab("Publishing", new PublishingPanel(gameServer));
 				}
 				catch (Exception e)
 				{
