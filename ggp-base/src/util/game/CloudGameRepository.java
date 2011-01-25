@@ -64,10 +64,12 @@ public final class CloudGameRepository extends GameRepository {
         } catch(Exception e) {
             theCacheHash = null;
         }
-        
+
         theCacheDirectory = new File(ProjectConfiguration.gameCacheDirectory, "repoHash" + theCacheHash);
         theCacheDirectory.mkdir();
-        attemptToRefreshOfflineCache();
+
+        // Update the game cache asynchronously.
+        new RefreshCacheThread(theRepoURL).start();
     }
     
     protected Set<String> getUncachedGameKeys() {
@@ -120,43 +122,61 @@ public final class CloudGameRepository extends GameRepository {
         }
     }
     
-    private void attemptToRefreshOfflineCache() {
-        RemoteGameRepository remoteRepository = new RemoteGameRepository(theRepoURL);
-
-        System.out.println("Updating the game cache...");
-        long beginTime = System.currentTimeMillis();
+    class RefreshCacheThread extends Thread {
+        String theRepoURL;
         
-        // Since games are immutable, we can guarantee that the games listed
-        // by the repository server includes the games in the local cache, so
-        // we can be happy just updating/refreshing the listed games.
-        Set<String> theGameKeys = remoteRepository.getGameKeys();
-        if (theGameKeys == null) return;
-        
-        // Start threads to update every entry in the cache (or at least verify
-        // that the entry doesn't need to be updated).
-        Set<Thread> theThreads = new HashSet<Thread>();
-        for (String gameKey : theGameKeys) {
-            Thread t = new RefreshCacheForGameThread(remoteRepository, gameKey);
-            t.start();
-            theThreads.add(t);
+        public RefreshCacheThread(String theRepoURL) {
+            this.theRepoURL = theRepoURL;
         }
         
-        // Wait until we've updated the cache before continuing.
-        for (Thread t : theThreads) {
+        @Override
+        public void run() {            
             try {
-                t.join();
-            } catch (Exception e) {
-                ;
+                // Sleep for the first two seconds after which the cache is loaded,
+                // so that we don't interfere with the user interface startup.
+                Thread.sleep(2000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+                return;
             }
+
+            RemoteGameRepository remoteRepository = new RemoteGameRepository(theRepoURL);
+
+            System.out.println("Updating the game cache...");
+            long beginTime = System.currentTimeMillis();            
+
+            // Since games are immutable, we can guarantee that the games listed
+            // by the repository server includes the games in the local cache, so
+            // we can be happy just updating/refreshing the listed games.
+            Set<String> theGameKeys = remoteRepository.getGameKeys();
+            if (theGameKeys == null) return;
+
+            // Start threads to update every entry in the cache (or at least verify
+            // that the entry doesn't need to be updated).
+            Set<Thread> theThreads = new HashSet<Thread>();
+            for (String gameKey : theGameKeys) {
+                Thread t = new RefreshCacheForGameThread(remoteRepository, gameKey);
+                t.start();
+                theThreads.add(t);
+            }
+
+            // Wait until we've updated the cache before continuing.
+            for (Thread t : theThreads) {
+                try {
+                    t.join();
+                } catch (Exception e) {
+                    ;
+                }
+            }
+
+            long endTime = System.currentTimeMillis();
+            System.out.println("Updating the game cache took: " + (endTime - beginTime) + "ms.");              
         }
-        
-        long endTime = System.currentTimeMillis();
-        System.out.println("Updating the game cache took: " + (endTime - beginTime) + "ms.");
-    }
+    }    
     
     // ================================================================    
 
-    private void saveGameToCache(String theKey, Game theGame) {
+    private synchronized void saveGameToCache(String theKey, Game theGame) {
         File theGameFile = new File(theCacheDirectory, theKey + ".zip");
         try {
             theGameFile.createNewFile();
@@ -173,7 +193,7 @@ public final class CloudGameRepository extends GameRepository {
         }
     }
     
-    private Game loadGameFromCache(String theKey) {
+    private synchronized Game loadGameFromCache(String theKey) {
         File theGameFile = new File(theCacheDirectory, theKey + ".zip");        
         String theLine = null;
         try {
