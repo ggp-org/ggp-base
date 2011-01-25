@@ -1,11 +1,8 @@
 package apps.apollo;
 
 import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.URL;
-import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,6 +26,14 @@ import util.match.Match;
  * If you don't know what the GGP Apollo project is, this system is not likely
  * going to be interesting to you. Feel free to ignore it.
  * 
+ * SAMPLE INVOCATION (when running locally):
+ * 
+ * ResourceLoader.load_raw('http://127.0.0.1:9124/' + escape(JSON.stringify({"playClock":5,
+ * "startClock":5, "gameURL":"http://ggp-repository.appspot.com/games/connectFour/",
+ * "matchId":"apollo.sample_2", "players":["127.0.0.1:3333", "ggp-webplayer.appspot.com:80"]})))
+ * 
+ * Apollo Backend Server replies with the URL of the match on the spectator server.
+ * 
  * @author Sam Schreiber
  */
 public final class ApolloBackend
@@ -38,16 +43,20 @@ public final class ApolloBackend
     // Matches are run asynchronously in their own threads.
     static class RunMatchThread extends Thread {
         int playClock, startClock;
-        String gameURL, matchId, callbackURL;
+        String gameURL, matchId;
         List<String> names, hosts;
         List<Integer> ports;
+        
+        Game theGame;
+        Match theMatch;
+        GameServer theServer;
+        
+        private static final String spectatorServerURL = "http://ggp-spectator.appspot.com/";
         
         public RunMatchThread(Socket connection) throws IOException, JSONException {
             System.out.println("Got connection from client.");
             
             String line = HttpReader.readAsServer(connection);
-            HttpWriter.writeAsServer(connection, "Starting match.");            
-            connection.close();
             
             System.out.println("Read line from client: " + line);
             
@@ -56,7 +65,6 @@ public final class ApolloBackend
             startClock = theJSON.getInt("startClock");
             gameURL = theJSON.getString("gameURL");                
             matchId = theJSON.getString("matchId");
-            callbackURL = theJSON.getString("callbackURL");
 
             names = new ArrayList<String>();
             hosts = new ArrayList<String>();            
@@ -68,37 +76,26 @@ public final class ApolloBackend
                 ports.add(Integer.parseInt(splitAddress[1]));
                 names.add("");
             }
+
+            // Get the match into a state where we can publish it to
+            // the spectator server, so that we have a spectator server
+            // URL to return for this request.
+            theGame = RemoteGameRepository.loadSingleGame(gameURL);            
+            theMatch = new Match(matchId, startClock, playClock, theGame);  
+            theServer = new GameServer(theMatch, hosts, ports, names);
+            String theSpectatorURL = theServer.startPublishingToSpectatorServer(spectatorServerURL);               
+
+            HttpWriter.writeAsServer(connection, spectatorServerURL + "matches/" + theSpectatorURL + "/");
+            connection.close();
         }
         
         @Override
         public void run() {
             System.out.println("Starting match: " + matchId);
-            
-            Game theGame = RemoteGameRepository.loadSingleGame(gameURL);            
-            Match match = new Match(matchId, startClock, playClock, theGame);  
-            
-            GameServer gameServer = new GameServer(match, hosts, ports, names);
-            gameServer.start();
+            theServer.start();            
             try {
-                gameServer.join();
+                theServer.join();
             } catch (InterruptedException e) {
-                e.printStackTrace();
-                return;
-            }
-            
-            System.out.println("Completed match: " + matchId + ". POSTing response to callback URL: " + callbackURL);
-
-            // POST a response to the Callback URL
-            try {
-                URL theURL = new URL(callbackURL);
-                URLConnection conn = theURL.openConnection();
-                conn.setDoOutput(true);
-                conn.setUseCaches(false);
-                OutputStreamWriter wr = new OutputStreamWriter(conn.getOutputStream());
-                wr.write(match.toJSON());
-                wr.flush();
-                wr.close();
-            } catch (Exception e) {
                 e.printStackTrace();
                 return;
             }
