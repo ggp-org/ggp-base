@@ -35,7 +35,6 @@ public class SimpleGameSim {
     
     public static void main(String[] args) {
         Game theGame = GameRepository.getDefaultRepository().getGame("nineBoardTicTacToe");
-        //Game theGame = new RemoteGameRepository("http://ggp-repository.appspot.com").getGame("nineBoardTicTacToe");
         Match theMatch = new Match("simpleGameSim." + Match.getRandomString(5), 0, 0, theGame);
         
         // ---------------------------------------------------------
@@ -88,10 +87,7 @@ public class SimpleGameSim {
             } while(!theMachine.isTerminal(theCurrentState));
             theMatch.appendState(theCurrentState.getContents());
             theMatch.markCompleted();
-            
-            //String spectatorId = MatchPublisher.publishToSpectatorServer("http://ggp-spectator.appspot.com/", theMatch);
-            //System.out.println("URL: http://ggp-spectator.appspot.com/matches/" + spectatorId + "/viz.html");
-            
+
             // Game over! Display goals.
             System.out.println("State["+nState+"] Full (Terminal): " + theCurrentState);
             System.out.println("Match information: " + theMatch);            

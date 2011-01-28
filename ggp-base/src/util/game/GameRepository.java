@@ -17,7 +17,7 @@ import java.util.Set;
  */
 public abstract class GameRepository {
     public static GameRepository getDefaultRepository() {
-        return new CloudGameRepository("http://ggp-repository.appspot.com/");
+        return new CloudGameRepository("games.ggp.org");
     }
     
     public Game getGame(String theKey) {

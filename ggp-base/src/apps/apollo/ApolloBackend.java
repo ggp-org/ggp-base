@@ -29,8 +29,8 @@ import util.match.Match;
  * SAMPLE INVOCATION (when running locally):
  * 
  * ResourceLoader.load_raw('http://127.0.0.1:9124/' + escape(JSON.stringify({"playClock":5,
- * "startClock":5, "gameURL":"http://ggp-repository.appspot.com/games/connectFour/",
- * "matchId":"apollo.sample_2", "players":["127.0.0.1:3333", "ggp-webplayer.appspot.com:80"]})))
+ * "startClock":5, "gameURL":"http://games.ggp.org/games/connectFour/",
+ * "matchId":"apollo.sample_2", "players":["127.0.0.1:3333", "player.ggp.org:80"]})))
  * 
  * Apollo Backend Server replies with the URL of the match on the spectator server.
  * 
@@ -51,7 +51,7 @@ public final class ApolloBackend
         Match theMatch;
         GameServer theServer;
         
-        private static final String spectatorServerURL = "http://ggp-spectator.appspot.com/";
+        private static final String spectatorServerURL = "http://matches.ggp.org/";
         
         public RunMatchThread(Socket connection) throws IOException, JSONException {
             System.out.println("Got connection from client.");

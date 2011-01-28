@@ -62,7 +62,9 @@ public final class RemoteGameRepository extends GameRepository {
         try {
             int theVersion = theMetadata.getInt("version");
             theVersionedGameURL = addVersionToGameURL(theGameURL, theVersion);
-        } catch(JSONException e) {}
+        } catch(JSONException e) {
+            return null;
+        }
         
         String theName = null;
         try {
@@ -73,6 +75,7 @@ public final class RemoteGameRepository extends GameRepository {
         String theStylesheet = getGameResourceFromMetadata(theGameURL, theMetadata, "stylesheet");
         List<Gdl> theRules = getGameRulesheetFromMetadata(theGameURL, theMetadata);
         
+        if (theRules.size() == 0) return null;
         return new Game(theKey, theName, theDescription, theVersionedGameURL, theStylesheet, theRules);        
     }
     

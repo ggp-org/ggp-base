@@ -128,7 +128,7 @@ public final class Kiosk extends JPanel implements ActionListener, ItemListener,
         selectedGame.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         JScrollPane selectedGamePane = new JScrollPane(selectedGame);
 
-        computerAddress = new JTextField("ggp-webplayer.appspot.com:80");        
+        computerAddress = new JTextField("player.ggp.org:80");        
         playerComboBox = new JComboBox();
         playerComboBox.addItemListener(this);
         new FindGamersThread().start();        
@@ -183,7 +183,7 @@ public final class Kiosk extends JPanel implements ActionListener, ItemListener,
         // This is where we get the rulesheets from. Each game has a corresponding
         // game (with rulesheet) stored on this repository server. Changing this is
         // likely to break things unless you know what you're doing.
-        theRepository = new CloudGameRepository("http://ggp-repository.appspot.com/");        
+        theRepository = new CloudGameRepository("http://games.ggp.org/");        
     }
     
     // Load the gamers asynchronously, so that we don't stall when loading

@@ -177,6 +177,8 @@ public final class CloudGameRepository extends GameRepository {
     // ================================================================    
 
     private synchronized void saveGameToCache(String theKey, Game theGame) {
+        if (theGame == null) return;
+        
         File theGameFile = new File(theCacheDirectory, theKey + ".zip");
         try {
             theGameFile.createNewFile();
@@ -217,7 +219,7 @@ public final class CloudGameRepository extends GameRepository {
     // ================================================================
     
     public static void main(String[] args) {
-        GameRepository theRepository = new CloudGameRepository("http://ggp-repository.appspot.com");
+        GameRepository theRepository = new CloudGameRepository("games.ggp.org");
 
         long beginTime = System.currentTimeMillis();
 
