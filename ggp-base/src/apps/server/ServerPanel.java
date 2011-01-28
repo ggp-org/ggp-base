@@ -62,15 +62,12 @@ public final class ServerPanel extends JPanel implements ActionListener
 		});
 	}
 	
-    private Integer defaultPort = 9147;	
-
 	private Game theGame;
-	private final List<JTextField> hostTextFields;
+	private final List<JTextField> hostportTextFields;
 	private final JPanel managerPanel;
 	private final JTabbedPane matchesTabbedPane;
 	private final JTextField playClockTextField;
 
-	private final List<JTextField> portTextFields;
 	private final List<JTextField> playerNameTextFields;
 	private final List<JLabel> roleLabels;
 	private final JButton runButton;
@@ -89,8 +86,7 @@ public final class ServerPanel extends JPanel implements ActionListener
 		matchesTabbedPane = new JTabbedPane();
 
 		roleLabels = new ArrayList<JLabel>();
-		hostTextFields = new ArrayList<JTextField>();
-		portTextFields = new ArrayList<JTextField>();
+		hostportTextFields = new ArrayList<JTextField>();
 		playerNameTextFields = new ArrayList<JTextField>();
 		theGame = null;
 
@@ -133,21 +129,27 @@ public final class ServerPanel extends JPanel implements ActionListener
 			{
 				try
 				{
-					String matchId = "Match." + System.currentTimeMillis();
+					String matchId = "BaseServer." + serverPanel.theGame.getKey() + "." + System.currentTimeMillis();
 					
 					int startClock = Integer.valueOf(serverPanel.startClockTextField.getText());
 					int playClock = Integer.valueOf(serverPanel.playClockTextField.getText());
 					Match match = new Match(matchId, startClock, playClock, serverPanel.theGame);
 
-					List<String> hosts = new ArrayList<String>(serverPanel.hostTextFields.size());
-					for (JTextField textField : serverPanel.hostTextFields)
+					List<String> hosts = new ArrayList<String>(serverPanel.hostportTextFields.size());
+					List<Integer> ports = new ArrayList<Integer>(serverPanel.hostportTextFields.size());
+					for (JTextField textField : serverPanel.hostportTextFields)
 					{
-						hosts.add(textField.getText());
-					}
-					List<Integer> ports = new ArrayList<Integer>(serverPanel.portTextFields.size());
-					for (JTextField textField : serverPanel.portTextFields)
-					{
-						ports.add(Integer.valueOf(textField.getText()));
+	                    try {
+	                        String[] splitAddress = textField.getText().split(":");
+	                        String hostname = splitAddress[0];
+	                        int port = Integer.parseInt(splitAddress[1]);
+	                        
+	                        hosts.add(hostname);
+	                        ports.add(port);                    
+	                    } catch(Exception ex) {
+	                        ex.printStackTrace();
+	                        return;
+	                    } 					    
 					}
 					List<String> playerNames = new ArrayList<String>(serverPanel.playerNameTextFields.size());
 					for (JTextField textField : serverPanel.playerNameTextFields)
@@ -190,14 +192,12 @@ public final class ServerPanel extends JPanel implements ActionListener
             for (int i = 0; i < roleLabels.size(); i++)
             {
                 managerPanel.remove(roleLabels.get(i));
-                managerPanel.remove(hostTextFields.get(i));
-                managerPanel.remove(portTextFields.get(i));
+                managerPanel.remove(hostportTextFields.get(i));
                 managerPanel.remove(playerNameTextFields.get(i));
             }
 
             roleLabels.clear();
-            hostTextFields.clear();
-            portTextFields.clear();
+            hostportTextFields.clear();
             playerNameTextFields.clear();
 
             validate();
@@ -208,23 +208,18 @@ public final class ServerPanel extends JPanel implements ActionListener
             StateMachine stateMachine = new ProverStateMachine();
             stateMachine.initialize(theGame.getRules());
             List<Role> roles = stateMachine.getRoles();
-            Integer tempDefaultPort = defaultPort;
             
             int newRowCount = 7;
             for (int i = 0; i < roles.size(); i++) {
                 roleLabels.add(new JLabel(roles.get(i).getName().toString() + ":"));
-                hostTextFields.add(new JTextField("localhost"));
-                portTextFields.add(new JTextField(tempDefaultPort.toString()));
+                hostportTextFields.add(new JTextField("" + i + ".player.ggp.org:80"));
                 playerNameTextFields.add(new JTextField("defaultPlayerName"));
-                tempDefaultPort++;
 
-                hostTextFields.get(i).setColumns(15);
-                portTextFields.get(i).setColumns(15);
+                hostportTextFields.get(i).setColumns(15);
                 playerNameTextFields.get(i).setColumns(15);
 
                 managerPanel.add(roleLabels.get(i), new GridBagConstraints(0, newRowCount, 1, 1, 1.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 5, 5));
-                managerPanel.add(hostTextFields.get(i), new GridBagConstraints(1, newRowCount++, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 5, 5));
-                managerPanel.add(portTextFields.get(i), new GridBagConstraints(1, newRowCount++, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 5, 5));
+                managerPanel.add(hostportTextFields.get(i), new GridBagConstraints(1, newRowCount++, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 5, 5));
                 managerPanel.add(playerNameTextFields.get(i),  new GridBagConstraints(1, newRowCount++, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 5, 5));
             }
             managerPanel.add(runButton, new GridBagConstraints(1, newRowCount, 1, 1, 0.0, 1.0, GridBagConstraints.SOUTH, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 0, 0));
