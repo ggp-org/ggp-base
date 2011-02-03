@@ -37,13 +37,14 @@ public final class GameServer extends Thread implements Subject
     private final List<String> hosts;    
     private final List<Integer> ports;
     private final List<String>  playerNames;
-    private final Boolean[] playerGetsUnlimitedTime;
+    private final Boolean[] playerGetsUnlimitedTime;    
     
     private final List<Observer> observers;        
     private List<Move> previousMoves;
     private List<String> history;
     
     private String spectatorServerURL;
+    private boolean forceUsingEntireClock;
     
     public GameServer(Match match, List<String> hosts, List<Integer> ports, List<String> playerNames) {
         this.match = match;
@@ -66,6 +67,7 @@ public final class GameServer extends Thread implements Subject
         observers = new ArrayList<Observer>();
         
         spectatorServerURL = null;
+        forceUsingEntireClock = false;
     }
     
     public String startPublishingToSpectatorServer(String theURL) {
@@ -148,6 +150,10 @@ public final class GameServer extends Thread implements Subject
         for (PlayRequestThread thread : threads) {
             thread.start();
         }
+        
+        if (forceUsingEntireClock) {
+            Thread.sleep(match.getPlayClock() * 1000);
+        }
 
         List<Move> moves = new ArrayList<Move>();
         for (PlayRequestThread thread : threads) {
@@ -166,6 +172,9 @@ public final class GameServer extends Thread implements Subject
         for (StartRequestThread thread : threads) {
             thread.start();
         }
+        if (forceUsingEntireClock) {
+            Thread.sleep(match.getStartClock() * 1000);
+        }        
         for (StartRequestThread thread : threads) {
             thread.join();
         }
@@ -196,6 +205,13 @@ public final class GameServer extends Thread implements Subject
     
     public void givePlayerUnlimitedTime(int i) {
         playerGetsUnlimitedTime[i] = true;
+    }
+
+    // Why would you want to force the game server to wait for the entire clock?
+    // This can be used to rate-limit matches, so that you don't overload supporting
+    // services like the repository server, spectator server, players, etc.
+    public void setForceUsingEntireClock() {
+        forceUsingEntireClock = true;
     }
     
     public Match getMatch() {

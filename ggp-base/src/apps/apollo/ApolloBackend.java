@@ -83,7 +83,11 @@ public final class ApolloBackend
             theGame = RemoteGameRepository.loadSingleGame(gameURL);            
             theMatch = new Match(matchId, startClock, playClock, theGame);  
             theServer = new GameServer(theMatch, hosts, ports, names);
-            String theSpectatorURL = theServer.startPublishingToSpectatorServer(spectatorServerURL);               
+            String theSpectatorURL = theServer.startPublishingToSpectatorServer(spectatorServerURL);
+            
+            // Limit the rate at which the match advances, to avoid overloading
+            // the players and the spectator server with many requests.
+            theServer.setForceUsingEntireClock();
 
             HttpWriter.writeAsServer(connection, spectatorServerURL + "matches/" + theSpectatorURL + "/");
             connection.close();
@@ -92,7 +96,7 @@ public final class ApolloBackend
         @Override
         public void run() {
             System.out.println("Starting match: " + matchId);
-            theServer.start();            
+            theServer.start();
             try {
                 theServer.join();
             } catch (InterruptedException e) {
