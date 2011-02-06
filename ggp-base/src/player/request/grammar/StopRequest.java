@@ -34,7 +34,7 @@ public final class StopRequest extends Request
 			return "busy";
 		}
 
-		gamer.getMatch().markCompleted();
+		gamer.getMatch().markCompleted(null);
 		gamer.notifyObservers(new GamerCompletedMatchEvent());
 		
 		// Once the match has ended, set 'roleName' and 'match'

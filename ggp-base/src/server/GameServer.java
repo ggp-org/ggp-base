@@ -120,7 +120,7 @@ public final class GameServer extends Thread implements Subject
                 match.appendMoves(movesAsGDL);
                 match.appendState(currentState.getContents());
             }
-            match.markCompleted();
+            match.markCompleted(stateMachine.getGoals(currentState));
             publishWhenNecessary();
             notifyObservers(new ServerNewGameStateEvent((ProverMachineState)currentState));
             notifyObservers(new ServerCompletedMatchEvent(getGoals()));

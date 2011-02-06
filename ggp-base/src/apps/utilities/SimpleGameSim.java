@@ -86,7 +86,7 @@ public class SimpleGameSim {
                 nState++;
             } while(!theMachine.isTerminal(theCurrentState));
             theMatch.appendState(theCurrentState.getContents());
-            theMatch.markCompleted();
+            theMatch.markCompleted(theMachine.getGoals(theCurrentState));
 
             // Game over! Display goals.
             System.out.println("State["+nState+"] Full (Terminal): " + theCurrentState);

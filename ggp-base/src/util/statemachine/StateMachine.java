@@ -166,6 +166,14 @@ public abstract class StateMachine
 
         return roleIndices;
     }
+    
+    public List<Integer> getGoals(MachineState state) throws GoalDefinitionException {
+        List<Integer> theGoals = new ArrayList<Integer>();
+        for (Role r : getRoles()) {
+            theGoals.add(getGoal(state, r));
+        }
+        return theGoals;
+    }
 
     public List<Move> getRandomJointMove(MachineState state) throws MoveDefinitionException
     {

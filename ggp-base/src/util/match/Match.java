@@ -53,6 +53,7 @@ public final class Match
 	private final List<Set<GdlSentence>> stateHistory;	
 	private final List<Date> stateTimeHistory;
 	private boolean isCompleted;	
+	private final List<Integer> goalValues;
 
 	public Match(String matchId, int startClock, int playClock, Game theGame)
 	{
@@ -69,11 +70,13 @@ public final class Match
 		this.theRoleNames = new ArrayList<String>();
 		for(Role r : Role.computeRoles(theGame.getRules())) {
 		    this.theRoleNames.add(r.getName().getName().toString());
-		}		
+		}
 		
 		this.moveHistory = new ArrayList<List<GdlSentence>>();
 		this.stateHistory = new ArrayList<Set<GdlSentence>>();
 		this.stateTimeHistory = new ArrayList<Date>();
+		
+		this.goalValues = new ArrayList<Integer>();
 	}
 	
 	public Match(String theJSON, Game theGame) throws JSONException, SymbolFormatException, GdlFormatException {
@@ -128,6 +131,14 @@ public final class Match
         for (int i = 0; i < theStateTimes.length(); i++) {
             this.stateTimeHistory.add(new Date(theStateTimes.getLong(i)));
         }
+        
+        this.goalValues = new ArrayList<Integer>();
+        try {
+            JSONArray theGoalValues = theMatchObject.getJSONArray("goalValues");
+            for (int i = 0; i < theGoalValues.length(); i++) {            
+                this.goalValues.add(theGoalValues.getInt(i));
+            }
+        } catch(JSONException je) {}
 	}
 	
 	/* Mutators */
@@ -154,8 +165,11 @@ public final class Match
 	    stateTimeHistory.add(new Date());
 	}
 	
-	public void markCompleted() {
-	    isCompleted = true;
+	public void markCompleted(List<Integer> theGoalValues) {
+	    this.isCompleted = true;
+	    if (theGoalValues != null) {
+	        this.goalValues.addAll(theGoalValues);
+	    }
 	}
 	
 	/* Complex accessors */
@@ -185,6 +199,9 @@ public final class Match
         theJSON.append("    \"states\": " + renderArrayAsJSON(renderStateHistory(stateHistory), true) + ",\n");
         theJSON.append("    \"moves\": " + renderArrayAsJSON(renderMoveHistory(moveHistory), false) + ",\n");
         theJSON.append("    \"stateTimes\": " + renderArrayAsJSON(stateTimeHistory, false) + ",\n");
+        if (goalValues.size() > 0) {
+            theJSON.append("    \"goalValues\": " + renderArrayAsJSON(goalValues, false) + ",\n");
+        }
         // Protocol information
         theJSON.append("    \"startClock\": " + startClock + ",\n");
         theJSON.append("    \"playClock\": " + playClock + "\n");
@@ -265,6 +282,10 @@ public final class Match
 	
 	public boolean isCompleted() {
 	    return isCompleted;
+	}
+	
+	public List<Integer> getGoalValues() {
+	    return goalValues;
 	}
 	
 	/* Static methods */
