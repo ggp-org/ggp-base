@@ -15,17 +15,20 @@ import util.statemachine.MachineState;
 import util.statemachine.StateMachine;
 import util.statemachine.implementation.prover.ProverMachineState;
 import util.statemachine.implementation.prover.cache.CachedProverStateMachine;
+import util.xhtml.GameStateRenderPanel;
 
 @SuppressWarnings("serial")
 public final class VisualizationPanel extends JPanel implements Observer
 {
 	private final Game theGame;
+	private final VisualizationPanel myThis;
 	private JTabbedPane tabs = new JTabbedPane();
 
 	public VisualizationPanel(Game theGame)
 	{		
 		this.theGame = theGame;
-		this.add(tabs);
+		this.myThis = this;
+		this.add(tabs);		
 	}
 
 	private int stepCount = 1;
@@ -33,31 +36,54 @@ public final class VisualizationPanel extends JPanel implements Observer
 	{
 	    if (event instanceof ServerNewGameStateEvent)
 		{
-	        ProverMachineState s = ((ServerNewGameStateEvent)event).getState();
-	        RenderThread rt = new RenderThread(theGame, s, this, stepCount++);
+	        MachineState s = ((ServerNewGameStateEvent)event).getState();
+	        RenderThread rt = new RenderThread(s, stepCount++);
 	        rt.start();
 		}
 	}
-		
-	public synchronized boolean addVizPanel(JPanel newPanel, Integer stepNum)
-	{
-		boolean atEnd = (tabs.getSelectedIndex() == tabs.getTabCount()-1);
-		try {
-			for(int i = tabs.getTabCount(); i < stepNum; i++)
-				tabs.add(new Integer(i+1).toString(), new JPanel());
-			tabs.setComponentAt(stepNum-1, newPanel);
-			tabs.setTitleAt(stepNum-1, stepNum.toString());
-			
-			if(atEnd) {				
-				tabs.setSelectedIndex(tabs.getTabCount()-1);
-			}
-		} catch(Exception ex) {
-			System.err.println("Adding rendered visualization panel failed for: " + theGame.getKey());
-		}
-
-		return true;
-	}
 	
+	private class RenderThread extends Thread {  
+	    private final MachineState s;
+	    private final int stepNum;
+	    
+	    public RenderThread(MachineState s, int stepNum) {
+	        this.s = s;
+	        this.stepNum = stepNum;
+	    }
+	    
+	    @Override
+	    public void run()
+	    {
+	        JPanel newPanel = null;
+	        try {
+	            String XML = s.toXML();
+	            String XSL = GameStateRenderPanel.getXSLfromFile(theGame.getKey(), 1); //1 because machinestate XMLs only ever have 1 state
+	            
+	            // TODO: Figure out a way to render visualizations using the web stylesheets.
+	            //String XSL = theGame.getStylesheet();
+	            
+	            newPanel = new VizContainerPanel(XML, XSL, myThis);
+	        } catch(Exception ex) {}
+	        
+	        if(newPanel != null) {
+	            // Add the rendered panel as a new tab
+	            boolean atEnd = (tabs.getSelectedIndex() == tabs.getTabCount()-1);
+	            try {
+	                for(int i = tabs.getTabCount(); i < stepNum; i++)
+	                    tabs.add(new Integer(i+1).toString(), new JPanel());
+	                tabs.setComponentAt(stepNum-1, newPanel);
+	                tabs.setTitleAt(stepNum-1, new Integer(stepNum).toString());
+	                
+	                if(atEnd) {             
+	                    tabs.setSelectedIndex(tabs.getTabCount()-1);
+	                }
+	            } catch(Exception ex) {
+	                System.err.println("Adding rendered visualization panel failed for: " + theGame.getKey());
+	            }
+	        }
+	    }
+	}
+
 	// Simple test that loads the nineBoardTicTacToe game and visualizes
 	// a randomly-played match, to demonstrate that visualization works.
 	public static void main(String args[]) {

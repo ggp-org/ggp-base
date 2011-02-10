@@ -25,8 +25,6 @@ import org.xhtmlrenderer.extend.UserAgentCallback;
 import org.xhtmlrenderer.resource.ImageResource;
 import org.xhtmlrenderer.resource.XMLResource;
 import org.xhtmlrenderer.simple.Graphics2DRenderer;
-import org.xhtmlrenderer.simple.XHTMLPanel;
-import org.xhtmlrenderer.simple.extend.XhtmlNamespaceHandler;
 import org.xhtmlrenderer.swing.NaiveUserAgent;
 import org.xhtmlrenderer.util.XRLog;
 import org.xml.sax.InputSource;
@@ -47,18 +45,6 @@ public class GameStateRenderPanel extends JPanel {
 	{
 		return defaultSize;
 	}
-
-	public static JPanel getPanelfromGameXML(String gameXML, String XSL)
-	{
-		XHTMLPanel panel = new XHTMLPanel();
-		panel.setPreferredSize(defaultSize);
-		
-		String XHTML = getXHTMLfromGameXML(gameXML, XSL);
-		setPanelToDisplayGameXHTML(panel, XHTML);
-		panel.getDocument();
-			
-		return panel;
-	}
 	
 	public static void renderImagefromGameXML(String gameXML, String XSL, BufferedImage backimage)
 	{		
@@ -74,14 +60,8 @@ public class GameStateRenderPanel extends JPanel {
 		r.layout(g2, defaultSize);
 		r.render(g2);
 	}
-
-	public static String getXHTMLfromGameXML(String gameXML, Integer turnToShow) {
-		String XSLstring = findXSLT(gameXML);
-		String XSL = getXSLfromFile(XSLstring, turnToShow);
-		return getXHTMLfromGameXML(gameXML, XSL);		
-	}
 	
-	public static String getXHTMLfromGameXML(String gameXML, String XSL) {
+	private static String getXHTMLfromGameXML(String gameXML, String XSL) {
 		IOString game = new IOString();
 		game.setString(gameXML);		
 		IOString xslIOString = new IOString();
@@ -121,37 +101,12 @@ public class GameStateRenderPanel extends JPanel {
 		return XSL;
 	}
 	
-	private static String findXSLT(String gameXML)
-	{		
-		final String toFind = "<?xml-stylesheet type='text/xsl' href='/docserver/gameserver/stylesheets/";
-		int start = gameXML.indexOf(toFind)+toFind.length();
-		int end = gameXML.indexOf('\'', start);
-		return gameXML.substring(start, end);
-	}
-	
 	private static String getCustomXSL(String XSL)
 	{
 		final String toFind = "<!-- Game specific stuff goes here -->";
 		int start = XSL.indexOf(toFind)+toFind.length();
 		int end = XSL.indexOf(toFind, start);
 		return XSL.substring(start, end);
-	}
-	
-	private static void setPanelToDisplayGameXHTML(XHTMLPanel panel, String XHTML)
-	{
-		try {
-			panel.setDocumentFromString(XHTML, "", getHandler());			
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-	
-	private static XhtmlNamespaceHandler the_handler = null;
-	private static XhtmlNamespaceHandler getHandler()
-	{
-		if(the_handler==null)
-			the_handler = new XhtmlNamespaceHandler();
-		return the_handler;
 	}
 
 	//Sharing UACs would probably help reduce resource usage, but I'm not sure about thread-safety of UAC (it seemed not to be)
@@ -233,17 +188,13 @@ public class GameStateRenderPanel extends JPanel {
     }
     
     //========IOstring code========
-	public static class IOString
+    private static class IOString
 	{
 		private StringBuffer buf;
 		/** Creates a new instance of IOString */
 		public IOString()
 		{
 			buf = new StringBuffer();
-		}
-		public IOString(String text)
-		{
-			buf = new StringBuffer(text);
 		}
 		public InputStream getInputStream()
 		{
