@@ -81,10 +81,7 @@ public class GameStateRenderPanel extends JPanel {
         tidy.setDropEmptyParas(false);
         
         IOString tidied = new IOString("");
-        tidy.parse(content.getInputStream(), tidied.getOutputStream());
-        
-        System.out.println(tidied.getString());
-        System.out.println("----");
+        tidy.parse(content.getInputStream(), tidied.getOutputStream());        
         return tidied.getString();
     }
 
@@ -101,8 +98,6 @@ public class GameStateRenderPanel extends JPanel {
             @Override
             public ImageResource getImageResource(String uri)
             {
-                
-                System.out.println("LOADING IMAGE: " + uri);
                 ImageResource ir;
                 uri = resolveURI(uri);
                 ir = (ImageResource) _imageCache.get(uri);
