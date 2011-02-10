@@ -26,7 +26,6 @@ import org.xhtmlrenderer.resource.ImageResource;
 import org.xhtmlrenderer.resource.XMLResource;
 import org.xhtmlrenderer.simple.Graphics2DRenderer;
 import org.xhtmlrenderer.swing.NaiveUserAgent;
-import org.xhtmlrenderer.util.XRLog;
 import org.xml.sax.InputSource;
 
 import util.configuration.LocalResourceLoader;
@@ -55,7 +54,7 @@ public class GameStateRenderPanel extends JPanel {
         InputSource is = new InputSource(new BufferedReader(new StringReader(xhtml)));
         Document dom = XMLResource.load(is).getDocument();
 
-        r.setDocument(dom, "");
+        r.setDocument(dom, "http://visionary.stanford.edu:4444");
         final Graphics2D g2 = backimage.createGraphics();
         r.layout(g2, defaultSize);
         r.render(g2);
@@ -83,6 +82,9 @@ public class GameStateRenderPanel extends JPanel {
         
         IOString tidied = new IOString("");
         tidy.parse(content.getInputStream(), tidied.getOutputStream());
+        
+        System.out.println(tidied.getString());
+        System.out.println("----");
         return tidied.getString();
     }
 
@@ -99,6 +101,8 @@ public class GameStateRenderPanel extends JPanel {
             @Override
             public ImageResource getImageResource(String uri)
             {
+                
+                System.out.println("LOADING IMAGE: " + uri);
                 ImageResource ir;
                 uri = resolveURI(uri);
                 ir = (ImageResource) _imageCache.get(uri);
@@ -139,19 +143,20 @@ public class GameStateRenderPanel extends JPanel {
                                 ImageIO.write(img, "png", localImg);                       	
                             }
                             if (img == null) {
+                                System.err.println("ImageIO.read() returned null");
                                 throw new IOException("ImageIO.read() returned null");
                             }
                             ir = createImageResource(uri, img);
                             _imageCache.put(uri, ir);
                         } catch (FileNotFoundException e) {
-                            XRLog.exception("Can't read image file; image at URI '" + uri + "' not found");
+                            System.err.println("Can't read image file; image at URI '" + uri + "' not found");
                         } catch (IOException e) {
-                            XRLog.exception("Can't read image file; unexpected problem for URI '" + uri + "'", e);
+                            System.err.println("Can't read image file; unexpected problem for URI '" + uri + "': " + e);
                         } finally {
                             try {
                                 is.close();
                             } catch (IOException e) {
-                                // ignore
+                                e.printStackTrace();
                             }
                         }
                     }
@@ -167,21 +172,12 @@ public class GameStateRenderPanel extends JPanel {
     //========XSL Loading code=====
     
     // Code to pull in XSL from local stylesheets
-    public static String getXSLfromFile(String theGameKey) {
-        String XSL = LocalResourceLoader.loadStylesheet(theGameKey);
-        String customXSL = getCustomXSL(XSL);
-        
+    public static String getXSLfromFile(String theGameKey) {        
         File templateFile = new File(new File(new File("src", "util"), "xhtml"), "template.xsl");
+        String XSL = LocalResourceLoader.loadStylesheet(theGameKey);
         String template = FileUtils.readFileAsString(templateFile);
-        String newXSL = template.replace("###GAME_SPECIFIC_STUFF_HERE###", customXSL);
-        return newXSL;
+        return template.replace("###GAME_SPECIFIC_STUFF_HERE###", XSL);
     }
-    private static String getCustomXSL(String XSL) {
-        final String toFind = "<!-- Game specific stuff goes here -->";
-        int start = XSL.indexOf(toFind)+toFind.length();
-        int end = XSL.indexOf(toFind, start);
-        return XSL.substring(start, end);
-    }    
 
     //========IOstring code========
     private static class IOString

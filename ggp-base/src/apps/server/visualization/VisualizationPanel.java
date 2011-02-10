@@ -90,7 +90,8 @@ public final class VisualizationPanel extends JPanel implements Observer
         JFrame frame = new JFrame("Visualization Test");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         
-        Game theGame = GameRepository.getDefaultRepository().getGame("nineBoardTicTacToe");
+        //Game theGame = GameRepository.getDefaultRepository().getGame("nineBoardTicTacToe");
+        Game theGame = GameRepository.getDefaultRepository().getGame("breakthrough");
         VisualizationPanel theVisual = new VisualizationPanel(theGame);
         frame.setPreferredSize(new Dimension(1200, 900));
         frame.getContentPane().add(theVisual);
@@ -104,7 +105,7 @@ public final class VisualizationPanel extends JPanel implements Observer
             do {
                 theVisual.observe(new ServerNewGameStateEvent((ProverMachineState)theCurrentState));
                 theCurrentState = theMachine.getRandomNextState(theCurrentState);
-                Thread.sleep(750);
+                Thread.sleep(2750);
                 System.out.println("State: " + theCurrentState);
             } while(!theMachine.isTerminal(theCurrentState));
             theVisual.observe(new ServerNewGameStateEvent((ProverMachineState)theCurrentState));
