@@ -23,7 +23,6 @@ public class VizContainerPanel extends JPanel {
 		Dimension d = GameStateRenderPanel.getDefaultSize();
 		this.setPreferredSize(d);
 		BufferedImage backimage = parent.getGraphicsConfiguration().createCompatibleImage(d.width,d.height);
-		try { Thread.sleep(1000); } catch(Exception e) { e.printStackTrace(); }
 		GameStateRenderPanel.renderImagefromGameXML(XML, XSL, backimage);
 		try
 		{
