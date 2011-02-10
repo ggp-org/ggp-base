@@ -86,23 +86,6 @@ public class GameStateRenderPanel extends JPanel {
         return tidied.getString();
     }
 
-    public static String getXSLfromFile(String xslName, Integer turnToShow) {
-        String XSL = LocalResourceLoader.loadStylesheet(xslName);
-        String CustomXSL = getCustomXSL(XSL);
-        File templateFile = new File(new File(new File("src", "util"), "xhtml"), "template.xsl");
-        String template = FileUtils.readFileAsString(templateFile);
-        XSL = template.replace("###GAME_SPECIFIC_STUFF_HERE###", CustomXSL);
-        XSL = XSL.replace("###STATE_NUM_HERE###", turnToShow.toString());
-        return XSL;
-    }
-
-    private static String getCustomXSL(String XSL) {
-        final String toFind = "<!-- Game specific stuff goes here -->";
-        int start = XSL.indexOf(toFind)+toFind.length();
-        int end = XSL.indexOf(toFind, start);
-        return XSL.substring(start, end);
-    }
-
     // Sharing UACs would probably help reduce resource usage,
     // but I'm not sure about thread-safety of UAC (it seemed not to be).
     private static UserAgentCallback getUAC() {
@@ -180,6 +163,25 @@ public class GameStateRenderPanel extends JPanel {
             }
         };
     }
+    
+    //========XSL Loading code=====
+    
+    // Code to pull in XSL from local stylesheets
+    public static String getXSLfromFile(String theGameKey) {
+        String XSL = LocalResourceLoader.loadStylesheet(theGameKey);
+        String customXSL = getCustomXSL(XSL);
+        
+        File templateFile = new File(new File(new File("src", "util"), "xhtml"), "template.xsl");
+        String template = FileUtils.readFileAsString(templateFile);
+        String newXSL = template.replace("###GAME_SPECIFIC_STUFF_HERE###", customXSL);
+        return newXSL;
+    }
+    private static String getCustomXSL(String XSL) {
+        final String toFind = "<!-- Game specific stuff goes here -->";
+        int start = XSL.indexOf(toFind)+toFind.length();
+        int end = XSL.indexOf(toFind, start);
+        return XSL.substring(start, end);
+    }    
 
     //========IOstring code========
     private static class IOString

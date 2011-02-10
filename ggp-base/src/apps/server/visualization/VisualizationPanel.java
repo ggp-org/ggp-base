@@ -57,7 +57,7 @@ public final class VisualizationPanel extends JPanel implements Observer
 	        JPanel newPanel = null;
 	        try {
 	            String XML = s.toXML();
-	            String XSL = GameStateRenderPanel.getXSLfromFile(theGame.getKey(), 1); //1 because machinestate XMLs only ever have 1 state
+	            String XSL = GameStateRenderPanel.getXSLfromFile(theGame.getKey());
 	            
 	            // TODO: Figure out a way to render visualizations using the web stylesheets.
 	            //String XSL = theGame.getStylesheet();
