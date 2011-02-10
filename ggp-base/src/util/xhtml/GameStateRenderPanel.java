@@ -2,10 +2,6 @@ package util.xhtml;
 
 import java.awt.Dimension;
 import java.awt.Graphics2D;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
-import java.awt.event.ActionEvent;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.File;
@@ -17,9 +13,6 @@ import java.io.OutputStream;
 import java.io.StringReader;
 
 import javax.imageio.ImageIO;
-import javax.swing.AbstractAction;
-import javax.swing.JButton;
-import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
@@ -41,7 +34,6 @@ import org.xml.sax.InputSource;
 import util.configuration.LocalResourceLoader;
 import util.files.FileUtils;
 
-
 /**
  * A mess of code which is responsible for generating a graphical rendering of a game
  * @author Ethan
@@ -49,20 +41,17 @@ import util.files.FileUtils;
  */
 @SuppressWarnings("serial")
 public class GameStateRenderPanel extends JPanel {
-	
-	private static final String baseURL = "http://visionary.stanford.edu:4000";
 	private static final Dimension defaultSize = new Dimension(600,600);
-	
+
 	public static Dimension getDefaultSize()
 	{
 		return defaultSize;
 	}
-	
+
 	public static JPanel getPanelfromGameXML(String gameXML, String XSL)
 	{
 		XHTMLPanel panel = new XHTMLPanel();
 		panel.setPreferredSize(defaultSize);
-		//setupUserAgentCallback(panel);
 		
 		String XHTML = getXHTMLfromGameXML(gameXML, XSL);
 		setPanelToDisplayGameXHTML(panel, XHTML);
@@ -80,7 +69,7 @@ public class GameStateRenderPanel extends JPanel {
 		InputSource is = new InputSource(new BufferedReader(new StringReader(xhtml)));
         Document dom = XMLResource.load(is).getDocument();
         
-		r.setDocument(dom, baseURL);
+		r.setDocument(dom, "");
 		final Graphics2D g2 = backimage.createGraphics();
 		r.layout(g2, defaultSize);
 		r.render(g2);
@@ -148,20 +137,10 @@ public class GameStateRenderPanel extends JPanel {
 		return XSL.substring(start, end);
 	}
 	
-	private void setPanelToDisplayGameXML(XHTMLPanel panel, String gameXML, Integer turnToShow)
-	{
-		String XHTML = getXHTMLfromGameXML(gameXML, turnToShow);
-	    try {
-			panel.setDocumentFromString(XHTML, baseURL, new XhtmlNamespaceHandler());			
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-	
 	private static void setPanelToDisplayGameXHTML(XHTMLPanel panel, String XHTML)
 	{
 		try {
-			panel.setDocumentFromString(XHTML, baseURL, getHandler());			
+			panel.setDocumentFromString(XHTML, "", getHandler());			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -252,72 +231,8 @@ public class GameStateRenderPanel extends JPanel {
             }
         };
     }
-
-	
-//=======Test App code=========
-	private static void createAndShowGUI(GameStateRenderPanel renderPanel)
-	{
-		JFrame frame = new JFrame("Game State");
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
-		frame.setPreferredSize(new Dimension(1024, 768));
-		frame.getContentPane().add(renderPanel);
-
-		frame.pack();
-		frame.setVisible(true);
-	}
-
-	public static void main(String[] args) throws IOException
-	{
-		final GameStateRenderPanel me = new GameStateRenderPanel();
-		javax.swing.SwingUtilities.invokeLater(new Runnable()
-		{
-
-			public void run()
-			{
-				createAndShowGUI(me);
-			}
-		});
-	}
-	
-	File gameXMLFile = new File(new File(new File("src", "util"), "xhtml"), "sampleMath.xml");
-	String gameXML = FileUtils.readFileAsString(gameXMLFile);
-
-	int curTurn = 1;
-	XHTMLPanel mypanel;
-	private final JButton forward;
-	private final JButton back;
-	public GameStateRenderPanel()
-	{
-		super(new GridBagLayout());
-		forward = new JButton(new AbstractAction() {
-
-			public void actionPerformed(ActionEvent e) {
-				setPanelToDisplayGameXML(mypanel, gameXML, ++curTurn);
-			}});
-		back = new JButton(new AbstractAction() {
-
-			public void actionPerformed(ActionEvent e) {
-				setPanelToDisplayGameXML(mypanel, gameXML, --curTurn);
-			}});
-		forward.setText("Forward");
-		back.setText("Back");
-		
-		mypanel = new XHTMLPanel();
-		//setupUserAgentCallback(panel);
-		
-		setPanelToDisplayGameXML(mypanel, gameXML, 1);
-		
-	    //FSScrollPane scroll = new FSScrollPane(mypanel);
-	    //scroll.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-	    //scroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
-	    
-	    this.add(back, new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 5, 5));
-	    this.add(forward, new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 5, 5));	    
-		this.add(mypanel, new GridBagConstraints(1, 0, 1, 1, 1.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 5, 5));
-	}
-	
-//========IOstring code========
+    
+    //========IOstring code========
 	public static class IOString
 	{
 		private StringBuffer buf;
@@ -369,5 +284,4 @@ public class GameStateRenderPanel extends JPanel {
 
 		}
 	}
-
 }
