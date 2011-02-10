@@ -3,16 +3,16 @@ package apps.server.visualization;
 import javax.swing.JPanel;
 
 import util.game.Game;
-import util.statemachine.implementation.prover.ProverMachineState;
+import util.statemachine.MachineState;
 import util.xhtml.GameStateRenderPanel;
 
 public class RenderThread extends Thread {	
 	private final Game theGame;
-	private final ProverMachineState s;
+	private final MachineState s;
 	private final VisualizationPanel parent;
 	private final int stepNum;
 	
-	public RenderThread(Game theGame, ProverMachineState s, VisualizationPanel parent, int stepNum) {
+	public RenderThread(Game theGame, MachineState s, VisualizationPanel parent, int stepNum) {
 		this.theGame = theGame;
 		this.s = s;
 		this.parent = parent;
