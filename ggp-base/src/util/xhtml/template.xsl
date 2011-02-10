@@ -12,7 +12,6 @@
 </head>
 <body leftmargin='0' topmargin='0' marginwidth='0' marginheight='0' style="width:100%; height:100%" bgcolor='#ffffcc'>
 
-
 <div style="display: table; position: static; height: 100%; width: 100%">
 <xsl:for-each select="match/herstory/state[###STATE_NUM_HERE###]">
   <div class="mainbox" style='display: table-cell; vertical-align: middle; position: static; width: 100%'>

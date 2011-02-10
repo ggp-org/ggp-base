@@ -39,80 +39,74 @@ import util.files.FileUtils;
  */
 @SuppressWarnings("serial")
 public class GameStateRenderPanel extends JPanel {
-	private static final Dimension defaultSize = new Dimension(600,600);
+    private static final Dimension defaultSize = new Dimension(600,600);
 
-	public static Dimension getDefaultSize()
-	{
-		return defaultSize;
-	}
-	
-	public static void renderImagefromGameXML(String gameXML, String XSL, BufferedImage backimage)
-	{		
-		Graphics2DRenderer r = new Graphics2DRenderer();
-		r.getSharedContext().setUserAgentCallback(getUAC());
-		
-		String xhtml = getXHTMLfromGameXML(gameXML, XSL);
-		InputSource is = new InputSource(new BufferedReader(new StringReader(xhtml)));
+    public static Dimension getDefaultSize()
+    {
+        return defaultSize;
+    }
+
+    public static void renderImagefromGameXML(String gameXML, String XSL, BufferedImage backimage)
+    {		
+        Graphics2DRenderer r = new Graphics2DRenderer();
+        r.getSharedContext().setUserAgentCallback(getUAC());
+
+        String xhtml = getXHTMLfromGameXML(gameXML, XSL);
+        InputSource is = new InputSource(new BufferedReader(new StringReader(xhtml)));
         Document dom = XMLResource.load(is).getDocument();
+
+        r.setDocument(dom, "");
+        final Graphics2D g2 = backimage.createGraphics();
+        r.layout(g2, defaultSize);
+        r.render(g2);
+    }
+
+    private static String getXHTMLfromGameXML(String gameXML, String XSL) {
+        IOString game = new IOString(gameXML);
+        IOString xslIOString = new IOString(XSL);
+        IOString content = new IOString("");
+        try {
+            TransformerFactory tFactory = TransformerFactory.newInstance();
+            Transformer transformer = tFactory.newTransformer(new StreamSource(xslIOString.getInputStream()));
+
+            transformer.transform(new StreamSource(game.getInputStream()),
+                    new StreamResult(content.getOutputStream()));
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+
+        Tidy tidy = new Tidy();
+        tidy.setXHTML(true);
+        tidy.setShowWarnings(false);
+        tidy.setQuiet(true);
+        tidy.setDropEmptyParas(false);
         
-		r.setDocument(dom, "");
-		final Graphics2D g2 = backimage.createGraphics();
-		r.layout(g2, defaultSize);
-		r.render(g2);
-	}
-	
-	private static String getXHTMLfromGameXML(String gameXML, String XSL) {
-		IOString game = new IOString();
-		game.setString(gameXML);		
-		IOString xslIOString = new IOString();
-		xslIOString.setString(XSL);
-		IOString content = new IOString();
-		try {
-			TransformerFactory tFactory = TransformerFactory.newInstance();
-			Transformer transformer = tFactory.newTransformer(new StreamSource(xslIOString.getInputStream()));
-			
-			transformer.transform(	new StreamSource(game.getInputStream()), 
-									new StreamResult(content.getOutputStream()));
-		} catch (Exception ex) {
-			ex.printStackTrace();
-		}
+        IOString tidied = new IOString("");
+        tidy.parse(content.getInputStream(), tidied.getOutputStream());
+        return tidied.getString();
+    }
 
-		String tcontent = content.getString();
-		content.setString(tcontent);
-		Tidy tidy = new Tidy();
-		tidy.setXHTML(true);
-		tidy.setShowWarnings(false);
-		tidy.setQuiet(true);
-		tidy.setDropEmptyParas(false);
-		IOString tidied = new IOString();
-		tidy.parse(content.getInputStream(), tidied.getOutputStream());
-		tcontent = tidied.getString();
-		return tcontent;
-	}
-	
-	public static String getXSLfromFile(String xslName, Integer turnToShow)
-	{
-		String XSL = LocalResourceLoader.loadStylesheet(xslName);
-		String CustomXSL = getCustomXSL(XSL);
-		File templateFile = new File(new File(new File("src", "util"), "xhtml"), "template.xsl");
-		String template = FileUtils.readFileAsString(templateFile);
-		XSL = template.replace("###GAME_SPECIFIC_STUFF_HERE###", CustomXSL);
-		XSL = XSL.replace("###STATE_NUM_HERE###", turnToShow.toString());
-		return XSL;
-	}
-	
-	private static String getCustomXSL(String XSL)
-	{
-		final String toFind = "<!-- Game specific stuff goes here -->";
-		int start = XSL.indexOf(toFind)+toFind.length();
-		int end = XSL.indexOf(toFind, start);
-		return XSL.substring(start, end);
-	}
+    public static String getXSLfromFile(String xslName, Integer turnToShow) {
+        String XSL = LocalResourceLoader.loadStylesheet(xslName);
+        String CustomXSL = getCustomXSL(XSL);
+        File templateFile = new File(new File(new File("src", "util"), "xhtml"), "template.xsl");
+        String template = FileUtils.readFileAsString(templateFile);
+        XSL = template.replace("###GAME_SPECIFIC_STUFF_HERE###", CustomXSL);
+        XSL = XSL.replace("###STATE_NUM_HERE###", turnToShow.toString());
+        return XSL;
+    }
 
-	//Sharing UACs would probably help reduce resource usage, but I'm not sure about thread-safety of UAC (it seemed not to be)
-//	private static UserAgentCallback uac = null;
+    private static String getCustomXSL(String XSL) {
+        final String toFind = "<!-- Game specific stuff goes here -->";
+        int start = XSL.indexOf(toFind)+toFind.length();
+        int end = XSL.indexOf(toFind, start);
+        return XSL.substring(start, end);
+    }
+
+    // Sharing UACs would probably help reduce resource usage,
+    // but I'm not sure about thread-safety of UAC (it seemed not to be).
     private static UserAgentCallback getUAC() {
-    	return getNewUAC();
+        return getNewUAC();
     }
     private static UserAgentCallback getNewUAC() {
         return new NaiveUserAgent() {
@@ -120,46 +114,46 @@ public class GameStateRenderPanel extends JPanel {
             @SuppressWarnings("unchecked")
             // TODO: _imageCache should be templatized properly so that warnings don't need to be suppressed
             @Override
-			public ImageResource getImageResource(String uri)
+            public ImageResource getImageResource(String uri)
             {
-            	ImageResource ir;
+                ImageResource ir;
                 uri = resolveURI(uri);
                 ir = (ImageResource) _imageCache.get(uri);
                 //TODO: check that cached image is still valid
                 if (ir == null) {
-                	InputStream is = null;
-                	
-                	String[] chunks = uri.split("/");
-                	String filename = chunks[chunks.length-1];
-                	File localImg = new File("games", "images");
-                	for(int i=chunks.length-1; i>0; i--)
-                		if(chunks[i].equals("images"))
-                		{
-                			for(int j=i+1; j<chunks.length-1; j++)
-                				localImg = new File(localImg, chunks[j]);                				
-                			break;
-                		}
-                	localImg.mkdirs();
-                	localImg = new File(localImg, filename);
-                	
-                	boolean presentLocally = localImg.exists();
-                	if(presentLocally)
-                	{
-                		try {
-                			is = new FileInputStream(localImg);
-                		} catch(Exception ex) { ex.printStackTrace(); }
-                	}
-                	else
-                	{
-                	    is = resolveAndOpenStream(uri);
-                	}
-                	
+                    InputStream is = null;
+
+                    String[] chunks = uri.split("/");
+                    String filename = chunks[chunks.length-1];
+                    File localImg = new File("games", "images");
+                    for(int i=chunks.length-1; i>0; i--)
+                        if(chunks[i].equals("images"))
+                        {
+                            for(int j=i+1; j<chunks.length-1; j++)
+                                localImg = new File(localImg, chunks[j]);                				
+                            break;
+                        }
+                    localImg.mkdirs();
+                    localImg = new File(localImg, filename);
+
+                    boolean presentLocally = localImg.exists();
+                    if(presentLocally)
+                    {
+                        try {
+                            is = new FileInputStream(localImg);
+                        } catch(Exception ex) { ex.printStackTrace(); }
+                    }
+                    else
+                    {
+                        is = resolveAndOpenStream(uri);
+                    }
+
                     if (is != null) {
                         try {
                             BufferedImage img = ImageIO.read(is);
                             if(!presentLocally)
                             {
-                            	ImageIO.write(img, "png", localImg);                       	
+                                ImageIO.write(img, "png", localImg);                       	
                             }
                             if (img == null) {
                                 throw new IOException("ImageIO.read() returned null");
@@ -186,53 +180,40 @@ public class GameStateRenderPanel extends JPanel {
             }
         };
     }
-    
+
     //========IOstring code========
     private static class IOString
-	{
-		private StringBuffer buf;
-		/** Creates a new instance of IOString */
-		public IOString()
-		{
-			buf = new StringBuffer();
-		}
-		public InputStream getInputStream()
-		{
-			return new IOString.IOStringInputStream();
-		}
-		public OutputStream getOutputStream()
-		{
-			return new IOString.IOStringOutputStream();
-		}
-		public String getString()
-		{
-			return buf.toString();
-		}
-		public void setString(String s)
-		{
-			buf = new StringBuffer(s);
-		}
-		class IOStringInputStream extends java.io.InputStream
-		{
-			private int position = 0;
-			public int read() throws java.io.IOException
-			{
-				if (position<buf.length())
-				{
-					return buf.charAt(position++);
-				}else
-				{
-					return -1;
-				}
-			}
-		}
-		class IOStringOutputStream extends java.io.OutputStream
-		{
-			public void write(int character) throws java.io.IOException
-			{
-				buf.append((char)character);
-			}
+    {
+        private StringBuffer buf;
+        public IOString(String s) {
+            buf = new StringBuffer(s);
+        }
+        public String getString() {
+            return buf.toString();
+        }		
 
-		}
-	}
+        public InputStream getInputStream() {
+            return new IOString.IOStringInputStream();
+        }
+        public OutputStream getOutputStream() {
+            return new IOString.IOStringOutputStream();
+        }
+
+        class IOStringInputStream extends java.io.InputStream {
+            private int position = 0;
+            public int read() throws java.io.IOException
+            {
+                if (position < buf.length()) {
+                    return buf.charAt(position++);
+                } else {
+                    return -1;
+                }
+            }
+        }
+        class IOStringOutputStream extends java.io.OutputStream {
+            public void write(int character) throws java.io.IOException {
+                buf.append((char)character);
+            }
+        }
+    }
 }
