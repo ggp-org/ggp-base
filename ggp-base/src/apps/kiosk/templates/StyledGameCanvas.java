@@ -38,7 +38,7 @@ public abstract class StyledGameCanvas extends GameCanvas {
             Dimension d = GameStateRenderPanel.getDefaultSize();
             BufferedImage backimage = this.getGraphicsConfiguration().createCompatibleImage(d.width,d.height);        
             try { Thread.sleep(200); } catch(Exception e) { e.printStackTrace(); }
-            GameStateRenderPanel.renderImagefromGameXML(XML, XSL, backimage);
+            GameStateRenderPanel.renderImagefromGameXML(XML, XSL, true, backimage);
             try {
                 ByteArrayOutputStream bos = new ByteArrayOutputStream();
                 ImageIO.write(backimage, "png", bos);

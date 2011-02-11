@@ -56,13 +56,21 @@ public final class VisualizationPanel extends JPanel implements Observer
 	    {
 	        JPanel newPanel = null;
 	        try {
-	            String XML = s.toXML();
-	            String XSL = GameStateRenderPanel.getXSLfromFile(theGame.getKey());
-	            
-	            // TODO: Figure out a way to render visualizations using the web stylesheets.
-	            //String XSL = theGame.getStylesheet();
-	            
-	            newPanel = new VizContainerPanel(XML, XSL, myThis);
+	            // NOTE: This controls whether we use the legacy local stylesheet
+	            // visualizations or the newer web-hosted visualizations. Ultimately
+	            // we want to convert the legacy stylesheets to web-hosted versions
+	            // and then phase out the legacy local system. For now, we will try
+	            // to use a web-hosted visualization, and fall back to a local one
+	            // if the web-hosted visualization isn't available.
+	            if (theGame.getStylesheet() == null) {
+	                String XML = s.toMatchXML();
+	                String XSL = GameStateRenderPanel.getXSLfromFile(theGame.getKey()); 
+	                newPanel = new VizContainerPanel(XML, XSL, true, myThis);
+	            } else {
+                    String XML = s.toXML();
+                    String XSL = theGame.getStylesheet();
+                    newPanel = new VizContainerPanel(XML, XSL, false, myThis);	                
+	            }
 	        } catch(Exception ex) {}
 	        
 	        if(newPanel != null) {
@@ -90,8 +98,7 @@ public final class VisualizationPanel extends JPanel implements Observer
         JFrame frame = new JFrame("Visualization Test");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         
-        //Game theGame = GameRepository.getDefaultRepository().getGame("nineBoardTicTacToe");
-        Game theGame = GameRepository.getDefaultRepository().getGame("breakthrough");
+        Game theGame = GameRepository.getDefaultRepository().getGame("chess");
         VisualizationPanel theVisual = new VisualizationPanel(theGame);
         frame.setPreferredSize(new Dimension(1200, 900));
         frame.getContentPane().add(theVisual);

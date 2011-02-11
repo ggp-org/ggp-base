@@ -45,41 +45,47 @@ public class GameStateRenderPanel extends JPanel {
         return defaultSize;
     }
 
-    public static void renderImagefromGameXML(String gameXML, String XSL, BufferedImage backimage)
-    {		
+    public static void renderImagefromGameXML(String gameXML, String XSL, boolean isLocalVisualization, BufferedImage backimage)
+    {
         Graphics2DRenderer r = new Graphics2DRenderer();
-        r.getSharedContext().setUserAgentCallback(getUAC());
+        if (isLocalVisualization) {
+            r.getSharedContext().setUserAgentCallback(getUAC());
+        }
 
         String xhtml = getXHTMLfromGameXML(gameXML, XSL);
+        xhtml = xhtml.replace("<?xml version=\"1.0\" encoding=\"UTF-8\"?>", "");
+        
         InputSource is = new InputSource(new BufferedReader(new StringReader(xhtml)));
         Document dom = XMLResource.load(is).getDocument();
 
-        r.setDocument(dom, "http://visionary.stanford.edu:4444");
+        r.setDocument(dom, "http://www.ggp.org/");
         final Graphics2D g2 = backimage.createGraphics();
         r.layout(g2, defaultSize);
         r.render(g2);
     }
 
     private static String getXHTMLfromGameXML(String gameXML, String XSL) {
+        XSL = XSL.replace("<!DOCTYPE stylesheet [<!ENTITY ROOT \"http://games.ggp.org\">]>", "");
+        XSL = XSL.replace("&ROOT;", "http://games.ggp.org").trim();
+        
         IOString game = new IOString(gameXML);
         IOString xslIOString = new IOString(XSL);
         IOString content = new IOString("");
         try {
             TransformerFactory tFactory = TransformerFactory.newInstance();
             Transformer transformer = tFactory.newTransformer(new StreamSource(xslIOString.getInputStream()));
-
             transformer.transform(new StreamSource(game.getInputStream()),
                     new StreamResult(content.getOutputStream()));
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-
+        
         Tidy tidy = new Tidy();
         tidy.setXHTML(true);
         tidy.setShowWarnings(false);
         tidy.setQuiet(true);
         tidy.setDropEmptyParas(false);
-        
+
         IOString tidied = new IOString("");
         tidy.parse(content.getInputStream(), tidied.getOutputStream());        
         return tidied.getString();
