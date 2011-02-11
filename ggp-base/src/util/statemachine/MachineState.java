@@ -46,13 +46,22 @@ public abstract class MachineState {
     
     public final String toXML()
     {
-        String rval = "<match>\n\n<herstory>\n\n\t<state>\n\n";
+        String rval = "<state>\n";
         Set<GdlSentence> theContents = getContents();
         for(GdlSentence sentence : theContents)
         {
             rval += gdlToXML(sentence);
         }
-        rval += "\n\t</state>\n\n</herstory>\n\n</match>\n";
+        rval += "</state>";
+        return rval;
+    }
+    
+    // TODO: Do we really need this method?
+    public final String toMatchXML()
+    {
+        String rval = "<match>\n <herstory>\n";
+        rval += toXML();
+        rval += " </herstory>\n</match>";
         return rval;
     }
     
@@ -67,13 +76,13 @@ public abstract class MachineState {
             GdlFunction f = (GdlFunction)gdl;
             if(f.getName().toString().equals("true"))
             {
-                return "<fact>\n\n"+gdlToXML(f.get(0))+"</fact>\n\n";
+                return "\t<fact>\n"+gdlToXML(f.get(0))+"\t</fact>\n";
             }
             else
             {
-                rval += "\t<relation>"+f.getName()+"</relation>\n\n";
+                rval += "\t\t<relation>"+f.getName()+"</relation>\n";
                 for(int i=0; i<f.arity(); i++)
-                    rval += "\t\t<argument>"+gdlToXML(f.get(i))+"</argument>\n\n";
+                    rval += "\t\t<argument>"+gdlToXML(f.get(i))+"</argument>\n";
                 return rval;
             }
         } else if (gdl instanceof GdlRelation) {
@@ -81,16 +90,16 @@ public abstract class MachineState {
             if(relation.getName().toString().equals("true"))
             {
                 for(int i=0; i<relation.arity(); i++)
-                    rval+="<fact>\n\n"+gdlToXML(relation.get(i))+"</fact>\n\n";
+                    rval+="\t<fact>\n"+gdlToXML(relation.get(i))+"\t</fact>\n";
                 return rval;
             } else {
-                rval+="\t<relation>"+relation.getName()+"</relation>\n\n";
+                rval+="\t\t<relation>"+relation.getName()+"</relation>\n";
                 for(int i=0; i<relation.arity(); i++)
-                    rval+="\t\t<argument>"+gdlToXML(relation.get(i))+"</argument>\n\n";
+                    rval+="\t\t<argument>"+gdlToXML(relation.get(i))+"</argument>\n";
                 return rval;
             }
         } else {
-            System.err.println("Oh oh: "+gdl.toString());
+            System.err.println("MachineState gdlToXML Error: could not handle "+gdl.toString());
             return "";
         }
     }
