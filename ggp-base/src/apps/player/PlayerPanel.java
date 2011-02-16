@@ -140,14 +140,14 @@ public final class PlayerPanel extends JPanel
 
 					GamePlayer player = new GamePlayer(port, gamer);
 					player.addObserver(networkPanel);
-					player.start();
+					player.start();					
 
 					JTabbedPane tab = new JTabbedPane();
 					tab.addTab("Match", matchPanel);
 					tab.addTab("Network", networkPanel);
 					tab.addTab("Configuration", configPanel);
 					tab.addTab("Detail", detailPanel);
-					playersTabbedPane.addTab(type + " (" + port + ")", tab);
+					playersTabbedPane.addTab(type + " (" + player.getGamerPort() + ")", tab);
 					playersTabbedPane.setSelectedIndex(playersTabbedPane.getTabCount()-1);
 					
 					defaultPort++;
