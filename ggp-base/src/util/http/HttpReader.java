@@ -44,9 +44,22 @@ public final class HttpReader
 		    message = requestLine.substring(5, requestLine.lastIndexOf(' '));
 		    message = URLDecoder.decode(message, "UTF-8");
 		    message = message.replace((char)13, ' ');
-		} else {
+		} else if (requestLine.toUpperCase().startsWith("POST ")) {
 		    message = readMessageContent(br);
-		}		
+		} else if (requestLine.toUpperCase().startsWith("OPTIONS ")) {
+		    // Web browsers can send an OPTIONS request in advance of sending
+		    // real XHR requests, to discover whether they should have permission
+		    // to send those XHR requests. We want to handle this at the network
+		    // layer rather than sending it up to the actual player, so we write
+		    // a blank response (which will include the headers that the browser
+		    // is interested in) and throw an exception so the player ignores the
+		    // rest of this request.
+		    HttpWriter.writeAsServer(socket, "");
+		    throw new IOException("Drop this message at the network layer.");
+		} else {
+		    HttpWriter.writeAsServer(socket, "");
+            throw new IOException("Unexpected request type: " + requestLine);		    
+		}
 		
 		return message;
 	}	
@@ -58,13 +71,16 @@ public final class HttpReader
         String line;
         while ((line = br.readLine()) != null){
             if (reachedContent) {
-                sb.append(line + "\n");
-                // We assume that the message is only a single line.
-                break;
-            }            
+                sb.append(line + "\n");                
+            }
             if (line.length() == 0) {
+                // We want to ignore the headers in the request, so we'll just
+                // ignore every line up until the first blank line. The content
+                // of the request appears after that.
                 reachedContent = true;
             }
+            if (!br.ready())
+                break;
         }
         return sb.toString().trim();	    
 	}
