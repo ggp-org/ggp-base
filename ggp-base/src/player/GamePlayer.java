@@ -76,6 +76,10 @@ public final class GamePlayer extends Thread implements Subject
 			{
 				Socket connection = listener.accept();
 				String in = HttpReader.readAsServer(connection);
+				if (in.length() == 0) {
+				    throw new IOException("Empty message received.");
+				}
+				
 				notifyObservers(new PlayerReceivedMessageEvent(in));
 				GamerLogger.log("GamePlayer", "[Received at " + System.currentTimeMillis() + "] " + in, GamerLogger.LOG_LEVEL_DATA_DUMP);
 

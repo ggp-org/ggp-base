@@ -31,8 +31,8 @@ public final class HttpWriter
 		pw.println("Host: " + hostField);
 		pw.println("Sender: GAMESERVER");
 		pw.println("Receiver: "+playerName);
-		pw.println("Content-type: text/acl");
-		pw.println("Content-length: " + data.length());
+		pw.println("Content-Type: text/acl");
+		pw.println("Content-Length: " + data.length());
 		pw.println();
 		pw.println(data);
 		

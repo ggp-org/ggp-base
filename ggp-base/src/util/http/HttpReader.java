@@ -29,8 +29,11 @@ public final class HttpReader
     
 	public static String readAsClient(Socket socket) throws IOException
 	{
+        // TODO: It should be safe to use "readContentFromPOST(br)" rather than having a special
+        // function that just reads a single line, but some servers won't send back content-length,
+        // and a server (player) should never have a multi-line response.
 		BufferedReader br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-		return readMessageContent(br);
+		return readSingleLineFromResponse(br);
 	}
 
 	public static String readAsServer(Socket socket) throws IOException
@@ -45,7 +48,7 @@ public final class HttpReader
 		    message = URLDecoder.decode(message, "UTF-8");
 		    message = message.replace((char)13, ' ');
 		} else if (requestLine.toUpperCase().startsWith("POST ")) {
-		    message = readMessageContent(br);
+		    message = readContentFromPOST(br);
 		} else if (requestLine.toUpperCase().startsWith("OPTIONS ")) {
 		    // Web browsers can send an OPTIONS request in advance of sending
 		    // real XHR requests, to discover whether they should have permission
@@ -62,16 +65,41 @@ public final class HttpReader
 		}
 		
 		return message;
-	}	
+	}
 	
-	// Private helper methods that handle common HTTP tasks.	
-	private static String readMessageContent(BufferedReader br) throws IOException {
-        StringBuilder sb = new StringBuilder();
+	private static String readContentFromPOST(BufferedReader br) throws IOException {
+	    String line;
+        int theContentLength = -1;
+        StringBuilder theContent = new StringBuilder();        
+        while ((line = br.readLine()) != null) {
+            if (line.toLowerCase().startsWith("content-length:")) {
+                theContentLength = Integer.parseInt(line.toLowerCase().replace("content-length:", "").trim());
+            } else if (line.length() == 0) {
+              // We want to ignore the headers in the request, so we'll just
+              // ignore every line up until the first blank line. The content
+              // of the request appears after that. We do pull in the header
+              // that indicates the content-length, so we know how much content
+              // to read in, once we reach the content.
+              if (theContentLength != -1) {
+                  for (int i = 0; i < theContentLength; i++) {
+                      theContent.append((char)br.read());
+                  }
+                  return theContent.toString().trim();
+              } else {
+                  throw new IOException("Could not find Content-Length header in POST request.");
+              }
+            }
+        }
+        throw new IOException("Could not find content in POST request.");
+	}
+	
+    // Private helper methods that handle common HTTP tasks.        
+    private static String readSingleLineFromResponse(BufferedReader br) throws IOException {        
         boolean reachedContent = false;
         String line;
         while ((line = br.readLine()) != null){
             if (reachedContent) {
-                sb.append(line + "\n");                
+                return line;
             }
             if (line.length() == 0) {
                 // We want to ignore the headers in the request, so we'll just
@@ -79,9 +107,7 @@ public final class HttpReader
                 // of the request appears after that.
                 reachedContent = true;
             }
-            if (!br.ready())
-                break;
         }
-        return sb.toString().trim();	    
-	}
+        throw new IOException("Could not find content in response.");
+    }
 }
