@@ -1,5 +1,9 @@
 package util.gdl.transforms;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -19,13 +23,20 @@ import util.gdl.grammar.GdlRule;
 import util.gdl.grammar.GdlSentence;
 import util.gdl.grammar.GdlTerm;
 import util.gdl.grammar.GdlVariable;
-import util.gdl.model.MoveMutexFinder;
-import util.gdl.model.Mutex;
 import util.gdl.model.SentenceModel;
+import util.gdl.model.SentenceModel.SentenceForm;
+import util.gdl.transforms.ConstantFinder.ConstantChecker;
+import util.propnet.factory.Assignments;
 
 public class CondensationIsolator {
 
-	public static List<Gdl> run(List<Gdl> description, boolean restrained, boolean moreRestrained) {
+	public static List<Gdl> run(List<Gdl> description,
+			boolean restrained,
+			boolean moreRestrained,
+			boolean ignoreConstants,
+			boolean constConstraint,
+			boolean useHeuristic,
+			boolean analyticFunctionOrdering) {
 		//This class is not put together in any "optimal" way, so it's left in
 		//an unpolished state for now. A better version would use estimates of
 		//the impact of breaking apart rules. (It also needs to stop itself from
@@ -107,10 +118,6 @@ public class CondensationIsolator {
 		List<Gdl> newDescription = new ArrayList<Gdl>();
 		Queue<GdlRule> rulesToAdd = new LinkedList<GdlRule>();
 		
-		Set<Mutex> mutexes = MoveMutexFinder.findMutexes(description);
-		if(restrained)
-			mutexes = Collections.emptySet();
-		
 		for(Gdl gdl : description) {
 			if(gdl instanceof GdlRule)
 				rulesToAdd.add((GdlRule) gdl);
@@ -118,8 +125,14 @@ public class CondensationIsolator {
 				newDescription.add(gdl);
 		}
 		
-		Set<String> sentenceNames = new HashSet<String>(new SentenceModel(description).getSentenceNames());
+		//Don't use the model indiscriminately; it reflects the old description,
+		//not necessarily the new one
+		SentenceModel model = new SentenceModel(description);
+		ConstantChecker checker = ConstantFinder.getConstants(description);
+		Set<String> sentenceNames = new HashSet<String>(model.getSentenceNames());
+		Set<SentenceForm> constantForms = model.getConstantSentenceForms();
 		
+		//Collection<SentenceForm> constantForms = model;
 		while(!rulesToAdd.isEmpty()) {
 			GdlRule curRule = rulesToAdd.remove();
 			if(isRecursive(curRule)) {
@@ -127,14 +140,55 @@ public class CondensationIsolator {
 				newDescription.add(curRule);
 				continue;
 			}
-			Set<GdlLiteral> condensationSet = getCondensationSet(curRule, mutexes, restrained, moreRestrained);
+			GdlSentence curRuleHead = curRule.getHead();
+			if(ignoreConstants && SentenceModel.inSentenceFormGroup(curRuleHead, constantForms)) {
+				newDescription.add(curRule);
+				continue;
+			}
+			Set<GdlLiteral> condensationSet = getCondensationSet(curRule, model, checker, restrained, moreRestrained, constConstraint, constantForms, useHeuristic, analyticFunctionOrdering);
 			if(condensationSet != null) {
-				rulesToAdd.addAll(applyCondensation(condensationSet, curRule, mutexes, newDescription, rulesToAdd, sentenceNames));
+				List<GdlRule> newRules = applyCondensation(condensationSet, curRule, sentenceNames); 
+				rulesToAdd.addAll(newRules);
+				//Since we're making only small changes, we can readjust
+				//the model as we go, instead of recomputing it
+				List<GdlRule> oldRules = Collections.singletonList(curRule);
+				model.replaceRules(oldRules, newRules);
+				checker.replaceRules(oldRules, newRules);
 			} else {
 				newDescription.add(curRule);
 			}
 		}
 		return newDescription;
+	}
+
+	@SuppressWarnings("unused")
+	private static void saveKif(List<Gdl> description) {
+		//Save the description in a new file
+		//Useful for debugging chains of condensations to see
+		//which cause decreased performance
+		String filename = "ci0.kif";
+		int filenum = 0;
+		File file = null;
+		while(file == null || file.exists()) {
+			filenum++;
+			filename = "ci" + filenum + ".kif";
+			file = new File(filename);
+			file = new File("games/rulesheets", filename);
+		}
+		BufferedWriter out = null;
+		try {
+			out = new BufferedWriter(new FileWriter(file));
+			for(Gdl gdl : description) {
+				out.append(gdl.toString() + "\n");
+			}
+		} catch(IOException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				out.close();
+			} catch (IOException e) {}
+			catch (NullPointerException e) {}
+		}
 	}
 
 	private static boolean isRecursive(GdlRule rule) {
@@ -148,13 +202,7 @@ public class CondensationIsolator {
 
 	private static List<GdlRule> applyCondensation(
 			Set<GdlLiteral> condensationSet, GdlRule rule,
-			Set<Mutex> mutexes, List<Gdl> newDescription,
-			Queue<GdlRule> rulesToAdd, Set<String> sentenceNames) {
-		Set<GdlRule> existingRules = new HashSet<GdlRule>();
-		for(Gdl gdl : newDescription)
-			if(gdl instanceof GdlRule)
-				existingRules.add((GdlRule) gdl);
-		existingRules.addAll(rulesToAdd);
+			Set<String> sentenceNames) {
 
 		Set<GdlVariable> varsInCondensationSet = new HashSet<GdlVariable>();
 		for(GdlLiteral literal : condensationSet)
@@ -165,8 +213,7 @@ public class CondensationIsolator {
 		//1) In the condensation set, in a non-mutex literal
 		//2) Either in the head or somewhere else outside the condensation set
 		for(GdlLiteral literal : condensationSet)
-			if(!isMutex(literal, mutexes))
-				varsToKeep.addAll(SentenceModel.getVariables(literal));
+			varsToKeep.addAll(SentenceModel.getVariables(literal));
 		Set<GdlVariable> varsToKeep2 = new HashSet<GdlVariable>();
 		varsToKeep2.addAll(SentenceModel.getVariables(rule.getHead()));
 		for(GdlLiteral literal : rule.getBody())
@@ -198,33 +245,11 @@ public class CondensationIsolator {
 		GdlRule condenserRule = GdlPool.getRule(condenserHead, condenserBody);
 		//TODO: Look for existing rules matching the new one
 		
-		//Replace the non-mutex elements with ___
-		//Though... sometimes we do want to take out the mutex
-		//Namely, when all the non-head vars in the mutex are being removed
 		List<GdlLiteral> remainingLiterals = new ArrayList<GdlLiteral>();
-		List<GdlLiteral> mutexLiterals = new ArrayList<GdlLiteral>();
 		for(GdlLiteral literal : rule.getBody())
 			if(!condensationSet.contains(literal))
 				remainingLiterals.add(literal);
-			else if(isMutex(literal, mutexes))
-				mutexLiterals.add(literal);
-		//Now we go through the mutexes and see if they're worth adding
-		for(GdlLiteral mutexLiteral : mutexLiterals) {
-			List<GdlVariable> mutexVars = SentenceModel.getVariables(mutexLiteral);
-			mutexVars.removeAll(SentenceModel.getVariables(rule.getHead()));
-			//vars in head
-			//are any present outside the mutex?
-			boolean presentOutside = false;
-			for(GdlLiteral literal : remainingLiterals) {
-				if(!Collections.disjoint(mutexVars, SentenceModel.getVariables(literal)))
-					presentOutside = true;
-			}
-			if(presentOutside)
-				//TODO: Maybe this should be added to something other than remainingLiterals
-				//TODO: Might end up with conflicts involving other mutexes?
-				remainingLiterals.add(mutexLiteral);
-			//TODO: VariableNames
-		}
+
 		remainingLiterals.add(condenserHead);
 		GdlRule modifiedRule = GdlPool.getRule(rule.getHead(), remainingLiterals);
 		
@@ -234,34 +259,25 @@ public class CondensationIsolator {
 		return newRules;
 	}
 
-	private static boolean isMutex(GdlLiteral literal, Set<Mutex> mutexes) {
-		if(!(literal instanceof GdlSentence))
-			return false;
-		for(Mutex mutex : mutexes) {
-			if(mutex.matches((GdlSentence) literal))
-				return true;
-		}
-		return false;
-	}
-
 	private static Set<GdlLiteral> getCondensationSet(GdlRule rule,
-			Set<Mutex> mutexes, boolean restrained, boolean moreRestrained) {
+			SentenceModel model,
+			ConstantChecker checker,
+			boolean restrained, boolean moreRestrained,
+			boolean constConstraint, Set<SentenceForm> constantForms,
+			boolean useHeuristic,
+			boolean analyticFunctionOrdering) {
 		//We use each variable as a starting point
 		List<GdlVariable> varsInRule = SentenceModel.getVariables(rule);
 		List<GdlVariable> varsInHead = SentenceModel.getVariables(rule.getHead());
 		List<GdlVariable> varsNotInHead = new ArrayList<GdlVariable>(varsInRule);
 		varsNotInHead.removeAll(varsInHead);
-		//System.out.println(rule);
+
 		for(GdlVariable var : varsNotInHead) {
-			//System.out.println(var);
 			Set<GdlLiteral> minSet = new HashSet<GdlLiteral>();
 			for(GdlLiteral literal : rule.getBody())
 				if(SentenceModel.getVariables(literal).contains(var))
 					minSet.add(literal);
 			
-			//TODO: New condition to worry about
-			//What if we keep removing the same mutex, over and over?
-			//Go through the requirements, fixing them as we check them
 			//#1 is already done
 			//Now we try #2
 			Set<GdlVariable> varsNeeded = new HashSet<GdlVariable>();
@@ -274,7 +290,7 @@ public class CondensationIsolator {
 			varsNeeded.removeAll(varsSupplied);
 			if(restrained && !varsNeeded.isEmpty())
 				continue;
-			//System.out.println("varsNeeded: " + varsNeeded + "; varsSupplied: " + varsSupplied);
+
 			List<Set<GdlLiteral>> candidateSuppliersList = new ArrayList<Set<GdlLiteral>>();
 			for(GdlVariable varNeeded : varsNeeded) {
 				Set<GdlLiteral> suppliers = new HashSet<GdlLiteral>();
@@ -284,54 +300,147 @@ public class CondensationIsolator {
 							suppliers.add(literal);
 				candidateSuppliersList.add(suppliers);
 			}
-			//System.out.println("candidateSuppliersList: " + candidateSuppliersList);
+
 			//TODO: Now... I'm not sure if we want to minimize the number of
 			//literals added, or the number of variables added
 			//Right now, I don't have time to worry about optimization
+			//Currently, we pick one at random
+			//TODO: Optimize this
 			Set<GdlLiteral> literalsToAdd = new HashSet<GdlLiteral>();
 			for(Set<GdlLiteral> suppliers : candidateSuppliersList)
 				if(Collections.disjoint(suppliers, literalsToAdd))
 					literalsToAdd.add(suppliers.iterator().next());
-			//System.out.println("literalsToAdd: " + literalsToAdd);
 			minSet.addAll(literalsToAdd);
+
+			if(!useHeuristic && goodCondensationSet(minSet, rule, moreRestrained, constConstraint, constantForms))
+				return minSet;
+
+			if(useHeuristic && goodCondensationSetByHeuristic(minSet, rule, model, checker, analyticFunctionOrdering))
+				return minSet;
 			
-			if(moreRestrained) {
-				//How many non-head variables will we need to "keep"?
-				//If fewer than the number we're eliminating, don't bother
-				//Alternative: If any, don't bother
-				Set<GdlVariable> varsToKeep = new HashSet<GdlVariable>();
-				Set<GdlVariable> varsEliminated = new HashSet<GdlVariable>();
-				for(GdlLiteral literal : rule.getBody())
-					if(!minSet.contains(literal))
-						varsToKeep.addAll(SentenceModel.getVariables(literal));
-					else
-						varsEliminated.addAll(SentenceModel.getVariables(literal));
-				varsEliminated.removeAll(varsInHead);
-				varsToKeep.retainAll(varsEliminated);
-				varsEliminated.removeAll(varsToKeep);
-				if(varsToKeep.size() >= varsEliminated.size())
-					return null;
-			}
-			
-			boolean containsNonMutexes = false;
-			for(GdlLiteral literal : minSet)
-				if(!isMutex(literal, mutexes))
-					containsNonMutexes = true;
-			if(!containsNonMutexes)
-				continue; //to the next variable
-			//TODO: But what if a mutex gets left here because of that?
-			//Should be legal if it's going to actually get removed
-			
-			//System.out.println(minSet);
-			//Finally, check #3
-			for(GdlLiteral literal : rule.getBody()) {
-				if(literal instanceof GdlRelation || literal instanceof GdlNot)
-					if(!minSet.contains(literal))
-						return minSet;
-			}
-			//return nothing
 		}
 		return null;
+	}
+
+	private static boolean goodCondensationSetByHeuristic(
+			Set<GdlLiteral> minSet, GdlRule rule, SentenceModel model,
+			ConstantChecker checker, boolean analyticFunctionOrdering) {
+		//We actually want the sentence model here so we can see the domains
+		//also, if it's a constant, ...
+		//Anyway... we want to compare the heuristic for the number of assignments
+		//and/or links that will be generated with or without the condensation set
+		//Heuristic for a rule is A*(L+1), where A is the number of assignments and
+		//L is the number of literals, unless L = 1, in which case the heuristic is
+		//just A. This roughly captures the number of links that would be generated
+		//if this rule were to be generated.
+		//Obviously, there are differing degrees of accuracy with which we can
+		//represent A.
+		//One way is taking the product of all the variables in all the domains.
+		//However, we can do better by actually asking the Assignments class for
+		//its own heuristic of how it would implement the rule as-is.
+		//The only tricky aspect here is that we need an up-to-date SentenceModel,
+		//and in some cases this could be expensive to compute. Might as well try
+		//it, though...
+
+		//Heuristic for the rule as-is:
+
+		long assignments = Assignments.getNumAssignmentsEstimate(rule, model, checker, analyticFunctionOrdering);
+		int literals = rule.arity();
+		if(literals > 1)
+			literals++; //We have to "and" the literals together
+		//Note that even though constants will be factored out, we're concerned here
+		//with getting through them in a reasonable amount of time, so we do want to
+		//count them. TODO: Not sure if they should be counted in L, though...
+		long curRuleHeuristic = assignments * literals;
+		//And if we split them up...
+		//We actually need the sentence names here
+		Set<String> sentenceNames = model.getSentenceNames();
+		List<GdlRule> newRules = applyCondensation(minSet, rule, sentenceNames);
+		GdlRule r1 = newRules.get(0), r2 = newRules.get(1);
+
+		//Copy and modify the model
+		List<GdlRule> oldRules = Collections.singletonList(rule);
+		SentenceModel newModel = new SentenceModel(model);
+		newModel.replaceRules(Collections.singletonList(rule), newRules);
+
+		ConstantChecker newChecker = new ConstantChecker(checker);
+		newChecker.replaceRules(oldRules, newRules);
+		long a1 = Assignments.getNumAssignmentsEstimate(r1, newModel, newChecker, analyticFunctionOrdering);
+		long a2 = Assignments.getNumAssignmentsEstimate(r2, newModel, newChecker, analyticFunctionOrdering);
+		int l1 = r1.arity(); if(l1 > 1) l1++;
+		int l2 = r2.arity(); if(l2 > 1) l2++;
+
+		//Whether we split or not depends on what the two heuristics say
+		long newRulesHeuristic = a1 * l1 + a2 * l2;
+		return newRulesHeuristic < curRuleHeuristic;
+	}
+
+	private static boolean goodCondensationSet(Set<GdlLiteral> condensationSet, GdlRule rule,
+			boolean moreRestrained, boolean constConstraint, Set<SentenceForm> constantForms) {
+		List<GdlVariable> varsInHead = SentenceModel.getVariables(rule.getHead());
+		if(moreRestrained) {
+			//How many non-head variables will we need to "keep"?
+			//If fewer than the number we're eliminating, don't bother
+			//Alternative: If any, don't bother
+			//TODO: Try factoring in domain sizes?
+			Set<GdlVariable> varsToKeep = new HashSet<GdlVariable>();
+			Set<GdlVariable> varsEliminated = new HashSet<GdlVariable>();
+			for(GdlLiteral literal : rule.getBody())
+				if(!condensationSet.contains(literal))
+					varsToKeep.addAll(SentenceModel.getVariables(literal));
+				else
+					varsEliminated.addAll(SentenceModel.getVariables(literal));
+			varsEliminated.removeAll(varsInHead);
+			varsToKeep.retainAll(varsEliminated);
+			varsEliminated.removeAll(varsToKeep);
+			//TODO: Was this supposed to be continue?
+			if(varsToKeep.size() >= varsEliminated.size())
+				return false;
+		}
+		if(constConstraint) {
+			//Here's a problem case with this example:
+			//( <= ( next_tmp10 ?xAny ?yAny ) ( does ?a1 ( jump ?x1 ?y1 ?a4 ?a2 ?a3 ?a0 ) ) ( distinctCell ?xAny ?yAny ?x1 ?y1 ) )
+			//We want this to be broken up
+			//We want the "does" to be simplified before use
+			//because otherwise we can't iterate over all the possibilities in time
+			//What is the relevant exception here that makes this case different?
+			//Maybe that we aren't adding any variables?
+			
+			//Check to see that we have a non-constant literal on each
+			//side of the proposed division
+			//Does each set contain a "live" non-constant sentence?
+			boolean inLive = false, outLive = false;
+			for(GdlLiteral l : rule.getBody()) {
+				GdlSentence sentence;
+				if(l instanceof GdlSentence)
+					sentence = (GdlSentence) l;
+				else if(l instanceof GdlNot)
+					sentence = (GdlSentence) ((GdlNot) l).getBody();
+				else
+					continue; //the inner loop
+				if(condensationSet.contains(l)) {
+					if(!SentenceModel.inSentenceFormGroup(sentence, constantForms)) {
+						inLive = true;
+					}
+				} else {
+					if(!SentenceModel.inSentenceFormGroup(sentence, constantForms)) {
+						outLive = true;
+					}
+				}
+			}
+			if(!inLive || !outLive) {
+				
+				return false;
+			}
+		}
+		
+		//Finally, check #3
+		for(GdlLiteral literal : rule.getBody()) {
+			if(literal instanceof GdlRelation || literal instanceof GdlNot)
+				if(!condensationSet.contains(literal))
+					return true;
+		}
+		return false;
 	}
 
 }

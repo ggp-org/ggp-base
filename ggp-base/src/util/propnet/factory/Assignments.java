@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.Set;
+import java.util.Map.Entry;
 
 import util.gdl.grammar.GdlConstant;
 import util.gdl.grammar.GdlDistinct;
@@ -72,7 +73,7 @@ public class Assignments implements Iterable<Map<GdlVariable, GdlConstant>> {
 		this.headAssignment = headAssignment;
 		
 		//We first have to find the remaining variables in the body
-		varsToAssign = new ArrayList<GdlVariable>(SentenceModel.getVariables(rule));
+		varsToAssign = SentenceModel.getVariables(rule);
 		//Remove all the duplicates; we do, however, want to keep the ordering
 		List<GdlVariable> newVarsToAssign = new ArrayList<GdlVariable>();
 		for(GdlVariable v : varsToAssign)
@@ -86,46 +87,21 @@ public class Assignments implements Iterable<Map<GdlVariable, GdlConstant>> {
 		//better result, and we look for the best way of doing that.
 		
 		//Let's get the domains of the variables
-		Map<GdlVariable, List<GdlConstant>> varDomains = new HashMap<GdlVariable, List<GdlConstant>>();
-		for(GdlVariable var : varsToAssign)
-			varDomains.put(var, new ArrayList<GdlConstant>());
-		for(GdlLiteral conjunct : rule.getBody()) {
-			if(conjunct instanceof GdlRelation) {
-				//This is where variables must be assigned
-				for(int i = 0; i < varsToAssign.size(); i++) {
-					GdlVariable var = varsToAssign.get(i);
-					Set<GdlConstant> domain = getDomainInRelation((GdlRelation) conjunct, var, model);
-					if(domain != null) {
-						//Add to the domain
-						if(varDomains.get(var).isEmpty()) {
-							varDomains.get(var).addAll(domain);
-						} else {
-							varDomains.get(var).retainAll(domain);
-							if(varDomains.get(var).isEmpty()) {
-								//The game probably has an error in this rule
-								//Why? Because with an empty domain, the rule does nothing
-								System.out.println("Warning: Probable error in rule " + rule + ": check domains for variable " + var);
-								varDomains.get(var).addAll(domain);
-							}
-						}
-					}
-				}
-			}
-		}
-
+		Map<GdlVariable, List<GdlConstant>> varDomains = getVarDomains(rule, model);
 		
 		//We can run the A* search for a good set of source conjuncts
 		//at this point, then use the result to build the rest.
 		Map<SentenceForm, Integer> completedSentenceFormSizes = new HashMap<SentenceForm, Integer>();
-		for(SentenceForm form : completedSentenceFormValues.keySet())
-			completedSentenceFormSizes.put(form, completedSentenceFormValues.get(form).size());
+		if(completedSentenceFormValues != null)
+			for(SentenceForm form : completedSentenceFormValues.keySet())
+				completedSentenceFormSizes.put(form, completedSentenceFormValues.get(form).size());
 		Map<GdlVariable, Integer> varDomainSizes = new HashMap<GdlVariable, Integer>();
 		for(GdlVariable var : varDomains.keySet())
 			varDomainSizes.put(var, varDomains.get(var).size());
 		
 		IterationOrderCandidate bestOrdering;
-		bestOrdering = getBestIterationOrderCandidate(rule, model, constantForms, completedSentenceFormSizes, varDomainSizes);
-
+		bestOrdering = getBestIterationOrderCandidate(rule, model, constantForms, completedSentenceFormSizes, headAssignment, false); //TODO: True here?
+		
 		//Want to replace next few things with order
 		//Need a few extra things to handle the use of iteration over existing tuples
 		varsToAssign = bestOrdering.getVariableOrdering();
@@ -258,7 +234,7 @@ public class Assignments implements Iterable<Map<GdlVariable, GdlConstant>> {
 					//   This should be able to translate from values of
 					//   the other variables to the value of the wanted
 					//   variable.
-					AssignmentFunction function = new AssignmentFunction((GdlRelation)functionalConjunct, constForm, rightmostVar, varsToAssign);
+					AssignmentFunction function = new AssignmentFunction((GdlRelation)functionalConjunct, constForm, rightmostVar, varsToAssign, headAssignment);
 					//We don't guarantee that this works until we check
 					if(!function.functional())
 						continue;
@@ -288,6 +264,34 @@ public class Assignments implements Iterable<Map<GdlVariable, GdlConstant>> {
 		checkDistinctsAgainstHead();
 
 		//We are ready for iteration
+	}
+	
+	private static Map<GdlVariable, List<GdlConstant>> getVarDomains(GdlRule rule, SentenceModel model) {
+		Set<GdlVariable> vars = new HashSet<GdlVariable>(SentenceModel.getVariables(rule));
+		Map<GdlVariable, List<GdlConstant>> varDomains = new HashMap<GdlVariable, List<GdlConstant>>();
+		for(GdlLiteral conjunct : rule.getBody()) {
+			if(conjunct instanceof GdlRelation) {
+				//This is where variables must be assigned
+				for(GdlVariable var : vars) {
+					Set<GdlConstant> domain = getDomainInRelation((GdlRelation) conjunct, var, model);
+					if(domain != null) {
+						//Add to the domain
+						if(varDomains.get(var) == null) {
+							varDomains.put(var, new ArrayList<GdlConstant>());
+							varDomains.get(var).addAll(domain);
+						} else {
+							varDomains.get(var).retainAll(domain);
+							if(varDomains.get(var).isEmpty()) {
+								//The game probably has an error in this rule
+								//Why? Because with an empty domain, the rule does nothing
+								System.out.println("Warning: Probable error in rule " + rule + ": check domains for variable " + var);
+							}
+						}
+					}
+				}
+			}
+		}
+		return varDomains;
 	}
 	private GdlVariable getRightmostVar(Collection<GdlVariable> vars) {
 		GdlVariable rightmostVar = null;
@@ -319,7 +323,7 @@ public class Assignments implements Iterable<Map<GdlVariable, GdlConstant>> {
 			}
 		}
 	}
-	private Set<GdlConstant> getDomainInRelation(GdlRelation relation,
+	private static Set<GdlConstant> getDomainInRelation(GdlRelation relation,
 			GdlVariable var, SentenceModel model) {
 		//Traverse the model and relation together
 		Set<GdlConstant> domain = new HashSet<GdlConstant>();
@@ -329,7 +333,7 @@ public class Assignments implements Iterable<Map<GdlVariable, GdlConstant>> {
 			return null;
 		return domain;
 	}
-	private void setDomainInRelation(Set<GdlConstant> domain,
+	private static void setDomainInRelation(Set<GdlConstant> domain,
 			List<GdlTerm> gdlBody, List<TermModel> modelBody, GdlVariable var) {
 		for(int i = 0; i < gdlBody.size(); i++) {
 			GdlTerm term = gdlBody.get(i);
@@ -451,7 +455,7 @@ public class Assignments implements Iterable<Map<GdlVariable, GdlConstant>> {
 				GdlVariable varToChange = getLeftmostVar(varsToChange);
 				//We want just the one, as it is a full restriction on its
 				//own behalf
-				changeOneInNext(Collections.singletonList(varToChange));
+				changeOneInNext(Collections.singleton(varToChange));
 			}
 
 		}
@@ -576,6 +580,7 @@ public class Assignments implements Iterable<Map<GdlVariable, GdlConstant>> {
 						&& sourceDefiningSlot.get(i) == -1) {
 					nextAssignment.set(i, valuesToIterate.get(i).get(valueIndices.get(i)));
 				} else if(sourceDefiningSlot.get(i) == -1) {
+					//Fill in based on a function
 					//Note that the values on the left must already be filled in
 					nextAssignment.set(i, valuesToCompute.get(i).getValue(nextAssignment));
 				}
@@ -607,7 +612,7 @@ public class Assignments implements Iterable<Map<GdlVariable, GdlConstant>> {
 
 
 
-		public void changeOneInNext(List<GdlVariable> vars) {
+		public void changeOneInNext(Collection<GdlVariable> vars) {
 			//Basically, we want to increment the rightmost one...
 			//Corner cases:
 			if(nextAssignment == null)
@@ -631,7 +636,7 @@ public class Assignments implements Iterable<Map<GdlVariable, GdlConstant>> {
 			makeNextAssignmentValid();
 
 		}
-		public void changeOneInNext(List<GdlVariable> varsToChange,
+		public void changeOneInNext(Collection<GdlVariable> varsToChange,
 				Map<GdlVariable, GdlConstant> assignment) {
 			if(nextAssignment == null)
 				return;
@@ -705,7 +710,7 @@ public class Assignments implements Iterable<Map<GdlVariable, GdlConstant>> {
 	public static Assignments getAssignmentsWithRecursiveInput(GdlRule rule,
 			SentenceModel model, SentenceForm form, GdlSentence input,
 			Map<SentenceForm, ConstantForm> constantForms, boolean useConstForms,
-			Map<SentenceForm, Collection<GdlSentence>> completedSentenceFormValues) {
+			Map<SentenceForm, ? extends Collection<GdlSentence>> completedSentenceFormValues) {
 		//Look for the literal(s) in the rule with the sentence form of the
 		//recursive input. This can be tricky if there are multiple matching
 		//literals.
@@ -851,9 +856,8 @@ public class Assignments implements Iterable<Map<GdlVariable, GdlConstant>> {
 	
 	//Represents information about a sentence form that is constant.
 	public static class ConstantForm {
-		@SuppressWarnings("unused")
 		private SentenceForm form;
-		
+
 		private int numSlots;
 		//True iff the slot has at most one value given the other slots' values
 		private List<Boolean> dependentSlots = new ArrayList<Boolean>();
@@ -959,6 +963,45 @@ public class Assignments implements Iterable<Map<GdlVariable, GdlConstant>> {
 			return dependentSlots;
 		}
 
+		/**
+		 * Given a sentence of the constant form's sentence form, finds all
+		 * the variables in the sentence that can be produced functionally.
+		 * 
+		 * Note the corner case: If a variable appears twice in a sentence,
+		 * it CANNOT be produced in this way.
+		 */
+		public Set<GdlVariable> getProducibleVars(GdlSentence sentence) {
+			if(!form.matches(sentence))
+				throw new RuntimeException("Sentence "+sentence+" does not match constant form");
+			List<GdlTerm> tuple = SentenceModel.getTupleFromSentence(sentence);
+			
+			Set<GdlVariable> candidateVars = new HashSet<GdlVariable>();
+			//Variables that appear multiple times go into multipleVars
+			Set<GdlVariable> multipleVars = new HashSet<GdlVariable>();
+			//...which, of course, means we have to spot non-candidate vars
+			Set<GdlVariable> nonCandidateVars = new HashSet<GdlVariable>();
+			
+			for(int i = 0; i < tuple.size(); i++) {
+				GdlTerm term = tuple.get(i);
+				if(term instanceof GdlVariable
+						&& !multipleVars.contains(term)) {
+					GdlVariable var = (GdlVariable) term;
+					if(candidateVars.contains(var)
+							|| nonCandidateVars.contains(var)) {
+						multipleVars.add(var);
+						candidateVars.remove(var);
+					} else if(dependentSlots.get(i)) {
+						candidateVars.add(var);
+					} else {
+						nonCandidateVars.add(var);
+					}
+				}
+			}
+			
+			return candidateVars;
+
+		}
+
 	}
 
 	static class AssignmentFunction {
@@ -986,7 +1029,8 @@ public class Assignments implements Iterable<Map<GdlVariable, GdlConstant>> {
 		//Some sort of trie might work better here...
 
 		public AssignmentFunction(GdlRelation conjunct, ConstantForm constForm,
-				GdlVariable rightmostVar, List<GdlVariable> varOrder) {
+				GdlVariable rightmostVar, List<GdlVariable> varOrder,
+				Map<GdlVariable, GdlConstant> preassignment) {
 			//We have to set up the things mentioned above...
 			internalFunctions = new ArrayList<AssignmentFunction>();
 
@@ -1015,14 +1059,21 @@ public class Assignments implements Iterable<Map<GdlVariable, GdlConstant>> {
 					queryConstants.add((GdlConstant) term);
 					queryInputIndices.add(-1);
 				} else if(term instanceof GdlVariable) {
-					isInputConstant.add(false);
-					queryConstants.add(null);
-					//What value do we put here?
-					//We want to grab some value out of the
-					//input tuple, which uses functional ordering
-					//Index of the relevant variable, by the
-					//assignment's ordering
-					queryInputIndices.add(varOrder.indexOf(term));
+					//Is it in the head assignment?
+					if(preassignment.containsKey(term)) {
+						isInputConstant.add(true);
+						queryConstants.add(preassignment.get(term));
+						queryInputIndices.add(-1);
+					} else {
+						isInputConstant.add(false);
+						queryConstants.add(null);
+						//What value do we put here?
+						//We want to grab some value out of the
+						//input tuple, which uses functional ordering
+						//Index of the relevant variable, by the
+						//assignment's ordering
+						queryInputIndices.add(varOrder.indexOf(term));
+					}
 				}
 			}
 		}
@@ -1071,31 +1122,66 @@ public class Assignments implements Iterable<Map<GdlVariable, GdlConstant>> {
 	 * The value that is compared for each ordering is the product of:
 	 * - For each source conjunct, the number of tuples offered by the conjunct;
 	 * - For each variable not defined by a function, the size of its domain.
+	 * 
 	 * @param constantForms 
-	 * @param model 
-	 * @param rule 
+	 * @param completedSentenceFormSizes For each sentence form, this may optionally 
+	 * contain the number of possible sentences of this form. This is useful if the
+	 * number of sentences is much lower than the product of its variables' domain
+	 * sizes; however, if this contains sentence forms where the set of sentences
+	 * is unknown, then it may return an ordering that is unusable.
 	 */
-	protected IterationOrderCandidate getBestIterationOrderCandidate(GdlRule rule, SentenceModel model, Map<SentenceForm, ConstantForm> constantForms,
+	protected static IterationOrderCandidate getBestIterationOrderCandidate(GdlRule rule,
+			SentenceModel model,
+			Map<SentenceForm, ConstantForm> constantForms,
 			Map<SentenceForm, Integer> completedSentenceFormSizes,
-			Map<GdlVariable, Integer> varDomainSizes) {
+			Map<GdlVariable, GdlConstant> preassignment,
+			boolean analyticFunctionOrdering) {
 		//Here are the things we need to pass into the first IOC constructor
 		List<GdlSentence> sourceConjunctCandidates = new ArrayList<GdlSentence>();
 		//What is a source conjunct candidate?
 		//- It is a positive conjunct in the rule (i.e. a GdlSentence in the body).
 		//- It has already been fully defined; i.e. it is not recursively defined in terms of the current form.
 		//Furthermore, we know the number of potentially true tuples in it.
+		List<GdlVariable> varsToAssign = SentenceModel.getVariables(rule);
+		List<GdlVariable> newVarsToAssign = new ArrayList<GdlVariable>();
+		for(GdlVariable var : varsToAssign)
+			if(!newVarsToAssign.contains(var))
+				newVarsToAssign.add(var);
+		varsToAssign = newVarsToAssign;
+		if(preassignment != null)
+			varsToAssign.removeAll(preassignment.keySet());
 		
+		//Calculate var domain sizes
+		Map<GdlVariable, Integer> varDomainSizes = getVarDomainSizes(rule, model);
+
 		List<Integer> sourceConjunctSizes = new ArrayList<Integer>();
 		for(GdlLiteral conjunct : rule.getBody()) {
-			if(conjunct instanceof GdlSentence) {
-				SentenceForm form = model.getSentenceForm((GdlSentence)conjunct);
-				if(completedSentenceFormSizes.containsKey(form)) {
+			if(conjunct instanceof GdlRelation) {
+				SentenceForm form = model.getSentenceForm((GdlRelation)conjunct);
+				if(completedSentenceFormSizes != null 
+						&& completedSentenceFormSizes.containsKey(form)) {
 					int size = completedSentenceFormSizes.get(form);
-					sourceConjunctCandidates.add((GdlSentence) conjunct);
+					//New: Don't add if it will be useless as a source
+					//For now, we take a strict definition of that
+					//Compare its size with the product of the domains
+					//of the variables it defines
+					//In the future, we could require a certain ratio
+					//to decide that this is worthwhile
+					GdlRelation relation = (GdlRelation) conjunct;
+					int maxSize = 1;
+					Set<GdlVariable> vars = new HashSet<GdlVariable>(SentenceModel.getVariables(relation));
+					for(GdlVariable var : vars) {
+						int domainSize = varDomainSizes.get(var);
+						maxSize *= domainSize;
+					}
+					if(size >= maxSize)
+						continue;
+					sourceConjunctCandidates.add(relation);
 					sourceConjunctSizes.add(size);
 				}
 			}
 		}
+		
 		List<GdlSentence> constantFormSentences = new ArrayList<GdlSentence>();
 		List<ConstantForm> constantFormsAsList = new ArrayList<ConstantForm>();
 		for(GdlLiteral conjunct : rule.getBody()) {
@@ -1111,7 +1197,7 @@ public class Assignments implements Iterable<Map<GdlVariable, GdlConstant>> {
 		//TODO: If we have a head assignment, treat everything as already replaced
 		//Maybe just translate the rule? Or should we keep the pool clean?
 		
-		IterationOrderCandidate emptyCandidate = new IterationOrderCandidate(sourceConjunctCandidates,
+		IterationOrderCandidate emptyCandidate = new IterationOrderCandidate(varsToAssign, sourceConjunctCandidates,
 				sourceConjunctSizes, constantFormSentences, constantFormsAsList, varDomainSizes);
 		PriorityQueue<IterationOrderCandidate> searchQueue = new PriorityQueue<IterationOrderCandidate>();
 		searchQueue.add(emptyCandidate);
@@ -1121,13 +1207,22 @@ public class Assignments implements Iterable<Map<GdlVariable, GdlConstant>> {
 			if(curNode.isComplete())
 				//This is the complete ordering with the lowest heuristic value
 				return curNode;
-			
-			searchQueue.addAll(curNode.getChildren());
+			searchQueue.addAll(curNode.getChildren(analyticFunctionOrdering));
 		}
 		throw new RuntimeException("Found no complete iteration orderings");
 	}
 
-	private class IterationOrderCandidate implements Comparable<IterationOrderCandidate> {
+	private static Map<GdlVariable, Integer> getVarDomainSizes(GdlRule rule,
+			SentenceModel model) {
+		Map<GdlVariable, Integer> varDomainSizes = new HashMap<GdlVariable, Integer>();
+		Map<GdlVariable, List<GdlConstant>> varDomains = getVarDomains(rule, model);
+		for(GdlVariable var : varDomains.keySet()) {
+			varDomainSizes.put(var, varDomains.get(var).size());
+		}
+		return varDomainSizes;
+	}
+
+	private static class IterationOrderCandidate implements Comparable<IterationOrderCandidate> {
 		//Information specific to this ordering
 		private List<Integer> sourceConjunctIndices; //Which conjuncts are we using as sources, and in what order?
 		private List<GdlVariable> varOrdering; //In what order do we assign variables?
@@ -1140,6 +1235,7 @@ public class Assignments implements Iterable<Map<GdlVariable, GdlConstant>> {
 		
 		//Information shared by the orderings
 		//Presumably, this will also be used to construct the iterator to be used...
+		private List<GdlVariable> varsToAssign;
 		private List<GdlSentence> sourceConjunctCandidates;
 		private List<Integer> sourceConjunctSizes; //same indexing as candidates
 		private List<GdlSentence> constantFormSentences;
@@ -1158,6 +1254,7 @@ public class Assignments implements Iterable<Map<GdlVariable, GdlConstant>> {
 		 * @param varDomainSizes
 		 */
 		public IterationOrderCandidate(
+				List<GdlVariable> varsToAssign,
 				List<GdlSentence> sourceConjunctCandidates,
 				List<Integer> sourceConjunctSizes,
 				List<GdlSentence> constantFormSentences,
@@ -1168,6 +1265,7 @@ public class Assignments implements Iterable<Map<GdlVariable, GdlConstant>> {
 			functionalConjunctIndices = new ArrayList<Integer>();
 			varSources = new ArrayList<Integer>();
 			
+			this.varsToAssign = varsToAssign;
 			this.sourceConjunctCandidates = sourceConjunctCandidates;
 			this.sourceConjunctSizes = sourceConjunctSizes;
 			this.constantFormSentences = constantFormSentences;
@@ -1208,6 +1306,7 @@ public class Assignments implements Iterable<Map<GdlVariable, GdlConstant>> {
 		public IterationOrderCandidate(
 				IterationOrderCandidate parent) {
 			//Shared rules
+			this.varsToAssign = parent.varsToAssign;
 			this.sourceConjunctCandidates = parent.sourceConjunctCandidates;
 			this.sourceConjunctSizes = parent.sourceConjunctSizes;
 			this.constantFormSentences = parent.constantFormSentences;
@@ -1239,6 +1338,7 @@ public class Assignments implements Iterable<Map<GdlVariable, GdlConstant>> {
 		public IterationOrderCandidate(
 				IterationOrderCandidate parent, int i) {
 			//Shared rules:
+			this.varsToAssign = parent.varsToAssign;
 			this.sourceConjunctCandidates = parent.sourceConjunctCandidates;
 			this.sourceConjunctSizes = parent.sourceConjunctSizes;
 			this.constantFormSentences = parent.constantFormSentences;
@@ -1279,6 +1379,7 @@ public class Assignments implements Iterable<Map<GdlVariable, GdlConstant>> {
 				GdlSentence constantFormSentence,
 				int constantFormIndex, GdlVariable functionOutput) {
 			//Shared rules:
+			this.varsToAssign = parent.varsToAssign;
 			this.sourceConjunctCandidates = parent.sourceConjunctCandidates;
 			this.sourceConjunctSizes = parent.sourceConjunctSizes;
 			this.constantFormSentences = parent.constantFormSentences;
@@ -1294,7 +1395,7 @@ public class Assignments implements Iterable<Map<GdlVariable, GdlConstant>> {
 			List<GdlVariable> varsInFunction = SentenceModel.getVariables(constantFormSentence);
 			//First, add the remaining arguments
 			for(GdlVariable var : varsInFunction) {
-				if(!varOrdering.contains(var) && !var.equals(functionOutput)) {
+				if(!varOrdering.contains(var) && !var.equals(functionOutput) && varsToAssign.contains(var)) {
 					varOrdering.add(var);
 					functionalConjunctIndices.add(-1);
 					varSources.add(-1);
@@ -1312,19 +1413,28 @@ public class Assignments implements Iterable<Map<GdlVariable, GdlConstant>> {
 				heuristic *= sourceConjunctSizes.get(sourceIndex);
 			}
 			for(int v = 0; v < varOrdering.size(); v++) {
-				if(varSources.get(v) == -1 && functionalConjunctIndices.get(v) == -1)
+				if(varSources.get(v) == -1 && functionalConjunctIndices.get(v) == -1) {
 					//It's not set by a source conjunct or a function
 					heuristic *= varDomainSizes.get(varOrdering.get(v));
+				}
 			}
+
+			
+			//We want complete orderings to show up faster
+			//so we add a little incentive to pick them
+			//Add 1 to the value of non-complete orderings
+			if(varOrdering.size() < varsToAssign.size())
+				heuristic++;
+			
 			return heuristic;
 		}
 		public boolean isComplete() {
-			return varOrdering.size() == varsToAssign.size();
+			return varOrdering.containsAll(varsToAssign);
 		}
-		public List<IterationOrderCandidate> getChildren() {
+		public List<IterationOrderCandidate> getChildren(boolean analyticFunctionOrdering) {
 			List<IterationOrderCandidate> allChildren = new ArrayList<IterationOrderCandidate>();
 			allChildren.addAll(getSourceConjunctChildren());
-			allChildren.addAll(getFunctionAddedChildren());
+			allChildren.addAll(getFunctionAddedChildren(analyticFunctionOrdering));
 			return allChildren;
 		}
 		private List<IterationOrderCandidate> getSourceConjunctChildren() {
@@ -1346,34 +1456,210 @@ public class Assignments implements Iterable<Map<GdlVariable, GdlConstant>> {
 			}
 			return children;
 		}
-		private List<IterationOrderCandidate> getFunctionAddedChildren() {
+		private List<IterationOrderCandidate> getFunctionAddedChildren(boolean analyticFunctionOrdering) {
 			//We can't just add those functions that
 			//are "ready" to be added. We should be adding all those variables
 			//"leading up to" the functions and then applying the functions.
 			//We can even take this one step further by only adding one child
-			//per remaining constant function; we choose as our function the
+			//per remaining constant function; we choose as our function output the
 			//variable that is a candidate for functionhood that has the
 			//largest domain, or one that is tied for largest.
+			//New criterion: Must also NOT be in preassignment.
 			
 			List<IterationOrderCandidate> children = new ArrayList<IterationOrderCandidate>();
 			
-			for(int i = 0; i < constantForms.size(); i++) {
-				GdlSentence constantFormSentence = constantFormSentences.get(i);
-				ConstantForm constantForm = constantForms.get(i);
-				//What is the best variable to grab from this form, if there are any?
-				GdlVariable bestVariable = getBestVariable(constantFormSentence, constantForm);
-				if(bestVariable == null)
-					continue;
-				IterationOrderCandidate newCandidate =
-					new IterationOrderCandidate(this, constantFormSentence, i, bestVariable);
-				children.add(newCandidate);
-			}
+			//It would be really nice here to just analytically choose
+			//the set of functions we're going to use.
+			//Here's one approach for doing that:
+			//For each variable, get a list of the functions that could
+			//potentially produce it.
+			//For all the variables with no functions, add them.
+			//Then repeatedly find the function with the fewest
+			//number of additional variables (hopefully 0!) needed to
+			//specify it and add it as a function.
+			//The goal here is not to be optimal, but to be efficient!
+			//Certain games (e.g. Pentago) break the old complete search method!
 			
-			//If there are no more functions to add, add the completed version
-			if(children.isEmpty()) {
-				children.add(new IterationOrderCandidate(this));
+			//TODO: Eventual possible optimization here:
+			//If something is dependent on a connected component that it is
+			//not part of, wait until the connected component is resolved
+			//(or something like that...)
+			if(analyticFunctionOrdering && constantForms.size() > 8) {
+				//For each variable, a list of functions
+				//(refer to functions by their indices)
+				//and the set of outstanding vars they depend on...
+				Map<GdlVariable, Set<Integer>> functionsProducingVars = new HashMap<GdlVariable, Set<Integer>>();
+				//We start by adding to the varOrdering the vars not produced by functions
+				//First, we have to find them
+				for(int i = 0; i < constantForms.size(); i++) {
+					GdlSentence cfs = constantFormSentences.get(i);
+					ConstantForm cf = constantForms.get(i);
+					Set<GdlVariable> producibleVars = cf.getProducibleVars(cfs);
+					for(GdlVariable producibleVar : producibleVars) {
+						if(!functionsProducingVars.containsKey(producibleVar))
+							functionsProducingVars.put(producibleVar, new HashSet<Integer>());
+						functionsProducingVars.get(producibleVar).add(i);
+					}
+				}
+				//Non-producible vars get iterated over before we start
+				//deciding which functions to add
+				for(GdlVariable var : varsToAssign) {
+					if(!varOrdering.contains(var)) {
+						if(!functionsProducingVars.containsKey(var)) {
+							//Add var to the ordering
+							varOrdering.add(var);
+							functionalConjunctIndices.add(-1);
+							varSources.add(-1);
+						}
+					}
+				}
+				
+				
+				//Map is from potential set of dependencies to function indices
+				Map<Set<GdlVariable>, Set<Integer>> functionsHavingDependencies = new HashMap<Set<GdlVariable>, Set<Integer>>();
+				//Create this map...
+				for(int i = 0; i < constantForms.size(); i++) {
+					GdlSentence cfs = constantFormSentences.get(i);
+					ConstantForm cf = constantForms.get(i);
+					Set<GdlVariable> producibleVars = cf.getProducibleVars(cfs);
+					Set<GdlVariable> allVars = new HashSet<GdlVariable>(SentenceModel.getVariables(cfs));
+					//Variables already in varOrdering don't go in dependents list
+					producibleVars.removeAll(varOrdering);
+					allVars.removeAll(varOrdering);
+					for(GdlVariable producibleVar : producibleVars) {
+						Set<GdlVariable> dependencies = new HashSet<GdlVariable>();
+						dependencies.addAll(allVars);
+						dependencies.remove(producibleVar);
+						if(!functionsHavingDependencies.containsKey(dependencies))
+							functionsHavingDependencies.put(dependencies, new HashSet<Integer>());
+						functionsHavingDependencies.get(dependencies).add(i);
+					}
+				}
+				//Now, we can keep creating functions to generate the remaining variables
+				while(varOrdering.size() < varsToAssign.size()) {
+					if(functionsHavingDependencies.isEmpty())
+						throw new RuntimeException("We should not run out of functions we could use");
+					//Find the smallest set of dependencies
+					Set<GdlVariable> dependencySetToUse = null;
+					if(functionsHavingDependencies.containsKey(Collections.emptySet())) {
+						dependencySetToUse = Collections.emptySet();
+					} else {
+						int smallestSize = Integer.MAX_VALUE;
+						for(Set<GdlVariable> dependencySet : functionsHavingDependencies.keySet()) {
+							if(dependencySet.size() < smallestSize) {
+								smallestSize = dependencySet.size();
+								dependencySetToUse = dependencySet;
+							}
+						}
+					}
+					//See if any of the functions are applicable
+					Set<Integer> functions = functionsHavingDependencies.get(dependencySetToUse);
+					int functionToUse = -1;
+					GdlVariable varProduced = null;
+					for(int function : functions) {
+						GdlSentence cfs = constantFormSentences.get(function);
+						ConstantForm cf = constantForms.get(function);
+						Set<GdlVariable> producibleVars = cf.getProducibleVars(cfs);
+						producibleVars.removeAll(dependencySetToUse);
+						producibleVars.removeAll(varOrdering);
+						if(!producibleVars.isEmpty()) {
+							functionToUse = function;
+							varProduced = producibleVars.iterator().next();
+							break;
+						}
+					}
+					
+					if(functionToUse == -1) {
+						//None of these functions were actually useful now?
+						//Dump the dependency set
+						functionsHavingDependencies.remove(dependencySetToUse);
+					} else {
+						//Apply the function
+						//1) Add the remaining dependencies as iterated variables
+						for(GdlVariable var : dependencySetToUse) {
+							varOrdering.add(var);
+							functionalConjunctIndices.add(-1);
+							varSources.add(-1);
+						}
+						//2) Add the function's produced variable (varProduced)
+						varOrdering.add(varProduced);
+						functionalConjunctIndices.add(functionToUse);
+						varSources.add(-1);
+						//3) Remove all vars added this way from all dependency sets
+						Set<GdlVariable> addedVars = new HashSet<GdlVariable>();
+						addedVars.addAll(dependencySetToUse);
+						addedVars.add(varProduced);
+						//Tricky, because we have to merge sets
+						//Easier to use a new map
+						Map<Set<GdlVariable>, Set<Integer>> newFunctionsHavingDependencies = new HashMap<Set<GdlVariable>, Set<Integer>>();
+						for(Entry<Set<GdlVariable>, Set<Integer>> entry : functionsHavingDependencies.entrySet()) {
+							Set<GdlVariable> newKey = new HashSet<GdlVariable>(entry.getKey());
+							newKey.removeAll(addedVars);
+							if(!newFunctionsHavingDependencies.containsKey(newKey))
+								newFunctionsHavingDependencies.put(newKey, new HashSet<Integer>());
+							newFunctionsHavingDependencies.get(newKey).addAll(entry.getValue());
+						}
+						functionsHavingDependencies = newFunctionsHavingDependencies;
+						//4) Remove this function from the lists?
+						for(Set<Integer> functionSet : functionsHavingDependencies.values())
+							functionSet.remove(functionToUse);
+					}
+					
+				}
+				
+				//Now we need to actually return the ordering in a list
+				//Here's the quick way to do that...
+				//(since we've added all the new stuff to ourself already)
+				return Collections.singletonList(new IterationOrderCandidate(this));
+				
+			} else {
+
+				//Let's try a new technique for restricting the space of possibilities...
+				//We already have an ordering on the functions
+				//Let's try to constrain things to that order
+				//Namely, if i<j and constant form j is already used as a function,
+				//we cannot use constant form i UNLESS constant form j supplies
+				//as its variable something used by constant form i.
+				//We might also try requiring that c.f. i NOT provide a variable
+				//used by c.f. j, though there may be multiple possibilities as
+				//to what it could provide.
+				int lastFunctionUsedIndex = -1;
+				if(!functionalConjunctIndices.isEmpty())
+					lastFunctionUsedIndex = Collections.max(functionalConjunctIndices);
+				Set<GdlVariable> varsProducedByFunctions = new HashSet<GdlVariable>();
+				for(int i = 0; i < functionalConjunctIndices.size(); i++)
+					if(functionalConjunctIndices.get(i) != -1)
+						varsProducedByFunctions.add(varOrdering.get(i));
+				for(int i = 0; i < constantForms.size(); i++) {
+					GdlSentence constantFormSentence = constantFormSentences.get(i);
+					ConstantForm constantForm = constantForms.get(i);
+
+					if(i < lastFunctionUsedIndex) {
+						//We need to figure out whether i could use any of the
+						//vars we're producing with functions
+						//TODO: Try this with a finer grain
+						//i.e., see if i needs a var from a function that is after
+						//it, not one that might be before it
+						List<GdlVariable> varsInSentence = SentenceModel.getVariables(constantFormSentence);
+						if(Collections.disjoint(varsInSentence, varsProducedByFunctions))
+							continue;
+					}
+
+					//What is the best variable to grab from this form, if there are any?
+					GdlVariable bestVariable = getBestVariable(constantFormSentence, constantForm);
+					if(bestVariable == null)
+						continue;
+					IterationOrderCandidate newCandidate =
+						new IterationOrderCandidate(this, constantFormSentence, i, bestVariable);
+					children.add(newCandidate);
+				}
+
+				//If there are no more functions to add, add the completed version
+				if(children.isEmpty()) {
+					children.add(new IterationOrderCandidate(this));
+				}
+				return children;
 			}
-			return children;
 		}
 		private GdlVariable getBestVariable(GdlSentence constantFormSentence,
 				ConstantForm constantForm) {
@@ -1392,7 +1678,8 @@ public class Assignments implements Iterable<Map<GdlVariable, GdlConstant>> {
 			for(int i = 0; i < tuple.size(); i++) {
 				GdlTerm term = tuple.get(i);
 				if(term instanceof GdlVariable && dependentSlots.get(i)
-						&& !varOrdering.contains(term))
+						&& !varOrdering.contains(term)
+						&& varsToAssign.contains(term))
 					candidateVars.add((GdlVariable) term);
 			}
 			//Now we look at the domains, trying to find the largest
@@ -1421,7 +1708,33 @@ public class Assignments implements Iterable<Map<GdlVariable, GdlConstant>> {
 		}
 		@Override
 		public String toString() {
-			return varOrdering.toString() + " with sources " + getSourceConjuncts().toString();
+			return varOrdering.toString() + " with sources " + getSourceConjuncts().toString() + "; functional?: " + functionalConjunctIndices;
 		}
+	}
+
+
+	public static long getNumAssignmentsEstimate(GdlRule rule, SentenceModel model, ConstantChecker checker, boolean analyticFunctionOrdering) {
+		//First we need the best iteration order
+		//Arguments we'll need to pass in:
+		//- A SentenceModel
+		//- constant forms
+		//- completed sentence form sizes
+		//- Variable domain sizes?
+		
+		Map<SentenceForm, ConstantForm> constantForms = new HashMap<SentenceForm, ConstantForm>();
+		for(SentenceForm form : model.getConstantSentenceForms())
+			constantForms.put(form, new ConstantForm(form, checker));
+		
+		//Populate variable domain sizes using the constant checker
+		Map<SentenceForm, Integer> domainSizes = new HashMap<SentenceForm, Integer>();
+		for(SentenceForm form : checker.getSentenceForms()) {
+			domainSizes.put(form, checker.getNumTrueTuples(form));
+		}
+		//TODO: Propagate these domain sizes as estimates for other rules?
+		//Look for literals in the body of the rule and their ancestors?
+		//Could we possibly do this elsewhere?
+		
+		IterationOrderCandidate ordering = getBestIterationOrderCandidate(rule, model, constantForms, null, null, analyticFunctionOrdering);
+		return ordering.getHeuristicValue();
 	}
 }

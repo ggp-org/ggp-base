@@ -26,6 +26,7 @@ import util.gdl.grammar.GdlVariable;
 import util.gdl.model.SentenceModel;
 import util.gdl.model.SentenceModel.SentenceForm;
 import util.gdl.transforms.CommonTransforms;
+import util.gdl.transforms.Relationizer;
 import util.gdl.transforms.SimpleCondensationIsolator;
 import util.gdl.transforms.CrudeSplitter;
 import util.gdl.transforms.DeORer;
@@ -89,7 +90,25 @@ public class OptimizingPropNetFactory {
     static final private GdlConstant INPUT = GdlPool.getConstant("input");
 	static final private GdlConstant TEMP = GdlPool.getConstant("TEMP");
 
-	public static PropNet create(List<Gdl> description, boolean verbose, boolean useAdvancedCondensers, boolean moreRestraint, boolean useCrudeSplitter)
+	public static PropNet create(List<Gdl> description) {
+		return create(description, false);
+	}
+	
+	//These heuristic methods work best on the vast majority of games.
+	//Still problems with conn4, mummyMaze2p_2007, sudoku2;
+	// possibly others?
+	public static PropNet create(List<Gdl> description, boolean verbose) {
+		return create(description, verbose, true, false, false, false, true, true);
+	}
+	
+	public static PropNet create(List<Gdl> description,
+			boolean verbose,
+			boolean useAdvancedCondensers,
+			boolean moreRestraint,
+			boolean useCrudeSplitter,
+			boolean constConstraint,
+			boolean useHeuristic,
+			boolean analyticFunctionOrdering)
 	{
 		System.out.println("Building propnet...");
 
@@ -98,15 +117,16 @@ public class OptimizingPropNetFactory {
 		description = GdlCleaner.run(description);
 		description = DeORer.run(description);
 		description = VariableConstrainer.replaceFunctionValuedVariables(description);
+		description = Relationizer.run(description);
 
 		if(useCrudeSplitter) {
 			description = CrudeSplitter.run(description);
-			description = CondensationIsolator.run(description, true, true);
+			description = CondensationIsolator.run(description, true, true, true, constConstraint, useHeuristic, analyticFunctionOrdering);
 		} else {
 			if(!useAdvancedCondensers)
 				description = SimpleCondensationIsolator.run(description, false);
 			if(useAdvancedCondensers)
-				description = CondensationIsolator.run(description, true, moreRestraint);
+				description = CondensationIsolator.run(description, true, moreRestraint, true, constConstraint, useHeuristic, analyticFunctionOrdering);
 		}
 		if(verbose)
 			for(Gdl gdl : description)
@@ -198,6 +218,9 @@ public class OptimizingPropNetFactory {
 				System.out.println("Processing temporary components...");
 			processTemporaryComponents(temporaryComponents, temporaryNegations, components, negations, trueComponent, falseComponent);
 			addFormToCompletedValues(form, completedSentenceFormValues, components);
+			//if(verbose)
+				//TODO: Add this, but with the correct total number of components (not just Propositions)
+				//System.out.println("  "+completedSentenceFormValues.get(form).size() + " components added");
 		}
 		//Connect "next" to "true"
 		if(verbose)
@@ -218,7 +241,7 @@ public class OptimizingPropNetFactory {
 			System.out.println("Initializing propnet object...");
 		PropNet propnet = new PropNet(roles, componentSet);
 		if(verbose) {
-			System.out.println("Done setting up propnet; took " + (System.currentTimeMillis() - startTime) + "ms, has " + componentSet.size() + " components");
+			System.out.println("Done setting up propnet; took " + (System.currentTimeMillis() - startTime) + "ms, has " + componentSet.size() + " components and " + propnet.getNumLinks() + " links");
 			System.out.println("Propnet has " +propnet.getNumAnds()+" ands; "+propnet.getNumOrs()+" ors; "+propnet.getNumNots()+" nots");
 		}
 		//System.out.println(propnet);
@@ -755,14 +778,17 @@ public class OptimizingPropNetFactory {
 			return;
 		}
 		
-		//Let's try iterating through the rules instead of the relations
-		//This requires yet another approach to assignments
-		//We'll have to keep track of all the sentence component inputs ourselves
-		//Then or them together at the end
 		Map<GdlSentence, Set<Component>> inputsToOr = new HashMap<GdlSentence, Set<Component>>();
 		for(GdlRule rule : rules) {
 			Assignments assignments = Assignments.getAssignmentsForRule(rule, model, constantForms, completedSentenceFormValues);
 
+			//Calculate vars in live (non-constant, non-distinct) conjuncts
+			Set<GdlVariable> varsInLiveConjuncts = getVarsInLiveConjuncts(rule, constantChecker.getSentenceForms());
+			varsInLiveConjuncts.addAll(SentenceModel.getVariables(rule.getHead()));
+			Set<GdlVariable> varsInRule = new HashSet<GdlVariable>(SentenceModel.getVariables(rule));
+			boolean preventDuplicatesFromConstants = 
+				(varsInRule.size() > varsInLiveConjuncts.size());
+			
 			//System.out.println("Rule: " + rule);
 			//Do we just pass those to the Assignments class in that case?
 			for(AssignmentIterator asnItr = assignments.getIterator(); asnItr.hasNext(); ) {
@@ -908,6 +934,11 @@ public class OptimizingPropNetFactory {
 						if(!inputsToOr.containsKey(sentence))
 							inputsToOr.put(sentence, new HashSet<Component>());
 						inputsToOr.get(sentence).add(andComponent);
+						//We'll want to make sure at least one of the non-constant
+						//components is changing
+						if(preventDuplicatesFromConstants) {
+							asnItr.changeOneInNext(varsInLiveConjuncts, assignment);
+						}
 					}
 				}
 			}
@@ -946,6 +977,23 @@ public class OptimizingPropNetFactory {
 
 	}
 
+
+	private static Set<GdlVariable> getVarsInLiveConjuncts(
+			GdlRule rule, Set<SentenceForm> constantSentenceForms) {
+		Set<GdlVariable> result = new HashSet<GdlVariable>();
+		for(GdlLiteral literal : rule.getBody()) {
+			if(literal instanceof GdlRelation) {
+				if(!SentenceModel.inSentenceFormGroup((GdlRelation)literal, constantSentenceForms))
+					result.addAll(SentenceModel.getVariables(literal));
+			} else if(literal instanceof GdlNot) {
+				GdlNot not = (GdlNot) literal;
+				GdlSentence inner = (GdlSentence) not.getBody();
+				if(!SentenceModel.inSentenceFormGroup(inner, constantSentenceForms))
+					result.addAll(SentenceModel.getVariables(literal));
+			}
+		}
+		return result;
+	}
 
 	private static boolean isThisConstant(Component conj, Constant constantComponent) {
 		if(conj == constantComponent)

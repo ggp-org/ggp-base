@@ -41,7 +41,7 @@ import util.gdl.grammar.GdlVariable;
 public class SentenceModel {
 	List<Gdl> description;
 	private Map<String, List<TermModel>> sentences = new HashMap<String, List<TermModel>>();
-	int maxArity = 0;
+	//int maxArity = 0;
 	boolean ignoreLanguageRules;
 	
 	public SentenceModel(List<Gdl> description, boolean ignoreLanguageRules) {
@@ -107,13 +107,46 @@ public class SentenceModel {
 			}
 		}
 		
-		for(List<TermModel> body : sentences.values())
-			if(maxArity < body.size())
-				maxArity = body.size();
+		//for(List<TermModel> body : sentences.values())
+			//if(maxArity < body.size())
+				//maxArity = body.size();
 	}
 	
 	public SentenceModel(List<Gdl> description) {
 		this(description, false);
+	}
+
+	/**
+	 * Constructs a deep copy of the given model.
+	 */
+	public SentenceModel(SentenceModel other) {
+		//Part of the reason this exists is to allow malleable descriptions.
+		//For most objects, this will mean new data structures sharing the
+		//same immutable objects.
+		description = new ArrayList<Gdl>(other.description);
+		//TermModels are not immutable.
+		sentences = new HashMap<String, List<TermModel>>();
+		for(Entry<String, List<TermModel>> entry : other.sentences.entrySet())
+			sentences.put(entry.getKey(), copy(entry.getValue()));
+		//maxArity = other.maxArity;
+		ignoreLanguageRules = other.ignoreLanguageRules;
+		
+		if(other.dependencyGraph != null)
+			dependencyGraph = new HashMap<SentenceForm, Set<SentenceForm>>(other.dependencyGraph);
+		//SentenceForms are immutable.
+		if(other.constantSentenceForms != null)
+			constantSentenceForms = new HashSet<SentenceForm>(other.constantSentenceForms);
+		if(other.independentSentenceForms != null)
+			independentSentenceForms = new HashSet<SentenceForm>(other.independentSentenceForms);
+		if(other.dependentSentenceForms != null)
+			dependentSentenceForms = new HashSet<SentenceForm>(other.dependentSentenceForms);
+		
+		if(other.sentenceForms != null)
+			sentenceForms = new HashSet<SentenceForm>(other.sentenceForms);
+		if(other.sentenceFormsByName != null)
+			sentenceFormsByName = new HashMap<GdlConstant, Set<SentenceForm>>(other.sentenceFormsByName);
+		relationsByForm.putAll(other.relationsByForm);
+		rulesByForm.putAll(other.rulesByForm);
 	}
 
 	private boolean applyLanguageInjections() {
@@ -306,6 +339,33 @@ public class SentenceModel {
 		//   that constant.
 		//I guess if it's any
 		
+		//TODO: We need to expand this to handle, e.g., mummymaze1p. Here, we use
+		//a different set of rules:
+		//The domain is the union of what we find from the following:
+		//1) If it's part of a variable with no equivalent in the head, keep
+		//   the intersection of all appearances of the variable in positive
+		//   conjuncts in the rule body.
+		//2) If it's a constant in the sentence, keep that constant.
+		
+		//Can we get a more formal/useful definition?
+		//We want to restrict term models. We currently have some superset of the
+		//minimal domain for each term model; we want to cut down that size.
+		//We want to go through all the rules and find SUPPORT for the inclusion
+		//of each variable in each term model. (I suppose functions, too, but we'll
+		//ignore those for now.) That means for each term model, we set up a set
+		//of variables that have support so far.
+		//Then we iterate over the functions and find the support that each function
+		//provides to each of the relevant term models.
+		//This gets slightly complicated in that we want to prune term models through
+		//various layers, i.e. when the head's domain changes. Maybe repeated iteration?
+		
+		//I'm wondering if this could get ugly if we ignore the ways functions
+		//are used in the term models. Let's say we have (legal ?player ?move)
+		//deriving from something; the term models in the function called by
+		//?move might get ignored, even though this grants them full support.
+		
+		//If we had function-valued variables removed, this would be easier.
+		
 		//So, we should have a new domain for each term model, I guess...
 		Map<TermModel, Set<GdlConstant>> newDomains = new HashMap<TermModel, Set<GdlConstant>>();
 		//We go through each rule body
@@ -367,6 +427,7 @@ public class SentenceModel {
 				newDomains.get(termModel).add((GdlConstant)term);
 			} else if(term instanceof GdlVariable) {
 				//Can't really rule anything out of the domain
+				
 				newDomains.put(termModel, termModel.getConstants());
 			} else if(term instanceof GdlFunction) {
 				GdlFunction function = (GdlFunction) term;
@@ -681,7 +742,7 @@ public class SentenceModel {
 		}
 	}
 
-	Map<SentenceForm, Set<SentenceForm>> dependencyGraph = null;
+	private Map<SentenceForm, Set<SentenceForm>> dependencyGraph = null;
 	/**
 	 * Each key in the graph depends on those sentence forms in the associated set.
 	 */
@@ -798,6 +859,13 @@ public class SentenceModel {
 	}
 
 
+	private Set<SentenceForm> extractSentenceForms(GdlRule rule) {
+		Set<SentenceForm> forms = new HashSet<SentenceForm>();
+		extractSentenceForms(forms, rule.getHead());
+		for(GdlLiteral literal : rule.getBody())
+			extractSentenceForms(forms, literal);
+		return forms;
+	}
 	private Set<SentenceForm> extractSentenceForms(GdlLiteral literal) {
 		Set<SentenceForm> forms = new HashSet<SentenceForm>();
 		extractSentenceForms(forms, literal);
@@ -1247,7 +1315,7 @@ public class SentenceModel {
 		forms.addAll(formsToAdd);
 	}
 
-	Map<SentenceForm, Set<GdlRelation>> relationsByForm = new HashMap<SentenceForm, Set<GdlRelation>>();
+	private Map<SentenceForm, Set<GdlRelation>> relationsByForm = new HashMap<SentenceForm, Set<GdlRelation>>();
 	public Set<GdlRelation> getRelations(SentenceForm form) {
 		if(relationsByForm.get(form) == null) {
 			Set<GdlRelation> relations = new HashSet<GdlRelation>();
@@ -1266,7 +1334,7 @@ public class SentenceModel {
 		return relationsByForm.get(form);
 	}
 
-	Map<SentenceForm, Set<GdlRule>> rulesByForm = new HashMap<SentenceForm, Set<GdlRule>>();
+	private Map<SentenceForm, Set<GdlRule>> rulesByForm = new HashMap<SentenceForm, Set<GdlRule>>();
 	/**
 	 * Returns the rules that GENERATE the sentence form, not necessarily
 	 * all the rules that contain it.
@@ -1297,6 +1365,169 @@ public class SentenceModel {
 			if(form.matches(sentence))
 				return form;
 		return null;
+	}
+
+	private Map<GdlConstant, Set<SentenceForm>> sentenceFormsByName = null;
+	public Set<SentenceForm> getSentenceFormsWithName(GdlConstant name) {
+		if(sentenceFormsByName == null) {
+			//Build it
+			sentenceFormsByName = new HashMap<GdlConstant, Set<SentenceForm>>();
+			for(SentenceForm form : getSentenceForms()) {
+				GdlConstant formName = form.getName();
+				if(!sentenceFormsByName.containsKey(formName))
+					sentenceFormsByName.put(formName, new HashSet<SentenceForm>());
+				sentenceFormsByName.get(formName).add(form);
+			}
+		}
+		return sentenceFormsByName.get(name);
+	}
+
+	public List<Gdl> getDescription() {
+		return Collections.unmodifiableList(description);
+		//return description;
+	}
+
+	/**
+	 * Replaces the given rules with a set of new rules that must be in
+	 * some sense equivalent to the old rules.
+	 * 
+	 * Comparing the old and new descriptions, these properties must hold:
+	 * - In every state, the sentences of those sentence forms defined in
+	 *   the original description have the same truth value in each description.
+	 * - There may be a new sentence form or multiple new sentence forms in
+	 *   the new description; these must not be sentence forms with a name that
+	 *   has special meaning in GDL (e.g. true, legal, goal, base, etc.).
+	 *   
+	 * This allows us to efficiently update the model by simply adding the
+	 * new sentence form and leaving the rest of the model intact. If more
+	 * changes are needed, consider creating a new SentenceModel with the
+	 * full description instead.
+	 *     
+	 * @param oldRules Rules to be removed from the model.
+	 * @param newRules Semantically equivalent rules to replace the old rules.
+	 */
+	public void replaceRules(List<GdlRule> oldRules, List<GdlRule> newRules) {
+		//Step 1: Identify the new sentence forms
+		Set<SentenceForm> newForms = new HashSet<SentenceForm>();
+		for(GdlRule newRule : newRules)
+			newForms.addAll(extractSentenceForms(newRule));
+		newForms.removeAll(sentenceForms);
+		
+		//Step 2: Replace the rules
+		description.removeAll(oldRules);
+		description.addAll(newRules);
+		
+		//Step 3: Add the new sentence forms (and rules) everywhere needed
+		//Need to update:
+		//sentences
+		//We use the same injection method (and infrastructure) we used earlier.
+		boolean somethingChanged = true;
+		while(somethingChanged) {
+			somethingChanged = false;
+			for(GdlRule newRule : newRules) {
+				somethingChanged |= applyInjection(newRule);
+			}
+			//Continue until nothing changes in any rule
+		}
+		//maxArity: unneeded?
+		//TODO: Better method for dependencyGraph
+		dependencyGraph = null;
+		//TODO: Better methods for these
+		//independentSentenceForms
+		independentSentenceForms = null;
+		//constantSentenceForms
+		constantSentenceForms = null;
+		//dependentSentenceForms
+		dependentSentenceForms = null;
+		//sentenceForms
+		//if(sentenceForms != null)
+		//	sentenceForms.addAll(newForms);
+		//We're storing this as an unmodifiable set, so replace instead
+		sentenceForms = null;
+		//relationsByForm: unchanged
+		//rulesByForm
+		for(GdlRule oldRule : oldRules) {
+			SentenceForm headForm = getSentenceForm(oldRule.getHead());
+			if(rulesByForm.get(headForm) != null) {
+				rulesByForm.get(headForm).remove(oldRule);
+			}
+		}
+		for(GdlRule newRule : newRules) {
+			SentenceForm headForm = getSentenceForm(newRule.getHead());
+			//This should be an uncommon occurrence...
+			if(rulesByForm.get(headForm) != null)
+				rulesByForm.get(headForm).add(newRule);
+		}
+		//sentenceFormsByName
+		if(sentenceFormsByName != null) {
+			for(SentenceForm form : newForms) {
+				GdlConstant name = form.getName();
+				if(!sentenceFormsByName.containsKey(name))
+					sentenceFormsByName.put(name, new HashSet<SentenceForm>());
+				sentenceFormsByName.get(name).add(form);
+			}
+		}
+	}
+
+	public Set<GdlConstant> getDomainOfVarInRelation(GdlVariable var,
+			GdlRelation relation) {
+		//Find the intersection of all the places it appears
+		List<TermModel> termModels = getMatchingTermModels(var, relation);
+		Set<GdlConstant> domain = new HashSet<GdlConstant>();
+		if(termModels.isEmpty()) {
+			//Not in the relation
+			System.err.println("Error: Tried to find the domain of " + var + " in relation " + relation);
+			return Collections.emptySet();
+		}
+		for(TermModel termModel : termModels) {
+			if(domain.isEmpty()) {
+				domain.addAll(termModel.getConstants());
+			} else {
+				domain.retainAll(termModel.getConstants());
+				if(domain.isEmpty())
+					return domain;
+			}
+		}
+		return domain;
+	}
+
+	/**
+	 * Finds all the instances of a particular term (variable or
+	 * constant) in a given sentence and returns the term models
+	 * associated with them. Used to find the domain of a variable
+	 * in a sentence.
+	 * 
+	 * @param term
+	 * @param relation
+	 * @return
+	 */
+	private List<TermModel> getMatchingTermModels(GdlTerm term,
+			GdlRelation relation) {
+		List<TermModel> matches = new ArrayList<TermModel>();
+		//Walk through the form and relation together
+		String sentenceName = relation.getName().getValue();
+		List<TermModel> bodyModel = sentences.get(sentenceName);
+		List<GdlTerm> body = relation.getBody();
+		getMatchingTermModels(body, bodyModel, term, matches);
+		return matches;
+	}
+
+	private void getMatchingTermModels(List<GdlTerm> body,
+			List<TermModel> bodyModel, GdlTerm toMatch, List<TermModel> matches) {
+		for(int i = 0; i < body.size(); i++) {
+			GdlTerm term = body.get(i);
+			TermModel termModel = bodyModel.get(i);
+			if(term instanceof GdlFunction) {
+				GdlFunction function = (GdlFunction) term;
+				List<GdlTerm> functionBody = function.getBody();
+				List<TermModel> functionBodyModel = termModel.getFunction(function);
+				getMatchingTermModels(functionBody, functionBodyModel, toMatch, matches);
+			} else {
+				if(term.equals(toMatch)) {
+					matches.add(termModel);
+				}
+			}
+		}
 	}
 
 

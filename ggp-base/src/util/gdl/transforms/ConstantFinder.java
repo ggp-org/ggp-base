@@ -40,83 +40,50 @@ public class ConstantFinder {
 		description = DeORer.run(description);
 		description = VariableConstrainer.replaceFunctionValuedVariables(description);
 		
-		//Our first step will be to identify the sentence forms that are constant.
-		SentenceModel model = new SentenceModel(description);
-		Set<SentenceForm> changingForms = new HashSet<SentenceForm>(); 
-		changingForms.addAll(model.getDependentSentenceForms());
-		changingForms.addAll(model.getIndependentSentenceForms());
-		changingForms.removeAll(model.getConstantSentenceForms());
-		Set<SentenceForm> constantForms = model.getConstantSentenceForms();
-		
-		//Now we want to separate the description into two parts.
-		List<Gdl> constantDescription = new ArrayList<Gdl>();
-		List<Gdl> changingDescription = new ArrayList<Gdl>();
-		for(Gdl gdl : description) {
-			if(gdl instanceof GdlSentence) {
-				GdlSentence sentence = (GdlSentence) gdl;
-				if(matchesAny(sentence, constantForms))
-					constantDescription.add(sentence);
-				else
-					changingDescription.add(sentence);
-			} else if(gdl instanceof GdlRule) {
-				GdlRule rule = (GdlRule) gdl;
-				//Here we rely on the fact that if the sentence head is constant,
-				//by definition the rest of the rule uses only constants.
-				if(matchesAny(rule.getHead(), constantForms))
-					constantDescription.add(rule);
-				else
-					changingDescription.add(rule);
-			}
-		}
-		
-		//System.out.println("Constant description:");
-		//for(Gdl gdl : constantDescription)
-		//	System.out.println(gdl);
-		
-		//Now we have the two descriptions.
-		return new ConstantChecker(constantDescription, changingDescription);
+		return new ConstantChecker(description);
 	}
 	
-	private static boolean matchesAny(GdlSentence sentence,
-			Set<SentenceForm> forms) {
-		//TODO: We can probably speed this up by making "constantForms"
-		//a map from sentence names to sentence forms. This probably
-		//doesn't need to be sped up, though.
-		
-		for(SentenceForm form : forms) {
-			if(form.matches(sentence))
-				return true;
-		}
-		return false;
-	}
-
-
 	public static class ConstantChecker {
-		//List<Gdl> changingDescription; //The remaining rules in the description
 		List<Role> roles;
 		Map<SentenceForm, Set<GdlSentence>> sentencesByForm = new HashMap<SentenceForm, Set<GdlSentence>>();
 		SentenceModel model;
 		
-		public ConstantChecker(List<Gdl> constantDescription,
-				List<Gdl> changingDescription) {
-			//this.changingDescription = changingDescription;
-
-			roles = Role.computeRoles(constantDescription);
+		Map<SentenceForm, ConstantForm> constForms;
+		
+		public ConstantChecker(List<Gdl> description) {
+			roles = Role.computeRoles(description);
 			
-			model = new SentenceModel(constantDescription, true);
-			for(SentenceForm form : model.getSentenceForms()) {
+			model = new SentenceModel(description, true);
+			for(SentenceForm form : model.getConstantSentenceForms()) {
 				sentencesByForm.put(form, new HashSet<GdlSentence>());
 			}
+			//TODO: We want to restrict the domains in the model here to useful
+			//values, but it's going to be tricky because the "useful values"
+			//depend on what's needed in the remainder of the description
+			//See: direction-from constants in mummymaze1p
+			//Those take on values 0-50 when all they need are 0-8
+			model.restrictDomainsToUsefulValues();
+			//TODO: Now we need to actually use these restricted domains where applicable
 			
-			List<SentenceForm> ordering = getTopologicalOrdering(model.getSentenceForms(), model.getDependencyGraph());
-			Map<SentenceForm, ConstantForm> constForms = new HashMap<SentenceForm, ConstantForm>();
+			List<SentenceForm> ordering = getTopologicalOrdering(model.getConstantSentenceForms(), model.getDependencyGraph());
+			constForms = new HashMap<SentenceForm, ConstantForm>();
 			
 			for(SentenceForm form : ordering) {
 				Set<GdlRelation> relations = model.getRelations(form);
 				Set<GdlRule> rules = model.getRules(form);
-				addConstantSentenceForm(form, relations, rules, constForms);
+				addConstantSentenceForm(form, relations, rules);
 				constForms.put(form, new ConstantForm(form, this));
 			}
+		}
+
+		public ConstantChecker(ConstantChecker other) {
+			roles = other.roles;
+			sentencesByForm = new HashMap<SentenceForm, Set<GdlSentence>>();
+			for(SentenceForm form : other.sentencesByForm.keySet()) {
+				sentencesByForm.put(form, new HashSet<GdlSentence>(other.sentencesByForm.get(form)));
+			}
+			model = new SentenceModel(other.model);
+			constForms = new HashMap<SentenceForm, ConstantForm>(other.constForms);
 		}
 
 		private static List<SentenceForm> getTopologicalOrdering(
@@ -157,18 +124,21 @@ public class ConstantFinder {
 			return roles;
 		}
 
-		/*public List<Gdl> getRemainingDescription() {
-			return changingDescription;
-		}*/
-		
 		public boolean isTrueConstant(GdlSentence sentence) {
 			SentenceForm form = model.getSentenceForm(sentence);
 			return sentencesByForm.get(form).contains(sentence);
 		}
 		public Iterator<GdlSentence> getTrueSentences(SentenceForm form) {
-			return sentencesByForm.get(form).iterator();
+			Set<GdlSentence> sentences = sentencesByForm.get(form);
+			if(sentences == null)
+				return null;
+			else
+				return sentences.iterator();
 		}
 
+		private boolean hasConstantForm(GdlSentence sentence) {
+			return SentenceModel.inSentenceFormGroup(sentence, model.getConstantSentenceForms());
+		}
 		public boolean isConstantForm(SentenceForm form) {
 			return sentencesByForm.containsKey(form);
 		}
@@ -198,8 +168,7 @@ public class ConstantFinder {
 		
 		@SuppressWarnings("unchecked")
 		private void addConstantSentenceForm(SentenceForm form,
-				Set<GdlRelation> relations, Set<GdlRule> rules,
-				Map<SentenceForm, ConstantForm> constForms) {
+				Set<GdlRelation> relations, Set<GdlRule> rules) {
 			Set<GdlRule> nonRecursiveRules = new HashSet<GdlRule>();
 			Set<GdlRule> recursiveRules = new HashSet<GdlRule>();
 
@@ -218,7 +187,7 @@ public class ConstantFinder {
 			Set<GdlSentence> trueByNonRecursives = new HashSet<GdlSentence>();
 			trueByNonRecursives.addAll(relations);
 			for(GdlRule rule : nonRecursiveRules) {
-				Assignments assignments = Assignments.getAssignmentsForRule(rule, model, constForms, Collections.EMPTY_MAP);
+				Assignments assignments = Assignments.getAssignmentsForRule(rule, model, constForms, sentencesByForm);
 				GdlSentence head = rule.getHead();
 				List<GdlVariable> varsInHead = getVarsInConjunct(head);
 
@@ -232,7 +201,6 @@ public class ConstantFinder {
 							GdlSentence transformed = CommonTransforms.replaceVariables((GdlSentence)literal, assignment);
 							SentenceForm literalForm = model.getSentenceForm(transformed);
 							
-							//Component conj = components.get(transformed);
 							if(!sentencesByForm.get(literalForm).contains(transformed)) {
 								isGoodAssignment = false;
 								List<GdlVariable> varsToChange = getVarsInConjunct(literal);
@@ -241,7 +209,6 @@ public class ConstantFinder {
 						} else if(literal instanceof GdlNot) {
 							GdlSentence internal = (GdlSentence) ((GdlNot) literal).getBody();
 							GdlSentence transformed = CommonTransforms.replaceVariables(internal, assignment);
-							//Component conj = components.get(transformed);
 							SentenceForm internalForm = model.getSentenceForm(transformed);
 							
 							if(sentencesByForm.get(internalForm).contains(transformed)) {
@@ -250,7 +217,7 @@ public class ConstantFinder {
 								asnItr.changeOneInNext(varsToChange, assignment);
 							}						
 						} else if(literal instanceof GdlDistinct) {
-							//Do nothing
+							//Do nothing, handled in Assignments
 						} else {
 							throw new RuntimeException("Bad GdlLiteral type, probably OR");
 						}
@@ -277,13 +244,16 @@ public class ConstantFinder {
 				//Da da da, do rules
 				for(GdlRule rule : recursiveRules) {
 					for(GdlSentence input : recentAdditions) {
-						Assignments assignments = Assignments.getAssignmentsWithRecursiveInput(rule, model, form, input, null, false, Collections.EMPTY_MAP);
+						//TODO: Lack of inputs here seems to be causing slowdown
+						//need constantForms, completedSentenceFormValues
+						Assignments assignments = Assignments.getAssignmentsWithRecursiveInput(rule, model, form, input, constForms, true, Collections.EMPTY_MAP/*TODO sentencesByForm*/);
 						GdlSentence head = rule.getHead();
 						List<GdlVariable> varsInHead = getVarsInConjunct(head);
 
 						AssignmentIterator asnItr = assignments.getIterator();
 						while(asnItr.hasNext()) {
 							Map<GdlVariable, GdlConstant> assignment = asnItr.next();
+							//System.out.println(assignment);
 
 							boolean isGoodAssignment = true;
 
@@ -350,10 +320,43 @@ public class ConstantFinder {
 				newlyTrue.clear();
 			}
 
-			/*for(GdlSentence sentence : allTrueSentences) {
-				sentencesByForm.get(form).add(sentence);
-			}*/
+			if(sentencesByForm.get(form) == null)
+				sentencesByForm.put(form, new HashSet<GdlSentence>());
 			sentencesByForm.get(form).addAll(allTrueSentences);
+		}
+
+		public Set<SentenceForm> getSentenceForms() {
+			return sentencesByForm.keySet();
+		}
+
+		public Integer getNumTrueTuples(SentenceForm form) {
+			return sentencesByForm.get(form).size();
+		}
+
+		//Currently makes a lot of assumptions about how this will be used.
+		//Basically custom-designed for the CondensationIsolator right now.
+		@SuppressWarnings("unchecked")
+		public void replaceRules(List<GdlRule> oldRules, List<GdlRule> newRules) {
+			//See which of the new rules involve constants
+			outer : for(GdlRule rule : newRules) {
+				for(GdlLiteral literal : rule.getBody()) {
+					GdlSentence sentence;
+					if(literal instanceof GdlSentence) {
+						sentence = (GdlSentence) literal;
+					} else if(literal instanceof GdlNot) {
+						sentence = (GdlSentence) ((GdlNot) literal).getBody();
+					} else continue;
+					if(!hasConstantForm(sentence))
+						continue outer;
+				}
+				//It's a constant form
+				GdlSentence head = rule.getHead();
+				model.replaceRules(Collections.EMPTY_LIST, Collections.singletonList(rule));
+				SentenceForm headForm = model.getSentenceForm(head);
+				addConstantSentenceForm(headForm, Collections.EMPTY_SET, 
+						Collections.singleton(rule));
+				constForms.put(headForm, new ConstantForm(headForm, this));
+			}
 		}
 
 	}
