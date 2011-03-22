@@ -10,6 +10,7 @@ import java.util.Set;
 
 import player.request.factory.RequestFactory;
 import player.request.grammar.AbortRequest;
+import player.request.grammar.PingRequest;
 import player.request.grammar.Request;
 import player.request.grammar.StartRequest;
 import player.request.grammar.StopRequest;
@@ -191,6 +192,14 @@ public final class Frontend extends Thread
 					// we've found one that is available.
 					b.active = true;
 					matchToBackendMap.put(matchId, b);
+				}
+				if (request instanceof PingRequest) {
+				    if(findAvailableBackend() == null) {
+				        writeResponse(connection, "busy");
+				    } else {
+				        writeResponse(connection, "available");
+				    }
+				    continue;
 				}
 				Backend b = matchToBackendMap.get(matchId);
 				if(b == null) {
