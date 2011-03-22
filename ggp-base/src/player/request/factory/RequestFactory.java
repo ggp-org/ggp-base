@@ -6,6 +6,7 @@ import java.util.List;
 import player.gamer.Gamer;
 import player.request.factory.exceptions.RequestFormatException;
 import player.request.grammar.AbortRequest;
+import player.request.grammar.PingRequest;
 import player.request.grammar.PlayRequest;
 import player.request.grammar.Request;
 import player.request.grammar.StartRequest;
@@ -46,6 +47,10 @@ public final class RequestFactory
 			else if (type.equals("abort"))
 			{
 			    return createAbort(gamer, list);
+			}
+			else if (type.equals("ping"))
+			{
+			    return createPing(gamer, list);
 			}
 			else
 			{
@@ -128,6 +133,16 @@ public final class RequestFactory
 
         return new AbortRequest(gamer, matchId);
     }	
+    
+    private PingRequest createPing(Gamer gamer, SymbolList list) throws GdlFormatException
+    {
+        if (list.size() != 1)
+        {
+            throw new IllegalArgumentException("Expected exactly 1 argument!");
+        }
+
+        return new PingRequest(gamer);
+    }       
 
 	private List<Gdl> parseDescription(SymbolList list) throws GdlFormatException
 	{

@@ -47,6 +47,6 @@ public final class AbortRequest extends Request
 	@Override
 	public String toString()
 	{
-		return "stop";
+		return "abort";
 	}
 }
