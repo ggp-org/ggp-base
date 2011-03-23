@@ -474,7 +474,7 @@ public final class ProxyGamePlayer extends Thread implements Subject
 	            try {
                     // First, read a message from the server. 
                     Socket connection = listener.accept();
-                    String in = HttpReader.readAsServer(connection);
+                    String in = HttpReader.readAsServer(connection).replace('\n', ' ').replace('\r', ' ');
                     long receptionTime = System.currentTimeMillis();
                     if(inputQueue.remainingCapacity() > 0) {
                         inputQueue.add(new ProxyMessage(in, 0L, receptionTime));
