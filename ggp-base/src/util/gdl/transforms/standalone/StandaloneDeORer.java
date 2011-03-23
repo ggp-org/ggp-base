@@ -11,6 +11,8 @@ import util.gdl.grammar.Gdl;
 import util.gdl.transforms.DeORer;
 import util.kif.KifReader;
 import util.symbol.factory.exceptions.SymbolFormatException;
+import validator.StaticValidator;
+import validator.exception.StaticValidatorException;
 
 /**
  * The standalone version of DeORer can be run as its own program. It
@@ -50,6 +52,13 @@ public class StandaloneDeORer {
 		} catch (GdlFormatException e) {
 			System.err.println("The file is not a GDL file, or it contains errors.");
 			e.printStackTrace();
+			return;
+		}
+		
+		try {
+			StaticValidator.validateDescription(description);
+		} catch (StaticValidatorException e) {
+			System.err.println("GDL validation error: " + e.toString());
 			return;
 		}
 		
