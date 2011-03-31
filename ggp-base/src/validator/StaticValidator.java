@@ -33,11 +33,7 @@ import util.gdl.grammar.GdlTerm;
 import util.gdl.grammar.GdlVariable;
 import util.kif.KifReader;
 import util.symbol.factory.exceptions.SymbolFormatException;
-import validator.exception.ArityException;
-import validator.exception.ImproperNegationException;
-import validator.exception.InvalidGdlObjectException;
 import validator.exception.StaticValidatorException;
-import validator.exception.UnsafeRuleException;
 
 public class StaticValidator {
 	private static final GdlConstant ROLE = GdlPool.getConstant("role");
@@ -62,6 +58,8 @@ public class StaticValidator {
 	 * GdlValidator and the ValidatorPanel in apps.validator.)
 	 * 
 	 * @param description A parsed GDL game description.
+	 * @throws StaticValidatorException The description did not pass validation.
+	 * The error message explains the error found in the GDL description.
 	 */
 	public static void validateDescription(List<Gdl> description) throws StaticValidatorException {
 		/* This assumes that the description is already well-formed enough
@@ -111,7 +109,7 @@ public class StaticValidator {
 			} else if(gdl instanceof GdlRule) {
 				rules.add((GdlRule) gdl);
 			} else {
-				throw new InvalidGdlObjectException(gdl);
+				throw new StaticValidatorException("The rules include a GDL object of type " + gdl.getClass().getSimpleName() + ". Only GdlRelations and GdlRules are expected.");
 			}
 		}
 		//2) Do all negations apply directly to sentences?
@@ -168,7 +166,9 @@ public class StaticValidator {
 	 * parentheses are unbalanced, gives the line number of an unmatched
 	 * parenthesis.
 	 * @param file The .kif file to test.
-	 * @throws StaticValidatorException 
+	 * @throws StaticValidatorException The parentheses are unbalanced. The
+	 * line number of an unmatched parenthesis is included in the error
+	 * message.
 	 */
 	public static void matchParentheses(File file) throws StaticValidatorException {
 		try {
@@ -392,7 +392,7 @@ public class StaticValidator {
 		}
 	}
 
-	private static void testRuleSafety(GdlRule rule) throws UnsafeRuleException {
+	private static void testRuleSafety(GdlRule rule) throws StaticValidatorException {
 		List<GdlVariable> unsupportedVariables = new ArrayList<GdlVariable>();
 		if(rule.getHead() instanceof GdlRelation)
 			getVariablesInBody(rule.getHead().getBody(), unsupportedVariables);
@@ -406,7 +406,7 @@ public class StaticValidator {
 		}
 		for(GdlVariable var : unsupportedVariables)
 			if(!supportedVariables.contains(var))
-				throw new UnsafeRuleException(rule, var);
+				throw new StaticValidatorException("Unsafe rule " + rule + ": Variable " + var + " is not defined in a positive relation in the rule's body");
 	}
 	private static void getUnsupportedVariablesInLiteral(GdlLiteral literal,
 			Collection<GdlVariable> unsupportedVariables) {
@@ -509,22 +509,22 @@ public class StaticValidator {
 
 
 	private static void addSentenceArity(GdlSentence sentence,
-			Map<GdlConstant, Integer> sentenceArities) throws ArityException {
+			Map<GdlConstant, Integer> sentenceArities) throws StaticValidatorException {
 		Integer curArity = sentenceArities.get(sentence.getName());
 		if(curArity == null) {
 			sentenceArities.put(sentence.getName(), sentence.arity());
 		} else if(curArity != sentence.arity()) {
-			throw new ArityException(sentence, curArity);
+			throw new StaticValidatorException("The sentence with the name " + sentence.getName() + " appears with two different arities, " + sentence.arity() + " and " + curArity + ".");
 		}
 	}
 	private static void addFunctionArities(GdlSentence sentence,
-			Map<GdlConstant, Integer> functionArities) throws ArityException {
+			Map<GdlConstant, Integer> functionArities) throws StaticValidatorException {
 		for(GdlFunction function : getFunctionsInSentence(sentence)) {
 			Integer curArity = functionArities.get(function.getName());
 			if(curArity == null) {
 				
-			} else if(curArity != sentence.arity()) {
-				throw new ArityException(function, curArity);
+			} else if(curArity != function.arity()) {
+				throw new StaticValidatorException("The function with the name " + function.getName() + " appears with two different arities, " + function.arity() + " and " + curArity);
 			}
 		}
 	}
@@ -567,11 +567,11 @@ public class StaticValidator {
 	}
 
 
-	private static void testLiteralForImproperNegation(GdlLiteral literal) throws ImproperNegationException {
+	private static void testLiteralForImproperNegation(GdlLiteral literal) throws StaticValidatorException {
 		if(literal instanceof GdlNot) {
 			GdlNot not = (GdlNot) literal;
 			if(!(not.getBody() instanceof GdlSentence))
-				throw new ImproperNegationException(not);
+				throw new StaticValidatorException("The negation " + not + " contains a literal " + not.getBody() + " that is not a sentence. Only a single sentence is allowed inside a negation.");
 		} else if(literal instanceof GdlOr) {
 			GdlOr or = (GdlOr) literal;
 			for(int i = 0; i < or.arity(); i++) {
@@ -590,27 +590,13 @@ public class StaticValidator {
 		for(File kifFile : kifDirectory.listFiles()) {
 			if(!kifFile.getName().endsWith(".kif"))
 				continue;
-			//The following games have problems more numerous than I care to
-			//deal with at present; many were generated from scripts.
-			if(kifFile.getName().startsWith("duplicateState"))
-				continue;
-			if(kifFile.getName().equals("ruleDepthQuadratic.kif"))
-				continue;
-			if(kifFile.getName().equals("blokbox_duo.kif"))
-				continue;
-			if(kifFile.getName().equals("minichess.kif"))
-				continue;
-			if(kifFile.getName().equals("slaughter.kif"))
-				continue;
 			//These are test cases for smooth handling of errors that often
-			//appear in rulesheets.
+			//appear in rulesheets. They are intentionally invalid.
 			if(kifFile.getName().equals("test_case_3b.kif"))
 				continue;
 			if(kifFile.getName().equals("test_case_3e.kif"))
 				continue;
 			if(kifFile.getName().equals("test_case_3f.kif"))
-				continue;
-			if(kifFile.getName().equals("ticTacToeClassic.kif"))
 				continue;
 			
 			System.out.println("Testing " + kifFile.getName());
