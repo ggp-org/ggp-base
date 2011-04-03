@@ -1,6 +1,8 @@
 package util.gdl.factory;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 
 import util.gdl.factory.exceptions.GdlFormatException;
@@ -45,9 +47,21 @@ public final class GdlFactory
 		}
 	}
 
+	// Symbols are always case-sensitive. Gdl objects are case-sensitive unless they are
+	// one of the special GDL keywords, in which case they are forced to be lower-case so
+	// that they can be easily recognized and so that all of the Gdl objects that represent
+	// e.g. the constant "true" are equal to each other (in the Java object == sense).
+	// We should never send one of these special keywords back as part of a PLAY response,
+	// so we should still be able to safely talk to both case-sensitive and case-insensitive
+	// servers with this approach.
+	private static final HashSet<String> keywords = new HashSet<String>(Arrays.asList(new String[] {"init","true","next","role","does","goal","legal","terminal"}));
 	private static GdlConstant createConstant(SymbolAtom atom)
 	{
-		return GdlPool.getConstant(atom.getValue());
+	    if (keywords.contains(atom.getValue().toLowerCase())) {
+	        return GdlPool.getConstant(atom.getValue().toLowerCase());
+	    } else {
+	        return GdlPool.getConstant(atom.getValue());
+	    }
 	}
 
 	private static GdlDistinct createDistinct(SymbolList list)
@@ -94,15 +108,15 @@ public final class GdlFactory
 			SymbolList list = (SymbolList) symbol;
 			SymbolAtom type = (SymbolAtom) list.get(0);
 
-			if (type.getValue().equals("distinct"))
+			if (type.getValue().toLowerCase().equals("distinct"))
 			{
 				return createDistinct(list);
 			}
-			else if (type.getValue().equals("not"))
+			else if (type.getValue().toLowerCase().equals("not"))
 			{
 				return createNot(list);
 			}
-			else if (type.getValue().equals("or"))
+			else if (type.getValue().toLowerCase().equals("or"))
 			{
 				return createOr(list);
 			}
