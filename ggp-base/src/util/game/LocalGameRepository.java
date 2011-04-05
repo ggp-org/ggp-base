@@ -26,8 +26,7 @@ public final class LocalGameRepository extends GameRepository {
     }
     
     protected Game getUncachedGame(String theKey) {
-        String stylesheet = LocalResourceLoader.loadStylesheet(theKey);
         List<Gdl> theRules = LocalResourceLoader.loadGame(theKey);
-        return new Game(theKey, null, null, null, stylesheet, theRules);
+        return new Game(theKey, null, null, null, null, theRules);
     }
 }

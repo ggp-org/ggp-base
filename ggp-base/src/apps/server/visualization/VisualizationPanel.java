@@ -62,6 +62,18 @@ public final class VisualizationPanel extends JPanel implements Observer
 	            // and then phase out the legacy local system. For now, we will try
 	            // to use a web-hosted visualization, and fall back to a local one
 	            // if the web-hosted visualization isn't available.
+	        	
+	        	// The above does not seem to describe the current behavior, and I'm not
+	        	// sure that behavior would be preferred in all cases. If I am working on
+	        	// a new stylesheet for an existing game on my own computer, I would
+	        	// prefer that it use the local stylesheet. On the other hand, if I were
+	        	// working on the rulesheet locally, I would want it to use the web-hosted
+	        	// visualization if I didn't have anything to override it with. My
+	        	// (unimplemented) recommendation: Default to web-hosted visualizations for
+	        	// web-hosted games and locally-hosted visualizations for locally-hosted
+	        	// games. Use the other if the default is not present. I believe this is
+	        	// orthogonal to the issue of what the stylesheets should look like, which
+	        	// I would like to see unified as what the web-hosted versions are now. -A.L.
 	            if (theGame.getStylesheet() == null) {
 	                String XML = s.toMatchXML();
 	                String XSL = GameStateRenderPanel.getXSLfromFile(theGame.getKey()); 
