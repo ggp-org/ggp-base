@@ -16,12 +16,14 @@ import java.util.Map.Entry;
 import util.gdl.grammar.Gdl;
 import util.gdl.grammar.GdlConstant;
 import util.gdl.grammar.GdlDistinct;
+import util.gdl.grammar.GdlFunction;
 import util.gdl.grammar.GdlLiteral;
 import util.gdl.grammar.GdlNot;
 import util.gdl.grammar.GdlPool;
 import util.gdl.grammar.GdlRelation;
 import util.gdl.grammar.GdlRule;
 import util.gdl.grammar.GdlSentence;
+import util.gdl.grammar.GdlTerm;
 import util.gdl.grammar.GdlVariable;
 import util.gdl.model.SentenceModel;
 import util.gdl.model.SentenceModel.SentenceForm;
@@ -239,16 +241,42 @@ public class OptimizingPropNetFactory {
 		completeComponentSet(componentSet);
 		if(verbose)
 			System.out.println("Initializing propnet object...");
+		//Make it look the same as the PropNetFactory results, until we decide
+		//how we want it to look
+		normalizePropositions(componentSet);
 		PropNet propnet = new PropNet(roles, componentSet);
 		if(verbose) {
 			System.out.println("Done setting up propnet; took " + (System.currentTimeMillis() - startTime) + "ms, has " + componentSet.size() + " components and " + propnet.getNumLinks() + " links");
 			System.out.println("Propnet has " +propnet.getNumAnds()+" ands; "+propnet.getNumOrs()+" ors; "+propnet.getNumNots()+" nots");
 		}
 		//System.out.println(propnet);
-		//constantChecker.destroy();
 		return propnet;
 	}
 
+	/**
+	 * Changes the propositions contained in the propnet so that they correspond
+	 * to the outputs of the PropNetFactory. This is for consistency and for
+	 * backwards compatibility with respect to state machines designed for the
+	 * old propnet factory. Feel free to remove this for your player.
+	 * 
+	 * @param componentSet
+	 */
+	private static void normalizePropositions(Set<Component> componentSet) {
+		for(Component component : componentSet) {
+			if(component instanceof Proposition) {
+				Proposition p = (Proposition) component;
+				GdlTerm sentenceAsTerm = p.getName();
+				if(sentenceAsTerm instanceof GdlFunction) {
+					GdlFunction sentenceAsFunction = (GdlFunction) sentenceAsTerm;
+					if(sentenceAsFunction.getName().equals(NEXT)) {
+						p.setName(GdlPool.getConstant("anon"));
+					} else if(sentenceAsFunction.getName().equals(TRUE)) {
+						p.setName(sentenceAsFunction.get(0));
+					}
+				}
+			}
+		}
+	}
 
 	private static void addFormToCompletedValues(
 			SentenceForm form,
