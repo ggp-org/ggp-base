@@ -30,6 +30,7 @@ import apps.common.NativeUI;
 import apps.server.error.ErrorPanel;
 import apps.server.history.HistoryPanel;
 import apps.server.publishing.PublishingPanel;
+import apps.server.states.StatesPanel;
 import apps.server.visualization.VisualizationPanel;
 
 @SuppressWarnings("serial")
@@ -160,11 +161,13 @@ public final class ServerPanel extends JPanel implements ActionListener
 					HistoryPanel historyPanel = new HistoryPanel();
 					ErrorPanel errorPanel = new ErrorPanel();
 					VisualizationPanel visualizationPanel = new VisualizationPanel(theGame);
+					StatesPanel statesPanel = new StatesPanel();
 
 					JTabbedPane tab = new JTabbedPane();
 					tab.addTab("History", historyPanel);
 					tab.addTab("Error", errorPanel);
 					tab.addTab("Visualization", visualizationPanel);
+					tab.addTab("States", statesPanel);
 					serverPanel.matchesTabbedPane.addTab(matchId, tab);
 					serverPanel.matchesTabbedPane.setSelectedIndex(serverPanel.matchesTabbedPane.getTabCount()-1);
 					
@@ -172,6 +175,7 @@ public final class ServerPanel extends JPanel implements ActionListener
 					gameServer.addObserver(errorPanel);
 					gameServer.addObserver(historyPanel);
 					gameServer.addObserver(visualizationPanel);					
+					gameServer.addObserver(statesPanel);
 					gameServer.start();
 					
 					tab.addTab("Publishing", new PublishingPanel(gameServer));
