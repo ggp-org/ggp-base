@@ -3,17 +3,21 @@ package server;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import server.event.ServerCompletedMatchEvent;
+import server.event.ServerConnectionErrorEvent;
+import server.event.ServerIllegalMoveEvent;
 import server.event.ServerNewGameStateEvent;
 import server.event.ServerNewMatchEvent;
 import server.event.ServerNewMovesEvent;
 import server.event.ServerTimeEvent;
+import server.event.ServerTimeoutEvent;
 import server.threads.PlayRequestThread;
 import server.threads.StartRequestThread;
 import server.threads.StopRequestThread;
-import util.gdl.grammar.GdlSentence;
 import util.match.Match;
 import util.match.MatchPublisher;
 import util.observer.Event;
@@ -43,6 +47,8 @@ public final class GameServer extends Thread implements Subject
     private List<Move> previousMoves;
     private List<String> history;
     
+    private Map<Role,String> mostRecentErrors;
+    
     private String spectatorServerURL;
     private boolean forceUsingEntireClock;
     
@@ -60,6 +66,8 @@ public final class GameServer extends Thread implements Subject
         stateMachine.initialize(match.getGame().getRules());
         currentState = stateMachine.getInitialState();
         previousMoves = null;
+        
+        mostRecentErrors = new HashMap<Role,String>();        
         
         match.appendState(currentState.getContents());
         
@@ -96,6 +104,34 @@ public final class GameServer extends Thread implements Subject
         for (Observer observer : observers) {
             observer.observe(event);
         }
+        
+        // Add error events to mostRecentErrors for recording.
+        if (event instanceof ServerIllegalMoveEvent) {
+            ServerIllegalMoveEvent sEvent = (ServerIllegalMoveEvent)event;
+            mostRecentErrors.put(sEvent.getRole(), "IL " + sEvent.getMove());
+        } else if (event instanceof ServerTimeoutEvent) {
+            ServerTimeoutEvent sEvent = (ServerTimeoutEvent)event;
+            mostRecentErrors.put(sEvent.getRole(), "TO");            
+        } else if (event instanceof ServerConnectionErrorEvent) {
+            ServerConnectionErrorEvent sEvent = (ServerConnectionErrorEvent)event;
+            mostRecentErrors.put(sEvent.getRole(), "CE");
+        }
+    }
+    
+    // Should be called after each move, to collect all of the errors
+    // caused by players and write them into the match description.
+    private void appendErrorsToMatchDescription() {
+        List<String> theErrors = new ArrayList<String>();
+        for (int i = 0; i < stateMachine.getRoles().size(); i++) {
+            Role r = stateMachine.getRoles().get(i);
+            if (mostRecentErrors.containsKey(r)) {
+                theErrors.add(mostRecentErrors.get(r));
+            } else {
+                theErrors.add("");
+            }
+        }
+        match.appendErrors(theErrors);
+        mostRecentErrors.clear();        
     }
 
     @Override
@@ -104,6 +140,7 @@ public final class GameServer extends Thread implements Subject
             notifyObservers(new ServerNewMatchEvent(stateMachine.getRoles()));                        
             notifyObservers(new ServerTimeEvent(match.getStartClock() * 1000));
             sendStartRequests();
+            appendErrorsToMatchDescription();
 
             while (!stateMachine.isTerminal(currentState)) {
                 publishWhenNecessary();
@@ -114,11 +151,10 @@ public final class GameServer extends Thread implements Subject
                 notifyObservers(new ServerNewMovesEvent(previousMoves));
                 history.add(currentState.toXML());
                 currentState = stateMachine.getNextState(currentState, previousMoves);
-                List<GdlSentence> movesAsGDL = new ArrayList<GdlSentence>();
-                for(Move m : previousMoves)
-                    movesAsGDL.add(m.getContents());
-                match.appendMoves(movesAsGDL);
+                
+                match.appendMoves2(previousMoves);
                 match.appendState(currentState.getContents());
+                appendErrorsToMatchDescription();
             }
             match.markCompleted(stateMachine.getGoals(currentState));
             publishWhenNecessary();
@@ -129,7 +165,7 @@ public final class GameServer extends Thread implements Subject
             e.printStackTrace();
         }
     }
-    
+
     private String publishWhenNecessary() {
         if (spectatorServerURL != null) {
             try {
