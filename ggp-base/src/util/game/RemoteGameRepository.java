@@ -58,10 +58,12 @@ public final class RemoteGameRepository extends GameRepository {
     }
     
     protected static Game loadSingleGameFromMetadata(String theKey, String theGameURL, JSONObject theMetadata) {
-        String theVersionedGameURL = null;
+        // Ensure that the game URL has a version.
         try {
             int theVersion = theMetadata.getInt("version");
-            theVersionedGameURL = addVersionToGameURL(theGameURL, theVersion);
+            if (!isVersioned(theGameURL, theVersion)) {
+              theGameURL = addVersionToGameURL(theGameURL, theVersion);
+            }
         } catch(JSONException e) {
             return null;
         }
@@ -76,7 +78,7 @@ public final class RemoteGameRepository extends GameRepository {
         List<Gdl> theRules = getGameRulesheetFromMetadata(theGameURL, theMetadata);
         
         if (theRules.size() == 0) return null;
-        return new Game(theKey, theName, theDescription, theVersionedGameURL, theStylesheet, theRules);        
+        return new Game(theKey, theName, theDescription, theGameURL, theStylesheet, theRules);        
     }
     
     // ============================================================================================
@@ -86,6 +88,10 @@ public final class RemoteGameRepository extends GameRepository {
     
     protected static String addVersionToGameURL(String theGameURL, int theVersion) {
         return theGameURL + "v" + theVersion + "/";
+    }
+    
+    protected static boolean isVersioned(String theGameURL, int theVersion) {
+        return theGameURL.endsWith("/v" + theVersion + "/");
     }
 
     protected static JSONObject getGameMetadataFromRepository(String theGameURL) throws IOException {
