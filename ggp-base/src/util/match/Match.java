@@ -102,8 +102,15 @@ public final class Match
         this.isCompleted = theMatchObject.getBoolean("isCompleted");
 
         this.theRoleNames = new ArrayList<String>();
-        for(Role r : Role.computeRoles(theGame.getRules())) {
-            this.theRoleNames.add(r.getName().getName().toString());
+        if (theMatchObject.has("gameRoleNames")) {
+            JSONArray theNames = theMatchObject.getJSONArray("gameRoleNames");
+            for (int i = 0; i < theNames.length(); i++) {
+                this.theRoleNames.add(theNames.getString(i));
+            }
+        } else {
+            for(Role r : Role.computeRoles(theGame.getRules())) {
+                this.theRoleNames.add(r.getName().getName().toString());
+            }
         }
         
         this.moveHistory = new ArrayList<List<GdlSentence>>();
@@ -134,15 +141,17 @@ public final class Match
         for (int i = 0; i < theStateTimes.length(); i++) {
             this.stateTimeHistory.add(new Date(theStateTimes.getLong(i)));
         }
-        JSONArray theErrors = theMatchObject.getJSONArray("errors");
-        for (int i = 0; i < theErrors.length(); i++) {
-            List<String> theMoveErrors = new ArrayList<String>();
-            JSONArray errorElements = theErrors.getJSONArray(i);
-            for (int j = 0; j < errorElements.length(); j++)
-            {
-                theMoveErrors.add(errorElements.getString(j));
+        if (theMatchObject.has("errors")) {
+            JSONArray theErrors = theMatchObject.getJSONArray("errors");
+            for (int i = 0; i < theErrors.length(); i++) {
+                List<String> theMoveErrors = new ArrayList<String>();
+                JSONArray errorElements = theErrors.getJSONArray(i);
+                for (int j = 0; j < errorElements.length(); j++)
+                {
+                    theMoveErrors.add(errorElements.getString(j));
+                }
+                errorHistory.add(theMoveErrors);
             }
-            errorHistory.add(theMoveErrors);
         }
         
         this.goalValues = new ArrayList<Integer>();
