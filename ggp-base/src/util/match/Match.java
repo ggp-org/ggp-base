@@ -190,6 +190,14 @@ public final class Match
 	public void appendErrors(List<String> errors) {
 	    errorHistory.add(errors);
 	}
+
+    public void appendNoErrors() {
+        List<String> theNoErrors = new ArrayList<String>();
+        for (int i = 0; i < this.theRoleNames.size(); i++) {
+            theNoErrors.add("");
+        }
+        errorHistory.add(theNoErrors);
+    }	
 	
 	public void markCompleted(List<Integer> theGoalValues) {
 	    this.isCompleted = true;
