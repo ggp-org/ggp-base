@@ -13,7 +13,8 @@ import java.util.Set;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
-import sun.misc.BASE64Encoder;
+import external.Base64Coder.Base64Coder;
+
 import util.configuration.ProjectConfiguration;
 import util.gdl.grammar.Gdl;
 import util.gdl.grammar.GdlPool;
@@ -78,7 +79,7 @@ public class PropNetCache {
             for(Gdl gdl : description) {
                 md.update(gdl.toString().getBytes());
             }
-            gdlHash = new BASE64Encoder().encode(md.digest()).replace("=", "0").replace("/","_").replace("+",".");
+            gdlHash = new String(Base64Coder.encode(md.digest())).replace("=", "0").replace("/","_").replace("+",".");
         } catch(Exception e) {            
             GamerLogger.logStackTrace("StateMachine", e);
             return null;
