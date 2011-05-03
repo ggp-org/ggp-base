@@ -83,6 +83,7 @@ public class SimpleGameSim {
                 System.out.println("Move taken: " + theJointMove);
                 theCurrentState = theMachine.getNextStateDestructively(theCurrentState, theJointMove);
                 theMatch.appendMoves2(theJointMove);
+                theMatch.appendNoErrors();
                 nState++;
             } while(!theMachine.isTerminal(theCurrentState));
             theMatch.appendState(theCurrentState.getContents());
