@@ -1346,7 +1346,9 @@ public class JSONObject {
     @SuppressWarnings("unchecked")
     public String toString() {
         try {
-            Iterator     keys = keys();
+            // NOTE(schreib): Changed from keys() to sortedKeys() so that
+            // this by default produces a canonical form for the JSON.
+            Iterator     keys = sortedKeys();
             StringBuffer sb = new StringBuffer("{");
 
             while (keys.hasNext()) {

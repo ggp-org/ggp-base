@@ -17,24 +17,6 @@ import java.security.spec.X509EncodedKeySpec;
 import external.Base64Coder.Base64Coder;
 
 public class BaseCryptography {    
-    public static void main(String args[]) {
-        EncodedKeyPair theKeys = generateKeys();
-        String theSK = theKeys.thePrivateKey;
-        String thePK = theKeys.thePublicKey;
-        
-        String theData = "Hello world!";
-        String theSignature = signData(theSK, theData);        
-        try {
-            System.out.println("SK = " + theSK);
-            System.out.println("PK = " + thePK);
-            System.out.println("Data = " + theData);
-            System.out.println("Signature = " + theSignature);
-            System.out.println("Signature valid? " + verifySignature(thePK, theSignature, theData));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
     public static EncodedKeyPair generateKeys() {
         try {
             // Generate a 2048-bit RSA key pair
@@ -92,17 +74,17 @@ public class BaseCryptography {
     
     /* Functions for encoding and decoding public and private keys */
     private static String encodeKey(PublicKey thePK) {
-        return "0" + encodeBytes(thePK.getEncoded());
+        return theCryptographyPrefix + encodeBytes(thePK.getEncoded());
     }
     private static String encodeKey(PrivateKey theSK) {
-        return "0" + encodeBytes(theSK.getEncoded());
+        return theCryptographyPrefix + encodeBytes(theSK.getEncoded());
     }
     private static String encodeSignature(byte[] theSignatureBytes) {
-        return "0" + encodeBytes(theSignatureBytes);
+        return theCryptographyPrefix + encodeBytes(theSignatureBytes);
     }
     private static PublicKey decodePublicKey(String thePK) {
-        if (!thePK.startsWith("0")) return null;
-        thePK = thePK.replaceFirst("0", "");
+        if (!thePK.startsWith(theCryptographyPrefix)) return null;
+        thePK = thePK.replaceFirst(theCryptographyPrefix, "");
         
         try {
             KeyFactory kf = KeyFactory.getInstance("RSA");
@@ -114,8 +96,8 @@ public class BaseCryptography {
         }
     }
     private static PrivateKey decodePrivateKey(String theSK) {
-        if (!theSK.startsWith("0")) return null;
-        theSK = theSK.replaceFirst("0", "");
+        if (!theSK.startsWith(theCryptographyPrefix)) return null;
+        theSK = theSK.replaceFirst(theCryptographyPrefix, "");
         
         try {
             KeyFactory kf = KeyFactory.getInstance("RSA");
@@ -127,11 +109,13 @@ public class BaseCryptography {
         }
     }
     private static byte[] decodeSignature(String theSig) {
-        if (!theSig.startsWith("0")) return null;
-        theSig = theSig.replaceFirst("0", "");        
+        if (!theSig.startsWith(theCryptographyPrefix)) return null;
+        theSig = theSig.replaceFirst(theCryptographyPrefix, "");        
         
         return decodeBytes(theSig);
-    }    
+    }
+    
+    static final String theCryptographyPrefix = "0";
     
     /* Functions for encoding/decoding arrays of bytes */
     private static String encodeBytes(byte[] theBytes) {
