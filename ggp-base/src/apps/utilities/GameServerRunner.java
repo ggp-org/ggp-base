@@ -93,7 +93,7 @@ public final class GameServerRunner
 		bw.write(server.getGameXML());
 		bw.flush();
 		bw.close();
-		bw = new BufferedWriter(new FileWriter(tourneyName + "/scores"));
+		bw = new BufferedWriter(new FileWriter(tourneyName + "/scores", true));
 		List<Integer> goals = server.getGoals();
 		String goalstr = "";
 		String playerstr = "";
