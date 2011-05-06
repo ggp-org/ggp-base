@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import external.JSON.JSONArray;
@@ -54,11 +55,9 @@ public final class ApolloBackend
         private static final String spectatorServerURL = "http://matches.ggp.org/";
         
         public RunMatchThread(Socket connection) throws IOException, JSONException {
-            System.out.println("Got connection from client.");
-            
             String line = HttpReader.readAsServer(connection);
             
-            System.out.println("Read line from client: " + line);
+            System.out.println("On " + new Date() + ", client has requested: " + line);
             
             JSONObject theJSON = new JSONObject(line);
             playClock = theJSON.getInt("playClock");
@@ -95,14 +94,14 @@ public final class ApolloBackend
         
         @Override
         public void run() {
-            System.out.println("Starting match: " + matchId);
+            System.out.println("On " + new Date() + ", starting match: " + matchId);
             theServer.start();
             try {
                 theServer.join();
             } catch (InterruptedException e) {
                 e.printStackTrace();
-                return;
             }
+            System.out.println("On " + new Date() + ", completed match: " + matchId);
         }
     }
     
