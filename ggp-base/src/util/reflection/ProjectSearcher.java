@@ -26,9 +26,6 @@ public class ProjectSearcher {
 	{
 		List<Class<?>> rval = new ArrayList<Class<?>>();
 		for(String name : allClasses) {
-		    if(name.equals("junit/framework/TestCase"))
-		        continue;
-		    
 			Class<?> c = null;
 			try {	
 				c = Class.forName(name);
