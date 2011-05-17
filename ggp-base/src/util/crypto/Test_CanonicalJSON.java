@@ -4,9 +4,9 @@ import util.crypto.CanonicalJSON.CanonicalizationStrategy;
 import junit.framework.TestCase;
 
 /**
- * Unit tests for the HttpReader/HttpWriter pair, which are the way that
- * game players and game servers communicate. Please update these tests
- * as needed when bugs are discovered, to prevent regressions. 
+ * Unit tests for the CanonicalJSON class, which provides a
+ * standard way for GGP systems to canonicalize JSON objects.
+ * This is an important step in signing JSON objects.
  * 
  * @author Sam
  */

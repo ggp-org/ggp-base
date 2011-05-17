@@ -4,9 +4,9 @@ import util.crypto.BaseCryptography.EncodedKeyPair;
 import junit.framework.TestCase;
 
 /**
- * Unit tests for the HttpReader/HttpWriter pair, which are the way that
- * game players and game servers communicate. Please update these tests
- * as needed when bugs are discovered, to prevent regressions. 
+ * Unit tests for the BaseCryptography class, which implements
+ * a wrapper for the use of asymmetric public/private key cryptography
+ * for use in GGP.
  * 
  * @author Sam
  */

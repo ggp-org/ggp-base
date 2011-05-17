@@ -119,9 +119,9 @@ public class BaseCryptography {
     
     /* Functions for encoding/decoding arrays of bytes */
     private static String encodeBytes(byte[] theBytes) {
-        return new String(Base64Coder.encode(theBytes)).replace('/', '-').replace('=','_');
+        return new String(Base64Coder.encode(theBytes));
     }
     private static byte[] decodeBytes(String theString) {
-        return Base64Coder.decode(theString.replace('-', '/').replace('_','='));
+        return Base64Coder.decode(theString);
     }    
 }
