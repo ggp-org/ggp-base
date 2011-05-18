@@ -59,6 +59,7 @@ public final class Match
 	private final List<Integer> goalValues;
 	
 	private EncodedKeyPair theCryptographicKeys;
+	private List<String> thePlayerNamesFromHost;
 
 	public Match(String matchId, int startClock, int playClock, Game theGame)
 	{
@@ -159,18 +160,31 @@ public final class Match
         }
         
         this.goalValues = new ArrayList<Integer>();
-        try {
-            JSONArray theGoalValues = theMatchObject.getJSONArray("goalValues");
-            for (int i = 0; i < theGoalValues.length(); i++) {            
-                this.goalValues.add(theGoalValues.getInt(i));
+        JSONArray theGoalValues = theMatchObject.getJSONArray("goalValues");
+        for (int i = 0; i < theGoalValues.length(); i++) {            
+            this.goalValues.add(theGoalValues.getInt(i));
+        }
+        
+        // TODO: Add a way to recover cryptographic public keys and signatures.
+        // Or, perhaps loading a match into memory for editing should strip those?
+        
+        if (theMatchObject.has("playerNamesFromHost")) {
+            thePlayerNamesFromHost = new ArrayList<String>();
+            JSONArray thePlayerNames = theMatchObject.getJSONArray("playerNamesFromHost");
+            for (int i = 0; i < thePlayerNames.length(); i++) {
+                thePlayerNamesFromHost.add(thePlayerNames.getString(i));
             }
-        } catch(JSONException je) {}
+        }
 	}
 	
 	/* Mutators */
 	
 	public void setCryptographicKeys(EncodedKeyPair k) {
 	    this.theCryptographicKeys = k;
+	}
+	
+	public void setPlayerNamesFromHost(List<String> thePlayerNames) {
+	    this.thePlayerNamesFromHost = thePlayerNames;
 	}
 
 	public void appendMoves(List<GdlSentence> moves) {	    
@@ -217,61 +231,51 @@ public final class Match
 	/* Complex accessors */
 		
     public String toJSON() {
-        StringBuilder theJSON = new StringBuilder();
+        JSONObject theJSON = new JSONObject();
+
+        try {
+            theJSON.put("matchId", matchId);
+            theJSON.put("randomToken", randomToken);
+            theJSON.put("startTime", startTime.getTime());
+            theJSON.put("gameName", getGameName());
+            theJSON.put("gameMetaURL", getGameRepositoryURL());
+            theJSON.put("gameRoleNames", new JSONArray(renderArrayAsJSON(theRoleNames, true)));
+            theJSON.put("isCompleted", isCompleted);
+            theJSON.put("states", new JSONArray(renderArrayAsJSON(renderStateHistory(stateHistory), true)));
+            theJSON.put("moves", new JSONArray(renderArrayAsJSON(renderMoveHistory(moveHistory), false)));
+            theJSON.put("stateTimes", new JSONArray(renderArrayAsJSON(stateTimeHistory, false)));
+            if (errorHistory.size() > 0) {
+                theJSON.put("errors", new JSONArray(renderArrayAsJSON(renderErrorHistory(errorHistory), false)));
+            }
+            if (goalValues.size() > 0) {
+                theJSON.put("goalValues", goalValues);
+            }
+            theJSON.put("startClock", startClock);
+            theJSON.put("playClock", playClock);
+            if (thePlayerNamesFromHost != null) {
+                theJSON.put("playerNamesFromHost", thePlayerNamesFromHost);
+            }
+        } catch (JSONException e) {
+            return null;
+        }
         
-        theJSON.append("{\n");
-        // Uniquification variables
-        theJSON.append("    \"matchId\": \"" + matchId + "\",\n");
-        theJSON.append("    \"randomToken\": \"" + randomToken + "\",\n");
-        theJSON.append("    \"startTime\": " + startTime.getTime() + ",\n");
-        // Game information
-        if (getGameName() != null) {
-            theJSON.append("    \"gameName\": \"" + getGameName() + "\",\n");
-        } else {
-            theJSON.append("    \"gameName\": null,\n");
-        }
-        if (getGameRepositoryURL() != null) {
-            theJSON.append("    \"gameMetaURL\": \"" + getGameRepositoryURL() + "\",\n");
-        } else {
-            theJSON.append("    \"gameMetaURL\": null,\n");
-        }
-        theJSON.append("    \"gameRoleNames\": " + renderArrayAsJSON(theRoleNames, true) + ",\n");
-        // States/moves
-        theJSON.append("    \"isCompleted\": " + isCompleted + ",\n");
-        theJSON.append("    \"states\": " + renderArrayAsJSON(renderStateHistory(stateHistory), true) + ",\n");
-        theJSON.append("    \"moves\": " + renderArrayAsJSON(renderMoveHistory(moveHistory), false) + ",\n");
-        theJSON.append("    \"stateTimes\": " + renderArrayAsJSON(stateTimeHistory, false) + ",\n");
-        if (errorHistory.size() > 0) {
-            theJSON.append("    \"errors\": " + renderArrayAsJSON(renderErrorHistory(errorHistory), false) + ",\n");
-        }
-        if (goalValues.size() > 0) {
-            theJSON.append("    \"goalValues\": " + renderArrayAsJSON(goalValues, false) + ",\n");
-        }
-        // Protocol information
-        theJSON.append("    \"startClock\": " + startClock + ",\n");
-        theJSON.append("    \"playClock\": " + playClock + "\n");
-        theJSON.append("}");
-        
-        if (theCryptographicKeys == null) {
-            return theJSON.toString();
-        } else {
+        if (theCryptographicKeys != null) {
             try {
-                JSONObject theMatch = new JSONObject(theJSON.toString());
-                SignableJSON.signJSON(theMatch, theCryptographicKeys.thePublicKey, theCryptographicKeys.thePrivateKey);
-                if (!SignableJSON.isSignedJSON(theMatch)) {
-                    System.err.println("Could not recognize signed match: " + theMatch);
-                    return theJSON.toString();
+                SignableJSON.signJSON(theJSON, theCryptographicKeys.thePublicKey, theCryptographicKeys.thePrivateKey);
+                if (!SignableJSON.isSignedJSON(theJSON)) {
+                    throw new Exception("Could not recognize signed match: " + theJSON);
                 }                
-                if (!SignableJSON.verifySignedJSON(theMatch)) {
-                    System.err.println("Could not verify signed match: " + theMatch);
-                    return theJSON.toString();
+                if (!SignableJSON.verifySignedJSON(theJSON)) {
+                    throw new Exception("Could not verify signed match: " + theJSON);
                 }
-                return theMatch.toString();
             } catch (Exception e) {
-                e.printStackTrace();
-                return theJSON.toString();
+                System.err.println(e);
+                theJSON.remove("matchHostPK");
+                theJSON.remove("matchHostSignature");
             }
         }
+        
+        return theJSON.toString();
     }
     
     public List<GdlSentence> getMostRecentMoves() {

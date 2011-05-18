@@ -1,6 +1,7 @@
 package apps.utilities;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -43,6 +44,7 @@ public class SimpleGameSim {
     public static void main(String[] args) {
         Game theGame = GameRepository.getDefaultRepository().getGame("nineBoardTicTacToe");
         Match theMatch = new Match("simpleGameSim." + Match.getRandomString(5), 0, 0, theGame);
+        theMatch.setPlayerNamesFromHost(Arrays.asList(new String[] {"SamplePlayer1", "SamplePlayer2"}));
         try {
             theMatch.setCryptographicKeys(new EncodedKeyPair(FileUtils.readFileAsString(new File("src/apps/utilities/SimpleGameSimKeys.json"))));
         } catch (JSONException e) {

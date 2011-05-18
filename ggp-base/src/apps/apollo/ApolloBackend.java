@@ -34,7 +34,8 @@ import util.match.Match;
  * 
  * ResourceLoader.load_raw('http://127.0.0.1:9124/' + escape(JSON.stringify({"playClock":5,
  * "startClock":5, "gameURL":"http://games.ggp.org/games/connectFour/",
- * "matchId":"apollo.sample_2", "players":["127.0.0.1:3333", "player.ggp.org:80"]})))
+ * "matchId":"apollo.sample_2", "players":["127.0.0.1:3333", "player.ggp.org:80"],
+ * "playerNames":["GreenShell","RedShell"]})))
  * 
  * Apollo Backend Server replies with the URL of the match on the spectator server.
  * 
@@ -72,19 +73,21 @@ public final class ApolloBackend
             hosts = new ArrayList<String>();            
             ports = new ArrayList<Integer>();
             JSONArray thePlayers = theJSON.getJSONArray("players");
+            JSONArray thePlayerNames = theJSON.getJSONArray("playerNames");
             for (int i = 0; i < thePlayers.length(); i++) {
                 String[] splitAddress = thePlayers.getString(i).split(":");
                 hosts.add(splitAddress[0]);
                 ports.add(Integer.parseInt(splitAddress[1]));
-                names.add("");
+                names.add(thePlayerNames.getString(i));
             }
-
+            
             // Get the match into a state where we can publish it to
             // the spectator server, so that we have a spectator server
             // URL to return for this request.
             theGame = RemoteGameRepository.loadSingleGame(gameURL);            
             theMatch = new Match(matchId, startClock, playClock, theGame);
             theMatch.setCryptographicKeys(new EncodedKeyPair(FileUtils.readFileAsString(new File("src/apps/apollo/ApolloKeys.json"))));
+            theMatch.setPlayerNamesFromHost(names);
             theServer = new GameServer(theMatch, hosts, ports, names);
             String theSpectatorURL = theServer.startPublishingToSpectatorServer(spectatorServerURL);
             
