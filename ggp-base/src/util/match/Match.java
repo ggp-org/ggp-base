@@ -160,10 +160,12 @@ public final class Match
         }
         
         this.goalValues = new ArrayList<Integer>();
-        JSONArray theGoalValues = theMatchObject.getJSONArray("goalValues");
-        for (int i = 0; i < theGoalValues.length(); i++) {            
-            this.goalValues.add(theGoalValues.getInt(i));
-        }
+        try {
+            JSONArray theGoalValues = theMatchObject.getJSONArray("goalValues");
+            for (int i = 0; i < theGoalValues.length(); i++) {            
+                this.goalValues.add(theGoalValues.getInt(i));
+            }
+        } catch (JSONException e) {}
         
         // TODO: Add a way to recover cryptographic public keys and signatures.
         // Or, perhaps loading a match into memory for editing should strip those?
