@@ -1,9 +1,16 @@
 package apps.utilities;
 
+import java.io.File;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import external.JSON.JSONException;
+import external.JSON.JSONObject;
+
+import util.crypto.SignableJSON;
+import util.crypto.BaseCryptography.EncodedKeyPair;
+import util.files.FileUtils;
 import util.game.Game;
 import util.game.GameRepository;
 import util.gdl.grammar.GdlSentence;
@@ -36,6 +43,11 @@ public class SimpleGameSim {
     public static void main(String[] args) {
         Game theGame = GameRepository.getDefaultRepository().getGame("nineBoardTicTacToe");
         Match theMatch = new Match("simpleGameSim." + Match.getRandomString(5), 0, 0, theGame);
+        try {
+            theMatch.setCryptographicKeys(new EncodedKeyPair(FileUtils.readFileAsString(new File("src/apps/utilities/SimpleGameSimKeys.json"))));
+        } catch (JSONException e) {
+            System.err.println("Could not load cryptograhic keys: " + e);
+        }
         
         // ---------------------------------------------------------
         // Construct the machine: change this to select which machine
@@ -94,7 +106,9 @@ public class SimpleGameSim {
             System.out.println("Match information: " + theMatch);            
             for(Role r : theMachine.getRoles())
                 System.out.println("Goal for " + r + ": " + theMachine.getGoal(theCurrentState, r));
-            System.out.println("Game over.");
+            System.out.println("Match information cryptographically signed? " + SignableJSON.isSignedJSON(new JSONObject(theMatch.toJSON())));
+            System.out.println("Match information cryptographic signature valid? " + SignableJSON.verifySignedJSON(new JSONObject(theMatch.toJSON())));
+            System.out.println("Game over.");            
         } catch(Exception e) {
             e.printStackTrace();
         }

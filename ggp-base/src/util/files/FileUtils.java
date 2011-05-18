@@ -8,14 +8,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 
 public class FileUtils {
-	/** 
-	 * @param filePath the name of the file to open.
-	 */ 
-	public static String readFileAsString(String filePath)
-	{
-		return readFileAsString(new File(filePath));
- 	}
-	
     /** 
      * @param filePath the name of the file to open.
      */ 

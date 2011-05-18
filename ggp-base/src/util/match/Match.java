@@ -11,6 +11,8 @@ import external.JSON.JSONArray;
 import external.JSON.JSONException;
 import external.JSON.JSONObject;
 
+import util.crypto.SignableJSON;
+import util.crypto.BaseCryptography.EncodedKeyPair;
 import util.game.Game;
 import util.game.RemoteGameRepository;
 import util.gdl.factory.GdlFactory;
@@ -55,6 +57,8 @@ public final class Match
 	private final List<Date> stateTimeHistory;
 	private boolean isCompleted;	
 	private final List<Integer> goalValues;
+	
+	private EncodedKeyPair theCryptographicKeys;
 
 	public Match(String matchId, int startClock, int playClock, Game theGame)
 	{
@@ -164,6 +168,10 @@ public final class Match
 	}
 	
 	/* Mutators */
+	
+	public void setCryptographicKeys(EncodedKeyPair k) {
+	    this.theCryptographicKeys = k;
+	}
 
 	public void appendMoves(List<GdlSentence> moves) {	    
 		moveHistory.add(moves);
@@ -244,9 +252,28 @@ public final class Match
         theJSON.append("    \"playClock\": " + playClock + "\n");
         theJSON.append("}");
         
-        return theJSON.toString();
+        if (theCryptographicKeys == null) {
+            return theJSON.toString();
+        } else {
+            try {
+                JSONObject theMatch = new JSONObject(theJSON.toString());
+                SignableJSON.signJSON(theMatch, theCryptographicKeys.thePublicKey, theCryptographicKeys.thePrivateKey);
+                if (!SignableJSON.isSignedJSON(theMatch)) {
+                    System.err.println("Could not recognize signed match: " + theMatch);
+                    return theJSON.toString();
+                }                
+                if (!SignableJSON.verifySignedJSON(theMatch)) {
+                    System.err.println("Could not verify signed match: " + theMatch);
+                    return theJSON.toString();
+                }
+                return theMatch.toString();
+            } catch (Exception e) {
+                e.printStackTrace();
+                return theJSON.toString();
+            }
+        }
     }
-	
+    
     public List<GdlSentence> getMostRecentMoves() {
         if (moveHistory.size() == 0)
             return null;

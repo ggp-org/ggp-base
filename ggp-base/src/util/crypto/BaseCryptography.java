@@ -15,8 +15,15 @@ import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 
 import external.Base64Coder.Base64Coder;
+import external.JSON.JSONException;
+import external.JSON.JSONObject;
 
-public class BaseCryptography {    
+public class BaseCryptography {
+    public static void main(String args[]) {
+        EncodedKeyPair k = generateKeys();
+        System.out.println("{\"PK\":\"" + k.thePublicKey + "\", \"SK\":\"" + k.thePrivateKey + "\"}");
+    }
+    
     public static EncodedKeyPair generateKeys() {
         try {
             // Generate a 2048-bit RSA key pair
@@ -69,6 +76,11 @@ public class BaseCryptography {
         public EncodedKeyPair(PublicKey thePK, PrivateKey theSK) {
             thePublicKey = encodeKey(thePK);
             thePrivateKey = encodeKey(theSK);
+        }
+        public EncodedKeyPair(String theKeyJSON) throws JSONException {
+            JSONObject theJSON = new JSONObject(theKeyJSON);
+            thePublicKey = theJSON.getString("PK");
+            thePrivateKey = theJSON.getString("SK");
         }
     }    
     

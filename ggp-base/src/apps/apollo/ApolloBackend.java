@@ -1,5 +1,6 @@
 package apps.apollo;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -12,6 +13,8 @@ import external.JSON.JSONException;
 import external.JSON.JSONObject;
 
 import server.GameServer;
+import util.crypto.BaseCryptography.EncodedKeyPair;
+import util.files.FileUtils;
 import util.game.Game;
 import util.game.RemoteGameRepository;
 import util.http.HttpReader;
@@ -80,7 +83,8 @@ public final class ApolloBackend
             // the spectator server, so that we have a spectator server
             // URL to return for this request.
             theGame = RemoteGameRepository.loadSingleGame(gameURL);            
-            theMatch = new Match(matchId, startClock, playClock, theGame);  
+            theMatch = new Match(matchId, startClock, playClock, theGame);
+            theMatch.setCryptographicKeys(new EncodedKeyPair(FileUtils.readFileAsString(new File("src/apps/apollo/ApolloKeys.json"))));
             theServer = new GameServer(theMatch, hosts, ports, names);
             String theSpectatorURL = theServer.startPublishingToSpectatorServer(spectatorServerURL);
             
