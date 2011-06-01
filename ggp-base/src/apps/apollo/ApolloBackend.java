@@ -76,6 +76,7 @@ public final class ApolloBackend
             JSONArray thePlayerNames = theJSON.getJSONArray("playerNames");
             for (int i = 0; i < thePlayers.length(); i++) {
                 String[] splitAddress = thePlayers.getString(i).split(":");
+                // TODO(schreib): Fix this so it can handle "http://" prefix.
                 hosts.add(splitAddress[0]);
                 ports.add(Integer.parseInt(splitAddress[1]));
                 names.add(thePlayerNames.getString(i));
