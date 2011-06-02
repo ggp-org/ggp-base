@@ -13,9 +13,6 @@ import util.gdl.grammar.GdlTerm;
 import util.statemachine.MachineState;
 import util.statemachine.Move;
 import util.statemachine.Role;
-import util.statemachine.implementation.prover.ProverMachineState;
-import util.statemachine.implementation.prover.ProverMove;
-import util.statemachine.implementation.prover.ProverRole;
 
 public final class ProverResultParser
 {
@@ -27,7 +24,7 @@ public final class ProverResultParser
 		List<Move> moves = new ArrayList<Move>();
 		for (GdlSentence result : results)
 		{
-			moves.add(new ProverMove(result.get(1).toSentence()));
+			moves.add(new Move(result.get(1).toSentence()));
 		}
 
 		return moves;
@@ -39,7 +36,7 @@ public final class ProverResultParser
 		for (GdlSentence result : results)
 		{
 			GdlProposition name = (GdlProposition) result.get(0).toSentence();
-			roles.add(new ProverRole(name));
+			roles.add(new Role(name));
 		}
 
 		return roles;
@@ -52,6 +49,6 @@ public final class ProverResultParser
 		{
 			trues.add(GdlPool.getRelation(TRUE, new GdlTerm[] { result.get(0) }));
 		}
-		return new ProverMachineState(trues);
+		return new MachineState(trues);
 	}
 }

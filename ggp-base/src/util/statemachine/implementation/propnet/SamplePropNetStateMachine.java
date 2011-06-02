@@ -27,7 +27,7 @@ import util.statemachine.exceptions.TransitionDefinitionException;
 import util.statemachine.implementation.prover.query.ProverQueryBuilder;
 
 @SuppressWarnings("unused")
-public class PropNetStateMachine extends StateMachine {
+public class SamplePropNetStateMachine extends StateMachine {
     /** The underlying proposition network  */
     private PropNet propNet;
     /** The topological ordering of the propositions */
@@ -134,25 +134,6 @@ public class PropNetStateMachine extends StateMachine {
 	
 	/* Already implemented for you */
 	@Override
-	public Move getMoveFromSentence(GdlSentence sentence) {
-		return new PropNetMove(sentence);
-	}
-	
-	/* Already implemented for you */
-	@Override
-	public MachineState getMachineStateFromSentenceList(
-			Set<GdlSentence> sentenceList) {
-		return new PropNetMachineState(sentenceList);
-	}
-	
-	/* Already implemented for you */
-	@Override
-	public Role getRoleFromProp(GdlProposition proposition) {
-		return new PropNetRole(proposition);
-	}
-	
-	/* Already implemented for you */
-	@Override
 	public List<Role> getRoles() {
 		return roles;
 	}
@@ -190,7 +171,7 @@ public class PropNetStateMachine extends StateMachine {
 	 */
 	public static Move getMoveFromProposition(Proposition p)
 	{
-		return new PropNetMove(p.getName().toSentence().get(1).toSentence());
+		return new Move(p.getName().toSentence().get(1).toSentence());
 	}
 	
 	/**
@@ -211,7 +192,7 @@ public class PropNetStateMachine extends StateMachine {
 	 * You need not use this method!
 	 * @return PropNetMachineState
 	 */	
-	public PropNetMachineState getStateFromBase()
+	public MachineState getStateFromBase()
 	{
 		Set<GdlSentence> contents = new HashSet<GdlSentence>();
 		for (Proposition p : propNet.getBasePropositions().values())
@@ -223,6 +204,6 @@ public class PropNetStateMachine extends StateMachine {
 			}
 
 		}
-		return new PropNetMachineState(contents);
+		return new MachineState(contents);
 	}
 }

@@ -3,19 +3,19 @@ package server.event;
 import java.io.Serializable;
 
 import util.observer.Event;
-import util.statemachine.implementation.prover.ProverMachineState;
+import util.statemachine.MachineState;
 
 @SuppressWarnings("serial")
 public final class ServerNewGameStateEvent extends Event implements Serializable
 {
-	private final ProverMachineState state;
+	private final MachineState state;
 
-	public ServerNewGameStateEvent(ProverMachineState state)
+	public ServerNewGameStateEvent(MachineState state)
 	{
 		this.state = state;
 	}
 
-	public ProverMachineState getState()
+	public MachineState getState()
 	{
 		return state;
 	}

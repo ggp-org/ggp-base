@@ -13,7 +13,6 @@ import util.observer.Event;
 import util.observer.Observer;
 import util.statemachine.MachineState;
 import util.statemachine.StateMachine;
-import util.statemachine.implementation.prover.ProverMachineState;
 import util.statemachine.implementation.prover.cache.CachedProverStateMachine;
 import util.xhtml.GameStateRenderPanel;
 
@@ -122,12 +121,12 @@ public final class VisualizationPanel extends JPanel implements Observer
         try {
             MachineState theCurrentState = theMachine.getInitialState();            
             do {
-                theVisual.observe(new ServerNewGameStateEvent((ProverMachineState)theCurrentState));
+                theVisual.observe(new ServerNewGameStateEvent(theCurrentState));
                 theCurrentState = theMachine.getRandomNextState(theCurrentState);
                 Thread.sleep(2750);
                 System.out.println("State: " + theCurrentState);
             } while(!theMachine.isTerminal(theCurrentState));
-            theVisual.observe(new ServerNewGameStateEvent((ProverMachineState)theCurrentState));
+            theVisual.observe(new ServerNewGameStateEvent(theCurrentState));
         } catch (Exception e) {
             e.printStackTrace();
         }

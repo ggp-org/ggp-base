@@ -29,7 +29,6 @@ import util.statemachine.Role;
 import util.statemachine.StateMachine;
 import util.statemachine.exceptions.GoalDefinitionException;
 import util.statemachine.exceptions.MoveDefinitionException;
-import util.statemachine.implementation.prover.ProverMachineState;
 import util.statemachine.implementation.prover.ProverStateMachine;
 
 public final class GameServer extends Thread implements Subject
@@ -144,7 +143,7 @@ public final class GameServer extends Thread implements Subject
 
             while (!stateMachine.isTerminal(currentState)) {
                 publishWhenNecessary();
-                notifyObservers(new ServerNewGameStateEvent((ProverMachineState)currentState));
+                notifyObservers(new ServerNewGameStateEvent(currentState));
                 notifyObservers(new ServerTimeEvent(match.getPlayClock() * 1000));
                 previousMoves = sendPlayRequests();
 
@@ -158,7 +157,7 @@ public final class GameServer extends Thread implements Subject
             }
             match.markCompleted(stateMachine.getGoals(currentState));
             publishWhenNecessary();
-            notifyObservers(new ServerNewGameStateEvent((ProverMachineState)currentState));
+            notifyObservers(new ServerNewGameStateEvent(currentState));
             notifyObservers(new ServerCompletedMatchEvent(getGoals()));
             sendStopRequests(previousMoves);
         } catch (Exception e) {

@@ -41,9 +41,17 @@ public abstract class StateMachine
     // The following methods are included in the abstract StateMachine base so
     // implementations which use alternative Role/Move/State representations
     // can look up/compute what some Gdl corresponds to in their representation.
-    public abstract Role getRoleFromProp(GdlProposition proposition);   
-    public abstract Move getMoveFromSentence(GdlSentence sentence); 
-    public abstract MachineState getMachineStateFromSentenceList(Set<GdlSentence> sentenceList);
+    // They are implemented for convenience, using the default ways of generating
+    // these objects, but they can be overridden to support machine-specific objects.
+    public MachineState getMachineStateFromSentenceList(Set<GdlSentence> sentenceList) {
+        return new MachineState(sentenceList);
+    }
+    public Role getRoleFromProp(GdlProposition proposition) {
+        return new Role(proposition);
+    }
+    public Move getMoveFromSentence(GdlSentence sentence) {
+        return new Move(sentence);
+    }
 
     // ============================================
     //          Stubs for advanced methods
