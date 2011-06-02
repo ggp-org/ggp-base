@@ -138,35 +138,22 @@ public final class PropNet implements Serializable
 
 	private Map<Proposition, Proposition> makeLegalInputMap() {
 		Map<Proposition, Proposition> legalInputMap = new HashMap<Proposition, Proposition>();
-		/*for (Proposition inputProp : inputPropositions.values())
-		{
-			List<GdlTerm> inputPropBody = ((GdlFunction)inputProp.getName()).getBody();
-			for (Set<Proposition> legalProps : legalPropositions.values())
-			{
-				for (Proposition legalProp : legalProps)
-				{
-					List<GdlTerm> legalPropBody = ((GdlFunction)legalProp.getName()).getBody();
-					if (legalPropBody.equals(inputPropBody))
-					{
-						legalInputMap.put(inputProp, legalProp);
-						legalInputMap.put(legalProp, inputProp);	
-					}
-				}
-			}
-		}*/
-		//This function hangs on certain games (e.g. knightfight)
-		//Let's speed it up a bit, shall we...
+		// Create a mapping from Body->Input.
 		Map<List<GdlTerm>, Proposition> inputPropsByBody = new HashMap<List<GdlTerm>, Proposition>();
 		for(Proposition inputProp : inputPropositions.values()) {
 			List<GdlTerm> inputPropBody = ((GdlFunction)inputProp.getName()).getBody();
 			inputPropsByBody.put(inputPropBody, inputProp);
 		}
+		// Use that mapping to map Input->Legal and Legal->Input
+		// based on having the same Body proposition.
 		for(Set<Proposition> legalProps : legalPropositions.values()) {
 			for(Proposition legalProp : legalProps) {
 				List<GdlTerm> legalPropBody = ((GdlFunction)legalProp.getName()).getBody();
-				Proposition inputProp = inputPropsByBody.get(legalPropBody);
-				legalInputMap.put(inputProp, legalProp);
-				legalInputMap.put(legalProp, inputProp);
+				if (inputPropsByBody.containsKey(legalPropBody)) {
+    				Proposition inputProp = inputPropsByBody.get(legalPropBody);
+    				legalInputMap.put(inputProp, legalProp);
+    				legalInputMap.put(legalProp, inputProp);
+				}
 			}
 		}
 		return legalInputMap;
