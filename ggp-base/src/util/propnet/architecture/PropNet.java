@@ -299,7 +299,8 @@ public final class PropNet implements Serializable
 				{
 					basePropositions.put(proposition.getName(), proposition);
 				}
-				/*if(proposition.getName() instanceof GdlFunction) {
+				/* TODO(schreib): What is this? What does it do?
+				 * if(proposition.getName() instanceof GdlFunction) {
 					if(((GdlFunction)proposition.getName()).equals(GdlPool.getConstant("true")))
 						basePropositions.put(proposition.getName(), proposition);
 				}*/
