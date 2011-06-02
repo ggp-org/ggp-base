@@ -285,25 +285,23 @@ public final class PropNet implements Serializable
 	/**
 	 * Builds an index over the BasePropositions in the PropNet.
 	 * 
+	 * This is done by going over every single-input proposition in the network,
+	 * and seeing whether or not its input is a transition, which would mean that
+	 * by definition the proposition is a base proposition.
+	 * 
 	 * @return An index over the BasePropositions in the PropNet.
 	 */
 	private Map<GdlTerm, Proposition> recordBasePropositions()
 	{
 		Map<GdlTerm, Proposition> basePropositions = new HashMap<GdlTerm, Proposition>();
-		for ( Proposition proposition : propositions )
-		{
-			if ( proposition.getInputs().size() > 0 )
-			{
-				Component component = proposition.getSingleInput();
-				if ( component instanceof Transition )
-				{
-					basePropositions.put(proposition.getName(), proposition);
-				}
-				/* TODO(schreib): What is this? What does it do?
-				 * if(proposition.getName() instanceof GdlFunction) {
-					if(((GdlFunction)proposition.getName()).equals(GdlPool.getConstant("true")))
-						basePropositions.put(proposition.getName(), proposition);
-				}*/
+		for (Proposition proposition : propositions) {
+		    // Skip all propositions without exactly one input.
+		    if (proposition.getInputs().size() != 1)
+		        continue;
+		    
+			Component component = proposition.getSingleInput();
+			if (component instanceof Transition) {
+				basePropositions.put(proposition.getName(), proposition);
 			}
 		}
 
@@ -313,28 +311,31 @@ public final class PropNet implements Serializable
 	/**
 	 * Builds an index over the GoalPropositions in the PropNet.
 	 * 
+	 * This is done by going over every function proposition in the network
+     * where the name of the function is "goal", and extracting the name of the
+     * role associated with that goal proposition, and then using those role
+     * names as keys that map to the goal propositions in the index.
+	 * 
 	 * @return An index over the GoalPropositions in the PropNet.
 	 */
 	private Map<Role, Set<Proposition>> recordGoalPropositions()
 	{
 		Map<Role, Set<Proposition>> goalPropositions = new HashMap<Role, Set<Proposition>>();
-		for ( Proposition proposition : propositions )
+		for (Proposition proposition : propositions)
 		{
-			if ( proposition.getName() instanceof GdlFunction )
-			{
-				GdlFunction function = (GdlFunction) proposition.getName();
-				if ( function.getName().getValue().equals("goal") )
-				{
-					GdlConstant name = (GdlConstant) function.get(0);
-					GdlProposition prop = (GdlProposition)name.toSentence();
-					Role r = new Role(prop);
-					if ( !goalPropositions.containsKey(r) )
-					{
-						goalPropositions.put(r, new HashSet<Proposition>());
-					}
-					goalPropositions.get(r).add(proposition);
-				}
+		    // Skip all propositions that aren't GdlFunctions.
+		    if (!(proposition.getName() instanceof GdlFunction))
+		        continue;
+		    
+			GdlFunction function = (GdlFunction) proposition.getName();
+			if (!function.getName().getValue().equals("goal"))
+			    continue;
+			
+			Role theRole = new Role((GdlProposition)(function.get(0).toSentence()));
+			if (!goalPropositions.containsKey(theRole)) {
+				goalPropositions.put(theRole, new HashSet<Proposition>());
 			}
+			goalPropositions.get(theRole).add(proposition);
 		}
 
 		return goalPropositions;
@@ -347,18 +348,17 @@ public final class PropNet implements Serializable
 	 */
 	private Proposition recordInitProposition()
 	{
-		for ( Proposition proposition : propositions )
+		for (Proposition proposition : propositions)
 		{
-			if ( proposition.getName() instanceof GdlConstant )
-			{
-				GdlConstant constant = (GdlConstant) proposition.getName();
-				if ( constant.getValue().equals("INIT") )
-				{
-					return proposition;
-				}
+		    // Skip all propositions that aren't GdlConstants.
+			if (!(proposition.getName() instanceof GdlConstant))
+			    continue;
+			
+			GdlConstant constant = (GdlConstant) proposition.getName();
+			if (constant.getValue().equals("INIT")) {
+				return proposition;
 			}
 		}
-
 		return null;
 	}
 
@@ -370,15 +370,15 @@ public final class PropNet implements Serializable
 	private Map<GdlTerm, Proposition> recordInputPropositions()
 	{
 		Map<GdlTerm, Proposition> inputPropositions = new HashMap<GdlTerm, Proposition>();
-		for ( Proposition proposition : propositions )
+		for (Proposition proposition : propositions)
 		{
-			if ( proposition.getName() instanceof GdlFunction )
-			{
-				GdlFunction function = (GdlFunction) proposition.getName();
-				if ( function.getName().getValue().equals("does") )
-				{
-					inputPropositions.put(proposition.getName(), proposition);
-				}
+		    // Skip all propositions that aren't GdlFunctions.
+			if (!(proposition.getName() instanceof GdlFunction))
+			    continue;
+			
+			GdlFunction function = (GdlFunction) proposition.getName();
+			if (function.getName().getValue().equals("does")) {
+				inputPropositions.put(proposition.getName(), proposition);
 			}
 		}
 
@@ -393,23 +393,21 @@ public final class PropNet implements Serializable
 	private Map<Role, Set<Proposition>> recordLegalPropositions()
 	{
 		Map<Role, Set<Proposition>> legalPropositions = new HashMap<Role, Set<Proposition>>();
-		for ( Proposition proposition : propositions )
+		for (Proposition proposition : propositions)
 		{
-			if ( proposition.getName() instanceof GdlFunction )
-			{
-				GdlFunction function = (GdlFunction) proposition.getName();
-				if ( function.getName().getValue().equals("legal") )
-				{
-					GdlConstant name = (GdlConstant) function.get(0);
-					GdlProposition prop = (GdlProposition)name.toSentence();
-					Role r = new Role(prop);
-					if ( !legalPropositions.containsKey(r) )
-					{
-						legalPropositions.put(r, new HashSet<Proposition>());
-					}
-					legalPropositions.get(r).add(proposition);
-					
+		    // Skip all propositions that aren't GdlFunctions.
+			if (!(proposition.getName() instanceof GdlFunction))
+			    continue;
+			
+			GdlFunction function = (GdlFunction) proposition.getName();
+			if (function.getName().getValue().equals("legal")) {
+				GdlConstant name = (GdlConstant) function.get(0);
+				GdlProposition prop = (GdlProposition)name.toSentence();
+				Role r = new Role(prop);
+				if (!legalPropositions.containsKey(r)) {
+					legalPropositions.put(r, new HashSet<Proposition>());
 				}
+				legalPropositions.get(r).add(proposition);				
 			}
 		}
 
@@ -424,14 +422,12 @@ public final class PropNet implements Serializable
 	private Set<Proposition> recordPropositions()
 	{
 		Set<Proposition> propositions = new HashSet<Proposition>();
-		for ( Component component : components )
+		for (Component component : components)
 		{
-			if ( component instanceof Proposition )
-			{
+			if (component instanceof Proposition) {
 				propositions.add((Proposition) component);
 			}
 		}
-
 		return propositions;
 	}
 
