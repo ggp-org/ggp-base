@@ -43,6 +43,7 @@ import util.configuration.ProjectConfiguration;
 public final class CloudGameRepository extends GameRepository {
     private final String theRepoURL;
     private final File theCacheDirectory;
+    private static boolean needsRefresh = true;
     
     public CloudGameRepository(String theURL) {
         if (!theURL.startsWith("http://"))
@@ -69,7 +70,10 @@ public final class CloudGameRepository extends GameRepository {
         theCacheDirectory.mkdir();
 
         // Update the game cache asynchronously.
-        new RefreshCacheThread(theRepoURL).start();
+        if (needsRefresh) {
+            new RefreshCacheThread(theRepoURL).start();
+            needsRefresh = false;
+        }
     }
     
     protected Set<String> getUncachedGameKeys() {
