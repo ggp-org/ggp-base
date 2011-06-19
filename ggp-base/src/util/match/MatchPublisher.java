@@ -34,7 +34,9 @@ public class MatchPublisher {
             if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
                 return new BufferedReader(new InputStreamReader(connection.getInputStream())).readLine();
             } else {
-                throw new IOException(connection.getResponseMessage());
+                String errorDescription = "?";
+                try { errorDescription = new BufferedReader(new InputStreamReader(connection.getInputStream())).readLine(); } catch (Exception q) {};
+                throw new IOException(connection.getResponseCode() + ": " + errorDescription);
             }
         } catch (MalformedURLException e) {
             throw new IOException(e);
