@@ -1,10 +1,14 @@
 package util.crypto;
 
+import java.util.Collection;
 import java.util.Iterator;
+import java.util.Map;
+import java.util.TreeSet;
 
 import external.JSON.JSONArray;
 import external.JSON.JSONException;
 import external.JSON.JSONObject;
+import external.JSON.JSONString;
 
 public class CanonicalJSON {
     /* Right now we only support one canonicalization strategy, which is
@@ -43,14 +47,16 @@ public class CanonicalJSON {
      * except it forces the keys for maps to be listed in sorted order. */
     static String renderSimpleCanonicalJSON(Object x) {
         try {
-            if (x.getClass().isArray()) {
-                x = new JSONArray(x);
-            }
             if (x instanceof JSONObject) {
                 JSONObject theObject = (JSONObject)x;
-                Iterator keys = theObject.sortedKeys();
-                StringBuffer sb = new StringBuffer("{");
-    
+                
+                // Sort the keys
+                TreeSet t = new TreeSet();
+                Iterator i = theObject.keys();                
+                while (i.hasNext()) t.add(i.next());
+                Iterator keys = t.iterator();
+                
+                StringBuffer sb = new StringBuffer("{");    
                 while (keys.hasNext()) {
                     if (sb.length() > 1) {
                         sb.append(',');
@@ -76,7 +82,38 @@ public class CanonicalJSON {
                 sb.append("]");
                 return sb.toString();
             } else {
-                return JSONObject.valueToString(x);
+                if (x == null || x.equals(null)) {
+                    return "null";
+                }
+                if (x instanceof JSONString) {
+                    Object object;
+                    try {
+                        object = ((JSONString)x).toJSONString();
+                    } catch (Exception e) {
+                        throw new JSONException(e);
+                    }
+                    if (object instanceof String) {
+                        return (String)object;
+                    }
+                    throw new JSONException("Bad value from toJSONString: " + object);
+                }
+                if (x instanceof Number) {
+                    return JSONObject.numberToString((Number)x);
+                }
+                if (x instanceof Boolean || x instanceof JSONObject ||
+                        x instanceof JSONArray) {
+                    return x.toString();
+                }
+                if (x instanceof Map) {
+                    return renderSimpleCanonicalJSON(new JSONObject((Map)x)).toString();
+                }
+                if (x instanceof Collection) {
+                    return renderSimpleCanonicalJSON(new JSONArray((Collection)x)).toString();
+                }
+                if (x.getClass().isArray()) {
+                    return renderSimpleCanonicalJSON(new JSONArray(x)).toString();
+                }
+                return JSONObject.quote(x.toString());
             }
         } catch (Exception e) {
             return null;
