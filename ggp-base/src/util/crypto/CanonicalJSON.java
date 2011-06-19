@@ -1,5 +1,8 @@
 package util.crypto;
 
+import java.util.Iterator;
+
+import external.JSON.JSONArray;
 import external.JSON.JSONException;
 import external.JSON.JSONObject;
 
@@ -16,7 +19,7 @@ public class CanonicalJSON {
     static enum CanonicalizationStrategy {
         SIMPLE,
     };
-    
+
     /* Helper function to generate canonical strings for JSON strings */
     static String getCanonicalForm(String x, CanonicalizationStrategy s) {
         try {
@@ -29,9 +32,54 @@ public class CanonicalJSON {
     /* Main function to generate canonical strings for JSON objects */
     static String getCanonicalForm(JSONObject x, CanonicalizationStrategy s) {
         if (s == CanonicalizationStrategy.SIMPLE) {
-            return x.toString();
+            return renderSimpleCanonicalJSON(x);
         } else {
             throw new RuntimeException("Canonicalization strategy not recognized.");
         }
+    }
+    
+    @SuppressWarnings("unchecked")
+    /* This should be identical to the standard code to render the JSON object,
+     * except it forces the keys for maps to be listed in sorted order. */
+    static String renderSimpleCanonicalJSON(Object x) {
+        try {
+            if (x.getClass().isArray()) {
+                x = new JSONArray(x);
+            }
+            if (x instanceof JSONObject) {
+                JSONObject theObject = (JSONObject)x;
+                Iterator keys = theObject.sortedKeys();
+                StringBuffer sb = new StringBuffer("{");
+    
+                while (keys.hasNext()) {
+                    if (sb.length() > 1) {
+                        sb.append(',');
+                    }
+                    Object o = keys.next();
+                    sb.append(JSONObject.quote(o.toString()));
+                    sb.append(':');
+                    sb.append(renderSimpleCanonicalJSON(theObject.get(o.toString())));
+                }
+                sb.append('}');
+                return sb.toString();
+            } else if (x instanceof JSONArray) {
+                JSONArray theArray = (JSONArray)x;
+                StringBuffer sb = new StringBuffer();
+                sb.append("[");
+                int len = theArray.length();
+                for (int i = 0; i < len; i += 1) {
+                    if (i > 0) {
+                        sb.append(",");
+                    }
+                    sb.append(renderSimpleCanonicalJSON(theArray.get(i)));
+                }
+                sb.append("]");
+                return sb.toString();
+            } else {
+                return JSONObject.valueToString(x);
+            }
+        } catch (Exception e) {
+            return null;
+        }            
     }
 }
