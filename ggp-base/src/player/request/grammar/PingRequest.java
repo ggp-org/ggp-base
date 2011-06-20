@@ -25,6 +25,6 @@ public final class PingRequest extends Request
 	@Override
 	public String toString()
 	{
-		return "stop";
+		return "ping";
 	}
 }
