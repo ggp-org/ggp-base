@@ -1,12 +1,20 @@
 package apps.server.visualization;
 
 import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
+import apps.common.timer.JTimerBar;
+
+import server.event.ServerCompletedMatchEvent;
 import server.event.ServerNewGameStateEvent;
+import server.event.ServerNewMatchEvent;
+import server.event.ServerTimeEvent;
 import util.game.Game;
 import util.game.GameRepository;
 import util.observer.Event;
@@ -22,12 +30,16 @@ public final class VisualizationPanel extends JPanel implements Observer
 	private final Game theGame;
 	private final VisualizationPanel myThis;
 	private JTabbedPane tabs = new JTabbedPane();
+	private final JTimerBar timerBar;
 
 	public VisualizationPanel(Game theGame)
-	{		
+	{
+		super(new GridBagLayout());
 		this.theGame = theGame;
 		this.myThis = this;
-		this.add(tabs);		
+		this.timerBar = new JTimerBar();
+		this.add(tabs, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 5, 5));		
+		this.add(timerBar, new GridBagConstraints(0, 1, 1, 1, 1.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 5, 5));
 	}
 
 	private int stepCount = 1;
@@ -38,6 +50,14 @@ public final class VisualizationPanel extends JPanel implements Observer
 	        MachineState s = ((ServerNewGameStateEvent)event).getState();
 	        RenderThread rt = new RenderThread(s, stepCount++);
 	        rt.start();
+		} else if (event instanceof ServerTimeEvent) {
+			timerBar.time(((ServerTimeEvent) event).getTime(), 500);
+		} else if (event instanceof ServerCompletedMatchEvent) {
+			timerBar.stop();
+		} else if (event instanceof ServerNewMatchEvent) {
+			MachineState s = ((ServerNewMatchEvent) event).getInitialState();
+			RenderThread rt = new RenderThread(s, stepCount);
+			rt.start();
 		}
 	}
 	

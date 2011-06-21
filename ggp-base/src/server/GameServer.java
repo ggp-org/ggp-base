@@ -136,7 +136,7 @@ public final class GameServer extends Thread implements Subject
     @Override
     public void run() {
         try {
-            notifyObservers(new ServerNewMatchEvent(stateMachine.getRoles()));                        
+            notifyObservers(new ServerNewMatchEvent(stateMachine.getRoles(), currentState));                        
             notifyObservers(new ServerTimeEvent(match.getStartClock() * 1000));
             sendStartRequests();
             appendErrorsToMatchDescription();
