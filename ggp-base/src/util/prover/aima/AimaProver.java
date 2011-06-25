@@ -37,7 +37,8 @@ public final class AimaProver extends Prover
 		goals.add(query);
 
 		Set<Substitution> answers = new HashSet<Substitution>();
-		ask(goals, new KnowledgeBase(context), new Substitution(), new ProverCache(), new VariableRenamer(), askOne, answers);
+		Set<GdlSentence> alreadyAsking = new HashSet<GdlSentence>();
+		ask(goals, new KnowledgeBase(context), new Substitution(), new ProverCache(), new VariableRenamer(), askOne, answers, alreadyAsking);
 
 		Set<GdlSentence> results = new HashSet<GdlSentence>();
 		for (Substitution theta : answers)
@@ -48,7 +49,7 @@ public final class AimaProver extends Prover
 		return results;
 	}
 
-	private void ask(LinkedList<GdlLiteral> goals, KnowledgeBase context, Substitution theta, ProverCache cache, VariableRenamer renamer, boolean askOne, Set<Substitution> results)
+	private void ask(LinkedList<GdlLiteral> goals, KnowledgeBase context, Substitution theta, ProverCache cache, VariableRenamer renamer, boolean askOne, Set<Substitution> results, Set<GdlSentence> alreadyAsking)
 	{
 		if (goals.size() == 0)
 		{
@@ -62,22 +63,22 @@ public final class AimaProver extends Prover
 			if (qPrime instanceof GdlDistinct)
 			{
 				GdlDistinct distinct = (GdlDistinct) qPrime;
-				askDistinct(distinct, goals, context, theta, cache, renamer, askOne, results);
+				askDistinct(distinct, goals, context, theta, cache, renamer, askOne, results, alreadyAsking);
 			}
 			else if (qPrime instanceof GdlNot)
 			{
 				GdlNot not = (GdlNot) qPrime;
-				askNot(not, goals, context, theta, cache, renamer, askOne, results);
+				askNot(not, goals, context, theta, cache, renamer, askOne, results, alreadyAsking);
 			}
 			else if (qPrime instanceof GdlOr)
 			{
 				GdlOr or = (GdlOr) qPrime;
-				askOr(or, goals, context, theta, cache, renamer, askOne, results);
+				askOr(or, goals, context, theta, cache, renamer, askOne, results, alreadyAsking);
 			}
 			else
 			{
 				GdlSentence sentence = (GdlSentence) qPrime;
-				askSentence(sentence, goals, context, theta, cache, renamer, askOne, results);
+				askSentence(sentence, goals, context, theta, cache, renamer, askOne, results, alreadyAsking);
 			}
 
 			goals.addFirst(literal);
@@ -90,25 +91,25 @@ public final class AimaProver extends Prover
 		return ask(query, context, false);
 	}
 
-	private void askDistinct(GdlDistinct distinct, LinkedList<GdlLiteral> goals, KnowledgeBase context, Substitution theta, ProverCache cache, VariableRenamer renamer, boolean askOne, Set<Substitution> results)
+	private void askDistinct(GdlDistinct distinct, LinkedList<GdlLiteral> goals, KnowledgeBase context, Substitution theta, ProverCache cache, VariableRenamer renamer, boolean askOne, Set<Substitution> results, Set<GdlSentence> alreadyAsking)
 	{
 		if (!distinct.getArg1().equals(distinct.getArg2()))
 		{
-			ask(goals, context, theta, cache, renamer, askOne, results);
+			ask(goals, context, theta, cache, renamer, askOne, results, alreadyAsking);
 		}
 	}
 
-	private void askNot(GdlNot not, LinkedList<GdlLiteral> goals, KnowledgeBase context, Substitution theta, ProverCache cache, VariableRenamer renamer, boolean askOne, Set<Substitution> results)
+	private void askNot(GdlNot not, LinkedList<GdlLiteral> goals, KnowledgeBase context, Substitution theta, ProverCache cache, VariableRenamer renamer, boolean askOne, Set<Substitution> results, Set<GdlSentence> alreadyAsking)
 	{
 		LinkedList<GdlLiteral> notGoals = new LinkedList<GdlLiteral>();
 		notGoals.add(not.getBody());
 
 		Set<Substitution> notResults = new HashSet<Substitution>();
-		ask(notGoals, context, theta, cache, renamer, true, notResults);
+		ask(notGoals, context, theta, cache, renamer, true, notResults, alreadyAsking);
 
 		if (notResults.size() == 0)
 		{
-			ask(goals, context, theta, cache, renamer, askOne, results);
+			ask(goals, context, theta, cache, renamer, askOne, results, alreadyAsking);
 		}
 	}
 
@@ -119,12 +120,12 @@ public final class AimaProver extends Prover
 		return (results.size() > 0) ? results.iterator().next() : null;
 	}
 
-	private void askOr(GdlOr or, LinkedList<GdlLiteral> goals, KnowledgeBase context, Substitution theta, ProverCache cache, VariableRenamer renamer, boolean askOne, Set<Substitution> results)
+	private void askOr(GdlOr or, LinkedList<GdlLiteral> goals, KnowledgeBase context, Substitution theta, ProverCache cache, VariableRenamer renamer, boolean askOne, Set<Substitution> results, Set<GdlSentence> alreadyAsking)
 	{
 		for (int i = 0; i < or.arity(); i++)
 		{
 			goals.addFirst(or.get(i));
-			ask(goals, context, theta, cache, renamer, askOne, results);
+			ask(goals, context, theta, cache, renamer, askOne, results, alreadyAsking);
 			goals.removeFirst();
 
 			if (askOne && (results.size() > 0))
@@ -134,10 +135,15 @@ public final class AimaProver extends Prover
 		}
 	}
 
-	private void askSentence(GdlSentence sentence, LinkedList<GdlLiteral> goals, KnowledgeBase context, Substitution theta, ProverCache cache, VariableRenamer renamer, boolean askOne, Set<Substitution> results)
+	private void askSentence(GdlSentence sentence, LinkedList<GdlLiteral> goals, KnowledgeBase context, Substitution theta, ProverCache cache, VariableRenamer renamer, boolean askOne, Set<Substitution> results, Set<GdlSentence> alreadyAsking)
 	{
 		if (!cache.contains(sentence))
 		{
+			//Prevent infinite loops on certain recursive queries.
+			if(alreadyAsking.contains(sentence)) {
+				return;
+			}
+			alreadyAsking.add(sentence);
 			List<GdlRule> candidates = new ArrayList<GdlRule>();
 			candidates.addAll(knowledgeBase.fetch(sentence));
 			candidates.addAll(context.fetch(sentence));
@@ -156,16 +162,17 @@ public final class AimaProver extends Prover
 						sentenceGoals.add(r.get(i));
 					}
 
-					ask(sentenceGoals, context, theta.compose(thetaPrime), cache, renamer, false, sentenceResults);
+					ask(sentenceGoals, context, theta.compose(thetaPrime), cache, renamer, false, sentenceResults, alreadyAsking);
 				}
 			}
 
 			cache.put(sentence, sentenceResults);
+			alreadyAsking.remove(sentence);
 		}
 
 		for (Substitution thetaPrime : cache.get(sentence))
 		{
-			ask(goals, context, theta.compose(thetaPrime), cache, renamer, askOne, results);
+			ask(goals, context, theta.compose(thetaPrime), cache, renamer, askOne, results, alreadyAsking);
 			if (askOne && (results.size() > 0))
 			{
 				break;
