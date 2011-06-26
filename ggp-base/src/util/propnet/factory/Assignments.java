@@ -591,6 +591,7 @@ public class Assignments implements Iterable<Map<GdlVariable, GdlConstant>> {
 			}
 		}
 
+		@SuppressWarnings("unused")
 		private void incrementSourceToGetValueInSlot(int source,
 				GdlConstant value, int slot) {
 			//Increments the source until it gets the right value or rolls over
