@@ -81,6 +81,14 @@ public final class RemoteGameRepository extends GameRepository {
         return new Game(theKey, theName, theDescription, theGameURL, theStylesheet, theRules);        
     }
     
+    public JSONObject getBundledMetadata() {
+        try {
+            return RemoteResourceLoader.loadJSON(theRepoURL + "/games/metadata");
+        } catch (IOException e) {
+            return null;
+        }
+    }
+    
     // ============================================================================================
     protected String getGameURL(String theGameKey) {
         return theRepoURL + "/games/" + theGameKey + "/";

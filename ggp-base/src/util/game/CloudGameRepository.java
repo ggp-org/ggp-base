@@ -154,6 +154,31 @@ public final class CloudGameRepository extends GameRepository {
             // we can be happy just updating/refreshing the listed games.
             Set<String> theGameKeys = remoteRepository.getGameKeys();
             if (theGameKeys == null) return;
+            
+            // If the server offers a single combined metadata file, download that
+            // and use it to avoid checking games that haven't gotten new versions.
+            JSONObject bundledMetadata = remoteRepository.getBundledMetadata();
+            if (bundledMetadata != null) {
+                Set<String> unchangedKeys = new HashSet<String>();
+                for (String theKey : theGameKeys) {
+                    try {                    
+                        Game myGameVersion = loadGameFromCache(theKey);
+                        if (myGameVersion == null)
+                            continue;                    
+                    
+                        String remoteGameURL = remoteRepository.getGameURL(theKey);
+                        int remoteVersion = bundledMetadata.getJSONObject(theKey).getInt("version");
+                        String remoteVersionedGameURL = RemoteGameRepository.addVersionToGameURL(remoteGameURL, remoteVersion);
+                    
+                        if (myGameVersion.getRepositoryURL().equals(remoteVersionedGameURL)) {
+                            unchangedKeys.add(theKey);
+                        }
+                    } catch (Exception e) {
+                        continue;
+                    }                        
+                }
+                theGameKeys.removeAll(unchangedKeys);
+            }
 
             // Start threads to update every entry in the cache (or at least verify
             // that the entry doesn't need to be updated).
