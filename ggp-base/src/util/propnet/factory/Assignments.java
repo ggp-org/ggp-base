@@ -567,7 +567,11 @@ public class Assignments implements Iterable<Map<GdlVariable, GdlConstant>> {
 						//It's only at this point that we get to check...
 						if(!nextAssignment.get(varSlotChosen).equals(value)) {
 							//We need to correct the value
-							incrementSourceToGetValueInSlot(s, nextAssignment.get(varSlotChosen), i);
+							//This is wrong! The current tuple may be the constraining tuple.
+							//But we might need it for performance reasons when there isn't that case...
+							//TODO: Restore this when we can tell it's appropriate
+							//incrementSourceToGetValueInSlot(s, nextAssignment.get(varSlotChosen), i);
+							incrementSource(s);
 							//updateNextAssignment(); (should be included at end of calling function)
 							return;
 						}
