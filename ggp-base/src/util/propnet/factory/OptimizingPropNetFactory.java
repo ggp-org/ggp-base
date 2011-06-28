@@ -594,10 +594,12 @@ public class OptimizingPropNetFactory {
 				Component trueComponent = components.get(trueSentence);
 				Transition transition = new Transition();
 				transition.addInput(nextComponent);
-				nextComponent.addOutput(transition);
+				nextComponent.addOutput(transition);				
+				if(trueComponent == null) {
+				    // Skipping transition to supposedly impossible 'trueSentence'
+				    continue;
+				}
 				transition.addOutput(trueComponent);
-				if(trueComponent == null)
-					System.out.println(trueSentence);
 				trueComponent.addInput(transition);
 			}
 		}
