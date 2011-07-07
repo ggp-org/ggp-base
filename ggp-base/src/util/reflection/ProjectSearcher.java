@@ -26,6 +26,9 @@ public class ProjectSearcher {
 	{
 		List<Class<?>> rval = new ArrayList<Class<?>>();
 		for(String name : allClasses) {
+			if(name.contains("Test_"))
+				continue; 
+			
 			Class<?> c = null;
 			try {	
 				c = Class.forName(name);
