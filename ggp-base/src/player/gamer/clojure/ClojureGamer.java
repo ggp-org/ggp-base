@@ -90,6 +90,18 @@ public abstract class ClojureGamer extends Gamer
     }
     
     @Override
+    public final void stop() {
+        theClojureGamer.setMatch(getMatch());
+        theClojureGamer.setRoleName(getRoleName());
+        try {
+            theClojureGamer.stop();
+        } catch(RuntimeException e) {
+            GamerLogger.logError("GamePlayer", "Caught exception in Clojure stateMachineStop:");
+            GamerLogger.logStackTrace("GamePlayer", e);
+        }
+    }
+    
+   @Override
     public final String getName() {
         try {
             return theClojureGamer.getName();

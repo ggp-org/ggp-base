@@ -58,6 +58,11 @@ public final class HumanGamer extends StateMachineGamer
 		return move;
 	}
 	
+	@Override
+	public void stateMachineStop() {
+		// Do nothing.
+	}
+	
 	/**
 	 * Uses a CachedProverStateMachine
 	 */

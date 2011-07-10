@@ -164,6 +164,10 @@ public final class SimpleSearchLightGamer extends StateMachineGamer
 		notifyObservers(new ReflexMoveSelectionEvent(moves, selection, stop - start));
 		return selection;
 	}
+	@Override
+	public void stateMachineStop() {
+		// Do nothing.
+	}
 	/**
 	 * Uses a CachedProverStateMachine
 	 */

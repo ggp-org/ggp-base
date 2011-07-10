@@ -85,6 +85,18 @@ public abstract class PythonGamer extends Gamer
     }
     
     @Override
+    public final void stop() {
+    	thePythonGamer.setMatch(getMatch());
+        thePythonGamer.setRoleName(getRoleName());
+        try {
+            thePythonGamer.stop();
+        } catch(RuntimeException e) {
+            GamerLogger.logError("GamePlayer", "Caught exception in Python stateMachineStop:");
+            GamerLogger.logStackTrace("GamePlayer", e);
+        }
+    }
+    
+    @Override
     public final String getName() {
         try {
             return thePythonGamer.getName();

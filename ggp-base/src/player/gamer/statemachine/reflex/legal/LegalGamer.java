@@ -51,6 +51,12 @@ public final class LegalGamer extends StateMachineGamer
 		notifyObservers(new ReflexMoveSelectionEvent(moves, selection, stop - start));
 		return selection;
 	}
+	
+	@Override
+	public void stateMachineStop() {
+		// Do nothing.
+	}
+
 	/**
 	 * Uses a CachedProverStateMachine
 	 */

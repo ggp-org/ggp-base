@@ -116,9 +116,12 @@ public final class RequestFactory
 		}
 
 		SymbolAtom arg1 = (SymbolAtom) list.get(1);
-		String matchId = arg1.getValue();
+		Symbol arg2 = list.get(2);
 
-		return new StopRequest(gamer, matchId);
+		String matchId = arg1.getValue();
+		List<GdlSentence> moves = parseMoves(arg2);
+
+		return new StopRequest(gamer, matchId, moves);
 	}
 	
     private AbortRequest createAbort(Gamer gamer, SymbolList list) throws GdlFormatException

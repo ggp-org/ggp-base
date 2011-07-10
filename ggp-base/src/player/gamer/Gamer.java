@@ -49,6 +49,13 @@ public abstract class Gamer implements Subject
 	
 	public abstract GdlSentence selectMove(long timeout) throws MoveSelectionException;
 	
+	/* Note that the match's goal values will not necessarily be known when
+	 * stop() is called, as we only know the final set of moves and haven't
+	 * interpreted them yet. To get the final goal values, process the final
+	 * moves of the game.
+	 */
+	public abstract void stop();
+	
 	// ==== Gamer Profile and Configuration ====
 	public abstract String getName();
 	

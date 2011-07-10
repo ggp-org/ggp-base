@@ -59,6 +59,11 @@ public abstract class StateMachineGamer extends Gamer
      */
     public abstract Move stateMachineSelectMove(long timeout) throws TransitionDefinitionException, MoveDefinitionException, GoalDefinitionException;
 
+    /**
+     * Defines any actions that the player takes upon the game ending.
+     */
+    public abstract void stateMachineStop();
+    
     // =====================================================================
     // Next, methods which can be used by subclasses to get information about
     // the current state of the game, and tweak the state machine on the fly.
@@ -204,6 +209,35 @@ public abstract class StateMachineGamer extends Gamer
 		{
 		    GamerLogger.logStackTrace("GamePlayer", e);
 			throw new MoveSelectionException();
+		}
+	}
+	
+	@Override
+	public void stop() {
+		try {
+			stateMachine.doPerMoveWork();
+
+			List<GdlSentence> lastMoves = getMatch().getMostRecentMoves();
+			if (lastMoves != null)
+			{
+				List<Move> moves = new ArrayList<Move>();
+				for (GdlSentence sentence : lastMoves)
+				{
+					moves.add(stateMachine.getMoveFromSentence(sentence));
+				}
+
+				currentState = stateMachine.getNextState(currentState, moves);
+				getMatch().appendState(currentState.getContents());
+				getMatch().markCompleted(stateMachine.getGoals(currentState));
+			}
+
+			stateMachineStop();
+		}
+		catch (Exception e)
+		{
+			GamerLogger.logStackTrace("GamePlayer", e);
+			//TODO: This might deserve its own exception type.
+			throw new RuntimeException();
 		}
 	}
     

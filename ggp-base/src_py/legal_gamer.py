@@ -24,5 +24,8 @@ class LegalGamer(StateMachineGamer):
         self.notifyObservers(ReflexMoveSelectionEvent(moves, selection, 1))
         return selection
         
+    def stateMachineStop():
+    	pass
+        
     def getInitialStateMachine(self):
         return ProverStateMachine()

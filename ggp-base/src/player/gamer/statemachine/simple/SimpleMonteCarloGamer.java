@@ -101,6 +101,10 @@ public final class SimpleMonteCarloGamer extends StateMachineGamer
         }
 	}
 	
+	@Override
+	public void stateMachineStop() {
+		// Do nothing.
+	}
 	/**
 	 * Uses a CachedProverStateMachine
 	 */

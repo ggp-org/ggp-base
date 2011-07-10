@@ -1,19 +1,24 @@
 package player.request.grammar;
 
+import java.util.List;
+
 import player.gamer.Gamer;
 import player.gamer.event.GamerCompletedMatchEvent;
 import player.gamer.event.GamerUnrecognizedMatchEvent;
+import util.gdl.grammar.GdlSentence;
 import util.logging.GamerLogger;
 
 public final class StopRequest extends Request
 {
 	private final Gamer gamer;
 	private final String matchId;
+	private final List<GdlSentence> moves;
 
-	public StopRequest(Gamer gamer, String matchId)
+	public StopRequest(Gamer gamer, String matchId, List<GdlSentence> moves)
 	{
 		this.gamer = gamer;
 		this.matchId = matchId;
+		this.moves = moves;
 	}
 	
 	@Override
@@ -34,8 +39,13 @@ public final class StopRequest extends Request
 			return "busy";
 		}
 
+		//TODO: Add goal values
+		if(moves != null) {
+			gamer.getMatch().appendMoves(moves);
+		}
 		gamer.getMatch().markCompleted(null);
 		gamer.notifyObservers(new GamerCompletedMatchEvent());
+		gamer.stop();
 		
 		// Once the match has ended, set 'roleName' and 'match'
 		// to NULL to indicate that we're ready to begin a new match.

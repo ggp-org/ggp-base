@@ -115,5 +115,10 @@ public class KioskGamer extends StateMachineGamer implements Observer {
             
             theGUI.showFinalMessage(finalMessage.toString());
         }
-    }    
+    }
+
+	@Override
+	public void stateMachineStop() {
+		// Do nothing
+	}    
 }
