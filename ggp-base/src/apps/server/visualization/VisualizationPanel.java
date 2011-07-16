@@ -106,18 +106,20 @@ public final class VisualizationPanel extends JPanel implements Observer
 	        
 	        if(newPanel != null) {
 	            // Add the rendered panel as a new tab
-	            boolean atEnd = (tabs.getSelectedIndex() == tabs.getTabCount()-1);
-	            try {
-	                for(int i = tabs.getTabCount(); i < stepNum; i++)
-	                    tabs.add(new Integer(i+1).toString(), new JPanel());
-	                tabs.setComponentAt(stepNum-1, newPanel);
-	                tabs.setTitleAt(stepNum-1, new Integer(stepNum).toString());
-	                
-	                if(atEnd) {             
-	                    tabs.setSelectedIndex(tabs.getTabCount()-1);
+	            synchronized(tabs) {
+	                boolean atEnd = (tabs.getSelectedIndex() == tabs.getTabCount()-1);
+	                try {
+	                    for(int i = tabs.getTabCount(); i < stepNum; i++)
+	                        tabs.add(new Integer(i+1).toString(), new JPanel());
+	                    tabs.setComponentAt(stepNum-1, newPanel);
+	                    tabs.setTitleAt(stepNum-1, new Integer(stepNum).toString());
+
+	                    if(atEnd) {             
+	                        tabs.setSelectedIndex(tabs.getTabCount()-1);
+	                    }
+	                } catch(Exception ex) {
+	                    System.err.println("Adding rendered visualization panel failed for: " + theGame.getKey());
 	                }
-	            } catch(Exception ex) {
-	                System.err.println("Adding rendered visualization panel failed for: " + theGame.getKey());
 	            }
 	        }
 	    }
