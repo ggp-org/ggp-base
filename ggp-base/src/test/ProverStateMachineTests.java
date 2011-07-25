@@ -6,7 +6,6 @@ import java.util.Collections;
 import java.util.List;
 
 import junit.framework.Assert;
-import junit.framework.TestSuite;
 
 import org.junit.Test;
 
@@ -21,7 +20,7 @@ import util.statemachine.Move;
 import util.statemachine.Role;
 import util.statemachine.implementation.prover.ProverStateMachine;
 
-public class ProverStateMachineTests extends TestSuite {
+public class ProverStateMachineTests {
 
     protected final ProverStateMachine sm = new ProverStateMachine();
     protected final GdlConstant C1 = GdlPool.getConstant("1");
@@ -91,7 +90,7 @@ public class ProverStateMachineTests extends TestSuite {
 
     @Test
     public void testCase1A() throws Exception {
-        List<Gdl> desc = KifReader.read("games/rulesheets/test_case_1a.kif");
+        List<Gdl> desc = KifReader.read("games/test/test_case_1a.kif");
         sm.initialize(desc);
         MachineState state = sm.getInitialState();
         Role you = new Role(GdlPool.getProposition(GdlPool.getConstant("you")));
@@ -106,7 +105,7 @@ public class ProverStateMachineTests extends TestSuite {
 
     @Test
     public void testCase3C() throws Exception {
-        List<Gdl> desc = KifReader.read("games/rulesheets/test_case_3c.kif");
+        List<Gdl> desc = KifReader.read("games/test/test_case_3c.kif");
         sm.initialize(desc);
         MachineState state = sm.getInitialState();
         Role xplayer = new Role(GdlPool.getProposition(GdlPool.getConstant("xplayer")));
@@ -119,9 +118,23 @@ public class ProverStateMachineTests extends TestSuite {
         Assert.assertEquals(sm.getGoals(state), Collections.singletonList(100));
     }
 
+    @Test
+    public void testCase5A() throws Exception {
+        List<Gdl> desc = KifReader.read("games/test/test_case_5a.kif");
+        sm.initialize(desc);
+        MachineState state = sm.getInitialState();
+        Role you = new Role(GdlPool.getProposition(GdlPool.getConstant("you")));
+        Assert.assertFalse(sm.isTerminal(state));
+        Assert.assertEquals(sm.getLegalMoves(state, you).size(), 1);
+        Assert.assertEquals(sm.getLegalMoves(state, you).get(0), move("proceed"));
+        state = sm.getNextState(state, Collections.singletonList(move("proceed")));
+        Assert.assertTrue(sm.isTerminal(state));
+        Assert.assertEquals(sm.getGoal(state, you), 100);
+        Assert.assertEquals(sm.getGoals(state), Collections.singletonList(100));
+    }
+
     protected Move move(String description) {
         String[] parts = description.split(" ");
-        Assert.assertTrue(parts.length > 0);
         GdlConstant head = GdlPool.getConstant(parts[0]);
         if(parts.length == 1)
             return new Move(GdlPool.getProposition(head));

@@ -13,15 +13,15 @@ public class StaticValidationTests {
 
     @Test
     public void testAsteroidsValidation() throws Exception {
-        validate("asteroids");
+        validate("../rulesheets/asteroids");
     }
     @Test
     public void testConn4Validation() throws Exception {
-        validate("conn4");
+        validate("../rulesheets/conn4");
     }
     @Test
     public void testSimpleMutexValidation() throws Exception {
-        validate("simpleMutex");
+        validate("../rulesheets/simpleMutex");
     }
     @Test
     public void test1AValidation() throws Exception {
@@ -72,12 +72,16 @@ public class StaticValidationTests {
         validate("test_case_4a");
     }    
     @Test
+    public void test5AValidation() throws Exception {
+        validate("test_case_5a");
+    }    
+    @Test
     public void testTicTacToeValidation() throws Exception {
-        validate("tictactoe");
+        validate("../rulesheets/tictactoe");
     }
     
     protected void validate(String gameName) throws Exception {
-        List<Gdl> desc = KifReader.read("games/rulesheets/"+gameName+".kif");
+        List<Gdl> desc = KifReader.read("games/test/"+gameName+".kif");
         StaticValidator.validateDescription(desc);
     }
     
