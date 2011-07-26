@@ -1,0 +1,19 @@
+;; This tests an edge case when handling GDL.
+;; This test case ensures that a player (or state machine)
+;; can handle certain patterns of doubled-up variables.
+;; (This is a regression test for the ProverStateMachine.)
+
+(role you)
+(goal you 100)
+(next done)
+(<= terminal
+	(true done))
+(legal you (draw 1 1 1 2))
+	
+(<= (next (line ?x1 ?y1 ?x2 ?y2))
+	(does ?player (draw ?x1 ?y1 ?x2 ?y2)))
+
+(<= (h_drawn ?x1 ?y ?x2 ?y)
+	(does ?player (draw ?x1 ?y ?x2 ?y)))
+(<= (next (box ?x1 ?y1))
+	(h_drawn ?x1 ?y1 ?x2 ?y1))
