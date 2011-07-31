@@ -146,6 +146,21 @@ public class ProverStateMachineTests {
         Assert.assertTrue(sm.isTerminal(state));
     }
     
+    @Test
+    public void testCase5C() throws Exception {
+        List<Gdl> desc = KifReader.read("games/test/test_case_5c.kif");
+        sm.initialize(desc);
+        MachineState state = sm.getInitialState();
+        Role you = new Role(GdlPool.getProposition(GdlPool.getConstant("you")));
+        Assert.assertFalse(sm.isTerminal(state));
+        Assert.assertEquals(sm.getLegalMoves(state, you).size(), 1);
+        Assert.assertEquals(sm.getLegalMoves(state, you).get(0), move("proceed"));
+        state = sm.getNextState(state, Collections.singletonList(move("proceed")));
+        Assert.assertTrue(sm.isTerminal(state));
+        Assert.assertEquals(sm.getGoal(state, you), 100);
+        Assert.assertEquals(sm.getGoals(state), Collections.singletonList(100));
+    }
+    
     protected Move move(String description) {
         String[] parts = description.split(" ");
         GdlConstant head = GdlPool.getConstant(parts[0]);

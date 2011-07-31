@@ -76,6 +76,14 @@ public class StaticValidationTests {
         validate("test_case_5a");
     }    
     @Test
+    public void test5BValidation() throws Exception {
+        validate("test_case_5b");
+    }    
+    @Test
+    public void test5CValidation() throws Exception {
+        validate("test_case_5c");
+    }    
+    @Test
     public void testTicTacToeValidation() throws Exception {
         validate("../rulesheets/tictactoe");
     }
