@@ -1,1 +1,0 @@
-		<div id="main" style="position:relative; height:50px; width:200px">			Stress Test<br/>No visualization available		</div>		
