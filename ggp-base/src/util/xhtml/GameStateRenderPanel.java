@@ -49,7 +49,7 @@ public class GameStateRenderPanel extends JPanel {
     {
         Graphics2DRenderer r = new Graphics2DRenderer();
         if (isLocalVisualization) {
-            r.getSharedContext().setUserAgentCallback(getUAC());
+          r.getSharedContext().setUserAgentCallback(getUAC());
         }
 
         String xhtml = getXHTMLfromGameXML(gameXML, XSL);
@@ -107,65 +107,61 @@ public class GameStateRenderPanel extends JPanel {
                 ImageResource ir;
                 uri = resolveURI(uri);
                 ir = (ImageResource) _imageCache.get(uri);
-                //TODO: check that cached image is still valid
-                if (ir == null) {
-                    InputStream is = null;
+                if (ir != null) {
+                  return ir;
+                }
+                
+                // Couldn't load image from cache: need to fetch original source.
+                InputStream is = null;
+                String expectedPrefix = "http://www.ggp.org/docserver/gamemaster/images/"; 
+                if (!uri.startsWith(expectedPrefix)) {
+                    System.err.println("Unexpected prefix for image URI: " + uri);
+                    return createImageResource(uri, null);
+                }
+                File localImg = new File(new File("games", "images"), uri.replace(expectedPrefix, ""));
 
-                    String[] chunks = uri.split("/");
-                    String filename = chunks[chunks.length-1];
-                    File localImg = new File("games", "images");
-                    for(int i=chunks.length-1; i>0; i--)
-                        if(chunks[i].equals("images"))
-                        {
-                            for(int j=i+1; j<chunks.length-1; j++)
-                                localImg = new File(localImg, chunks[j]);                				
-                            break;
-                        }
-                    localImg.mkdirs();
-                    localImg = new File(localImg, filename);
+                // Ensure the image is present on the local disk.
+                boolean presentLocally = localImg.exists();
+                if (!presentLocally) {
+                  return createImageResource(uri, null);
+                }
+                
+                // Open a stream from the file on the local disk.
+                try {
+                  is = new FileInputStream(localImg);
+                } catch(Exception ex) {
+                  ex.printStackTrace();
+                }
+                if (is == null) {
+                  return createImageResource(uri, null);
+                }
 
-                    boolean presentLocally = localImg.exists();
-                    if(presentLocally)
-                    {
-                        try {
-                            is = new FileInputStream(localImg);
-                        } catch(Exception ex) { ex.printStackTrace(); }
+                // Read the image from the stream.
+                try {
+                    BufferedImage img = ImageIO.read(is);
+                    if (img == null) {
+                      System.err.println("ImageIO.read() returned null");
+                      throw new IOException("ImageIO.read() returned null");
                     }
-                    else
-                    {
-                        is = resolveAndOpenStream(uri);
-                    }
-
-                    if (is != null) {
-                        try {
-                            BufferedImage img = ImageIO.read(is);
-                            if(!presentLocally)
-                            {
-                                ImageIO.write(img, "png", localImg);                       	
-                            }
-                            if (img == null) {
-                                System.err.println("ImageIO.read() returned null");
-                                throw new IOException("ImageIO.read() returned null");
-                            }
-                            ir = createImageResource(uri, img);
-                            _imageCache.put(uri, ir);
-                        } catch (FileNotFoundException e) {
-                            System.err.println("Can't read image file; image at URI '" + uri + "' not found");
-                        } catch (IOException e) {
-                            System.err.println("Can't read image file; unexpected problem for URI '" + uri + "': " + e);
-                        } finally {
-                            try {
-                                is.close();
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
-                        }
+                    ir = createImageResource(uri, img);
+                    _imageCache.put(uri, ir);
+                } catch (FileNotFoundException e) {
+                    System.err.println("Can't read image file; image at URI '" + uri + "' not found");
+                } catch (IOException e) {
+                    System.err.println("Can't read image file; unexpected problem for URI '" + uri + "': " + e);
+                } finally {
+                    try {
+                      is.close();
+                    } catch (IOException e) {
+                      e.printStackTrace();
                     }
                 }
-                if (ir == null) {
-                    ir = createImageResource(uri, null);
+                if (ir != null) {
+                    return ir;
                 }
-                return ir;
+                
+                // Couldn't fetch original image source; need to create stub.
+                return createImageResource(uri, null);
             }
         };
     }
