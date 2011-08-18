@@ -28,15 +28,129 @@ import util.gdl.model.SentenceModel.SentenceForm;
 import util.gdl.transforms.ConstantFinder.ConstantChecker;
 import util.propnet.factory.Assignments;
 
+/**
+ * The CondensationIsolator is a GDL transformation designed to split up
+ * rules in a way that results in smaller propnets. For example, we may
+ * have a rule as follows:
+ * 
+ * (<= (foo ?x ?y)
+ *     (bar ?x ?y)
+ *     (baz ?y ?z))
+ *     
+ * In the propnet, this will result in one AND node for each combination
+ * of ?x, ?y, and ?z. The CondensationIsolator would split it up as follows:
+ * 
+ * (<= (foo ?x ?y)
+ *     (bar ?x ?y)
+ *     (baz_tmp0 ?y))
+ * (<= (baz_tmp0 ?y)
+ *     (baz ?y ?z))
+ * 
+ * In the propnet, there will now be one AND node for each combination of
+ * ?x and ?y and one new link for each combination of ?y and ?z, but there
+ * will not be a cross-product of the domains of all three.
+ * 
+ * "Condensation" refers to the type of rule generated, in which we simply
+ * ignore certain variables.
+ *  
+ * @author Alex Landau
+ *
+ */
 public class CondensationIsolator {
 
+    public enum RestraintOption {
+        NO_RESTRAINT,
+        DEFAULT_RESTRAINT,
+        MORE_RESTRAINT,
+    }
+    
+    //TODO: Eliminate redundancy of constConstraint/useHeuristic somehow
+    //Not thread-safe
+    public static class CondensationIsolatorConfiguration {
+        private RestraintOption restraintOption;
+        private boolean ignoreConstants;
+        private boolean constConstraint;
+        private boolean useHeuristic;
+        private boolean analyticFunctionOrdering;
+
+        public CondensationIsolatorConfiguration(
+                RestraintOption restraintOption, boolean ignoreConstants,
+                boolean constConstraint, boolean useHeuristic,
+                boolean analyticFunctionOrdering) {
+            this.restraintOption = restraintOption;
+            this.ignoreConstants = ignoreConstants;
+            this.constConstraint = constConstraint;
+            this.useHeuristic = useHeuristic;
+            this.analyticFunctionOrdering = analyticFunctionOrdering;
+        }
+        
+        public RestraintOption getRestraintOption() {
+            return restraintOption;
+        }
+        public void setRestraintOption(RestraintOption restraintOption) {
+            this.restraintOption = restraintOption;
+        }
+        public boolean ignoreConstants() {
+            return ignoreConstants;
+        }
+        public void setIgnoreConstants(boolean ignoreConstants) {
+            this.ignoreConstants = ignoreConstants;
+        }
+        public boolean useConstConstraint() {
+            return constConstraint;
+        }
+        public void setConstConstraint(boolean constConstraint) {
+            this.constConstraint = constConstraint;
+        }
+        public boolean useHeuristic() {
+            return useHeuristic;
+        }
+        public void setUseHeuristic(boolean useHeuristic) {
+            this.useHeuristic = useHeuristic;
+        }
+        public boolean useAnalyticFunctionOrdering() {
+            return analyticFunctionOrdering;
+        }
+        //TODO: Make this boolean into an enumeration.
+        /**
+         * Set whether we want to use an analytic function ordering, in the
+         * case that we use heuristic evaluation of condensation sets.
+         * This may give worse results than the alternative ordering method,
+         * but will not take unreasonable amounts of time on diffiult rules.
+         * It is enabled by default when using heuristics.
+         */
+        public void setAnalyticFunctionOrdering(boolean analyticFunctionOrdering) {
+            this.analyticFunctionOrdering = analyticFunctionOrdering;
+        }
+    }
+    
+    public static CondensationIsolatorConfiguration getDefaultConfiguration() {
+        return getHeuristicConfiguration();
+    }
+    public static CondensationIsolatorConfiguration getHeuristicConfiguration() {
+        return new CondensationIsolatorConfiguration(
+                RestraintOption.DEFAULT_RESTRAINT,
+                true,
+                false,
+                true,
+                true);
+    }
+    public static CondensationIsolatorConfiguration getNonHeuristicConfiguration() {
+        return new CondensationIsolatorConfiguration(
+                RestraintOption.DEFAULT_RESTRAINT,
+                true,
+                false,
+                false,
+                false);
+    }
+    
+    public static List<Gdl> run(List<Gdl> description) {
+        return run(description,
+                getDefaultConfiguration());
+    }
+    
 	public static List<Gdl> run(List<Gdl> description,
-			boolean restrained,
-			boolean moreRestrained,
-			boolean ignoreConstants,
-			boolean constConstraint,
-			boolean useHeuristic,
-			boolean analyticFunctionOrdering) {
+	        CondensationIsolatorConfiguration config) {
 		//This class is not put together in any "optimal" way, so it's left in
 		//an unpolished state for now. A better version would use estimates of
 		//the impact of breaking apart rules. (It also needs to stop itself from
@@ -141,11 +255,11 @@ public class CondensationIsolator {
 				continue;
 			}
 			GdlSentence curRuleHead = curRule.getHead();
-			if(ignoreConstants && SentenceModel.inSentenceFormGroup(curRuleHead, constantForms)) {
+			if(config.ignoreConstants() && SentenceModel.inSentenceFormGroup(curRuleHead, constantForms)) {
 				newDescription.add(curRule);
 				continue;
 			}
-			Set<GdlLiteral> condensationSet = getCondensationSet(curRule, model, checker, restrained, moreRestrained, constConstraint, constantForms, useHeuristic, analyticFunctionOrdering);
+			Set<GdlLiteral> condensationSet = getCondensationSet(curRule, model, checker, constantForms, config);
 			if(condensationSet != null) {
 				List<GdlRule> newRules = applyCondensation(condensationSet, curRule, sentenceNames); 
 				rulesToAdd.addAll(newRules);
@@ -262,10 +376,8 @@ public class CondensationIsolator {
 	private static Set<GdlLiteral> getCondensationSet(GdlRule rule,
 			SentenceModel model,
 			ConstantChecker checker,
-			boolean restrained, boolean moreRestrained,
-			boolean constConstraint, Set<SentenceForm> constantForms,
-			boolean useHeuristic,
-			boolean analyticFunctionOrdering) {
+			Set<SentenceForm> constantForms,
+			CondensationIsolatorConfiguration config) {
 		//We use each variable as a starting point
 		List<GdlVariable> varsInRule = SentenceModel.getVariables(rule);
 		List<GdlVariable> varsInHead = SentenceModel.getVariables(rule.getHead());
@@ -288,7 +400,7 @@ public class CondensationIsolator {
 				else if(literal instanceof GdlDistinct || literal instanceof GdlNot)
 					varsNeeded.addAll(SentenceModel.getVariables(literal));
 			varsNeeded.removeAll(varsSupplied);
-			if(restrained && !varsNeeded.isEmpty())
+			if(config.getRestraintOption() != RestraintOption.NO_RESTRAINT && !varsNeeded.isEmpty())
 				continue;
 
 			List<Set<GdlLiteral>> candidateSuppliersList = new ArrayList<Set<GdlLiteral>>();
@@ -312,10 +424,10 @@ public class CondensationIsolator {
 					literalsToAdd.add(suppliers.iterator().next());
 			minSet.addAll(literalsToAdd);
 
-			if(!useHeuristic && goodCondensationSet(minSet, rule, moreRestrained, constConstraint, constantForms))
+			if(!config.useHeuristic() && goodCondensationSet(minSet, rule, config, constantForms))
 				return minSet;
 
-			if(useHeuristic && goodCondensationSetByHeuristic(minSet, rule, model, checker, analyticFunctionOrdering))
+			if(config.useHeuristic() && goodCondensationSetByHeuristic(minSet, rule, model, checker, config))
 				return minSet;
 			
 		}
@@ -324,7 +436,7 @@ public class CondensationIsolator {
 
 	private static boolean goodCondensationSetByHeuristic(
 			Set<GdlLiteral> minSet, GdlRule rule, SentenceModel model,
-			ConstantChecker checker, boolean analyticFunctionOrdering) {
+			ConstantChecker checker, CondensationIsolatorConfiguration config) {
 		//We actually want the sentence model here so we can see the domains
 		//also, if it's a constant, ...
 		//Anyway... we want to compare the heuristic for the number of assignments
@@ -344,7 +456,7 @@ public class CondensationIsolator {
 
 		//Heuristic for the rule as-is:
 
-		long assignments = Assignments.getNumAssignmentsEstimate(rule, model, checker, analyticFunctionOrdering);
+		long assignments = Assignments.getNumAssignmentsEstimate(rule, model, checker, config.useAnalyticFunctionOrdering());
 		int literals = rule.arity();
 		if(literals > 1)
 			literals++; //We have to "and" the literals together
@@ -365,8 +477,8 @@ public class CondensationIsolator {
 
 		ConstantChecker newChecker = new ConstantChecker(checker);
 		newChecker.replaceRules(oldRules, newRules);
-		long a1 = Assignments.getNumAssignmentsEstimate(r1, newModel, newChecker, analyticFunctionOrdering);
-		long a2 = Assignments.getNumAssignmentsEstimate(r2, newModel, newChecker, analyticFunctionOrdering);
+		long a1 = Assignments.getNumAssignmentsEstimate(r1, newModel, newChecker, config.useAnalyticFunctionOrdering());
+		long a2 = Assignments.getNumAssignmentsEstimate(r2, newModel, newChecker, config.useAnalyticFunctionOrdering());
 		int l1 = r1.arity(); if(l1 > 1) l1++;
 		int l2 = r2.arity(); if(l2 > 1) l2++;
 
@@ -376,9 +488,9 @@ public class CondensationIsolator {
 	}
 
 	private static boolean goodCondensationSet(Set<GdlLiteral> condensationSet, GdlRule rule,
-			boolean moreRestrained, boolean constConstraint, Set<SentenceForm> constantForms) {
+			CondensationIsolatorConfiguration config, Set<SentenceForm> constantForms) {
 		List<GdlVariable> varsInHead = SentenceModel.getVariables(rule.getHead());
-		if(moreRestrained) {
+		if(config.getRestraintOption() == RestraintOption.MORE_RESTRAINT) {
 			//How many non-head variables will we need to "keep"?
 			//If fewer than the number we're eliminating, don't bother
 			//Alternative: If any, don't bother
@@ -397,7 +509,7 @@ public class CondensationIsolator {
 			if(varsToKeep.size() >= varsEliminated.size())
 				return false;
 		}
-		if(constConstraint) {
+		if(config.useConstConstraint()) {
 			//Here's a problem case with this example:
 			//( <= ( next_tmp10 ?xAny ?yAny ) ( does ?a1 ( jump ?x1 ?y1 ?a4 ?a2 ?a3 ?a0 ) ) ( distinctCell ?xAny ?yAny ?x1 ?y1 ) )
 			//We want this to be broken up

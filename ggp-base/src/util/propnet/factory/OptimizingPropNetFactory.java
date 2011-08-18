@@ -28,14 +28,15 @@ import util.gdl.grammar.GdlVariable;
 import util.gdl.model.SentenceModel;
 import util.gdl.model.SentenceModel.SentenceForm;
 import util.gdl.transforms.CommonTransforms;
-import util.gdl.transforms.Relationizer;
-import util.gdl.transforms.SimpleCondensationIsolator;
+import util.gdl.transforms.CondensationIsolator;
+import util.gdl.transforms.ConstantFinder;
 import util.gdl.transforms.CrudeSplitter;
 import util.gdl.transforms.DeORer;
 import util.gdl.transforms.GdlCleaner;
-import util.gdl.transforms.CondensationIsolator;
-import util.gdl.transforms.ConstantFinder;
+import util.gdl.transforms.Relationizer;
+import util.gdl.transforms.SimpleCondensationIsolator;
 import util.gdl.transforms.VariableConstrainer;
+import util.gdl.transforms.CondensationIsolator.CondensationIsolatorConfiguration;
 import util.gdl.transforms.ConstantFinder.ConstantChecker;
 import util.propnet.architecture.Component;
 import util.propnet.architecture.PropNet;
@@ -70,6 +71,8 @@ import util.statemachine.Role;
  *   and CondensationIsolator.
  *   - The mutex finder in particular is very ungeneralized. It should be replaced
  *     with a more general mutex finder.
+ *   - Actually, the referenced solution is not even enabled at the moment. It may
+ *     not be working even with the proper options set.
  * - Depending on the settings and the situation, the behavior of the
  *   CondensationIsolator can be either too aggressive or not aggressive enough.
  *   Both result in excessively large games. A more sophisticated version of the
@@ -100,17 +103,27 @@ public class OptimizingPropNetFactory {
 	//Still problems with conn4, mummyMaze2p_2007, sudoku2;
 	// possibly others?
 	public static PropNet create(List<Gdl> description, boolean verbose) {
-		return create(description, verbose, true, false, false, false, true, true);
+		return create(description, verbose, CondensationOption.DEFAULT_CONDENSERS,
+		        CondensationIsolator.getDefaultConfiguration(),
+		        SplitterOption.NO_SPLITTER);
+	}
+	
+	public enum CondensationOption {
+	    DEFAULT_CONDENSERS,
+	    NO_CONDENSERS,
+	    SIMPLE_CONDENSERS,
+	}
+	
+	public enum SplitterOption {
+	    NO_SPLITTER,
+	    CRUDE_SPLITTER,
 	}
 	
 	public static PropNet create(List<Gdl> description,
 			boolean verbose,
-			boolean useAdvancedCondensers,
-			boolean moreRestraint,
-			boolean useCrudeSplitter,
-			boolean constConstraint,
-			boolean useHeuristic,
-			boolean analyticFunctionOrdering)
+			CondensationOption condensationOption,
+			CondensationIsolatorConfiguration ciConfig,
+			SplitterOption splitterOption)
 	{
 		System.out.println("Building propnet...");
 
@@ -121,15 +134,22 @@ public class OptimizingPropNetFactory {
 		description = VariableConstrainer.replaceFunctionValuedVariables(description);
 		description = Relationizer.run(description);
 
-		if(useCrudeSplitter) {
-			description = CrudeSplitter.run(description);
-			description = CondensationIsolator.run(description, true, true, true, constConstraint, useHeuristic, analyticFunctionOrdering);
-		} else {
-			if(!useAdvancedCondensers)
-				description = SimpleCondensationIsolator.run(description, false);
-			if(useAdvancedCondensers)
-				description = CondensationIsolator.run(description, true, moreRestraint, true, constConstraint, useHeuristic, analyticFunctionOrdering);
+		if(splitterOption == SplitterOption.CRUDE_SPLITTER
+		        && condensationOption != CondensationOption.DEFAULT_CONDENSERS) {
+		    System.err.println("Warning: using crude splitter with simple or no condensation is usually pointless");
 		}
+		
+		if(splitterOption == SplitterOption.CRUDE_SPLITTER) {
+			description = CrudeSplitter.run(description);
+		}
+		
+		if(condensationOption == CondensationOption.DEFAULT_CONDENSERS) {
+            description = CondensationIsolator.run(description, ciConfig);		    
+		} else if(condensationOption == CondensationOption.SIMPLE_CONDENSERS) {
+		    description = SimpleCondensationIsolator.run(description, false);
+		}
+		
+		
 		if(verbose)
 			for(Gdl gdl : description)
 				System.out.println(gdl);
