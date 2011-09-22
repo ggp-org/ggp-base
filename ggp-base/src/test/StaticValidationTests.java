@@ -82,7 +82,12 @@ public class StaticValidationTests {
     @Test
     public void test5CValidation() throws Exception {
         validate("test_case_5c");
-    }    
+    }
+    @Test(expected=StaticValidatorException.class)
+    public void testCleanNotDistinctValidation() throws Exception {
+        validate("test_clean_not_distinct");
+    }
+    
     @Test
     public void testTicTacToeValidation() throws Exception {
         validate("../rulesheets/tictactoe");

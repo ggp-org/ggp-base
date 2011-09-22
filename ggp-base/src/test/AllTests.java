@@ -5,7 +5,8 @@ import org.junit.runners.Suite;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({ProverStateMachineTests.class,
-                     StaticValidationTests.class
+                     StaticValidationTests.class,
+                     GdlCleanerTests.class
                      })
 public class AllTests {
     

@@ -56,10 +56,85 @@ public class GdlCleaner {
 		}
 		//TODO: Get rid of GdlPropositions in the description
 		
+		//Get rid of (not (distinct _ _)) literals in rules
+		//TODO: Expand to functions
+		description = newDescription;
+		newDescription = new ArrayList<Gdl>();
+		for(Gdl gdl : description) {
+		    if(gdl instanceof GdlRule) {
+		        GdlRule cleaned = removeNotDistinctLiterals((GdlRule)gdl);
+		        if(cleaned != null)
+		            newDescription.add(cleaned);
+		    } else {
+		        newDescription.add(gdl);
+		    }
+		}
+		
 		return newDescription;
 	}
 
-	private static GdlRule cleanParentheses(GdlRule rule) {
+	private static GdlRule removeNotDistinctLiterals(GdlRule rule) {
+        while(rule != null && getNotDistinctLiteral(rule) != null) {
+            rule = removeNotDistinctLiteral(rule, getNotDistinctLiteral(rule));
+        }
+        return rule;
+    }
+
+    private static GdlNot getNotDistinctLiteral(GdlRule rule) {
+        for(GdlLiteral literal : rule.getBody()) {
+            if(literal instanceof GdlNot) {
+                GdlNot not = (GdlNot) literal;
+                if(not.getBody() instanceof GdlDistinct) {
+                    //For now, we can only deal with this if not both are functions.
+                    //That means we have to skip that case at this point.
+                    GdlDistinct distinct = (GdlDistinct) not.getBody();
+                    if(!(distinct.getArg1() instanceof GdlFunction)
+                            || !(distinct.getArg2() instanceof GdlFunction))
+                        return not;
+                }
+            }
+        }
+        return null;
+    }
+
+    //Returns null if the rule is useless.
+    private static GdlRule removeNotDistinctLiteral(GdlRule rule, GdlNot notDistinctLiteral) {
+        //Figure out the substitution we want...
+        //If we have two constants: Either remove one or
+        //maybe get rid of the ___?
+        //One is a variable: Replace the variable with the other thing
+        //throughout the rule
+        GdlDistinct distinct = (GdlDistinct) notDistinctLiteral.getBody();
+        GdlTerm arg1 = distinct.getArg1();
+        GdlTerm arg2 = distinct.getArg2();
+        if(arg1 == arg2) {
+            //Just remove that literal
+            List<GdlLiteral> newBody = new ArrayList<GdlLiteral>();
+            newBody.addAll(rule.getBody());
+            newBody.remove(notDistinctLiteral);
+            return GdlPool.getRule(rule.getHead(), newBody);
+        }
+        if(arg1 instanceof GdlVariable) {
+            //What we return will still have the not-distinct literal,
+            //but it will get replaced in the next pass.
+            //(Even if we have two variables, they will be equal next time through.)
+            return CommonTransforms.replaceVariable(rule, (GdlVariable)arg1, arg2);
+        }
+        if(arg2 instanceof GdlVariable) {
+            return CommonTransforms.replaceVariable(rule, (GdlVariable)arg2, arg1);
+        }
+        if(arg1 instanceof GdlConstant || arg2 instanceof GdlConstant) {
+            //We have two non-equal constants, or a constant and a function.
+            //The rule should have no effect.
+            return null;
+        }
+        //We have two functions. Complicated! (Have to replace them with unified version.)
+        //We pass on this case for now.
+        //TODO: Implement correctly.
+        throw new UnsupportedOperationException("We can't currently handle (not (distinct <function> <function>)).");
+    }
+
+    private static GdlRule cleanParentheses(GdlRule rule) {
 		GdlSentence cleanedHead = cleanParentheses(rule.getHead());
 		List<GdlLiteral> cleanedBody = new ArrayList<GdlLiteral>();
 		for(GdlLiteral literal : rule.getBody())

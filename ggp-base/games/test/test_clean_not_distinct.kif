@@ -1,0 +1,50 @@
+; Test that the GdlCleaner can properly handle (not (distinct X Y))
+
+(role player)
+
+(domain 1)
+(domain 2)
+(domain 3)
+
+(c 2)
+
+(<= a
+	(not (distinct p p)))
+(<= (b ?x)
+	(c ?y)
+	(domain ?x)
+	(not (distinct ?x ?y)))
+(<= (d 3)
+	(c ?y)
+	(not (distinct 3 ?y)))
+(<= (d 3)
+	(c ?y)
+	(not (distinct ?y 3)))
+(<= (e 3)
+	(c ?y)
+	(not (distinct 2 ?y)))
+(<= (f 3)
+	(c ?y)
+	(not (distinct ?y 2)))
+
+(<= z
+	(not (distinct p q)))
+
+(<= success
+	a
+	(not (b 1))
+	(b 2)
+	(not (d 3))
+	(e 3)
+	(f 3)
+	(not z))
+(<= (goal player 100)
+	success)
+(<= (goal player 0)
+	(not success))
+	
+(legal player proceed)
+(<= (next done)
+	(does player proceed))
+(<= terminal
+	(true done))
