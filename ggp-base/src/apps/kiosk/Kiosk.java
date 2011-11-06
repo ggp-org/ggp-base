@@ -239,7 +239,7 @@ public final class Kiosk extends JPanel implements ActionListener, ItemListener,
 
         @Override
         public int compareTo(AvailableGame o) {
-            return gameName.compareTo(((AvailableGame)o).gameName);
+            return gameName.compareTo(o.gameName);
         }
     }    
     

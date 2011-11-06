@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Queue;
 import java.util.Set;
 
+import util.concurrency.ConcurrencyUtils;
 import util.gdl.grammar.Gdl;
 import util.gdl.grammar.GdlConstant;
 import util.gdl.grammar.GdlDistinct;
@@ -144,13 +145,13 @@ public class CondensationIsolator {
                 false);
     }
     
-    public static List<Gdl> run(List<Gdl> description) {
+    public static List<Gdl> run(List<Gdl> description) throws InterruptedException {
         return run(description,
                 getDefaultConfiguration());
     }
     
 	public static List<Gdl> run(List<Gdl> description,
-	        CondensationIsolatorConfiguration config) {
+	        CondensationIsolatorConfiguration config) throws InterruptedException {
 		//This class is not put together in any "optimal" way, so it's left in
 		//an unpolished state for now. A better version would use estimates of
 		//the impact of breaking apart rules. (It also needs to stop itself from
@@ -246,6 +247,8 @@ public class CondensationIsolator {
 		Set<String> sentenceNames = new HashSet<String>(model.getSentenceNames());
 		Set<SentenceForm> constantForms = model.getConstantSentenceForms();
 		
+		ConcurrencyUtils.checkForInterruption();
+		
 		//Collection<SentenceForm> constantForms = model;
 		while(!rulesToAdd.isEmpty()) {
 			GdlRule curRule = rulesToAdd.remove();
@@ -260,6 +263,7 @@ public class CondensationIsolator {
 				continue;
 			}
 			Set<GdlLiteral> condensationSet = getCondensationSet(curRule, model, checker, constantForms, config);
+			ConcurrencyUtils.checkForInterruption();
 			if(condensationSet != null) {
 				List<GdlRule> newRules = applyCondensation(condensationSet, curRule, sentenceNames); 
 				rulesToAdd.addAll(newRules);
@@ -377,7 +381,7 @@ public class CondensationIsolator {
 			SentenceModel model,
 			ConstantChecker checker,
 			Set<SentenceForm> constantForms,
-			CondensationIsolatorConfiguration config) {
+			CondensationIsolatorConfiguration config) throws InterruptedException {
 		//We use each variable as a starting point
 		List<GdlVariable> varsInRule = SentenceModel.getVariables(rule);
 		List<GdlVariable> varsInHead = SentenceModel.getVariables(rule.getHead());
@@ -385,6 +389,8 @@ public class CondensationIsolator {
 		varsNotInHead.removeAll(varsInHead);
 
 		for(GdlVariable var : varsNotInHead) {
+			ConcurrencyUtils.checkForInterruption();
+
 			Set<GdlLiteral> minSet = new HashSet<GdlLiteral>();
 			for(GdlLiteral literal : rule.getBody())
 				if(SentenceModel.getVariables(literal).contains(var))
@@ -436,7 +442,7 @@ public class CondensationIsolator {
 
 	private static boolean goodCondensationSetByHeuristic(
 			Set<GdlLiteral> minSet, GdlRule rule, SentenceModel model,
-			ConstantChecker checker, CondensationIsolatorConfiguration config) {
+			ConstantChecker checker, CondensationIsolatorConfiguration config) throws InterruptedException {
 		//We actually want the sentence model here so we can see the domains
 		//also, if it's a constant, ...
 		//Anyway... we want to compare the heuristic for the number of assignments

@@ -22,11 +22,11 @@ import util.gdl.grammar.GdlSentence;
 import util.gdl.grammar.GdlVariable;
 import util.gdl.model.SentenceModel.SentenceForm;
 import util.gdl.transforms.CommonTransforms;
+import util.gdl.transforms.ConstantFinder;
+import util.gdl.transforms.ConstantFinder.ConstantChecker;
 import util.gdl.transforms.DeORer;
 import util.gdl.transforms.GdlCleaner;
-import util.gdl.transforms.ConstantFinder;
 import util.gdl.transforms.VariableConstrainer;
-import util.gdl.transforms.ConstantFinder.ConstantChecker;
 import util.propnet.factory.Assignments;
 import util.propnet.factory.Assignments.AssignmentIterator;
 import util.propnet.factory.Assignments.ConstantForm;
@@ -49,7 +49,7 @@ public class GameFlow {
 	Set<SentenceForm> constantForms;
 	ConstantChecker constantChecker;
 
-	public GameFlow(List<Gdl> description) {
+	public GameFlow(List<Gdl> description) throws InterruptedException {
 		
 		description = GdlCleaner.run(description);
 		description = DeORer.run(description);

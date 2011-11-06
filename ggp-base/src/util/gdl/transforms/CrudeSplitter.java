@@ -21,7 +21,7 @@ import util.gdl.model.Mutex;
 import util.gdl.model.SentenceModel;
 
 public class CrudeSplitter {
-	public static List<Gdl> run(List<Gdl> description) {
+	public static List<Gdl> run(List<Gdl> description) throws InterruptedException {
 		//Recommend running CI, then this, then CI again
 		
 		Set<Mutex> mutexes = MoveMutexFinder.findMutexes(description);

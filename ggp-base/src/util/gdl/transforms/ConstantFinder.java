@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 
+import util.concurrency.ConcurrencyUtils;
 import util.gdl.grammar.Gdl;
 import util.gdl.grammar.GdlConstant;
 import util.gdl.grammar.GdlDistinct;
@@ -35,8 +36,9 @@ public class ConstantFinder {
 	 * This can be useful for state machines working with games that use
 	 * sentences to describe things like the sum of two integers in the range
 	 * [0, 100]. (This can crash many state machines.)
+	 * @throws InterruptedException 
 	 */
-	public static ConstantChecker getConstants(List<Gdl> description) {
+	public static ConstantChecker getConstants(List<Gdl> description) throws InterruptedException {
 		description = DeORer.run(description);
 		description = VariableConstrainer.replaceFunctionValuedVariables(description);
 		
@@ -50,7 +52,7 @@ public class ConstantFinder {
 		
 		Map<SentenceForm, ConstantForm> constForms;
 		
-		public ConstantChecker(List<Gdl> description) {
+		public ConstantChecker(List<Gdl> description) throws InterruptedException {
 			roles = Role.computeRoles(description);
 			
 			model = new SentenceModel(description, true);
@@ -168,7 +170,7 @@ public class ConstantFinder {
 		
 		@SuppressWarnings("unchecked")
 		private void addConstantSentenceForm(SentenceForm form,
-				Set<GdlRelation> relations, Set<GdlRule> rules) {
+				Set<GdlRelation> relations, Set<GdlRule> rules) throws InterruptedException {
 			Set<GdlRule> nonRecursiveRules = new HashSet<GdlRule>();
 			Set<GdlRule> recursiveRules = new HashSet<GdlRule>();
 
@@ -193,6 +195,7 @@ public class ConstantFinder {
 
 				AssignmentIterator asnItr = assignments.getIterator();
 				while(asnItr.hasNext()) {
+					ConcurrencyUtils.checkForInterruption();
 					Map<GdlVariable, GdlConstant> assignment = asnItr.next();
 
 					boolean isGoodAssignment = true;
@@ -235,6 +238,8 @@ public class ConstantFinder {
 					}
 				}
 			}
+			
+			ConcurrencyUtils.checkForInterruption();
 
 			Set<GdlSentence> allTrueSentences = new HashSet<GdlSentence>(trueByNonRecursives);
 			Set<GdlSentence> recentAdditions = new HashSet<GdlSentence>(trueByNonRecursives);
@@ -244,6 +249,8 @@ public class ConstantFinder {
 				//Da da da, do rules
 				for(GdlRule rule : recursiveRules) {
 					for(GdlSentence input : recentAdditions) {
+						ConcurrencyUtils.checkForInterruption();
+						
 						//TODO: Lack of inputs here seems to be causing slowdown
 						//need constantForms, completedSentenceFormValues
 						Assignments assignments = Assignments.getAssignmentsWithRecursiveInput(rule, model, form, input, constForms, true, Collections.EMPTY_MAP/*TODO sentencesByForm*/);
@@ -336,7 +343,7 @@ public class ConstantFinder {
 		//Currently makes a lot of assumptions about how this will be used.
 		//Basically custom-designed for the CondensationIsolator right now.
 		@SuppressWarnings("unchecked")
-		public void replaceRules(List<GdlRule> oldRules, List<GdlRule> newRules) {
+		public void replaceRules(List<GdlRule> oldRules, List<GdlRule> newRules) throws InterruptedException {
 			//See which of the new rules involve constants
 			outer : for(GdlRule rule : newRules) {
 				for(GdlLiteral literal : rule.getBody()) {

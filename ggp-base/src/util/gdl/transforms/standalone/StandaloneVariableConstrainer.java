@@ -27,10 +27,7 @@ import validator.exception.StaticValidatorException;
  */
 public class StandaloneVariableConstrainer {
 
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
+	public static void main(String[] args) throws InterruptedException {
 		if(args.length < 1 || !args[0].endsWith(".kif")) {
 			System.out.println("Please enter the path of a .kif file as an argument.");
 			return;

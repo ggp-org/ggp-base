@@ -6,8 +6,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import util.gdl.grammar.Gdl;
 import util.gdl.grammar.GdlConstant;
@@ -46,9 +46,10 @@ public class VariableConstrainer {
 	 * 
 	 * @param description A GDL game description.
 	 * @return A modified version of the same game.
+	 * @throws InterruptedException 
 	 * @throws SimplifierException
 	 */
-	public static List<Gdl> replaceFunctionValuedVariables(List<Gdl> description) {
+	public static List<Gdl> replaceFunctionValuedVariables(List<Gdl> description) throws InterruptedException {
 		//until we have "or mode" working, do this first
 		List<Gdl> deoredDescription = DeORer.run(description);
 		

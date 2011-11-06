@@ -31,8 +31,9 @@ public class Relationizer {
 	 * accessed by a visualization. Gamers usually don't need this distinction,
 	 * and can reduce the costs in time and memory of processing the game if
 	 * these statements are instead transformed into sentences.
+	 * @throws InterruptedException 
 	 */
-	public static List<Gdl> run(List<Gdl> description) {
+	public static List<Gdl> run(List<Gdl> description) throws InterruptedException {
 		SentenceModel model = new SentenceModel(description);
 		GdlConstant NEXT = GdlPool.getConstant("next");
 		

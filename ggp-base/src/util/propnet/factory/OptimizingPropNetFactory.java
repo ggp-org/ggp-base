@@ -9,10 +9,11 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Queue;
 import java.util.Set;
-import java.util.Map.Entry;
 
+import util.concurrency.ConcurrencyUtils;
 import util.gdl.grammar.Gdl;
 import util.gdl.grammar.GdlConstant;
 import util.gdl.grammar.GdlDistinct;
@@ -29,15 +30,15 @@ import util.gdl.model.SentenceModel;
 import util.gdl.model.SentenceModel.SentenceForm;
 import util.gdl.transforms.CommonTransforms;
 import util.gdl.transforms.CondensationIsolator;
+import util.gdl.transforms.CondensationIsolator.CondensationIsolatorConfiguration;
 import util.gdl.transforms.ConstantFinder;
+import util.gdl.transforms.ConstantFinder.ConstantChecker;
 import util.gdl.transforms.CrudeSplitter;
 import util.gdl.transforms.DeORer;
 import util.gdl.transforms.GdlCleaner;
 import util.gdl.transforms.Relationizer;
 import util.gdl.transforms.SimpleCondensationIsolator;
 import util.gdl.transforms.VariableConstrainer;
-import util.gdl.transforms.CondensationIsolator.CondensationIsolatorConfiguration;
-import util.gdl.transforms.ConstantFinder.ConstantChecker;
 import util.propnet.architecture.Component;
 import util.propnet.architecture.PropNet;
 import util.propnet.architecture.components.And;
@@ -95,14 +96,20 @@ public class OptimizingPropNetFactory {
     static final private GdlConstant INPUT = GdlPool.getConstant("input");
 	static final private GdlConstant TEMP = GdlPool.getConstant("TEMP");
 
-	public static PropNet create(List<Gdl> description) {
+	/**
+	 * Creates a PropNet for the game with the given description.
+	 * 
+	 * @throws InterruptedException if the thread is interrupted during
+	 * PropNet creation.
+	 */
+	public static PropNet create(List<Gdl> description) throws InterruptedException {
 		return create(description, false);
 	}
 	
 	//These heuristic methods work best on the vast majority of games.
 	//Still problems with conn4, mummyMaze2p_2007, sudoku2;
 	// possibly others?
-	public static PropNet create(List<Gdl> description, boolean verbose) {
+	public static PropNet create(List<Gdl> description, boolean verbose) throws InterruptedException {
 		return create(description, verbose, CondensationOption.DEFAULT_CONDENSERS,
 		        CondensationIsolator.getDefaultConfiguration(),
 		        SplitterOption.NO_SPLITTER);
@@ -123,7 +130,7 @@ public class OptimizingPropNetFactory {
 			boolean verbose,
 			CondensationOption condensationOption,
 			CondensationIsolatorConfiguration ciConfig,
-			SplitterOption splitterOption)
+			SplitterOption splitterOption) throws InterruptedException
 	{
 		System.out.println("Building propnet...");
 
@@ -182,6 +189,7 @@ public class OptimizingPropNetFactory {
 			System.out.print("Computing topological ordering... ");
 			System.out.flush();
 		}
+		ConcurrencyUtils.checkForInterruption();
 		List<SentenceForm> topologicalOrdering = getTopologicalOrdering(model.getSentenceForms(), dependencyGraph, usingBase, usingInput);
 		if(verbose)
 			System.out.println("done");
@@ -195,6 +203,8 @@ public class OptimizingPropNetFactory {
 		Map<SentenceForm, ConstantForm> constantForms = new HashMap<SentenceForm, ConstantForm>();
 		Map<SentenceForm, Collection<GdlSentence>> completedSentenceFormValues = new HashMap<SentenceForm, Collection<GdlSentence>>();
 		for(SentenceForm form : topologicalOrdering) {
+			ConcurrencyUtils.checkForInterruption();
+			
 			if(verbose) {
 				System.out.print("Adding sentence form " + form);
 				System.out.flush();
@@ -259,6 +269,7 @@ public class OptimizingPropNetFactory {
 		components = null;
 		negations = null;
 		completeComponentSet(componentSet);
+		ConcurrencyUtils.checkForInterruption();
 		if(verbose)
 			System.out.println("Initializing propnet object...");
 		//Make it look the same as the PropNetFactory results, until we decide
@@ -774,7 +785,7 @@ public class OptimizingPropNetFactory {
 			Set<SentenceForm> recursionForms,
 			Map<GdlSentence, Component> temporaryComponents, Map<GdlSentence, Component> temporaryNegations,
 			Map<SentenceForm, ConstantForm> constantForms, ConstantChecker constantChecker,
-			Map<SentenceForm, Collection<GdlSentence>> completedSentenceFormValues) {
+			Map<SentenceForm, Collection<GdlSentence>> completedSentenceFormValues) throws InterruptedException {
 		//This is the meat of it (along with the entire Assignments class).
 		//We need to enumerate the possible propositions in the sentence form...
 		//We also need to hook up the sentence form to the inputs that can make it true.
@@ -845,6 +856,8 @@ public class OptimizingPropNetFactory {
 				Map<GdlVariable, GdlConstant> assignment = asnItr.next();
 				if(assignment == null) continue; //Not sure if this will ever happen
 
+				ConcurrencyUtils.checkForInterruption();
+				
 				GdlSentence sentence = CommonTransforms.replaceVariables(rule.getHead(), assignment);
 
 				//Now we go through the conjuncts as before, but we wait to hook them up.
@@ -966,8 +979,6 @@ public class OptimizingPropNetFactory {
 							negations.put(transformed, not);
 							conj = not;
 						}
-						if(conj == null)
-							System.out.println("null case with negated sentence " + transformed);
 						componentsToConnect.add(conj);
 					} else if(literal instanceof GdlDistinct) {
 						//Already handled; ignore
@@ -996,6 +1007,8 @@ public class OptimizingPropNetFactory {
 
 		//At the end, we hook up the conjuncts
 		for(Entry<GdlSentence, Set<Component>> entry : inputsToOr.entrySet()) {
+			ConcurrencyUtils.checkForInterruption();
+
 			GdlSentence sentence = entry.getKey();
 			Set<Component> inputs = entry.getValue();
 			Set<Component> realInputs = new HashSet<Component>();
@@ -1020,6 +1033,8 @@ public class OptimizingPropNetFactory {
 		if(form.getName().equals(TRUE)
 				|| form.getName().equals(DOES)) {
 			for(GdlSentence sentence : form) {
+				ConcurrencyUtils.checkForInterruption();
+
 				Proposition prop = new Proposition(sentence.toTerm());
 				components.put(sentence, prop);
 			}

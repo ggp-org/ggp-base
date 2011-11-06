@@ -39,7 +39,7 @@ public class SimpleCondensationIsolator {
 	 * - Alex Landau
 	 */
 	
-	public static List<Gdl> run(List<Gdl> description, boolean experimental) {
+	public static List<Gdl> run(List<Gdl> description, boolean experimental) throws InterruptedException {
 		//This is much easier on a deORed description
 		description = DeORer.run(description);
 		

@@ -5,8 +5,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import util.gdl.grammar.Gdl;
 import util.gdl.grammar.GdlConstant;
@@ -24,7 +24,7 @@ import util.statemachine.Role;
 public class MoveMutexFinder {
 	private static final GdlConstant LEGAL = GdlPool.getConstant("legal");
 
-	public static Set<Mutex> findMutexes(List<Gdl> description) {
+	public static Set<Mutex> findMutexes(List<Gdl> description) throws InterruptedException {
 		//The kind of logic we're using is as follows:
 		
 		//First, we need to know the flow of the game, as in

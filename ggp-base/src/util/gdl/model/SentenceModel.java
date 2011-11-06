@@ -9,11 +9,12 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Queue;
 import java.util.Set;
 import java.util.Stack;
-import java.util.Map.Entry;
 
+import util.concurrency.ConcurrencyUtils;
 import util.gdl.grammar.Gdl;
 import util.gdl.grammar.GdlConstant;
 import util.gdl.grammar.GdlDistinct;
@@ -44,7 +45,7 @@ public class SentenceModel {
 	//int maxArity = 0;
 	boolean ignoreLanguageRules;
 	
-	public SentenceModel(List<Gdl> description, boolean ignoreLanguageRules) {
+	public SentenceModel(List<Gdl> description, boolean ignoreLanguageRules) throws InterruptedException {
 		this.description = description;
 		this.ignoreLanguageRules = ignoreLanguageRules;
 		List<GdlRule> rules = new ArrayList<GdlRule>();
@@ -104,6 +105,7 @@ public class SentenceModel {
 				//We apply the injection, and note if it changes the model
 				if(applyInjection(rule))
 					somethingChanged = true;
+				ConcurrencyUtils.checkForInterruption();
 			}
 		}
 		
@@ -112,7 +114,7 @@ public class SentenceModel {
 				//maxArity = body.size();
 	}
 	
-	public SentenceModel(List<Gdl> description) {
+	public SentenceModel(List<Gdl> description) throws InterruptedException {
 		this(description, false);
 	}
 

@@ -11,9 +11,9 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.PriorityQueue;
 import java.util.Set;
-import java.util.Map.Entry;
 
 import util.gdl.grammar.GdlConstant;
 import util.gdl.grammar.GdlDistinct;
@@ -809,9 +809,6 @@ public class Assignments implements Iterable<Map<GdlVariable, GdlConstant>> {
 			return new Assignments();//Collections.emptySet();
 		}
 		//Then we come up with all the assignments of the rest of the variables
-		if(headAssignment == null)
-			System.out.println("headAssignment is null over here, too");
-
 		//We need to look for functions we can make use of
 
 		return new Assignments(headAssignment, rule, model, constantForms, completedSentenceFormValues);

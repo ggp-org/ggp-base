@@ -13,7 +13,7 @@ import util.statemachine.verifier.StateMachineVerifier;
  *
  */
 public class TransformTester {
-	public static void main(String args[]) {
+	public static void main(String args[]) throws InterruptedException {
 	    
 	    final boolean showDiffs = false;
         final ProverStateMachine theReference = new ProverStateMachine();
