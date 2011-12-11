@@ -50,7 +50,7 @@ public final class Match
     private final int startClock;
     private final Date startTime;
 	private final Game theGame;
-	private final List<String> theRoleNames;
+	private final List<String> theRoleNames;  // TODO: remove this
 	private final List<List<GdlSentence>> moveHistory;
 	private final List<Set<GdlSentence>> stateHistory;
 	private final List<List<String>> errorHistory;
@@ -239,9 +239,7 @@ public final class Match
             theJSON.put("matchId", matchId);
             theJSON.put("randomToken", randomToken);
             theJSON.put("startTime", startTime.getTime());
-            theJSON.put("gameName", getGameName());
             theJSON.put("gameMetaURL", getGameRepositoryURL());
-            theJSON.put("gameRoleNames", new JSONArray(renderArrayAsJSON(theRoleNames, true)));
             theJSON.put("isCompleted", isCompleted);
             theJSON.put("states", new JSONArray(renderArrayAsJSON(renderStateHistory(stateHistory), true)));
             theJSON.put("moves", new JSONArray(renderArrayAsJSON(renderMoveHistory(moveHistory), false)));
@@ -290,10 +288,6 @@ public final class Match
         if (stateHistory.size() == 0)
             return null;
         return stateHistory.get(stateHistory.size()-1);        
-    }
-    
-    public String getGameName() {
-        return getGame().getName();
     }
     
     public String getGameRepositoryURL() {
@@ -348,10 +342,6 @@ public final class Match
 	
 	public Date getStartTime() {
 	    return startTime;
-	}
-	
-	public List<String> getRoleNames() {
-	    return theRoleNames;
 	}
 	
 	public boolean isCompleted() {
