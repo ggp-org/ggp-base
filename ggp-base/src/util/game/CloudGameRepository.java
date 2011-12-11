@@ -248,7 +248,7 @@ public final class CloudGameRepository extends GameRepository {
     // ================================================================
     
     public static void main(String[] args) {
-        GameRepository theRepository = new CloudGameRepository("games.ggp.org");
+        GameRepository theRepository = new CloudGameRepository("games.ggp.org/base");
 
         long beginTime = System.currentTimeMillis();
 

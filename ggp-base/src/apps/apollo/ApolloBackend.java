@@ -33,7 +33,7 @@ import util.match.Match;
  * SAMPLE INVOCATION (when running locally):
  * 
  * ResourceLoader.load_raw('http://127.0.0.1:9124/' + escape(JSON.stringify({"playClock":5,
- * "startClock":5, "gameURL":"http://games.ggp.org/games/connectFour/",
+ * "startClock":5, "gameURL":"http://games.ggp.org/base/games/connectFour/",
  * "matchId":"apollo.sample_2", "players":["127.0.0.1:3333", "player.ggp.org:80"],
  * "playerNames":["GreenShell","RedShell"]})))
  * 

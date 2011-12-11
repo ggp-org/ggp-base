@@ -55,6 +55,9 @@ public class GameStateRenderPanel extends JPanel {
         String xhtml = getXHTMLfromGameXML(gameXML, XSL);
         xhtml = xhtml.replace("<?xml version=\"1.0\" encoding=\"UTF-8\"?>", "");
         
+        xhtml = xhtml.replace("<body>", "<body><table width=\"400\" height=\"400\"><tr><td>");
+        xhtml = xhtml.replace("</body>", "</td></tr></table></body>");
+        
         InputSource is = new InputSource(new BufferedReader(new StringReader(xhtml)));
         Document dom = XMLResource.load(is).getDocument();
 
@@ -65,8 +68,8 @@ public class GameStateRenderPanel extends JPanel {
     }
 
     private static String getXHTMLfromGameXML(String gameXML, String XSL) {
-        XSL = XSL.replace("<!DOCTYPE stylesheet [<!ENTITY ROOT \"http://games.ggp.org\">]>", "");
-        XSL = XSL.replace("&ROOT;", "http://games.ggp.org").trim();
+        XSL = XSL.replace("<!DOCTYPE stylesheet [<!ENTITY ROOT \"http://games.ggp.org/base\">]>", "");
+        XSL = XSL.replace("&ROOT;", "http://games.ggp.org/base").trim();
         
         IOString game = new IOString(gameXML);
         IOString xslIOString = new IOString(XSL);
@@ -74,6 +77,8 @@ public class GameStateRenderPanel extends JPanel {
         try {
             TransformerFactory tFactory = TransformerFactory.newInstance();
             Transformer transformer = tFactory.newTransformer(new StreamSource(xslIOString.getInputStream()));
+            //transformer.setParameter("width", defaultSize.getWidth());
+            //transformer.setParameter("height", defaultSize.getHeight());
             transformer.transform(new StreamSource(game.getInputStream()),
                     new StreamResult(content.getOutputStream()));
         } catch (Exception ex) {

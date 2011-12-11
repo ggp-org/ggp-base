@@ -53,7 +53,8 @@ public class GameSelector implements ActionListener {
         theRepositoryList.addActionListener(this);
 
         theCachedRepositories = new HashMap<String, GameRepository>();        
-        theRepositoryList.addItem("games.ggp.org");
+        theRepositoryList.addItem("games.ggp.org/base");
+        theRepositoryList.addItem("games.ggp.org/dresden");
         theRepositoryList.addItem("Local Game Repository");
     }
     

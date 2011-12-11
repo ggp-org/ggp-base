@@ -113,7 +113,7 @@ public final class Match
                 this.theRoleNames.add(theNames.getString(i));
             }
         } else {
-            for(Role r : Role.computeRoles(theGame.getRules())) {
+            for(Role r : Role.computeRoles(this.theGame.getRules())) {
                 this.theRoleNames.add(r.getName().getName().toString());
             }
         }
