@@ -183,7 +183,7 @@ public final class Kiosk extends JPanel implements ActionListener, ItemListener,
         // This is where we get the rulesheets from. Each game has a corresponding
         // game (with rulesheet) stored on this repository server. Changing this is
         // likely to break things unless you know what you're doing.
-        theRepository = new CloudGameRepository("http://games.ggp.org/");        
+        theRepository = new CloudGameRepository("http://games.ggp.org/base/");        
     }
     
     // Load the gamers asynchronously, so that we don't stall when loading
