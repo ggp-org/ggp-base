@@ -15,7 +15,6 @@ import util.gdl.grammar.GdlProposition;
 import util.gdl.grammar.GdlRelation;
 import util.gdl.grammar.GdlRule;
 import util.gdl.grammar.GdlTerm;
-import util.gdl.model.SentenceModel.SentenceForm;
 import util.gdl.transforms.DeORer;
 import util.gdl.transforms.LegalSplitter;
 import util.gdl.transforms.VariableConstrainer;
@@ -23,6 +22,7 @@ import util.statemachine.Role;
 
 public class MoveMutexFinder {
 	private static final GdlConstant LEGAL = GdlPool.getConstant("legal");
+	private static final GdlConstant DOES = GdlPool.getConstant("does");
 
 	public static Set<Mutex> findMutexes(List<Gdl> description) throws InterruptedException {
 		//The kind of logic we're using is as follows:
@@ -51,7 +51,7 @@ public class MoveMutexFinder {
 		description = VariableConstrainer.replaceFunctionValuedVariables(description);
 		description = LegalSplitter.run(description);
 		
-		SentenceModel model = new SentenceModel(description);
+		SentenceModel model = new SentenceModelImpl(description);
 		
 		GameFlow flow = new GameFlow(description);
 		
@@ -122,7 +122,7 @@ public class MoveMutexFinder {
 			
 			if(allDisjoint) {
 				//Make the mutex
-				Mutex mutex = new Mutex(form.getCopyWithName("does")); //all variables
+				Mutex mutex = new Mutex(form.getCopyWithName(DOES)); //all variables
 				mutexes.add(mutex);
 			}
 		}

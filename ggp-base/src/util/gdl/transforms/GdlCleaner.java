@@ -30,7 +30,6 @@ public class GdlCleaner {
 				GdlRule rule = (GdlRule) gdl;
 				if(rule.getBody().size() == 0) {
 					newDescription.add(rule.getHead());
-					//System.out.println("Changing rule " + rule + " into relation " + rule.getHead());
 				} else {
 					newDescription.add(gdl);
 				}

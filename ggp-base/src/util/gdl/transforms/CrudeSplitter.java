@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 
+import util.gdl.GdlUtils;
 import util.gdl.grammar.Gdl;
 import util.gdl.grammar.GdlLiteral;
 import util.gdl.grammar.GdlPool;
@@ -18,7 +19,6 @@ import util.gdl.grammar.GdlSentence;
 import util.gdl.grammar.GdlVariable;
 import util.gdl.model.MoveMutexFinder;
 import util.gdl.model.Mutex;
-import util.gdl.model.SentenceModel;
 
 public class CrudeSplitter {
 	public static List<Gdl> run(List<Gdl> description) throws InterruptedException {
@@ -58,11 +58,11 @@ public class CrudeSplitter {
 		}
 		if(mutexComponent == null) throw new RuntimeException(":" + rule);
 		//Want to form connected components from variables in the rule...
-		List<GdlVariable> varsInMutex = SentenceModel.getVariables(mutexComponent);
+		List<GdlVariable> varsInMutex = GdlUtils.getVariables(mutexComponent);
 		Map<GdlVariable, Set<GdlVariable>> map = new HashMap<GdlVariable, Set<GdlVariable>>();
 		//Also do this for head, not just body literals
 		{
-			List<GdlVariable> vars = SentenceModel.getVariables(rule.getHead());
+			List<GdlVariable> vars = GdlUtils.getVariables(rule.getHead());
 			for(GdlVariable var : vars) {
 				if(!map.containsKey(var))
 					map.put(var, new HashSet<GdlVariable>());
@@ -72,7 +72,7 @@ public class CrudeSplitter {
 		for(GdlLiteral literal : rule.getBody()) {
 			if(literal == mutexComponent)
 				continue;
-			List<GdlVariable> vars = SentenceModel.getVariables(literal);
+			List<GdlVariable> vars = GdlUtils.getVariables(literal);
 			for(GdlVariable var : vars) {
 				if(!map.containsKey(var))
 					map.put(var, new HashSet<GdlVariable>());
@@ -93,7 +93,7 @@ public class CrudeSplitter {
 		//Where that happens, make a copy of the mutex sharing only those
 		//variables with the rest of the rule
 		//The remainder become new variables
-		List<String> variableNames = SentenceModel.getVariableNames(rule);
+		List<String> variableNames = GdlUtils.getVariableNames(rule);
 		int varName = 0;
 		List<GdlLiteral> mutexCopies = new ArrayList<GdlLiteral>();
 		for(Set<GdlVariable> cc : connectedComponents) {

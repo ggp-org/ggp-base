@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import util.gdl.GdlUtils;
 import util.gdl.grammar.Gdl;
 import util.gdl.grammar.GdlConstant;
 import util.gdl.grammar.GdlDistinct;
@@ -16,8 +17,9 @@ import util.gdl.grammar.GdlRelation;
 import util.gdl.grammar.GdlRule;
 import util.gdl.grammar.GdlSentence;
 import util.gdl.grammar.GdlTerm;
+import util.gdl.model.SentenceForm;
 import util.gdl.model.SentenceModel;
-import util.gdl.model.SentenceModel.SentenceForm;
+import util.gdl.model.SentenceModelImpl;
 
 public class Relationizer {
 
@@ -34,7 +36,7 @@ public class Relationizer {
 	 * @throws InterruptedException 
 	 */
 	public static List<Gdl> run(List<Gdl> description) throws InterruptedException {
-		SentenceModel model = new SentenceModel(description);
+		SentenceModel model = new SentenceModelImpl(description);
 		GdlConstant NEXT = GdlPool.getConstant("next");
 		
 		List<SentenceForm> nextFormsToReplace = new ArrayList<SentenceForm>();
@@ -50,14 +52,14 @@ public class Relationizer {
 						GdlLiteral literal = rule.get(0);
 						if(literal instanceof GdlRelation) {
 							//Check that it really is the true form
-							SentenceForm trueForm = nextForm.getCopyWithName("true");
+							SentenceForm trueForm = nextForm.getCopyWithName(GdlPool.getConstant("true"));
 							if(trueForm.matches((GdlRelation) literal)) {
 								GdlSentence head = rule.getHead();
 								GdlSentence body = (GdlSentence) literal;
 								//Check that the tuples are the same, and that they
 								//consist of distinct variables
-								List<GdlTerm> headTuple = SentenceModel.getTupleFromSentence(head);
-								List<GdlTerm> bodyTuple = SentenceModel.getTupleFromSentence(body);
+								List<GdlTerm> headTuple = GdlUtils.getTupleFromSentence(head);
+								List<GdlTerm> bodyTuple = GdlUtils.getTupleFromSentence(body);
 								if(headTuple.equals(bodyTuple)) {
 									//Distinct variables?
 									Set<GdlTerm> vars = new HashSet<GdlTerm>(headTuple);
@@ -75,8 +77,8 @@ public class Relationizer {
 		List<Gdl> newDescription = new ArrayList<Gdl>(description);
 		//Now, replace the next forms
 		for(SentenceForm nextForm : nextFormsToReplace) {
-			SentenceForm initForm = nextForm.getCopyWithName("init");
-			SentenceForm trueForm = nextForm.getCopyWithName("true");
+			SentenceForm initForm = nextForm.getCopyWithName(GdlPool.getConstant("init"));
+			SentenceForm trueForm = nextForm.getCopyWithName(GdlPool.getConstant("true"));
 
 			//Go through the rules and relations, making replacements as needed
 			for(int i = 0; i < newDescription.size(); i++) {

@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import util.gdl.GdlUtils;
 import util.gdl.grammar.Gdl;
 import util.gdl.grammar.GdlConstant;
 import util.gdl.grammar.GdlDistinct;
@@ -21,8 +22,8 @@ import util.gdl.grammar.GdlRule;
 import util.gdl.grammar.GdlSentence;
 import util.gdl.grammar.GdlTerm;
 import util.gdl.grammar.GdlVariable;
-import util.gdl.model.SentenceModel;
-import util.gdl.model.SentenceModel.TermModel;
+import util.gdl.model.SentenceModelImpl;
+import util.gdl.model.TermModel;
 
 /**
  * 
@@ -52,16 +53,16 @@ public class VariableConstrainer {
 	public static List<Gdl> replaceFunctionValuedVariables(List<Gdl> description) throws InterruptedException {
 		//until we have "or mode" working, do this first
 		List<Gdl> deoredDescription = DeORer.run(description);
-		
-		SentenceModel model = new SentenceModel(deoredDescription);
-		
+
+		SentenceModelImpl model = new SentenceModelImpl(deoredDescription);
+
 		List<Gdl> result = getVarLiteralSimplification(deoredDescription, model);
 
 		return result;
 	}
 
 	private static List<Gdl> getVarLiteralSimplification(List<Gdl> description,
-			SentenceModel model) {
+			SentenceModelImpl model) {
 		//General strategy:
 		//Look for rules with conjuncts on the RHS where variables
 		//are in positions corresponding to TermModels with
@@ -77,7 +78,7 @@ public class VariableConstrainer {
 				GdlRule rule = (GdlRule) gdl;
 				//Look for variables in the conjuncts
 				//Crawl though the model and the rule together
-				List<GdlVariable> variablesInRule = SentenceModel.getVariables(rule);
+				List<GdlVariable> variablesInRule = GdlUtils.getVariables(rule);
 				Set<GdlVariable> varsToReplace = new HashSet<GdlVariable>();
 				Map<GdlVariable, List<TermModel>> varModels = new HashMap<GdlVariable, List<TermModel>>();
 				for(GdlVariable var : variablesInRule)
@@ -105,7 +106,7 @@ public class VariableConstrainer {
 
 	private static void rewriteAndRecordRule(GdlRule rule, 
 			Map<GdlVariable, TermModel> replacements, List<Gdl> newDescription) {
-		Set<String> usedVarNames = new HashSet<String>(SentenceModel.getVariableNames(rule));
+		Set<String> usedVarNames = new HashSet<String>(GdlUtils.getVariableNames(rule));
 		rewriteAndRecordRule(rule, replacements, newDescription, usedVarNames);
 	}
 
@@ -198,7 +199,7 @@ public class VariableConstrainer {
 		return GdlPool.getVariable(candidateName);
 	}
 
-	private static void processConjunct(GdlLiteral conjunct, SentenceModel model, Map<GdlVariable, List<TermModel>> varModels, Set<GdlVariable> varsToReplace) {
+	private static void processConjunct(GdlLiteral conjunct, SentenceModelImpl model, Map<GdlVariable, List<TermModel>> varModels, Set<GdlVariable> varsToReplace) {
 		if(conjunct instanceof GdlSentence) {
 			GdlSentence sentence = (GdlSentence) conjunct;
 			List<GdlTerm> conjunctBody;

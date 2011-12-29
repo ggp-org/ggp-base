@@ -13,6 +13,7 @@ import java.util.Queue;
 import java.util.Set;
 
 import util.concurrency.ConcurrencyUtils;
+import util.gdl.GdlUtils;
 import util.gdl.grammar.Gdl;
 import util.gdl.grammar.GdlConstant;
 import util.gdl.grammar.GdlDistinct;
@@ -24,10 +25,12 @@ import util.gdl.grammar.GdlRule;
 import util.gdl.grammar.GdlSentence;
 import util.gdl.grammar.GdlTerm;
 import util.gdl.grammar.GdlVariable;
-import util.gdl.model.SentenceModel;
-import util.gdl.model.SentenceModel.SentenceForm;
+import util.gdl.model.RuleSplittableSentenceModel;
+import util.gdl.model.SentenceForm;
+import util.gdl.model.SentenceModelImpl;
+import util.gdl.model.SentenceModelUtils;
 import util.gdl.transforms.ConstantFinder.ConstantChecker;
-import util.propnet.factory.Assignments;
+import util.propnet.factory.AssignmentsImpl;
 
 /**
  * The CondensationIsolator is a GDL transformation designed to split up
@@ -242,8 +245,9 @@ public class CondensationIsolator {
 		
 		//Don't use the model indiscriminately; it reflects the old description,
 		//not necessarily the new one
-		SentenceModel model = new SentenceModel(description);
+		RuleSplittableSentenceModel model = new SentenceModelImpl(description);
 		ConstantChecker checker = ConstantFinder.getConstants(description);
+		model.restrictDomainsToUsefulValues(checker); //Helps our heuristics
 		Set<String> sentenceNames = new HashSet<String>(model.getSentenceNames());
 		Set<SentenceForm> constantForms = model.getConstantSentenceForms();
 		
@@ -258,7 +262,7 @@ public class CondensationIsolator {
 				continue;
 			}
 			GdlSentence curRuleHead = curRule.getHead();
-			if(config.ignoreConstants() && SentenceModel.inSentenceFormGroup(curRuleHead, constantForms)) {
+			if(config.ignoreConstants() && SentenceModelUtils.inSentenceFormGroup(curRuleHead, constantForms)) {
 				newDescription.add(curRule);
 				continue;
 			}
@@ -324,19 +328,19 @@ public class CondensationIsolator {
 
 		Set<GdlVariable> varsInCondensationSet = new HashSet<GdlVariable>();
 		for(GdlLiteral literal : condensationSet)
-			varsInCondensationSet.addAll(SentenceModel.getVariables(literal));
+			varsInCondensationSet.addAll(GdlUtils.getVariables(literal));
 		Set<GdlVariable> varsToKeep = new HashSet<GdlVariable>();
 		//Which vars do we "keep" (put in our new condensed literal)?
 		//Vars that are both:
 		//1) In the condensation set, in a non-mutex literal
 		//2) Either in the head or somewhere else outside the condensation set
 		for(GdlLiteral literal : condensationSet)
-			varsToKeep.addAll(SentenceModel.getVariables(literal));
+			varsToKeep.addAll(GdlUtils.getVariables(literal));
 		Set<GdlVariable> varsToKeep2 = new HashSet<GdlVariable>();
-		varsToKeep2.addAll(SentenceModel.getVariables(rule.getHead()));
+		varsToKeep2.addAll(GdlUtils.getVariables(rule.getHead()));
 		for(GdlLiteral literal : rule.getBody())
 			if(!condensationSet.contains(literal))
-				varsToKeep2.addAll(SentenceModel.getVariables(literal));
+				varsToKeep2.addAll(GdlUtils.getVariables(literal));
 		varsToKeep.retainAll(varsToKeep2);
 		
 		//Now we're ready to split it apart
@@ -378,13 +382,13 @@ public class CondensationIsolator {
 	}
 
 	private static Set<GdlLiteral> getCondensationSet(GdlRule rule,
-			SentenceModel model,
+			RuleSplittableSentenceModel model,
 			ConstantChecker checker,
 			Set<SentenceForm> constantForms,
 			CondensationIsolatorConfiguration config) throws InterruptedException {
 		//We use each variable as a starting point
-		List<GdlVariable> varsInRule = SentenceModel.getVariables(rule);
-		List<GdlVariable> varsInHead = SentenceModel.getVariables(rule.getHead());
+		List<GdlVariable> varsInRule = GdlUtils.getVariables(rule);
+		List<GdlVariable> varsInHead = GdlUtils.getVariables(rule.getHead());
 		List<GdlVariable> varsNotInHead = new ArrayList<GdlVariable>(varsInRule);
 		varsNotInHead.removeAll(varsInHead);
 
@@ -393,7 +397,7 @@ public class CondensationIsolator {
 
 			Set<GdlLiteral> minSet = new HashSet<GdlLiteral>();
 			for(GdlLiteral literal : rule.getBody())
-				if(SentenceModel.getVariables(literal).contains(var))
+				if(GdlUtils.getVariables(literal).contains(var))
 					minSet.add(literal);
 			
 			//#1 is already done
@@ -402,9 +406,9 @@ public class CondensationIsolator {
 			Set<GdlVariable> varsSupplied = new HashSet<GdlVariable>();
 			for(GdlLiteral literal : minSet)
 				if(literal instanceof GdlRelation)
-					varsSupplied.addAll(SentenceModel.getVariables(literal));
+					varsSupplied.addAll(GdlUtils.getVariables(literal));
 				else if(literal instanceof GdlDistinct || literal instanceof GdlNot)
-					varsNeeded.addAll(SentenceModel.getVariables(literal));
+					varsNeeded.addAll(GdlUtils.getVariables(literal));
 			varsNeeded.removeAll(varsSupplied);
 			if(config.getRestraintOption() != RestraintOption.NO_RESTRAINT && !varsNeeded.isEmpty())
 				continue;
@@ -414,7 +418,7 @@ public class CondensationIsolator {
 				Set<GdlLiteral> suppliers = new HashSet<GdlLiteral>();
 				for(GdlLiteral literal : rule.getBody())
 					if(literal instanceof GdlRelation)
-						if(SentenceModel.getVariables(literal).contains(varNeeded))
+						if(GdlUtils.getVariables(literal).contains(varNeeded))
 							suppliers.add(literal);
 				candidateSuppliersList.add(suppliers);
 			}
@@ -441,7 +445,7 @@ public class CondensationIsolator {
 	}
 
 	private static boolean goodCondensationSetByHeuristic(
-			Set<GdlLiteral> minSet, GdlRule rule, SentenceModel model,
+			Set<GdlLiteral> minSet, GdlRule rule, RuleSplittableSentenceModel model,
 			ConstantChecker checker, CondensationIsolatorConfiguration config) throws InterruptedException {
 		//We actually want the sentence model here so we can see the domains
 		//also, if it's a constant, ...
@@ -462,7 +466,7 @@ public class CondensationIsolator {
 
 		//Heuristic for the rule as-is:
 
-		long assignments = Assignments.getNumAssignmentsEstimate(rule, model, checker, config.useAnalyticFunctionOrdering());
+		long assignments = AssignmentsImpl.getNumAssignmentsEstimate(rule, model.getVarDomains(rule), checker, config.useAnalyticFunctionOrdering(), model);
 		int literals = rule.arity();
 		if(literals > 1)
 			literals++; //We have to "and" the literals together
@@ -478,13 +482,13 @@ public class CondensationIsolator {
 
 		//Copy and modify the model
 		List<GdlRule> oldRules = Collections.singletonList(rule);
-		SentenceModel newModel = new SentenceModel(model);
+		RuleSplittableSentenceModel newModel = new SentenceModelImpl((SentenceModelImpl) model);
 		newModel.replaceRules(Collections.singletonList(rule), newRules);
 
 		ConstantChecker newChecker = new ConstantChecker(checker);
 		newChecker.replaceRules(oldRules, newRules);
-		long a1 = Assignments.getNumAssignmentsEstimate(r1, newModel, newChecker, config.useAnalyticFunctionOrdering());
-		long a2 = Assignments.getNumAssignmentsEstimate(r2, newModel, newChecker, config.useAnalyticFunctionOrdering());
+		long a1 = AssignmentsImpl.getNumAssignmentsEstimate(r1, newModel.getVarDomains(r1), newChecker, config.useAnalyticFunctionOrdering(), newModel);
+		long a2 = AssignmentsImpl.getNumAssignmentsEstimate(r2, newModel.getVarDomains(r2), newChecker, config.useAnalyticFunctionOrdering(), newModel);
 		int l1 = r1.arity(); if(l1 > 1) l1++;
 		int l2 = r2.arity(); if(l2 > 1) l2++;
 
@@ -495,7 +499,7 @@ public class CondensationIsolator {
 
 	private static boolean goodCondensationSet(Set<GdlLiteral> condensationSet, GdlRule rule,
 			CondensationIsolatorConfiguration config, Set<SentenceForm> constantForms) {
-		List<GdlVariable> varsInHead = SentenceModel.getVariables(rule.getHead());
+		List<GdlVariable> varsInHead = GdlUtils.getVariables(rule.getHead());
 		if(config.getRestraintOption() == RestraintOption.MORE_RESTRAINT) {
 			//How many non-head variables will we need to "keep"?
 			//If fewer than the number we're eliminating, don't bother
@@ -505,9 +509,9 @@ public class CondensationIsolator {
 			Set<GdlVariable> varsEliminated = new HashSet<GdlVariable>();
 			for(GdlLiteral literal : rule.getBody())
 				if(!condensationSet.contains(literal))
-					varsToKeep.addAll(SentenceModel.getVariables(literal));
+					varsToKeep.addAll(GdlUtils.getVariables(literal));
 				else
-					varsEliminated.addAll(SentenceModel.getVariables(literal));
+					varsEliminated.addAll(GdlUtils.getVariables(literal));
 			varsEliminated.removeAll(varsInHead);
 			varsToKeep.retainAll(varsEliminated);
 			varsEliminated.removeAll(varsToKeep);
@@ -537,17 +541,16 @@ public class CondensationIsolator {
 				else
 					continue; //the inner loop
 				if(condensationSet.contains(l)) {
-					if(!SentenceModel.inSentenceFormGroup(sentence, constantForms)) {
+					if(!SentenceModelUtils.inSentenceFormGroup(sentence, constantForms)) {
 						inLive = true;
 					}
 				} else {
-					if(!SentenceModel.inSentenceFormGroup(sentence, constantForms)) {
+					if(!SentenceModelUtils.inSentenceFormGroup(sentence, constantForms)) {
 						outLive = true;
 					}
 				}
 			}
 			if(!inLive || !outLive) {
-				
 				return false;
 			}
 		}

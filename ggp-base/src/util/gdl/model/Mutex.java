@@ -10,7 +10,6 @@ import util.gdl.grammar.GdlRelation;
 import util.gdl.grammar.GdlSentence;
 import util.gdl.grammar.GdlTerm;
 import util.gdl.grammar.GdlVariable;
-import util.gdl.model.SentenceModel.SentenceForm;
 
 /**
  * A Mutex represents a set of sentences that will be mutually

@@ -163,4 +163,7 @@ public class CommonTransforms {
 		}
 	}
 	
+	public static GdlRelation replaceHead(GdlRelation sentence, GdlConstant newHead) {
+		return GdlPool.getRelation(newHead, sentence.getBody());
+	}
 }

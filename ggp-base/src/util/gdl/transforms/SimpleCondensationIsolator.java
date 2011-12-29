@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 
+import util.gdl.GdlUtils;
 import util.gdl.grammar.Gdl;
 import util.gdl.grammar.GdlConstant;
 import util.gdl.grammar.GdlDistinct;
@@ -20,7 +21,7 @@ import util.gdl.grammar.GdlRule;
 import util.gdl.grammar.GdlSentence;
 import util.gdl.grammar.GdlTerm;
 import util.gdl.grammar.GdlVariable;
-import util.gdl.model.SentenceModel;
+import util.gdl.model.SentenceModelImpl;
 
 public class SimpleCondensationIsolator {
 	/*
@@ -54,7 +55,7 @@ public class SimpleCondensationIsolator {
 				newDescription.add(gdl);
 			}
 		}
-		Set<String> sentenceNames = new SentenceModel(description).getSentenceNames();
+		Set<String> sentenceNames = new SentenceModelImpl(description).getSentenceNames();
 		
 		//the list of rules might grow as we go
 		for(int i = 0; i < rules.size(); i++) {
@@ -101,7 +102,7 @@ public class SimpleCondensationIsolator {
 			List<GdlLiteral> modifiedBody = new ArrayList<GdlLiteral>();
 			List<GdlLiteral> condenserBody = new ArrayList<GdlLiteral>();
 			for(GdlLiteral literal : rule.getBody()) {
-				if(Collections.disjoint(SentenceModel.getVariables(literal), condensationVars))
+				if(Collections.disjoint(GdlUtils.getVariables(literal), condensationVars))
 					modifiedBody.add(literal);
 				else
 					condenserBody.add(literal);
@@ -111,7 +112,7 @@ public class SimpleCondensationIsolator {
 			//First we have to get all the right variables in the head
 			Set<GdlVariable> condenserHeadVars = new HashSet<GdlVariable>();
 			for(GdlLiteral literal : condenserBody)
-				condenserHeadVars.addAll(SentenceModel.getVariables(literal));
+				condenserHeadVars.addAll(GdlUtils.getVariables(literal));
 			condenserHeadVars.removeAll(condensationVars);
 			//TODO: Do comparisons
 			
@@ -172,10 +173,10 @@ public class SimpleCondensationIsolator {
 			Set<GdlVariable> multiUseVars = new HashSet<GdlVariable>();
 			
 			GdlSentence head = rule.getHead();
-			multiUseVars.addAll(SentenceModel.getVariables(head));
+			multiUseVars.addAll(GdlUtils.getVariables(head));
 			//Go through the body
 			for(GdlLiteral literal : rule.getBody()) {
-				Set<GdlVariable> usedVars = new HashSet<GdlVariable>(SentenceModel.getVariables(literal));
+				Set<GdlVariable> usedVars = new HashSet<GdlVariable>(GdlUtils.getVariables(literal));
 				//See chinesecheckers4.kif for example of this being helpful
 				if(literal instanceof GdlDistinct && usedVars.size() == 1)
 					continue;
@@ -199,7 +200,7 @@ public class SimpleCondensationIsolator {
 			
 			//Find the body literal it's in
 			for(GdlLiteral literal : rule.getBody()) {
-				List<GdlVariable> varsInLiteral = SentenceModel.getVariables(literal); 
+				List<GdlVariable> varsInLiteral = GdlUtils.getVariables(literal); 
 				if(varsInLiteral.contains(varChosen)) {
 					//Get all the single-use variables
 					singleUseVars.retainAll(varsInLiteral);
@@ -325,8 +326,8 @@ public class SimpleCondensationIsolator {
 			 */
 			//First, we identify the variables in the head of the rule,
 			//as well as the variables not in the head
-			List<GdlVariable> headVars = SentenceModel.getVariables(rule.getHead());
-			List<GdlVariable> allRules = SentenceModel.getVariables(rule);
+			List<GdlVariable> headVars = GdlUtils.getVariables(rule.getHead());
+			List<GdlVariable> allRules = GdlUtils.getVariables(rule);
 			List<GdlVariable> nonHeadVars = new ArrayList<GdlVariable>(allRules);
 			nonHeadVars.removeAll(headVars);
 			
@@ -338,7 +339,7 @@ public class SimpleCondensationIsolator {
 			}
 			//For each variable in the rule, add constraints
 			for(GdlLiteral literal : rule.getBody()) {
-				List<GdlVariable> vars = SentenceModel.getVariables(literal);
+				List<GdlVariable> vars = GdlUtils.getVariables(literal);
 				vars.removeAll(headVars);
 				//Add links between these vars
 				for(GdlVariable var : vars) {
@@ -365,7 +366,7 @@ public class SimpleCondensationIsolator {
 			//that does not contain any of these variables
 			for(GdlLiteral literal : rule.getBody()) {
 				if(literal instanceof GdlSentence || literal instanceof GdlNot) {
-					List<GdlVariable> varsInLiteral = SentenceModel.getVariables(literal);
+					List<GdlVariable> varsInLiteral = GdlUtils.getVariables(literal);
 					if(Collections.disjoint(condensationVars, varsInLiteral))
 						return true;
 				}

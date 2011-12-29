@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 
+import util.gdl.GdlUtils;
 import util.gdl.grammar.Gdl;
 import util.gdl.grammar.GdlConstant;
 import util.gdl.grammar.GdlLiteral;
@@ -20,16 +21,16 @@ import util.gdl.grammar.GdlRelation;
 import util.gdl.grammar.GdlRule;
 import util.gdl.grammar.GdlSentence;
 import util.gdl.grammar.GdlVariable;
-import util.gdl.model.SentenceModel.SentenceForm;
 import util.gdl.transforms.CommonTransforms;
 import util.gdl.transforms.ConstantFinder;
 import util.gdl.transforms.ConstantFinder.ConstantChecker;
 import util.gdl.transforms.DeORer;
 import util.gdl.transforms.GdlCleaner;
 import util.gdl.transforms.VariableConstrainer;
+import util.propnet.factory.AssignmentIterator;
 import util.propnet.factory.Assignments;
-import util.propnet.factory.Assignments.AssignmentIterator;
-import util.propnet.factory.Assignments.ConstantForm;
+import util.propnet.factory.AssignmentsFactory;
+import util.propnet.factory.AssignmentsImpl.ConstantForm;
 
 /**
  * GameFlow describes the behavior of the sentences in sentence forms that depend
@@ -56,7 +57,7 @@ public class GameFlow {
 		description = VariableConstrainer.replaceFunctionValuedVariables(description);
 		
 		//First we use a sentence model to get the relevant sentence forms
-		SentenceModel model = new SentenceModel(description);
+		SentenceModel model = new SentenceModelImpl(description);
 		formsControlledByFlow = new HashSet<SentenceForm>();
 		formsControlledByFlow.addAll(model.getIndependentSentenceForms());
 		formsControlledByFlow.removeAll(model.getConstantSentenceForms());
@@ -70,7 +71,7 @@ public class GameFlow {
 		solveTurns(model);
 	}
 
-	private void solveTurns(SentenceModel model) {
+	private void solveTurns(SentenceModel model) throws InterruptedException {
 		//Before we can do anything else, we need a topological ordering on our forms
 		List<SentenceForm> ordering = getTopologicalOrdering(model.getIndependentSentenceForms(), model.getDependencyGraph());
 		ordering.retainAll(formsControlledByFlow);
@@ -139,9 +140,9 @@ public class GameFlow {
 				trueFlowSentences.add(relation);
 			for(GdlRule rule : model.getRules(curForm)) {
 				GdlSentence head = rule.getHead();
-				List<GdlVariable> varsInHead = SentenceModel.getVariables(head);
-				Assignments assignments = Assignments.getAssignmentsForRule(rule, model, constForms, Collections.EMPTY_MAP);
-				
+				List<GdlVariable> varsInHead = GdlUtils.getVariables(head);
+				Assignments assignments = AssignmentsFactory.getAssignmentsForRule(rule, model, constForms, Collections.EMPTY_MAP);
+
 				AssignmentIterator asnItr = assignments.getIterator();
 				while(asnItr.hasNext()) {
 					Map<GdlVariable, GdlConstant> assignment = asnItr.next();
@@ -161,13 +162,13 @@ public class GameFlow {
 							if(constantForms.contains(conjForm)) {
 								if(!constantChecker.isTrueConstant(transformed)) {
 									isGoodAssignment = false;
-									asnItr.changeOneInNext(SentenceModel.getVariables(literal), assignment);
+									asnItr.changeOneInNext(GdlUtils.getVariables(literal), assignment);
 								}
 							} else {
 								if(!trueFlowSentences.contains(transformed)) {
 									//False sentence
 									isGoodAssignment = false;
-									asnItr.changeOneInNext(SentenceModel.getVariables(literal), assignment);
+									asnItr.changeOneInNext(GdlUtils.getVariables(literal), assignment);
 								}
 							}
 						} else if(literal instanceof GdlNot) {
@@ -178,13 +179,13 @@ public class GameFlow {
 							if(constantForms.contains(conjForm)) {
 								if(constantChecker.isTrueConstant(transformed)) {
 									isGoodAssignment = false;
-									asnItr.changeOneInNext(SentenceModel.getVariables(literal), assignment);
+									asnItr.changeOneInNext(GdlUtils.getVariables(literal), assignment);
 								}
 							} else {
 								if(trueFlowSentences.contains(transformed)) {
 									//False sentence
 									isGoodAssignment = false;
-									asnItr.changeOneInNext(SentenceModel.getVariables(literal), assignment);
+									asnItr.changeOneInNext(GdlUtils.getVariables(literal), assignment);
 								}
 							}
 							
@@ -252,13 +253,13 @@ public class GameFlow {
 		for(GdlLiteral literal : body) {
 			if(literal instanceof GdlSentence) {
 				GdlSentence sentence = (GdlSentence) literal;
-				if(SentenceModel.inSentenceFormGroup(sentence, formsControlledByFlow))
+				if(SentenceModelUtils.inSentenceFormGroup(sentence, formsControlledByFlow))
 					relevantLiterals.add(literal);
 			} else if(literal instanceof GdlNot) {
 				GdlNot not = (GdlNot) literal;
 				GdlSentence innerSentence = (GdlSentence) not.getBody();
-				if(SentenceModel.inSentenceFormGroup(innerSentence, formsControlledByFlow))
-					relevantLiterals.add(literal);				
+				if(SentenceModelUtils.inSentenceFormGroup(innerSentence, formsControlledByFlow))
+					relevantLiterals.add(literal);
 			}
 		}
 		
@@ -278,7 +279,7 @@ public class GameFlow {
 						turns.add(t);
 					else for(GdlSentence s : sentencesTrueByTurn.get(t)) {
 						//Could be true if there's an assignment
-						if(null != Assignments.getAssignmentMakingLeftIntoRight((GdlSentence)literal, s)) {
+						if(null != GdlUtils.getAssignmentMakingLeftIntoRight((GdlSentence)literal, s)) {
 							turns.add(t);
 							break;
 						}
@@ -291,7 +292,7 @@ public class GameFlow {
 					if(!sentencesTrueByTurn.get(t).contains(internal))
 						turns.add(t);
 					else for(GdlSentence s : sentencesTrueByTurn.get(t)) {
-						if(null != Assignments.getAssignmentMakingLeftIntoRight(internal, s)) {
+						if(null != GdlUtils.getAssignmentMakingLeftIntoRight(internal, s)) {
 							turns.add(t);
 							break;
 						}

@@ -4,14 +4,15 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Serializable;
-import java.util.List;
-import java.util.Set;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import util.gdl.grammar.GdlConstant;
 import util.gdl.grammar.GdlFunction;
+import util.gdl.grammar.GdlPool;
 import util.gdl.grammar.GdlProposition;
 import util.gdl.grammar.GdlTerm;
 import util.logging.GamerLogger;
@@ -490,5 +491,64 @@ public final class PropNet implements Serializable
 			linkCount += c.getOutputs().size();
 		}
 		return linkCount;
+	}
+
+	/**
+	 * Removes a component from the propnet. Be very careful when using
+	 * this method, as it is not thread-safe. It is highly recommended
+	 * that this method only be used in an optimization period between
+	 * the propnet's creation and its initial use, during which it
+	 * should only be accessed by a single thread.
+	 * 
+	 * The INIT and terminal components cannot be removed.
+	 */
+	public void removeComponent(Component c) {
+		
+		
+		//Go through all the collections it could appear in
+		if(c instanceof Proposition) {
+			Proposition p = (Proposition) c;
+			GdlTerm name = p.getName();
+			if(basePropositions.containsKey(name)) {
+				basePropositions.remove(name);
+			} else if(inputPropositions.containsKey(name)) {
+				inputPropositions.remove(name);
+				//The map goes both ways...
+				Proposition partner = legalInputMap.get(p);
+				if(partner != null) {
+					legalInputMap.remove(partner);
+					legalInputMap.remove(p);
+				}
+			} else if(name == GdlPool.getConstant("INIT")) {
+				throw new RuntimeException("The INIT component cannot be removed. Consider leaving it and ignoring it.");
+			} else if(name == GdlPool.getConstant("terminal")) {
+				throw new RuntimeException("The terminal component cannot be removed.");
+			} else {
+				for(Set<Proposition> propositions : legalPropositions.values()) {
+					if(propositions.contains(p)) {
+						propositions.remove(p);
+						Proposition partner = legalInputMap.get(p);
+						if(partner != null) {
+							legalInputMap.remove(partner);
+							legalInputMap.remove(p);							
+						}
+					}
+				}
+				for(Set<Proposition> propositions : goalPropositions.values()) {
+					propositions.remove(p);
+				}
+			}
+			propositions.remove(p);
+		}
+		components.remove(c);
+
+		//Remove all the local links to the component
+		for(Component parent : c.getInputs())
+			parent.removeOutput(c);
+		for(Component child : c.getOutputs())
+			child.removeInput(c);
+		//These are actually unnecessary...
+		//c.removeAllInputs();
+		//c.removeAllOutputs();
 	}
 }
