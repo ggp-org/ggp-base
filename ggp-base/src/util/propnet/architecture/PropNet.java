@@ -3,7 +3,6 @@ package util.propnet.architecture;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
-import java.io.Serializable;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -65,10 +64,8 @@ import util.statemachine.Role;
  * @author Sam Schreiber
  */
 
-public final class PropNet implements Serializable
+public final class PropNet
 {
-	
-	private static final long serialVersionUID = -6425163053203784512L;
 	/** References to every component in the PropNet. */
 	private final Set<Component> components;
 	

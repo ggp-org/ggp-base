@@ -16,7 +16,7 @@ import util.gdl.grammar.GdlTerm;
 import util.propnet.architecture.Component;
 import util.propnet.architecture.PropNet;
 import util.propnet.architecture.components.Proposition;
-import util.propnet.factory.CachedPropNetFactory;
+import util.propnet.factory.PropNetFactory;
 import util.statemachine.MachineState;
 import util.statemachine.Move;
 import util.statemachine.Role;
@@ -42,7 +42,7 @@ public class SamplePropNetStateMachine extends StateMachine {
      */
     @Override
     public void initialize(List<Gdl> description) {
-        propNet = CachedPropNetFactory.create(description);
+        propNet = PropNetFactory.create(description);
         roles = propNet.getRoles();
         ordering = getOrdering();
     }    
