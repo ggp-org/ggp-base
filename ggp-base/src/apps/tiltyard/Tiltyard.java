@@ -33,7 +33,7 @@ import util.statemachine.StateMachine;
 import util.statemachine.implementation.prover.ProverStateMachine;
 
 /**
- * Tiltyard is an application which allows you to quickly run a large number
+ * Local Tiltyard is an application which allows you to run a large number
  * of matches of a single game between multiple players on the local machine.
  * This can be used to understand which players are stronger than which other
  * players on a particular game, and is a great tool for performing automated
@@ -46,14 +46,20 @@ import util.statemachine.implementation.prover.ProverStateMachine;
  * player (like RandomGamer, LegalGamer, or SimpleSearchLightGamer) that will
  * not attempt to use the majority of the machine's resources. Ensuring that
  * resource contention between multiple resource-intensive players is resolved
- * fairly is well beyond the scope of Tiltyard.
+ * fairly is well beyond the scope of the Local Tiltyard.
+ * 
+ * To get around this problem, there's a continuously-running online tournament
+ * similar to the Local Tiltyard running at http://tiltyard.ggp.org/ which can
+ * be used to test your player against other real players on a wide variety of
+ * games. The online Tiltyard also aggregates statistics and player rankings
+ * based on the matches that are played on it.
  * 
  * @author Sam Schreiber
  */
 @SuppressWarnings("serial")
 public final class Tiltyard extends JPanel implements ActionListener {
     private static void createAndShowGUI(Tiltyard playerPanel) {
-        JFrame frame = new JFrame("General Gaming Tiltyard");
+        JFrame frame = new JFrame("GGP Local Tiltyard");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         frame.setPreferredSize(new Dimension(1024, 768));

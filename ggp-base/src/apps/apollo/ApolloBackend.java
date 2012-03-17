@@ -27,8 +27,9 @@ import util.match.Match;
  * a backend for intermediary systems that, due to restrictions on the length of
  * HTTP connections, cannot run matches themselves.
  * 
- * If you don't know what the GGP Apollo project is, this system is not likely
- * going to be interesting to you. Feel free to ignore it.
+ * This is the backend for the continuously-running online GGP.org Tiltyard,
+ * which schedules matches between players around the world and aggregates stats
+ * based on the outcome of those matches.
  * 
  * SAMPLE INVOCATION (when running locally):
  * 
