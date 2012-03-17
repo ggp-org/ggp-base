@@ -21,7 +21,7 @@ public class StaticValidationTests {
     }
     @Test
     public void testSimpleMutexValidation() throws Exception {
-        validate("../rulesheets/simpleMutex");
+        validate("simpleMutex");
     }
     @Test
     public void test1AValidation() throws Exception {
