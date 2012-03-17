@@ -14,7 +14,7 @@ import server.event.ServerIllegalMoveEvent;
 import server.event.ServerTimeoutEvent;
 import util.observer.Event;
 import util.observer.Observer;
-import apps.common.table.JZebraTable;
+import util.ui.table.JZebraTable;
 
 @SuppressWarnings("serial")
 public final class ErrorPanel extends JPanel implements Observer

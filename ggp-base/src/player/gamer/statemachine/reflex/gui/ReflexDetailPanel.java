@@ -11,7 +11,7 @@ import javax.swing.table.DefaultTableModel;
 import player.gamer.event.GamerNewMatchEvent;
 import player.gamer.statemachine.reflex.event.ReflexMoveSelectionEvent;
 import util.observer.Event;
-import apps.common.table.JZebraTable;
+import util.ui.table.JZebraTable;
 import apps.player.detail.DetailPanel;
 
 @SuppressWarnings("serial")

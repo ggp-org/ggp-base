@@ -26,7 +26,6 @@ import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.border.TitledBorder;
 
-import apps.common.*;
 import apps.kiosk.games.*;
 
 import player.GamePlayer;
@@ -45,6 +44,7 @@ import util.match.Match;
 import util.observer.Event;
 import util.observer.Observer;
 import util.reflection.ProjectSearcher;
+import util.ui.*;
 
 /**
  * Kiosk is a program for running two-player human-vs-computer matches

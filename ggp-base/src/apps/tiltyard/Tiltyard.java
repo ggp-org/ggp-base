@@ -21,8 +21,6 @@ import javax.swing.JSeparator;
 import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
 
-import apps.common.GameSelector;
-import apps.common.NativeUI;
 
 import player.gamer.Gamer;
 import util.game.Game;
@@ -31,6 +29,8 @@ import util.reflection.ProjectSearcher;
 import util.statemachine.Role;
 import util.statemachine.StateMachine;
 import util.statemachine.implementation.prover.ProverStateMachine;
+import util.ui.GameSelector;
+import util.ui.NativeUI;
 
 /**
  * Local Tiltyard is an application which allows you to run a large number

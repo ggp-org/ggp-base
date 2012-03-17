@@ -15,7 +15,7 @@ import player.gamer.event.GamerCompletedMatchEvent;
 import player.gamer.event.GamerNewMatchEvent;
 import util.observer.Event;
 import util.observer.Observer;
-import apps.common.table.JZebraTable;
+import util.ui.table.JZebraTable;
 
 /**
  * TiltyardEventsPanel is responsible for displaying information

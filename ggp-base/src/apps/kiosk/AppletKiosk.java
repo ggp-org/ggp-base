@@ -1,8 +1,8 @@
 package apps.kiosk;
 
 import java.applet.Applet;
-import apps.common.NativeUI;
 import util.configuration.LocalResourceLoader;
+import util.ui.NativeUI;
 
 /**
  * AppletKiosk is a version of the standard Kiosk that can run in an applet.

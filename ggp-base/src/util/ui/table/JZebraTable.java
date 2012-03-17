@@ -1,4 +1,4 @@
-package apps.common.table;
+package util.ui.table;
 
 @SuppressWarnings("serial")
 public class JZebraTable extends javax.swing.JTable

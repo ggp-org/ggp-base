@@ -19,9 +19,9 @@ import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
 
 import util.game.Game;
+import util.ui.GameSelector;
+import util.ui.NativeUI;
 import validator.GdlValidator;
-import apps.common.GameSelector;
-import apps.common.NativeUI;
 import apps.validator.simulation.SimulationPanel;
 
 @SuppressWarnings("serial")

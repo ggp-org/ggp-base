@@ -22,7 +22,7 @@ import javax.swing.border.TitledBorder;
 import player.GamePlayer;
 import player.gamer.Gamer;
 import util.reflection.ProjectSearcher;
-import apps.common.NativeUI;
+import util.ui.NativeUI;
 import apps.player.config.ConfigPanel;
 import apps.player.detail.DetailPanel;
 import apps.player.match.MatchPanel;

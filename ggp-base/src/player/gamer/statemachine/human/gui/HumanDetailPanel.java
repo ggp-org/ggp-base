@@ -17,8 +17,8 @@ import player.gamer.statemachine.human.event.HumanNewMovesEvent;
 import player.gamer.statemachine.human.event.HumanTimeoutEvent;
 import util.observer.Event;
 import util.statemachine.Move;
-import apps.common.table.JZebraTable;
-import apps.common.timer.JTimerBar;
+import util.ui.table.JZebraTable;
+import util.ui.timer.JTimerBar;
 import apps.player.detail.DetailPanel;
 
 @SuppressWarnings("serial")

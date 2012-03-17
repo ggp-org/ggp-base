@@ -5,7 +5,7 @@ import java.awt.GridBagLayout;
 import javax.swing.JPanel;
 
 import server.GameServer;
-import apps.common.PublishButton;
+import util.ui.PublishButton;
 
 @SuppressWarnings("serial")
 public final class PublishingPanel extends JPanel

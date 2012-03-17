@@ -1,4 +1,4 @@
-package apps.common.timer;
+package util.ui.timer;
 
 import javax.swing.JProgressBar;
 

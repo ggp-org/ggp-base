@@ -16,8 +16,8 @@ import server.event.ServerTimeEvent;
 import util.observer.Event;
 import util.observer.Observer;
 import util.statemachine.Role;
-import apps.common.table.JZebraTable;
-import apps.common.timer.JTimerBar;
+import util.ui.table.JZebraTable;
+import util.ui.timer.JTimerBar;
 
 @SuppressWarnings("serial")
 public final class HistoryPanel extends JPanel implements Observer

@@ -9,7 +9,6 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
-import apps.common.timer.JTimerBar;
 
 import server.event.ServerCompletedMatchEvent;
 import server.event.ServerNewGameStateEvent;
@@ -22,6 +21,7 @@ import util.observer.Observer;
 import util.statemachine.MachineState;
 import util.statemachine.StateMachine;
 import util.statemachine.implementation.prover.cache.CachedProverStateMachine;
+import util.ui.timer.JTimerBar;
 import util.xhtml.GameStateRenderPanel;
 
 @SuppressWarnings("serial")

@@ -14,7 +14,7 @@ import player.event.PlayerSentMessageEvent;
 import player.gamer.event.GamerNewMatchEvent;
 import util.observer.Event;
 import util.observer.Observer;
-import apps.common.table.JZebraTable;
+import util.ui.table.JZebraTable;
 
 @SuppressWarnings("serial")
 public final class NetworkPanel extends JPanel implements Observer

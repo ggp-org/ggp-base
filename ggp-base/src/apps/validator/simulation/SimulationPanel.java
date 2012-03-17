@@ -12,9 +12,9 @@ import javax.swing.table.DefaultTableModel;
 
 import util.observer.Event;
 import util.observer.Observer;
+import util.ui.table.JZebraTable;
 import validator.event.ValidatorFailureEvent;
 import validator.event.ValidatorSuccessEvent;
-import apps.common.table.JZebraTable;
 
 @SuppressWarnings("serial")
 public final class SimulationPanel extends JPanel implements Observer

@@ -1,4 +1,4 @@
-package apps.common;
+package util.ui;
 
 import javax.swing.UIManager;
 
