@@ -46,9 +46,16 @@ public class SimpleGameSim {
         Match theMatch = new Match("simpleGameSim." + Match.getRandomString(5), 0, 0, theGame);
         theMatch.setPlayerNamesFromHost(Arrays.asList(new String[] {"SamplePlayer1", "SamplePlayer2"}));
         try {
-            theMatch.setCryptographicKeys(new EncodedKeyPair(FileUtils.readFileAsString(new File("src/apps/utilities/SimpleGameSimKeys.json"))));
+            // Load a sample set of cryptographic keys. These sample keys are not secure,
+            // since they're checked into the public GGP Base SVN repository. They are provided
+            // merely to illustrate how the crypto key API in Match works. If you want to prove
+            // that you ran a match, you need to generate your own pair of cryptographic keys,
+            // keep them secure and hidden, and pass them to "setCryptographicKeys" in Match.
+            // The match will then be signed using those keys. Do not use the sample keys if you
+            // want to actually prove anything.
+            theMatch.setCryptographicKeys(new EncodedKeyPair(FileUtils.readFileAsString(new File("src/apps/utilities/SampleKeys.json"))));
         } catch (JSONException e) {
-            System.err.println("Could not load cryptograhic keys: " + e);
+            System.err.println("Could not load sample cryptograhic keys: " + e);
         }
         
         // ---------------------------------------------------------
