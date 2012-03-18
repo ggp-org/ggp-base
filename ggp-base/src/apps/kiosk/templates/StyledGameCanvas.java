@@ -20,12 +20,16 @@ public abstract class StyledGameCanvas extends GameCanvas {
     protected abstract String getGameXSL();
     protected abstract void drawGameOverlay(Graphics g);
     
+    /*
+     * TODO: Fix this to work with web/local visualizations.
+     * Right now it's completely broken.
     private String xslCache = "";
     protected final String getXSL() {
         if(!xslCache.isEmpty()) return xslCache;
         xslCache = GameStateRenderPanel.getXSLfromFile(getGameXSL());
         return xslCache;
     }
+    */
     
     private Image renderedState;
     protected final Image renderedGameState() {
@@ -33,12 +37,11 @@ public abstract class StyledGameCanvas extends GameCanvas {
             return renderedState;
         
         synchronized(this) {
-            String XML = gameState.toXML();
-            String XSL = getXSL();
+            // String XML = gameState.toXML();
             Dimension d = GameStateRenderPanel.getDefaultSize();
             BufferedImage backimage = this.getGraphicsConfiguration().createCompatibleImage(d.width,d.height);        
             try { Thread.sleep(200); } catch(Exception e) { e.printStackTrace(); }
-            GameStateRenderPanel.renderImagefromGameXML(XML, XSL, true, backimage);
+            //GameStateRenderPanel.renderImagefromGameXML(XML, XSL, true, backimage);
             try {
                 ByteArrayOutputStream bos = new ByteArrayOutputStream();
                 ImageIO.write(backimage, "png", bos);

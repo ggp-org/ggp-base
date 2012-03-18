@@ -13,13 +13,13 @@ import util.xhtml.GameStateRenderPanel;
 
 @SuppressWarnings("serial")
 public class VizContainerPanel extends JPanel {	
-	public VizContainerPanel(String XML, String XSL, boolean isLocal, VisualizationPanel parent) 
+	public VizContainerPanel(String XML, String XSL, VisualizationPanel parent) 
 	{
 		Dimension d = GameStateRenderPanel.getDefaultSize();
 		setPreferredSize(d);
 		
 		BufferedImage backimage = parent.getGraphicsConfiguration().createCompatibleImage(d.width, d.height);
-		GameStateRenderPanel.renderImagefromGameXML(XML, XSL, isLocal, backimage);
+		GameStateRenderPanel.renderImagefromGameXML(XML, XSL, backimage);
 		try {
 			ByteArrayOutputStream bos = new ByteArrayOutputStream();
 			ImageIO.write(backimage, "png", bos);
