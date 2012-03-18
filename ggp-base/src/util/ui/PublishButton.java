@@ -27,20 +27,27 @@ public class PublishButton extends JButton implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == this) {
             if (theServer != null) {
-                if (theServer.getMatch().getGame().getRepositoryURL() != null) {
+                if (!theServer.getMatch().getGame().getRepositoryURL().contains("127.0.0.1")) {
                     String theMatchKey = theServer.startPublishingToSpectatorServer("http://matches.ggp.org/");
-                    String theURL = "http://matches.ggp.org/matches/" + theMatchKey + "/viz.html";
-                    System.out.println("Publishing to: " + theURL);
-                    int nChoice = JOptionPane.showConfirmDialog(this,
-                            "Publishing successfully. Would you like to open the spectator view in a browser?",
-                            "Publishing Match Online",
-                            JOptionPane.YES_NO_OPTION);         
-                    if (nChoice == JOptionPane.YES_OPTION) {                        
-                        try {
-                            java.awt.Desktop.getDesktop().browse(java.net.URI.create(theURL));
-                        } catch (Exception ee) {
-                            ee.printStackTrace();
+                    if (theMatchKey != null) {
+                        String theURL = "http://matches.ggp.org/matches/" + theMatchKey + "/viz.html";
+                        System.out.println("Publishing to: " + theURL);
+                        int nChoice = JOptionPane.showConfirmDialog(this,
+                                "Publishing successfully. Would you like to open the spectator view in a browser?",
+                                "Publishing Match Online",
+                                JOptionPane.YES_NO_OPTION);         
+                        if (nChoice == JOptionPane.YES_OPTION) {                        
+                            try {
+                                java.awt.Desktop.getDesktop().browse(java.net.URI.create(theURL));
+                            } catch (Exception ee) {
+                                ee.printStackTrace();
+                            }
                         }
+                    } else {
+                        JOptionPane.showMessageDialog(this,
+                                "Unknown problem when publishing match.",
+                                "Publishing Match Online",
+                                JOptionPane.ERROR_MESSAGE);                        
                     }
                 } else {
                     JOptionPane.showMessageDialog(this,
