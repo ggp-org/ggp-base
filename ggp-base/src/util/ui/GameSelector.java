@@ -86,7 +86,11 @@ public class GameSelector implements ActionListener {
         Collections.sort(theKeyList);
         theGameList.removeAllItems();
         for (String theKey : theKeyList) {
-            String theName = theRepository.getGame(theKey).getName();
+            Game theGame = theRepository.getGame(theKey);
+            if (theGame == null) {
+                continue;
+            }
+            String theName = theGame.getName();
             if (theName == null) {
                 theName = theKey;
             }
