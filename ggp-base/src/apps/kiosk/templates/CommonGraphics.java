@@ -29,7 +29,7 @@ public class CommonGraphics {
             try {
                 // TODO: Clean this up, so it's more general.
                 if(dirName.length() > 0 && !dirName.endsWith("/")) dirName += "/";
-                String resourceName = "/games/images/" + dirName + imageName;
+                String resourceName = "/games/resources/images/" + dirName + imageName;
                 URL imageLocation = loadFrom.getClass().getResource(resourceName);
                 if(imageLocation == null) System.err.println("Could not open: " + resourceName + ", based on loading from: " + loadFrom.getClass().getSimpleName());
                 ImageIcon icon = new ImageIcon(imageLocation);
@@ -114,7 +114,7 @@ public class CommonGraphics {
         g.fillOval(6, 6, width-12, height-12);
         if(isKing) {
             if(theCrownImage == null)
-                theCrownImage = getImage("crown.png");
+                theCrownImage = getImage("checkers", "crown.png");
             
             g.setColor(Color.YELLOW);
             g.drawImage(theCrownImage, width/5, 2*height/7, 3*width/5, 3*height/7, null);
@@ -153,18 +153,18 @@ public class CommonGraphics {
     }
     
     private static void lazyLoadChessPieces() {
-        blackPawnImage   = getImage("Chess", "Black_Pawn.png");
-        blackRookImage   = getImage("Chess", "Black_Rook.png");
-        blackBishopImage = getImage("Chess", "Black_Bishop.png");
-        blackKnightImage = getImage("Chess", "Black_Knight.png");
-        blackKingImage   = getImage("Chess", "Black_King.png");
-        blackQueenImage  = getImage("Chess", "Black_Queen.png");
-        whitePawnImage   = getImage("Chess", "White_Pawn.png");
-        whiteRookImage   = getImage("Chess", "White_Rook.png");
-        whiteBishopImage = getImage("Chess", "White_Bishop.png");
-        whiteKnightImage = getImage("Chess", "White_Knight.png");
-        whiteKingImage   = getImage("Chess", "White_King.png");
-        whiteQueenImage  = getImage("Chess", "White_Queen.png");        
+        blackPawnImage   = getImage("chess", "Black_Pawn.png");
+        blackRookImage   = getImage("chess", "Black_Rook.png");
+        blackBishopImage = getImage("chess", "Black_Bishop.png");
+        blackKnightImage = getImage("chess", "Black_Knight.png");
+        blackKingImage   = getImage("chess", "Black_King.png");
+        blackQueenImage  = getImage("chess", "Black_Queen.png");
+        whitePawnImage   = getImage("chess", "White_Pawn.png");
+        whiteRookImage   = getImage("chess", "White_Rook.png");
+        whiteBishopImage = getImage("chess", "White_Bishop.png");
+        whiteKnightImage = getImage("chess", "White_Knight.png");
+        whiteKingImage   = getImage("chess", "White_King.png");
+        whiteQueenImage  = getImage("chess", "White_Queen.png");        
     }
     
     // Checkers images
