@@ -71,8 +71,8 @@ public class GameStateRenderer {
         try {
             TransformerFactory tFactory = TransformerFactory.newInstance();
             Transformer transformer = tFactory.newTransformer(new StreamSource(xslIOString.getInputStream()));
-            //transformer.setParameter("width", defaultSize.getWidth());
-            //transformer.setParameter("height", defaultSize.getHeight());
+            transformer.setParameter("width", defaultSize.getWidth()-40);
+            transformer.setParameter("height", defaultSize.getHeight()-40);
             transformer.transform(new StreamSource(game.getInputStream()),
                     new StreamResult(content.getOutputStream()));
         } catch (Exception ex) {

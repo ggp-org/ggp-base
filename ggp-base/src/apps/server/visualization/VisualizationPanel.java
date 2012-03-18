@@ -108,7 +108,7 @@ public final class VisualizationPanel extends JPanel implements Observer
         JFrame frame = new JFrame("Visualization Test");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         
-        Game theGame = GameRepository.getDefaultRepository().getGame("chess");
+        Game theGame = GameRepository.getDefaultRepository().getGame("2pttc");
         VisualizationPanel theVisual = new VisualizationPanel(theGame);
         frame.setPreferredSize(new Dimension(1200, 900));
         frame.getContentPane().add(theVisual);
