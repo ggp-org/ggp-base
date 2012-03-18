@@ -10,7 +10,7 @@ import java.io.ByteArrayOutputStream;
 import javax.imageio.ImageIO;
 
 import util.statemachine.MachineState;
-import util.ui.GameStateRenderPanel;
+import util.ui.GameStateRenderer;
 
 import apps.kiosk.GameCanvas;
 
@@ -38,7 +38,7 @@ public abstract class StyledGameCanvas extends GameCanvas {
         
         synchronized(this) {
             // String XML = gameState.toXML();
-            Dimension d = GameStateRenderPanel.getDefaultSize();
+            Dimension d = GameStateRenderer.getDefaultSize();
             BufferedImage backimage = this.getGraphicsConfiguration().createCompatibleImage(d.width,d.height);        
             try { Thread.sleep(200); } catch(Exception e) { e.printStackTrace(); }
             //GameStateRenderPanel.renderImagefromGameXML(XML, XSL, true, backimage);

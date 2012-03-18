@@ -8,7 +8,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.StringReader;
 
-import javax.swing.JPanel;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamResult;
@@ -21,12 +20,21 @@ import org.xhtmlrenderer.simple.Graphics2DRenderer;
 import org.xml.sax.InputSource;
 
 /**
- * A mess of code which is responsible for generating a graphical rendering of a game
- * @author Ethan
- *
+ * GameStateRenderer generates an image that represents the current state
+ * of a match, based on the current state of the match (in XML) and an XSLT
+ * that converts that XML match state into HTML. After rendering the match
+ * state in HTML as a DOM, it renders that DOM into a BufferedImage which
+ * can be displayed to the user.
+ * 
+ * TODO: This class is still pretty rough, and I suspect there's much room
+ * for improvement. Furthermore, improving this class will yield immediate
+ * visible benefits, in terms of better visualizations and such. For example,
+ * when rendering games that don't take up the full 600x600 image, there's an
+ * empty black space on the final image, which looks bad. That could be fixed.
+ * 
+ * @author Ethan Dreyfuss and Sam Schreiber
  */
-@SuppressWarnings("serial")
-public class GameStateRenderPanel extends JPanel {
+public class GameStateRenderer {
     private static final Dimension defaultSize = new Dimension(600,600);
 
     public static Dimension getDefaultSize()

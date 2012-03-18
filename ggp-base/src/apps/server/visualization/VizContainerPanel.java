@@ -9,17 +9,17 @@ import java.io.ByteArrayOutputStream;
 import javax.imageio.ImageIO;
 import javax.swing.JPanel;
 
-import util.ui.GameStateRenderPanel;
+import util.ui.GameStateRenderer;
 
 @SuppressWarnings("serial")
 public class VizContainerPanel extends JPanel {	
 	public VizContainerPanel(String XML, String XSL, VisualizationPanel parent) 
 	{
-		Dimension d = GameStateRenderPanel.getDefaultSize();
+		Dimension d = GameStateRenderer.getDefaultSize();
 		setPreferredSize(d);
 		
 		BufferedImage backimage = parent.getGraphicsConfiguration().createCompatibleImage(d.width, d.height);
-		GameStateRenderPanel.renderImagefromGameXML(XML, XSL, backimage);
+		GameStateRenderer.renderImagefromGameXML(XML, XSL, backimage);
 		try {
 			ByteArrayOutputStream bos = new ByteArrayOutputStream();
 			ImageIO.write(backimage, "png", bos);
