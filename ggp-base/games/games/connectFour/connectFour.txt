@@ -1,0 +1,2 @@
+Two players (red and black) take turns. Each drops a disc of their color into the grid from
+the top. The first player to get four in a row (horizontally, vertically, or diagonally) wins.

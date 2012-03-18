@@ -1,0 +1,2 @@
+The classic children's game. Two players take turns; each player makes their mark on one square
+of a 3x3 board each turn. Three marks in a row (horizontally, vertically, or diagonally) to win.
