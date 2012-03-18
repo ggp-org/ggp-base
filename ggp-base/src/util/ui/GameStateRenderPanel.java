@@ -1,4 +1,4 @@
-package util.xhtml;
+package util.ui;
 
 import java.awt.Dimension;
 import java.awt.Graphics2D;

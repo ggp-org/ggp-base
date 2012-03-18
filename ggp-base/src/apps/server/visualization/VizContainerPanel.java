@@ -9,7 +9,7 @@ import java.io.ByteArrayOutputStream;
 import javax.imageio.ImageIO;
 import javax.swing.JPanel;
 
-import util.xhtml.GameStateRenderPanel;
+import util.ui.GameStateRenderPanel;
 
 @SuppressWarnings("serial")
 public class VizContainerPanel extends JPanel {	

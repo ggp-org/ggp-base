@@ -10,7 +10,7 @@ import java.io.ByteArrayOutputStream;
 import javax.imageio.ImageIO;
 
 import util.statemachine.MachineState;
-import util.xhtml.GameStateRenderPanel;
+import util.ui.GameStateRenderPanel;
 
 import apps.kiosk.GameCanvas;
 
