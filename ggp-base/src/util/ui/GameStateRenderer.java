@@ -49,7 +49,7 @@ public class GameStateRenderer {
         String xhtml = getXHTMLfromGameXML(gameXML, XSL);
         xhtml = xhtml.replace("<?xml version=\"1.0\" encoding=\"UTF-8\"?>", "");
         
-        xhtml = xhtml.replace("<body>", "<body><table width=\"400\" height=\"400\"><tr><td>");
+        xhtml = xhtml.replace("<body>", "<body><table width=\"560\" height=\"560\"><tr><td>");
         xhtml = xhtml.replace("</body>", "</td></tr></table></body>");
         
         InputSource is = new InputSource(new BufferedReader(new StringReader(xhtml)));

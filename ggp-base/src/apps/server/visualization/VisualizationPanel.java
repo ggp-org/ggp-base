@@ -79,7 +79,9 @@ public final class VisualizationPanel extends JPanel implements Observer
                 if (XSL != null) {
                     newPanel = new VizContainerPanel(XML, XSL, myThis);
                 }
-	        } catch(Exception ex) {}
+	        } catch(Exception ex) {
+	            ex.printStackTrace();
+	        }
 	        
 	        if(newPanel != null) {
 	            // Add the rendered panel as a new tab
