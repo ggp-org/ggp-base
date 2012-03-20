@@ -35,7 +35,6 @@ import server.GameServer;
 import server.event.ServerConnectionErrorEvent;
 import server.event.ServerIllegalMoveEvent;
 import server.event.ServerTimeoutEvent;
-import util.configuration.LocalResourceLoader;
 import util.game.CloudGameRepository;
 import util.game.Game;
 import util.game.GameRepository;
@@ -100,8 +99,7 @@ public final class Kiosk extends JPanel implements ActionListener, ItemListener,
     
     public Kiosk()
     {        
-        super(new GridBagLayout());
-        LocalResourceLoader.setLocalResourceLoader(this);        
+        super(new GridBagLayout());   
         setPreferredSize(new Dimension(1050, 900));
 
         NativeUI.setNativeUI();

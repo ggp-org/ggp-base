@@ -6,39 +6,24 @@ import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.io.File;
-import java.net.URL;
+import java.io.IOException;
 import java.util.Random;
 
 import javax.imageio.ImageIO;
-import javax.swing.ImageIcon;
 
 import util.configuration.ProjectConfiguration;
 
 public class CommonGraphics {
-    public static Object loadFrom = "";
-    
     public static Image getImage(String imageName) {
         return getImage("", imageName);
     }
 
-    public static Image getImage(String dirName, String imageName) {
+    public static Image getImage(String dirName, String imageName) {                       
         try {
-            File file = new File(ProjectConfiguration.gameImagesPath + dirName, imageName);            
-            return ImageIO.read(file);
-        } catch(Exception e) {
-            try {
-                // TODO: Clean this up, so it's more general.
-                if(dirName.length() > 0 && !dirName.endsWith("/")) dirName += "/";
-                String resourceName = "/games/resources/images/" + dirName + imageName;
-                URL imageLocation = loadFrom.getClass().getResource(resourceName);
-                if(imageLocation == null) System.err.println("Could not open: " + resourceName + ", based on loading from: " + loadFrom.getClass().getSimpleName());
-                ImageIcon icon = new ImageIcon(imageLocation);
-                return icon.getImage();
-            } catch(Exception ee) {
-                e.printStackTrace();
-                ee.printStackTrace();
-                return null;
-            }
+            return ImageIO.read(new File(new File(ProjectConfiguration.gameImagesDirectory, dirName), imageName));
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
         }
     }
 
@@ -52,7 +37,7 @@ public class CommonGraphics {
         FontMetrics theMetric = g.getFontMetrics();
         g.drawString(theText, (theWidth - theMetric.stringWidth(theText)) / 2, theMetric.getAscent() + (theHeight - (theMetric.getDescent() + theMetric.getAscent())) / 2);
     }    
-    
+
     public static void drawSelectionBox(Graphics g) {
         int width = g.getClipBounds().width;
         int height = g.getClipBounds().height;
@@ -60,7 +45,7 @@ public class CommonGraphics {
         g.setColor(Color.GREEN);
         g.drawRect(3, 3, width-6, height-6);
     }
-    
+
     public static void drawCellBorder(Graphics g) {
         int width = g.getClipBounds().width;
         int height = g.getClipBounds().height;
@@ -68,7 +53,7 @@ public class CommonGraphics {
         g.setColor(Color.BLACK);
         g.drawRect(1, 1, width-2, height-2);
     }    
-    
+
     public static void drawBubbles(Graphics g, int nCode) {
         int width = g.getClipBounds().width;
         int height = g.getClipBounds().height;
@@ -97,7 +82,7 @@ public class CommonGraphics {
         g.setColor(theColor);
         g.fillOval(6, 6, width-12, height-12);
     }    
-    
+
     public static void drawCheckersPiece(Graphics g, String checkersPiece) {
         int width = g.getClipBounds().width;
         int height = g.getClipBounds().height;           
@@ -120,7 +105,7 @@ public class CommonGraphics {
             g.drawImage(theCrownImage, width/5, 2*height/7, 3*width/5, 3*height/7, null);
         }
     }
-    
+
     public static void drawChessPiece(Graphics g, String chessPiece) {
         int width = g.getClipBounds().width;
         int height = g.getClipBounds().height;        
@@ -151,7 +136,7 @@ public class CommonGraphics {
             System.err.println("Could not process chess piece [" + chessPiece + "].");
         }
     }
-    
+
     private static void lazyLoadChessPieces() {
         blackPawnImage   = getImage("chess", "Black_Pawn.png");
         blackRookImage   = getImage("chess", "Black_Rook.png");
@@ -166,10 +151,10 @@ public class CommonGraphics {
         whiteKingImage   = getImage("chess", "White_King.png");
         whiteQueenImage  = getImage("chess", "White_Queen.png");        
     }
-    
+
     // Checkers images
     private static Image theCrownImage;
-    
+
     // Chess images
     private static Image blackPawnImage;
     private static Image blackRookImage;

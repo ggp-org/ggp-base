@@ -41,8 +41,8 @@ public class PentagoCanvas extends GameCanvas_FancyGrid {
         CommonGraphics.drawCheckersPiece(g, cellPlayer.equals("red") ? "wp" : "bp");
     }
 
-    private Image left_arrow = CommonGraphics.getImage("BlueCircleArrowCCW.png");
-    private Image right_arrow = CommonGraphics.getImage("BlueCircleArrowCW.png");
+    private Image left_arrow = CommonGraphics.getImage("pentago", "BlueCircleArrowCCW.png");
+    private Image right_arrow = CommonGraphics.getImage("pentago", "BlueCircleArrowCW.png");
     
     @Override
     protected void renderMoveSelectionForCell(Graphics g, int xCell, int yCell, String theMove) {

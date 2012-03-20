@@ -21,29 +21,8 @@ public class ProjectConfiguration {
     /* Game rulesheet repository information */
     private static final String gamesRootDirectoryPath = "games";
     
-    public static final File gamesRootDirectory = new File(gamesRootDirectoryPath);
-    public static final File gameImagesDirectory = new File(gamesRootDirectoryPath, "images");
-    public static final File gameRulesheetsDirectory = new File(gamesRootDirectoryPath, "rulesheets");
-    public static final File gameStylesheetsDirectory = new File(gamesRootDirectoryPath, "stylesheets");
+    public static final File gameImagesDirectory = new File(new File(gamesRootDirectoryPath, "resources"), "images");
     public static final File gameCacheDirectory = new File(gamesRootDirectoryPath, "cache");
-    
-    public static final String gamesRootPath = gamesRootDirectory.getAbsolutePath() + File.separatorChar;
-    public static final String gameImagesPath = gameImagesDirectory.getAbsolutePath() + File.separatorChar;
-    public static final String gameRulesheetsPath = gameRulesheetsDirectory.getAbsolutePath() + File.separatorChar;
-    public static final String gameStylesheetsPath = gameStylesheetsDirectory.getAbsolutePath() + File.separatorChar;
-    public static final String gameCacheDirectoryPath = gameCacheDirectory.getAbsolutePath() + File.separatorChar;
-    
-    public static void main(String[] args) {
-        System.out.println("Games root directory: " + gamesRootPath);
-        System.out.println("Games images directory: " + gameImagesPath);
-        System.out.println("Games rulesheets directory: " + gameRulesheetsPath);
-        System.out.println("Games stylesheets directory: " + gameStylesheetsPath);
-        System.out.println("Games cache directory: " + gameCacheDirectoryPath);
-    }
-    
-    /* Cached serialized propnet information */
-    private static final String propNetCacheDirectoryPath = "propnet_cache";
-    public static final File propNetCacheDirectory = new File(propNetCacheDirectoryPath);
     
     /* Class object file information */
     public static final String[] classRoots = new String[] {"bin"};    
