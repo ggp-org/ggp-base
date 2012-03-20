@@ -22,7 +22,7 @@ public final class RemoteGameRepository extends GameRepository {
     private final String theRepoURL;
     
     public RemoteGameRepository(String theURL) {
-        theRepoURL = theURL;
+        theRepoURL = properlyFormatURL(theURL);
     }
     
     protected Set<String> getUncachedGameKeys() {
@@ -36,7 +36,7 @@ public final class RemoteGameRepository extends GameRepository {
             
             return theGameKeys;
         } catch (Exception e) {
-            // TODO: Log this exception somewhere?
+            e.printStackTrace();
             return null;
         }
     }
@@ -53,6 +53,7 @@ public final class RemoteGameRepository extends GameRepository {
             JSONObject theMetadata = getGameMetadataFromRepository(theGameURL);
             return loadSingleGameFromMetadata(theKey, theGameURL, theMetadata);            
         } catch(IOException e) {
+            e.printStackTrace();
             return null;
         }
     }
@@ -65,6 +66,7 @@ public final class RemoteGameRepository extends GameRepository {
               theGameURL = addVersionToGameURL(theGameURL, theVersion);
             }
         } catch(JSONException e) {
+            e.printStackTrace();
             return null;
         }
         
@@ -122,5 +124,13 @@ public final class RemoteGameRepository extends GameRepository {
         } catch (Exception e) {
             return null;
         }
-    } 
+    }
+    
+    public static String properlyFormatURL(String theURL) {
+        if (!theURL.startsWith("http://"))
+            theURL = "http://" + theURL;
+        if (theURL.endsWith("/"))
+            theURL = theURL.substring(0, theURL.length()-1);
+        return theURL;
+    }
 }
