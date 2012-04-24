@@ -73,13 +73,12 @@ public final class ApolloBackend
                 
         public RunMatchThread(Socket connection) throws IOException, JSONException {
             String line = HttpReader.readAsServer(connection);
-
+            System.out.println("On " + new Date() + ", client has requested: " + line);
+            
             String response = null;
             if (line.equals("ping")) {
                 response = generateSignedPing();
             } else {
-                System.out.println("On " + new Date() + ", client has requested: " + line);
-                
                 JSONObject theJSON = new JSONObject(line);
                 playClock = theJSON.getInt("playClock");
                 startClock = theJSON.getInt("startClock");
@@ -122,14 +121,16 @@ public final class ApolloBackend
         
         @Override
         public void run() {
-            System.out.println("On " + new Date() + ", starting match: " + matchId);
-            theServer.start();
-            try {
-                theServer.join();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            if (theServer != null) {
+                System.out.println("On " + new Date() + ", starting match: " + matchId);
+                theServer.start();
+                try {
+                    theServer.join();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                System.out.println("On " + new Date() + ", completed match: " + matchId);
             }
-            System.out.println("On " + new Date() + ", completed match: " + matchId);
         }
     }
     
