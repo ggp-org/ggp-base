@@ -13,6 +13,8 @@ import external.JSON.JSONException;
 import external.JSON.JSONObject;
 
 import server.GameServer;
+import util.configuration.RemoteResourceLoader;
+import util.crypto.SignableJSON;
 import util.crypto.BaseCryptography.EncodedKeyPair;
 import util.files.FileUtils;
 import util.game.Game;
@@ -45,6 +47,18 @@ import util.match.Match;
 public final class ApolloBackend
 {
     public static final int SERVER_PORT = 9124;
+
+    static EncodedKeyPair getKeyPair(String keyPairString) {
+        try {
+            return new EncodedKeyPair(keyPairString);
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    public static final EncodedKeyPair theTiltyardKeys = getKeyPair(FileUtils.readFileAsString(new File("src/apps/apollo/ApolloKeys.json")));
+    
+    private static final String registrationURL = "http://tiltyard.ggp.org/backends/register";
+    private static final String spectatorServerURL = "http://matches.ggp.org/";
     
     // Matches are run asynchronously in their own threads.
     static class RunMatchThread extends Thread {
@@ -56,48 +70,53 @@ public final class ApolloBackend
         Game theGame;
         Match theMatch;
         GameServer theServer;
-        
-        private static final String spectatorServerURL = "http://matches.ggp.org/";
-        
+                
         public RunMatchThread(Socket connection) throws IOException, JSONException {
             String line = HttpReader.readAsServer(connection);
-            
-            System.out.println("On " + new Date() + ", client has requested: " + line);
-            
-            JSONObject theJSON = new JSONObject(line);
-            playClock = theJSON.getInt("playClock");
-            startClock = theJSON.getInt("startClock");
-            gameURL = theJSON.getString("gameURL");                
-            matchId = theJSON.getString("matchId");
 
-            names = new ArrayList<String>();
-            hosts = new ArrayList<String>();            
-            ports = new ArrayList<Integer>();
-            JSONArray thePlayers = theJSON.getJSONArray("players");
-            JSONArray thePlayerNames = theJSON.getJSONArray("playerNames");
-            for (int i = 0; i < thePlayers.length(); i++) {
-                String[] splitAddress = thePlayers.getString(i).split(":");
-                // TODO(schreib): Fix this so it can handle "http://" prefix.
-                hosts.add(splitAddress[0]);
-                ports.add(Integer.parseInt(splitAddress[1]));
-                names.add(thePlayerNames.getString(i));
+            String response = null;
+            if (line.equals("ping")) {
+                response = generateSignedPing();
+            } else {
+                System.out.println("On " + new Date() + ", client has requested: " + line);
+                
+                JSONObject theJSON = new JSONObject(line);
+                playClock = theJSON.getInt("playClock");
+                startClock = theJSON.getInt("startClock");
+                gameURL = theJSON.getString("gameURL");                
+                matchId = theJSON.getString("matchId");
+    
+                names = new ArrayList<String>();
+                hosts = new ArrayList<String>();            
+                ports = new ArrayList<Integer>();
+                JSONArray thePlayers = theJSON.getJSONArray("players");
+                JSONArray thePlayerNames = theJSON.getJSONArray("playerNames");
+                for (int i = 0; i < thePlayers.length(); i++) {
+                    String[] splitAddress = thePlayers.getString(i).split(":");
+                    // TODO(schreib): Fix this so it can handle "http://" prefix.
+                    hosts.add(splitAddress[0]);
+                    ports.add(Integer.parseInt(splitAddress[1]));
+                    names.add(thePlayerNames.getString(i));
+                }
+                
+                // Get the match into a state where we can publish it to
+                // the spectator server, so that we have a spectator server
+                // URL to return for this request.
+                theGame = RemoteGameRepository.loadSingleGame(gameURL);            
+                theMatch = new Match(matchId, startClock, playClock, theGame);
+                theMatch.setCryptographicKeys(theTiltyardKeys);
+                theMatch.setPlayerNamesFromHost(names);
+                theServer = new GameServer(theMatch, hosts, ports, names);
+                String theSpectatorURL = theServer.startPublishingToSpectatorServer(spectatorServerURL);
+                
+                // Limit the rate at which the match advances, to avoid overloading
+                // the players and the spectator server with many requests.
+                theServer.setForceUsingEntireClock();
+                
+                response = spectatorServerURL + "matches/" + theSpectatorURL + "/";
             }
-            
-            // Get the match into a state where we can publish it to
-            // the spectator server, so that we have a spectator server
-            // URL to return for this request.
-            theGame = RemoteGameRepository.loadSingleGame(gameURL);            
-            theMatch = new Match(matchId, startClock, playClock, theGame);
-            theMatch.setCryptographicKeys(new EncodedKeyPair(FileUtils.readFileAsString(new File("src/apps/apollo/ApolloKeys.json"))));
-            theMatch.setPlayerNamesFromHost(names);
-            theServer = new GameServer(theMatch, hosts, ports, names);
-            String theSpectatorURL = theServer.startPublishingToSpectatorServer(spectatorServerURL);
-            
-            // Limit the rate at which the match advances, to avoid overloading
-            // the players and the spectator server with many requests.
-            theServer.setForceUsingEntireClock();
 
-            HttpWriter.writeAsServer(connection, spectatorServerURL + "matches/" + theSpectatorURL + "/");
+            HttpWriter.writeAsServer(connection, response);
             connection.close();
         }
         
@@ -114,12 +133,32 @@ public final class ApolloBackend
         }
     }
     
+    public static String generateSignedPing() {
+        JSONObject thePing = new JSONObject();
+        try {        
+            thePing.put("lastTimeBlock", (System.currentTimeMillis() / 3600000));
+            thePing.put("nextTimeBlock", (System.currentTimeMillis() / 3600000)+1);
+            SignableJSON.signJSON(thePing, theTiltyardKeys.thePublicKey, theTiltyardKeys.thePrivateKey);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return thePing.toString();
+    }
+    
     public static void main(String[] args) {
         ServerSocket listener = null;
         try {
              listener = new ServerSocket(SERVER_PORT);
         } catch (IOException e) {
             System.err.println("Could not open server on port " + SERVER_PORT + ": " + e);
+            e.printStackTrace();
+            return;
+        }
+
+        try {
+            RemoteResourceLoader.postRawWithTimeout(registrationURL, generateSignedPing(), 2500);
+        } catch (IOException e) {
+            System.err.println("Could not register with Tiltyard Scheduler.");
             e.printStackTrace();
             return;
         }
