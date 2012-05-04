@@ -7,6 +7,7 @@ import player.gamer.exception.MetaGamingException;
 import player.gamer.exception.MoveSelectionException;
 import util.gdl.grammar.GdlProposition;
 import util.gdl.grammar.GdlSentence;
+import util.logging.LogSummaryGenerator;
 import util.match.Match;
 import util.observer.Event;
 import util.observer.Observer;
@@ -96,5 +97,10 @@ public abstract class Gamer implements Subject
 		for (Observer observer : observers) {
 			observer.observe(event);
 		}
-	}	
+	}
+	
+	// ==== Log Summarization (Optional) ====
+	public LogSummaryGenerator getLogSummaryGenerator() {
+	    return null;
+	}
 }
