@@ -147,14 +147,18 @@ public final class ApolloBackend
     static class TiltyardRegistration extends Thread {
         @Override
         public void run() {
+            // Send a registration ping to Tiltyard every minute.
             while (true) {
                 try {
-                    // Send a registration ping to Tiltyard every minute.
-                    RemoteResourceLoader.postRawWithTimeout(registrationURL, generateSignedPing(), 2500);
+                    RemoteResourceLoader.postRawWithTimeout(registrationURL, generateSignedPing(), 2500);                    
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                try {
                     Thread.sleep(60000);
                 } catch (Exception e) {
                     e.printStackTrace();
-                }                
+                }
             }
        }        
     }
