@@ -47,6 +47,8 @@ import util.match.Match;
 public final class ApolloBackend
 {
     public static final int SERVER_PORT = 9124;
+    private static final String spectatorServerURL = "http://matches.ggp.org/";
+    private static final String registrationURL = "http://tiltyard.ggp.org/backends/register";
 
     static EncodedKeyPair getKeyPair(String keyPairString) {
         try {
@@ -56,9 +58,17 @@ public final class ApolloBackend
         }
     }
     public static final EncodedKeyPair theTiltyardKeys = getKeyPair(FileUtils.readFileAsString(new File("src/apps/apollo/ApolloKeys.json")));
-    
-    private static final String registrationURL = "http://tiltyard.ggp.org/backends/register";
-    private static final String spectatorServerURL = "http://matches.ggp.org/";
+    public static String generateSignedPing() {
+        JSONObject thePing = new JSONObject();
+        try {
+            thePing.put("lastTimeBlock", (System.currentTimeMillis() / 3600000));
+            thePing.put("nextTimeBlock", (System.currentTimeMillis() / 3600000)+1);
+            SignableJSON.signJSON(thePing, theTiltyardKeys.thePublicKey, theTiltyardKeys.thePrivateKey);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return thePing.toString();
+    }
     
     // Matches are run asynchronously in their own threads.
     static class RunMatchThread extends Thread {
@@ -134,16 +144,19 @@ public final class ApolloBackend
         }
     }
     
-    public static String generateSignedPing() {
-        JSONObject thePing = new JSONObject();
-        try {        
-            thePing.put("lastTimeBlock", (System.currentTimeMillis() / 3600000));
-            thePing.put("nextTimeBlock", (System.currentTimeMillis() / 3600000)+1);
-            SignableJSON.signJSON(thePing, theTiltyardKeys.thePublicKey, theTiltyardKeys.thePrivateKey);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        return thePing.toString();
+    static class TiltyardRegistration extends Thread {
+        @Override
+        public void run() {
+            while (true) {
+                try {
+                    // Send a registration ping to Tiltyard every minute.
+                    RemoteResourceLoader.postRawWithTimeout(registrationURL, generateSignedPing(), 2500);
+                    Thread.sleep(60000);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }                
+            }
+       }        
     }
     
     public static void main(String[] args) {
@@ -156,13 +169,7 @@ public final class ApolloBackend
             return;
         }
 
-        try {
-            RemoteResourceLoader.postRawWithTimeout(registrationURL, generateSignedPing(), 2500);
-        } catch (IOException e) {
-            System.err.println("Could not register with Tiltyard Scheduler.");
-            e.printStackTrace();
-            return;
-        }
+        new TiltyardRegistration().start();
         
         while (true) {
             try {
