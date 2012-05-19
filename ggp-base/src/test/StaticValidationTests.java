@@ -12,12 +12,8 @@ import validator.exception.StaticValidatorException;
 public class StaticValidationTests {
 
     @Test
-    public void testAsteroidsValidation() throws Exception {
-        validate("../rulesheets/asteroids");
-    }
-    @Test
     public void testConn4Validation() throws Exception {
-        validate("../rulesheets/conn4");
+        validate("../games/connectFour/connectFour");
     }
     @Test
     public void testSimpleMutexValidation() throws Exception {
@@ -90,7 +86,7 @@ public class StaticValidationTests {
     
     @Test
     public void testTicTacToeValidation() throws Exception {
-        validate("../rulesheets/tictactoe");
+        validate("../games/ticTacToe/ticTacToe");
     }
     
     protected void validate(String gameName) throws Exception {

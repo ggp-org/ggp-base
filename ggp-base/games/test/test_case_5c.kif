@@ -15,13 +15,13 @@
     (q ?x))
     
 (<= (p left)
-	(p up))
+    (p up))
 (<= (p up)
-	(p right))
+    (p right))
 (<= (p right)
-	(p down))
+    (p down))
 (<= (p down)
-	(p left))
+    (p left))
 
 
 (<= (legal you proceed)

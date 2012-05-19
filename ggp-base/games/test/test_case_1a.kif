@@ -8,7 +8,7 @@
     (true (state 0)))
 
 (<= (next (state 1))
-	(does you proceed))
+    (does you proceed))
 
 (<= terminal
     (true (state 1)))

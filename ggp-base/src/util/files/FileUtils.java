@@ -1,9 +1,12 @@
 package util.files;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
@@ -52,6 +55,12 @@ public class FileUtils {
 //            ex.printStackTrace();
             return "";
         }
+    }
+
+    public static void overwriteFileWithString(File file, String newContents) throws IOException {
+        BufferedWriter writer = new BufferedWriter(new FileWriter(file));
+        writer.append(newContents);
+        writer.close();
     }
     
 }

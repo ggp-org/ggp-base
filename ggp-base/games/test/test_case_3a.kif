@@ -8,10 +8,10 @@
 (init (cell 1 1 b))
 
 (<= open1
-	(true (cell ?x ?y b)))
+    (true (cell ?x ?y b)))
 (<= (open2)
-	(true (cell ?x ?y b)))
-	
+    (true (cell ?x ?y b)))
+    
 (<= (legal xplayer (move correct_correct))
     open1
     open2)
