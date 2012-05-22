@@ -101,8 +101,11 @@ public final class ApolloBackend
                 JSONArray thePlayers = theJSON.getJSONArray("players");
                 JSONArray thePlayerNames = theJSON.getJSONArray("playerNames");
                 for (int i = 0; i < thePlayers.length(); i++) {
-                    String[] splitAddress = thePlayers.getString(i).split(":");
-                    // TODO(schreib): Fix this so it can handle "http://" prefix.
+                    String playerAddress = thePlayers.getString(i);
+                    if (playerAddress.startsWith("http://")) {
+                        playerAddress = playerAddress.replace("http://", "");
+                    }
+                    String[] splitAddress = playerAddress.split(":");
                     hosts.add(splitAddress[0]);
                     ports.add(Integer.parseInt(splitAddress[1]));
                     names.add(thePlayerNames.getString(i));
