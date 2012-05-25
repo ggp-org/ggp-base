@@ -26,7 +26,7 @@ import util.logging.LogSummaryGenerator;
  * 
  * @author Sam Schreiber
  */
-public final class ExponentSummarizer
+public class ExponentSummarizer
 {
     public static LogSummaryGenerator theGenerator;
     public static final int SERVER_PORT = 9199;
