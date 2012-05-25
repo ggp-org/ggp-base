@@ -18,7 +18,7 @@ public abstract class LogSummaryGenerator {
         } else if (theMatchingMatches.length == 0) {
             System.err.println("Log summary retrieval for " + matchId + " matched zero matches.");
         } else {
-            return getSummaryFromLogsDirectory(theMatchingMatches[0]);
+            return getSummaryFromLogsDirectory(logsDirectory + "/" + theMatchingMatches[0]);
         }
         return null;        
     }
