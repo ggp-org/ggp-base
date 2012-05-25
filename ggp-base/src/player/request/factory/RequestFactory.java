@@ -6,14 +6,11 @@ import java.util.List;
 import player.gamer.Gamer;
 import player.request.factory.exceptions.RequestFormatException;
 import player.request.grammar.AbortRequest;
-import player.request.grammar.LogSummaryRequest;
 import player.request.grammar.PingRequest;
 import player.request.grammar.PlayRequest;
 import player.request.grammar.Request;
 import player.request.grammar.StartRequest;
 import player.request.grammar.StopRequest;
-import util.crypto.BaseCryptography;
-import util.crypto.ExponentPublicKey;
 import util.game.Game;
 import util.gdl.factory.GdlFactory;
 import util.gdl.factory.exceptions.GdlFormatException;
@@ -54,10 +51,6 @@ public final class RequestFactory
 			else if (type.equals("ping"))
 			{
 			    return createPing(gamer, list);
-			}
-			else if (type.equals("logs"))
-			{
-			    return createLogSummary(gamer, list);
 			}
 			else
 			{
@@ -130,23 +123,7 @@ public final class RequestFactory
 
 		return new StopRequest(gamer, matchId, moves);
 	}
-	
-    private LogSummaryRequest createLogSummary(Gamer gamer, SymbolList list) throws GdlFormatException
-    {
-        if (list.size() != 3)
-        {
-            throw new IllegalArgumentException("Expected exactly 2 argument!");
-        }
-        String matchId = ((SymbolAtom)list.get(1)).toString();
-        String authToken = ((SymbolAtom)list.get(2)).toString();
-        try {
-            BaseCryptography.verifySignature(ExponentPublicKey.theKey, authToken, matchId);
-        } catch (Exception e) {
-            throw new IllegalArgumentException("Authentication argument for log summary request did not pass verification.");
-        }
-        return new LogSummaryRequest(gamer, matchId);
-    }	
-	
+
     private AbortRequest createAbort(Gamer gamer, SymbolList list) throws GdlFormatException
     {
         if (list.size() != 2)
