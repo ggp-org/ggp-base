@@ -105,6 +105,9 @@ public final class ApolloBackend
                     if (playerAddress.startsWith("http://")) {
                         playerAddress = playerAddress.replace("http://", "");
                     }
+                    if (playerAddress.endsWith("/")) {
+                        playerAddress = playerAddress.substring(0, playerAddress.length()-1);
+                    }
                     String[] splitAddress = playerAddress.split(":");
                     hosts.add(splitAddress[0]);
                     ports.add(Integer.parseInt(splitAddress[1]));
