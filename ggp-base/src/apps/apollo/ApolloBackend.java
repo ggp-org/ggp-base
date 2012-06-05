@@ -6,7 +6,9 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import external.JSON.JSONArray;
 import external.JSON.JSONException;
@@ -81,7 +83,7 @@ public final class ApolloBackend
         Match theMatch;
         GameServer theServer;
                 
-        public RunMatchThread(Socket connection) throws IOException, JSONException {
+        public RunMatchThread(Socket connection, Set<String> knownMatches) throws IOException, JSONException {
             String line = HttpReader.readAsServer(connection);
             System.out.println("On " + new Date() + ", client has requested: " + line);
             
@@ -94,6 +96,11 @@ public final class ApolloBackend
                 startClock = theJSON.getInt("startClock");
                 gameURL = theJSON.getString("gameURL");                
                 matchId = theJSON.getString("matchId");
+                
+                if (knownMatches.contains(matchId)) {
+                    connection.close();
+                    throw new RuntimeException("Got duplicate match start request.");
+                }
     
                 names = new ArrayList<String>();
                 hosts = new ArrayList<String>();            
@@ -133,6 +140,10 @@ public final class ApolloBackend
 
             HttpWriter.writeAsServer(connection, response);
             connection.close();
+        }
+        
+        public String getMatchID() {
+            return matchId;
         }
         
         @Override
@@ -181,10 +192,12 @@ public final class ApolloBackend
 
         new TiltyardRegistration().start();
         
+        Set<String> knownMatches = new HashSet<String>();
         while (true) {
             try {
                 Socket connection = listener.accept();
-                Thread handlerThread = new RunMatchThread(connection);
+                RunMatchThread handlerThread = new RunMatchThread(connection, knownMatches);
+                knownMatches.add(handlerThread.getMatchID());
                 handlerThread.start();
             } catch (Exception e) {
                 System.err.println(e);
