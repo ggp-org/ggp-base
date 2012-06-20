@@ -56,7 +56,7 @@ public final class ApolloBackend
         try {
             return new EncodedKeyPair(keyPairString);
         } catch (JSONException e) {
-            throw new RuntimeException(e);
+            return null;
         }
     }
     public static final EncodedKeyPair theTiltyardKeys = getKeyPair(FileUtils.readFileAsString(new File("src/apps/apollo/ApolloKeys.json")));
@@ -187,6 +187,10 @@ public final class ApolloBackend
         } catch (IOException e) {
             System.err.println("Could not open server on port " + SERVER_PORT + ": " + e);
             e.printStackTrace();
+            return;
+        }
+        if (theTiltyardKeys == null) {
+            System.err.println("Could not load cryptographic keys for signing Tiltyard matches.");
             return;
         }
 
