@@ -21,6 +21,7 @@ import util.crypto.BaseCryptography.EncodedKeyPair;
 import util.files.FileUtils;
 import util.game.Game;
 import util.game.RemoteGameRepository;
+import util.gdl.grammar.GdlPool;
 import util.http.HttpReader;
 import util.http.HttpWriter;
 import util.match.Match;
@@ -180,7 +181,7 @@ public final class ApolloBackend
        }        
     }
     
-    public static void main(String[] args) {
+    public static void main(String[] args) {        
         ServerSocket listener = null;
         try {
              listener = new ServerSocket(SERVER_PORT);
@@ -194,6 +195,7 @@ public final class ApolloBackend
             return;
         }
 
+        GdlPool.caseSensitive = false;
         new TiltyardRegistration().start();
         
         Set<String> knownMatches = new HashSet<String>();

@@ -4,12 +4,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 public final class GdlPool
 {
-	private static final ConcurrentMap<String, GdlConstant> constantPool = new ConcurrentHashMap<String, GdlConstant>();
 	private static final ConcurrentMap<GdlTerm, ConcurrentMap<GdlTerm, GdlDistinct>> distinctPool = new ConcurrentHashMap<GdlTerm, ConcurrentMap<GdlTerm, GdlDistinct>>();
 	private static final ConcurrentMap<GdlConstant, ConcurrentMap<List<GdlTerm>, GdlFunction>> functionPool = new ConcurrentHashMap<GdlConstant, ConcurrentMap<List<GdlTerm>, GdlFunction>>();
 	private static final ConcurrentMap<GdlLiteral, GdlNot> notPool = new ConcurrentHashMap<GdlLiteral, GdlNot>();
@@ -18,6 +19,12 @@ public final class GdlPool
 	private static final ConcurrentMap<GdlConstant, ConcurrentMap<List<GdlTerm>, GdlRelation>> relationPool = new ConcurrentHashMap<GdlConstant, ConcurrentMap<List<GdlTerm>, GdlRelation>>();
 	private static final ConcurrentMap<GdlSentence, ConcurrentMap<List<GdlLiteral>, GdlRule>> rulePool = new ConcurrentHashMap<GdlSentence, ConcurrentMap<List<GdlLiteral>, GdlRule>>();
 	private static final ConcurrentMap<String, GdlVariable> variablePool = new ConcurrentHashMap<String, GdlVariable>();
+    private static final ConcurrentMap<String, GdlConstant> constantPool = new ConcurrentHashMap<String, GdlConstant>();
+    private static final Map<String,String> constantCases = new TreeMap<String,String>(String.CASE_INSENSITIVE_ORDER);
+    private static final Map<String,String> variableCases = new TreeMap<String,String>(String.CASE_INSENSITIVE_ORDER);    
+    
+    // Controls whether we normalize the case of incoming constants and variables.
+    public static boolean caseSensitive = true;
 	
 	/**
 	 * Drains the contents of the GdlPool. Useful to control memory usage
@@ -33,12 +40,14 @@ public final class GdlPool
 	    propositionPool.clear();
 	    relationPool.clear();
 	    rulePool.clear();
-	    variablePool.clear();    
+	    variablePool.clear();	    
+	    variableCases.clear();
 	    
 	    // NOTE: We do *not* drain the constantPool because, elsewhere,
 	    // parts of the Prover rely on having a handle to the "true" constant
 	    // that does not change over the course of the program.
 	    //constantPool.clear();
+	    //constantCases.clear();
 	}
 	
 	/**
@@ -61,13 +70,35 @@ public final class GdlPool
 
 	public static GdlConstant getConstant(String value)
 	{
-		GdlConstant ret = constantPool.get(value);
-		
+	    if (!caseSensitive) {
+	        if (constantCases.containsKey(value)) {
+	            value = constantCases.get(value);
+	        } else {
+	            constantCases.put(value, value);
+	        }
+	    }
+	    
+		GdlConstant ret = constantPool.get(value);		
 		if(ret == null)
-			ret = addToPool(value, new GdlConstant(value), constantPool);
-		
+			ret = addToPool(value, new GdlConstant(value), constantPool);		
 		return ret;
 	}
+	
+    public static GdlVariable getVariable(String name)
+    {
+        if (!caseSensitive) {
+            if (variableCases.containsKey(name)) {
+                name = variableCases.get(name);
+            } else {
+                variableCases.put(name, name);
+            }
+        }        
+        
+        GdlVariable ret = variablePool.get(name);        
+        if(ret == null)
+            ret = addToPool(name, new GdlVariable(name), variablePool);
+        return ret;
+    }	
 
 	public static GdlDistinct getDistinct(GdlTerm arg1, GdlTerm arg2)
 	{
@@ -182,15 +213,6 @@ public final class GdlPool
 		GdlRule ret = bucket.get(body);
 		if(ret == null)
 			ret = addToPool(body, new GdlRule(head, body), bucket);
-		
-		return ret;
-	}
-
-	public static GdlVariable getVariable(String name)
-	{
-		GdlVariable ret = variablePool.get(name);
-		if(ret == null)
-			ret = addToPool(name, new GdlVariable(name), variablePool);
 		
 		return ret;
 	}

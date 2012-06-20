@@ -21,6 +21,7 @@ import javax.swing.border.TitledBorder;
 
 import server.GameServer;
 import util.game.Game;
+import util.gdl.grammar.GdlPool;
 import util.match.Match;
 import util.statemachine.Role;
 import util.statemachine.StateMachine;
@@ -49,8 +50,9 @@ public final class ServerPanel extends JPanel implements ActionListener
 	}
 
 	public static void main(String[] args)
-	{
+	{        
 	    NativeUI.setNativeUI();
+	    GdlPool.caseSensitive = false;
 	
 		final ServerPanel serverPanel = new ServerPanel();
 		javax.swing.SwingUtilities.invokeLater(new Runnable()
