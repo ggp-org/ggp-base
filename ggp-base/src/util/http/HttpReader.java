@@ -7,6 +7,8 @@ import java.io.InputStreamReader;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
 
+import util.logging.GamerLogger;
+
 public final class HttpReader
 {
     // Wrapper methods to support socket timeouts for reading requests/responses.
@@ -29,11 +31,8 @@ public final class HttpReader
     
 	public static String readAsClient(Socket socket) throws IOException
 	{
-        // TODO: It should be safe to use "readContentFromPOST(br)" rather than having a special
-        // function that just reads a single line, but some servers won't send back content-length,
-        // and a server (player) should never have a multi-line response.
 		BufferedReader br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-		return readSingleLineFromResponse(br);
+		return readContentFromPOST(br);
 	}
 
 	public static String readAsServer(Socket socket) throws IOException
@@ -77,37 +76,24 @@ public final class HttpReader
             } else if (line.length() == 0) {
               // We want to ignore the headers in the request, so we'll just
               // ignore every line up until the first blank line. The content
-              // of the request appears after that. We do pull in the header
-              // that indicates the content-length, so we know how much content
-              // to read in, once we reach the content.
+              // of the request appears after that.
               if (theContentLength != -1) {
+                  // When the content-length header is available, we only read exactly
+                  // that much content, once we reach the content.
                   for (int i = 0; i < theContentLength; i++) {
                       theContent.append((char)br.read());
                   }
                   return theContent.toString().trim();
               } else {
-                  throw new IOException("Could not find Content-Length header in POST request.");
+                  // Otherwise we assume that it's just a single line. This will only be
+                  // necessary if the player doesn't send a content-length header, although
+                  // the GGP spec indicates that they should.
+                  // TODO(schreib): Remove this.
+                  GamerLogger.logError("Network", "Could not find Content-Length header.");
+                  return br.readLine().trim();
               }
             }
         }
         throw new IOException("Could not find content in POST request.");
 	}
-	
-    // Private helper methods that handle common HTTP tasks.        
-    private static String readSingleLineFromResponse(BufferedReader br) throws IOException {        
-        boolean reachedContent = false;
-        String line;
-        while ((line = br.readLine()) != null){
-            if (reachedContent) {
-                return line;
-            }
-            if (line.length() == 0) {
-                // We want to ignore the headers in the request, so we'll just
-                // ignore every line up until the first blank line. The content
-                // of the request appears after that.
-                reachedContent = true;
-            }
-        }
-        throw new IOException("Could not find content in response.");
-    }
 }

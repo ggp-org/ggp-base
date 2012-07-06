@@ -34,7 +34,7 @@ public final class HttpWriter
 		pw.println("Content-Type: text/acl");
 		pw.println("Content-Length: " + data.length());
 		pw.println();
-		pw.println(data);
+		pw.print(data);
 		
 		pw.flush();
 	}
@@ -51,7 +51,7 @@ public final class HttpWriter
 		pw.println("Access-Control-Allow-Headers: Content-Type");
 		pw.println("Access-Control-Allow-Age: 86400");
 		pw.println();
-		pw.println(data);
+		pw.print(data);
 
 		pw.flush();
 	}
