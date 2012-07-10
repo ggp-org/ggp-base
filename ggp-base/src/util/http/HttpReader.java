@@ -7,8 +7,6 @@ import java.io.InputStreamReader;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
 
-import util.logging.GamerLogger;
-
 public final class HttpReader
 {
     // Wrapper methods to support socket timeouts for reading requests/responses.
@@ -75,7 +73,7 @@ public final class HttpReader
                 try {
                     theContentLength = Integer.parseInt(line.toLowerCase().replace("content-length:", "").trim());
                 } catch (NumberFormatException e) {
-                    GamerLogger.logError("Network", "Content-Length header can't be parsed: \"" + line + "\"");
+                    throw new IOException("Content-Length header can't be parsed: \"" + line + "\"");
                 }
             } else if (line.length() == 0) {
               // We want to ignore the headers in the request, so we'll just
@@ -89,12 +87,7 @@ public final class HttpReader
                   }
                   return theContent.toString().trim();
               } else {
-                  // Otherwise we assume that it's just a single line. This will only be
-                  // necessary if the player doesn't send a content-length header, although
-                  // the GGP spec indicates that they should.
-                  // TODO(schreib): Remove this.
-                  GamerLogger.logError("Network", "Could not find Content-Length header.");
-                  return br.readLine().trim();
+                  throw new IOException("Could not find Content-Length header.");
               }
             }
         }
