@@ -72,7 +72,11 @@ public final class HttpReader
         StringBuilder theContent = new StringBuilder();        
         while ((line = br.readLine()) != null) {
             if (line.toLowerCase().startsWith("content-length:")) {
-                theContentLength = Integer.parseInt(line.toLowerCase().replace("content-length:", "").trim());
+                try {
+                    theContentLength = Integer.parseInt(line.toLowerCase().replace("content-length:", "").trim());
+                } catch (NumberFormatException e) {
+                    GamerLogger.logError("Network", "Content-Length header can't be parsed: \"" + line + "\"");
+                }
             } else if (line.length() == 0) {
               // We want to ignore the headers in the request, so we'll just
               // ignore every line up until the first blank line. The content
