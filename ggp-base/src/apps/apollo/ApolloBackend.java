@@ -139,7 +139,7 @@ public final class ApolloBackend
                 response = spectatorServerURL + "matches/" + theSpectatorURL + "/";
             }
 
-            HttpWriter.writeAsServer(connection, response + "\n");
+            HttpWriter.writeAsServer(connection, response);
             connection.close();
         }
         
