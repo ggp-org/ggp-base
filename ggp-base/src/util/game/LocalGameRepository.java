@@ -254,16 +254,19 @@ public final class LocalGameRepository extends GameRepository {
         
         public static String readFile(File rootFile) throws IOException {
             // Show contents of the file.                                        
-            FileReader fr = new FileReader(rootFile);
-            BufferedReader br = new BufferedReader(fr);
-            
-            String response = "";
-            String line;
-            while( (line = br.readLine()) != null ) {
-                response += line + "\n";
+        	FileReader fr = new FileReader(rootFile);
+        	BufferedReader br = new BufferedReader(fr);
+        	try {
+        		String response = "";
+        		String line;
+        		while( (line = br.readLine()) != null ) {
+        			response += line + "\n";
+        		}
+
+        		return response;
+        	} finally {
+            	br.close();
             }
-            
-            return response;
         }
         
         private static byte[] readBinaryFile(File rootFile) throws IOException {

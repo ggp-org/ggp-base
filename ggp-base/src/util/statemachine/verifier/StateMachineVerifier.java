@@ -35,7 +35,6 @@ public class StateMachineVerifier {
                 }
             }
 
-            int nStatesDown = 0;
             while(!theMachines.get(0).isTerminal(theCurrentStates[0])) {
                 if(System.currentTimeMillis() > startTime + timeToSpend)
                     break;                
@@ -60,7 +59,6 @@ public class StateMachineVerifier {
                     //Proceed on to the next state.
                     List<Move> theJointMove = theMachines.get(0).getRandomJointMove(theCurrentStates[0]);
 
-                    nStatesDown++;
                     for(int i = 0; i < theMachines.size(); i++) {
                         try {
                             theCurrentStates[i] = theMachines.get(i).getNextState(theCurrentStates[i], theJointMove);

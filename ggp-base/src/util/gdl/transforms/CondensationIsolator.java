@@ -307,9 +307,10 @@ public class CondensationIsolator {
 			e.printStackTrace();
 		} finally {
 			try {
-				out.close();
+				if (out != null) {
+					out.close();
+				}
 			} catch (IOException e) {}
-			catch (NullPointerException e) {}
 		}
 	}
 
