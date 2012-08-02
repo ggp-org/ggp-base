@@ -51,10 +51,10 @@ public class CanonicalJSON {
                 JSONObject theObject = (JSONObject)x;
                 
                 // Sort the keys
-                TreeSet t = new TreeSet();
-                Iterator i = theObject.keys();                
+                TreeSet<String> t = new TreeSet<String>();
+                Iterator<String> i = theObject.keys();
                 while (i.hasNext()) t.add(i.next());
-                Iterator keys = t.iterator();
+                Iterator<String> keys = t.iterator();
                 
                 StringBuffer sb = new StringBuffer("{");    
                 while (keys.hasNext()) {
@@ -105,10 +105,10 @@ public class CanonicalJSON {
                     return x.toString();
                 }
                 if (x instanceof Map) {
-                    return renderSimpleCanonicalJSON(new JSONObject((Map)x)).toString();
+                    return renderSimpleCanonicalJSON(new JSONObject((Map<?,?>)x)).toString();
                 }
                 if (x instanceof Collection) {
-                    return renderSimpleCanonicalJSON(new JSONArray((Collection)x)).toString();
+                    return renderSimpleCanonicalJSON(new JSONArray((Collection<?>)x)).toString();
                 }
                 if (x.getClass().isArray()) {
                     return renderSimpleCanonicalJSON(new JSONArray(x)).toString();
