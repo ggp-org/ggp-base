@@ -7,20 +7,20 @@ import java.util.Date;
 
 import external.JSON.JSONException;
 
-import util.crypto.BaseCryptography;
 import util.http.HttpReader;
 import util.http.HttpWriter;
 import util.logging.LogSummaryGenerator;
 
 /**
  * The Exponent Summarizer Server is a multi-threaded web server that generates
- * log summaries and sends them back to remote clients.
- * 
- * TODO(schreib): More details...
+ * log summaries and sends them back to remote clients. These log summaries should
+ * not contain any sensitive data; the summarizer can be queried by anyone and its
+ * summaries are made publicly available on the GGP.org viewer alongside the other
+ * information about each match.
  * 
  * SAMPLE INVOCATION (when running locally):
  * 
- * ResourceLoader.load_raw('http://127.0.0.1:9199/matchABC,123');
+ * ResourceLoader.load_raw('http://127.0.0.1:9199/matchABC');
  * 
  * Exponent Summarizer Server replies with a JSON summary of the logs for "matchABC".
  * 
@@ -41,18 +41,7 @@ public class ExponentSummarizer
         @Override
         public void run() {
             try {
-                String line = HttpReader.readAsServer(connection);
-                String[] lineParts = line.split(",");
-                String matchId = lineParts[0];
-                /*
-                 * TODO(schreib): This is currently disabled for testing. Re-enable it.
-                String authToken = lineParts[1];
-                try {
-                    BaseCryptography.verifySignature(ExponentPublicKey.theKey, authToken, matchId);
-                } catch (Exception e) {
-                    throw new IllegalArgumentException("Authentication argument for log summary request did not pass verification.");
-                }
-                */
+                String matchId = HttpReader.readAsServer(connection);
                 System.out.println("On " + new Date() + ", client has requested: " + matchId);
                 String theResponse = theGenerator.getLogSummary(matchId);
                 HttpWriter.writeAsServer(connection, theResponse);
