@@ -42,7 +42,6 @@ public class CanonicalJSON {
         }
     }
     
-    @SuppressWarnings("unchecked")
     /* This should be identical to the standard code to render the JSON object,
      * except it forces the keys for maps to be listed in sorted order. */
     static String renderSimpleCanonicalJSON(Object x) {
@@ -52,8 +51,8 @@ public class CanonicalJSON {
                 
                 // Sort the keys
                 TreeSet<String> t = new TreeSet<String>();
-                Iterator<String> i = theObject.keys();
-                while (i.hasNext()) t.add(i.next());
+                Iterator<?> i = theObject.keys();
+                while (i.hasNext()) t.add(i.next().toString());
                 Iterator<String> keys = t.iterator();
                 
                 StringBuffer sb = new StringBuffer("{");    
