@@ -7,8 +7,6 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 
 public class FileUtils {
     /** 
@@ -19,22 +17,15 @@ public class FileUtils {
         try {
             return readFileAsString(new BufferedReader(new FileReader(file)));
         } catch (FileNotFoundException e) {
-            return "";
+        	e.printStackTrace();
+            return null;
         }
     }
-    
-    /** 
-     * @param filePath the name of the file to open.
-     */ 
-    public static String readFileAsString(InputStream in)
-    {
-        return readFileAsString(new BufferedReader(new InputStreamReader(in)));
-    }    
     
 	/** 
      * @param file the file to open.
      */ 
-    public static String readFileAsString(BufferedReader reader)
+    private static String readFileAsString(BufferedReader reader)
     {
         try
         {
@@ -46,14 +37,9 @@ public class FileUtils {
             }
             reader.close();
             return fileData.toString();
-        }
-        catch(Exception ex)
-        {
-            // TODO: this might be TOO suppressed
-            // TODO: perhaps make this return NULL instead?
-//            System.err.println("Unable to read file " + file + " as string");
-//            ex.printStackTrace();
-            return "";
+        } catch(Exception ex) {
+        	ex.printStackTrace();
+            return null;
         }
     }
 
@@ -62,5 +48,4 @@ public class FileUtils {
         writer.append(newContents);
         writer.close();
     }
-    
 }
