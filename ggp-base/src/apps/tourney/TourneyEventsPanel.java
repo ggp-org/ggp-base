@@ -1,4 +1,4 @@
-package apps.tiltyard;
+package apps.tourney;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -18,25 +18,25 @@ import util.observer.Observer;
 import util.ui.table.JZebraTable;
 
 /**
- * TiltyardEventsPanel is responsible for displaying information
- * about the matches that Tiltyard has played (and is currently
+ * TourneyEventsPanel is responsible for displaying information
+ * about the matches that Tourney has played (and is currently
  * playing). It observes the currently running match, and renders
  * its information onto a JZebraTable. 
  * 
  * @author Sam Schreiber
  */
 @SuppressWarnings("serial")
-public final class TiltyardEventsPanel extends JPanel implements Observer
+public final class TourneyEventsPanel extends JPanel implements Observer
 {
-    private TiltyardEvent currentEvent;
+    private TourneyEvent currentEvent;
     private final JZebraTable matchTable;
 
-    public void setCurrentEvent(TiltyardEvent currentEvent) {
+    public void setCurrentEvent(TourneyEvent currentEvent) {
         this.currentEvent = currentEvent;
         updateAggregates();
     }
 
-    public TiltyardEventsPanel()
+    public TourneyEventsPanel()
     {
         super(new GridBagLayout());
 

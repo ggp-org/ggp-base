@@ -1,4 +1,4 @@
-package apps.tiltyard;
+package apps.tourney;
 
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -33,7 +33,7 @@ import util.ui.GameSelector;
 import util.ui.NativeUI;
 
 /**
- * Local Tiltyard is an application which allows you to run a large number
+ * Tourney is a locally-run application which allows you to run a large number
  * of matches of a single game between multiple players on the local machine.
  * This can be used to understand which players are stronger than which other
  * players on a particular game, and is a great tool for performing automated
@@ -41,25 +41,25 @@ import util.ui.NativeUI;
  * 
  * Since both players will be running on the same machine, they may run into
  * resource contention issues: for example, both may attempt to use all of the
- * available memory and processor cycles. Tiltyard does not prevent this: for
+ * available memory and processor cycles. Tourney does not prevent this: for
  * best performance, ensure that at least one of the two players is a simple
  * player (like RandomGamer, LegalGamer, or SimpleSearchLightGamer) that will
  * not attempt to use the majority of the machine's resources. Ensuring that
  * resource contention between multiple resource-intensive players is resolved
- * fairly is well beyond the scope of the Local Tiltyard.
+ * fairly is well beyond the scope of Tourney.
  * 
  * To get around this problem, there's a continuously-running online tournament
- * similar to the Local Tiltyard running at http://tiltyard.ggp.org/ which can
- * be used to test your player against other real players on a wide variety of
- * games. The online Tiltyard also aggregates statistics and player rankings
- * based on the matches that are played on it.
+ * called Tiltyard running at http://tiltyard.ggp.org/ which can be used to test
+ * your player against other real players on a wide variety of games. The online
+ * Tiltyard also aggregates statistics and player rankings based on the matches
+ * that are played on it.
  * 
  * @author Sam Schreiber
  */
 @SuppressWarnings("serial")
-public final class Tiltyard extends JPanel implements ActionListener {
-    private static void createAndShowGUI(Tiltyard playerPanel) {
-        JFrame frame = new JFrame("GGP Local Tiltyard");
+public final class Tourney extends JPanel implements ActionListener {
+    private static void createAndShowGUI(Tourney playerPanel) {
+        JFrame frame = new JFrame("GGP Tourney");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         frame.setPreferredSize(new Dimension(1024, 768));
@@ -72,10 +72,10 @@ public final class Tiltyard extends JPanel implements ActionListener {
     public static void main(String[] args) throws IOException {
         NativeUI.setNativeUI();
         
-        final Tiltyard tiltyardPanel = new Tiltyard();
+        final Tourney tourneyPanel = new Tourney();
         javax.swing.SwingUtilities.invokeLater(new Runnable() {
             public void run() {
-                createAndShowGUI(tiltyardPanel);
+                createAndShowGUI(tourneyPanel);
             }
         });
     }
@@ -89,7 +89,7 @@ public final class Tiltyard extends JPanel implements ActionListener {
     private List<JComboBox> playerBoxes;
     private final JPanel playerBoxesPanel;
     
-    private final TiltyardEventsPanel eventsPanel;
+    private final TourneyEventsPanel eventsPanel;
 
     private final GameSelector gameSelector;    
     
@@ -103,7 +103,7 @@ public final class Tiltyard extends JPanel implements ActionListener {
                 g = (Gamer) gamer.newInstance();
                 
                 // TODO: Come up with a more elegant way to exclude
-                // the HumanPlayer, which doesn't fit the Tiltyard model.
+                // the HumanPlayer, which doesn't fit the Tourney model.
                 if(g.getName().equals("Human")) throw new RuntimeException();
                 
                 newBox.addItem(g.getName());
@@ -116,7 +116,7 @@ public final class Tiltyard extends JPanel implements ActionListener {
         return newBox;
     }
     
-    public Tiltyard() {
+    public Tourney() {
         super(new GridBagLayout());
 
         // Create the game-selection controls
@@ -135,7 +135,7 @@ public final class Tiltyard extends JPanel implements ActionListener {
         buttonPanel.add(runButton);
         
         // Create the panel that shows the actual events
-        eventsPanel = new TiltyardEventsPanel();                
+        eventsPanel = new TourneyEventsPanel();                
 
         gameSelector = new GameSelector();        
         
@@ -158,7 +158,7 @@ public final class Tiltyard extends JPanel implements ActionListener {
         managerPanel.add(buttonPanel, new GridBagConstraints(1, nGridRow++, 1, 1, 1.0, 1.0, GridBagConstraints.SOUTH, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 0, 0));
 
         JPanel gamesPanel = new JPanel(new GridBagLayout());
-        gamesPanel.setBorder(new TitledBorder("Tiltyard Games"));
+        gamesPanel.setBorder(new TitledBorder("Tourney Games"));
         gamesPanel.add(eventsPanel, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 5, 5));
         this.add(managerPanel, new GridBagConstraints(0, 0, 1, 2, 0.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 5, 5));
         this.add(gamesPanel, new GridBagConstraints(1, 1, 1, 1, 1.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 5, 5));
@@ -169,7 +169,7 @@ public final class Tiltyard extends JPanel implements ActionListener {
         gameSelector.repopulateGameList();
     }
 
-    private void runTiltyard() {
+    private void runTourney() {
         try {
             List<Class<?>> thePlayers = new ArrayList<Class<?>>();
             for(int i = 0; i < playerBoxes.size(); i++) {
@@ -182,7 +182,7 @@ public final class Tiltyard extends JPanel implements ActionListener {
             
             Match theMatchModel = new Match("MatchID", startClock, playClock, theGame);
             
-            TiltyardManager theManager = new TiltyardManager(thePlayers, theMatchModel, gameName, numReps, eventsPanel);
+            TourneyManager theManager = new TourneyManager(thePlayers, theMatchModel, gameName, numReps, eventsPanel);
             theManager.start();
         } catch (Exception e) {
             e.printStackTrace();
@@ -190,11 +190,11 @@ public final class Tiltyard extends JPanel implements ActionListener {
     }
 
     private AbstractAction runButtonMethod() {
-        return new AbstractAction("Run Tiltyard") {
+        return new AbstractAction("Run Tourney") {
             public void actionPerformed(ActionEvent evt) {
                 javax.swing.SwingUtilities.invokeLater(new Runnable() {
                     public void run() {
-                        runTiltyard();
+                        runTourney();
                     }
                 });
             }

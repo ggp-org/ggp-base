@@ -1,4 +1,4 @@
-package apps.tiltyard;
+package apps.tourney;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,24 +8,24 @@ import player.gamer.Gamer;
 import util.match.Match;
 
 /**
- * TiltyardManager is the thread that runs a fixed number of matches
+ * TourneyManager is the thread that runs a fixed number of matches
  * between predetermined players on a single game. All of the players
  * are started beforehand, and they stay on the same port through the
  * entire tournament.
  * 
  * @author Sam Schreiber
  */
-public final class TiltyardManager extends Thread
+public final class TourneyManager extends Thread
 {
     private static final int DEFAULT_GAME_PORT = 9147;
     
     private List<Class<?>> thePlayers;
-    private TiltyardEventsPanel thePanel;
+    private TourneyEventsPanel thePanel;
     private Match theMatchModel;    
     private int nRepetitions;
     private String gameName;
 
-    public TiltyardManager(List<Class<?>> thePlayers, Match theMatchModel, String gameName, int numReps, TiltyardEventsPanel thePanel) {
+    public TourneyManager(List<Class<?>> thePlayers, Match theMatchModel, String gameName, int numReps, TourneyEventsPanel thePanel) {
         this.theMatchModel = theMatchModel;
         this.thePlayers = thePlayers;
         this.thePanel = thePanel;
@@ -58,7 +58,7 @@ public final class TiltyardManager extends Thread
                 hosts.add("localhost");
                 names.add(player.getName());
                 ports.add(new Integer(player.getGamerPort()));            
-                System.out.println("Tiltyard successfully started " + gamer.getName() + " on port " + player.getGamerPort() + ".");
+                System.out.println("Tourney successfully started " + gamer.getName() + " on port " + player.getGamerPort() + ".");
                 
                 nextPortToTry = player.getGamerPort() + 1;
             }
@@ -66,7 +66,7 @@ public final class TiltyardManager extends Thread
             // Run through the matches
             for (int nRound = 0; nRound < nRepetitions; nRound++) {                
                 // Configure parameters...
-                TiltyardEvent theNextEvent = new TiltyardEvent(gameName, theMatchModel, ports.size());
+                TourneyEvent theNextEvent = new TourneyEvent(gameName, theMatchModel, ports.size());
                 thePanel.setCurrentEvent(theNextEvent);                
                 theNextEvent.addObserver(thePanel);
                 

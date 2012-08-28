@@ -1,4 +1,4 @@
-package apps.tiltyard;
+package apps.tourney;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,14 +17,14 @@ import util.observer.Observer;
 import util.observer.Subject;
 
 /**
- * TiltyardEvent encapsulates all of the information about a single
+ * TourneyEvent encapsulates all of the information about a single
  * match being run. It is responsible for starting the match, handling
  * callbacks, and collecting relevant statistics to be pulled into the
- * TiltyardEventsPanel.
+ * TourneyEventsPanel.
  * 
  * @author Sam Schreiber
  */
-public class TiltyardEvent implements Observer, Subject {
+public class TourneyEvent implements Observer, Subject {
     // Finalized information about the match type in general
     public final String gameName;
     public final int playClock, startClock;
@@ -44,7 +44,7 @@ public class TiltyardEvent implements Observer, Subject {
     public int old_errorCount_IllegalMoves = 0;
     public int old_errorCount_ConnectionErrors = 0;
     
-    public TiltyardEvent(String gameName, Match theMatchModel, int numPlayers) {
+    public TourneyEvent(String gameName, Match theMatchModel, int numPlayers) {
         this.gameName = gameName;
         this.theMatchModel = theMatchModel;
         this.playClock = theMatchModel.getPlayClock();
@@ -72,7 +72,7 @@ public class TiltyardEvent implements Observer, Subject {
         try {
             notifyObservers(new GamerNewMatchEvent(null, null));
 
-            Match theMatch = new Match("Tiltyard." + gameName + "." + System.currentTimeMillis(), startClock, playClock, theMatchModel.getGame());
+            Match theMatch = new Match("Tourney." + gameName + "." + System.currentTimeMillis(), startClock, playClock, theMatchModel.getGame());
  
             GameServer gameServer = new GameServer(theMatch, hosts, ports, names);
             gameServer.addObserver(this);
