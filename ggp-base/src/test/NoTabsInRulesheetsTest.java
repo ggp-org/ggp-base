@@ -1,14 +1,21 @@
 package test;
 
 import java.io.File;
+import java.io.FileFilter;
 
 import org.junit.Assert;
 import org.junit.Test;
 
 import util.files.FileUtils;
-import util.files.KifFileFilter;
 
 public class NoTabsInRulesheetsTest extends Assert {
+	static class KifFileFilter implements FileFilter {
+	    @Override
+	    public boolean accept(File pathname) {
+	        return pathname.getName().endsWith(".kif");
+	    }
+	}
+	
     //Check that GGP-Base's games use spaces, not tabs.
     @Test
     public void testNoTabsInRulesheets() {
