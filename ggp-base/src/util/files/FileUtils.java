@@ -2,16 +2,16 @@ package util.files;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.IOException;
 
 public class FileUtils {
     /** 
      * @param filePath the name of the file to open.
      */
-    public static String readFileAsString(File file)
-    {
-        try
-        {
+    public static String readFileAsString(File file) {
+        try {
         	BufferedReader reader = new BufferedReader(new FileReader(file));
             StringBuilder fileData = new StringBuilder(10000);
             char[] buf = new char[1024];
@@ -21,9 +21,11 @@ public class FileUtils {
             }
             reader.close();
             return fileData.toString();
-        } catch(Exception ex) {
-        	ex.printStackTrace();
+        } catch (FileNotFoundException e) {
             return null;
-        }
+        } catch (IOException e) {
+			e.printStackTrace();
+			return null;
+		}
     }
 }

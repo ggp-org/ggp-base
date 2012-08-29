@@ -57,6 +57,8 @@ public final class TiltyardBackend
     private static final String registrationURL = "http://tiltyard.ggp.org/backends/register";
 
     static EncodedKeyPair getKeyPair(String keyPairString) {
+    	if (keyPairString == null)
+    		return null;
         try {
             return new EncodedKeyPair(keyPairString);
         } catch (JSONException e) {
