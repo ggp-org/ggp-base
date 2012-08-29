@@ -11,7 +11,7 @@ public class CephalopodCanvas extends GameCanvas_FancyGrid {
     private static final long serialVersionUID = 1L;
 
     public String getGameName() { return "Cephalopod"; }
-    protected String getGameKey() { return "CephalopodMicro"; }
+    protected String getGameKey() { return "cephalopodMicro"; }
     protected int getGridHeight() { return 3; }
     protected int getGridWidth() { return 3; }
     
