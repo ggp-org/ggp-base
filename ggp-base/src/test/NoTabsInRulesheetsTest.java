@@ -1,7 +1,10 @@
 package test;
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileFilter;
+import java.io.FileWriter;
+import java.io.IOException;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -9,14 +12,7 @@ import org.junit.Test;
 import util.files.FileUtils;
 
 public class NoTabsInRulesheetsTest extends Assert {
-	static class KifFileFilter implements FileFilter {
-	    @Override
-	    public boolean accept(File pathname) {
-	        return pathname.getName().endsWith(".kif");
-	    }
-	}
-	
-    //Check that GGP-Base's games use spaces, not tabs.
+    // Check that GGP-Base's games use spaces, not tabs.
     @Test
     public void testNoTabsInRulesheets() {
         File testGamesFolder = new File("games", "test");
@@ -28,7 +24,7 @@ public class NoTabsInRulesheetsTest extends Assert {
         }
     }
     
-    //Modify the test games to use spaces instead of tabs.
+    // Modify the test games to use spaces instead of tabs.
     public static void main(String[] args) throws Exception {
         File testGamesFolder = new File("games", "test");
         assertTrue(testGamesFolder.isDirectory());
@@ -36,7 +32,20 @@ public class NoTabsInRulesheetsTest extends Assert {
         for (File gameFile : testGamesFolder.listFiles(new KifFileFilter())) {
             String fileContents = FileUtils.readFileAsString(gameFile);
             String newContents = fileContents.replaceAll("\t", "    "); //four spaces
-            FileUtils.overwriteFileWithString(gameFile, newContents);
+            overwriteFileWithString(gameFile, newContents);
         }
     }
+    
+    static void overwriteFileWithString(File file, String newContents) throws IOException {
+        BufferedWriter writer = new BufferedWriter(new FileWriter(file));
+        writer.append(newContents);
+        writer.close();
+    }
+	
+	static class KifFileFilter implements FileFilter {
+	    @Override
+	    public boolean accept(File pathname) {
+	        return pathname.getName().endsWith(".kif");
+	    }
+	}    
 }
