@@ -120,8 +120,8 @@
             <classpath refid="GGP_Base.classpath"/>
         </java>
     </target>
-    <target name="ApolloBackend">
-        <java classname="apps.apollo.ApolloBackend" failonerror="true" fork="yes">
+    <target name="TiltyardBackend">
+        <java classname="apps.apollo.TiltyardBackend" failonerror="true" fork="yes">
             <classpath refid="GGP_Base.classpath"/>
         </java>
     </target>
