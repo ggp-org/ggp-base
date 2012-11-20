@@ -166,14 +166,22 @@ public final class GameServer extends Thread implements Subject
     }
 
     private String publishWhenNecessary() {
-        if (spectatorServerURL != null) {
+        if (spectatorServerURL == null) {
+        	return null;
+        }
+        
+    	int nAttempt = 0;
+    	while (true) {
             try {
                 return MatchPublisher.publishToSpectatorServer(spectatorServerURL, match);
             } catch (IOException e) {
-                e.printStackTrace();                
+            	if (nAttempt > 9) {
+            		e.printStackTrace();
+            		return null;
+            	}
             }
-        }
-        return null;
+    		nAttempt++;
+    	}
     }
 
     private synchronized List<Move> sendPlayRequests() throws InterruptedException, MoveDefinitionException {
