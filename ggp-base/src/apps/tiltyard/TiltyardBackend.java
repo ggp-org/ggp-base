@@ -6,9 +6,9 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 
 import external.JSON.JSONArray;
 import external.JSON.JSONException;
@@ -89,7 +89,7 @@ public final class TiltyardBackend
         Match theMatch;
         GameServer theServer;
                 
-        public RunMatchThread(Socket connection, Set<String> knownMatches) throws IOException, JSONException {
+        public RunMatchThread(Socket connection, Map<String, String> knownMatches) throws IOException, JSONException {
             String line = HttpReader.readAsServer(connection);
             System.out.println("On " + new Date() + ", client has requested: " + line);
             
@@ -103,53 +103,51 @@ public final class TiltyardBackend
                 gameURL = theJSON.getString("gameURL");                
                 matchId = theJSON.getString("matchId");
                 
-                if (knownMatches.contains(matchId)) {
-                    connection.close();
-                    throw new RuntimeException("Got duplicate match start request.");
+                synchronized (knownMatches) {
+	                if (knownMatches.containsKey(matchId)) {
+	                    response = knownMatches.get(matchId);
+	                } else {
+		                names = new ArrayList<String>();
+		                hosts = new ArrayList<String>();            
+		                ports = new ArrayList<Integer>();
+		                JSONArray thePlayers = theJSON.getJSONArray("players");
+		                JSONArray thePlayerNames = theJSON.getJSONArray("playerNames");
+		                for (int i = 0; i < thePlayers.length(); i++) {
+		                    String playerAddress = thePlayers.getString(i);
+		                    if (playerAddress.startsWith("http://")) {
+		                        playerAddress = playerAddress.replace("http://", "");
+		                    }
+		                    if (playerAddress.endsWith("/")) {
+		                        playerAddress = playerAddress.substring(0, playerAddress.length()-1);
+		                    }
+		                    String[] splitAddress = playerAddress.split(":");
+		                    hosts.add(splitAddress[0]);
+		                    ports.add(Integer.parseInt(splitAddress[1]));
+		                    names.add(thePlayerNames.getString(i));
+		                }
+		                
+		                // Get the match into a state where we can publish it to
+		                // the spectator server, so that we have a spectator server
+		                // URL to return for this request.
+		                theGame = RemoteGameRepository.loadSingleGame(gameURL);            
+		                theMatch = new Match(matchId, startClock, playClock, theGame);
+		                theMatch.setCryptographicKeys(theTiltyardKeys);
+		                theMatch.setPlayerNamesFromHost(names);
+		                theServer = new GameServer(theMatch, hosts, ports, names);
+		                String theSpectatorURL = theServer.startPublishingToSpectatorServer(spectatorServerURL);
+		                
+		                // Limit the rate at which the match advances, to avoid overloading
+		                // the players and the spectator server with many requests.
+		                theServer.setForceUsingEntireClock();
+		                
+		                response = spectatorServerURL + "matches/" + theSpectatorURL + "/";
+		                knownMatches.put(matchId, response);
+	                }
                 }
-    
-                names = new ArrayList<String>();
-                hosts = new ArrayList<String>();            
-                ports = new ArrayList<Integer>();
-                JSONArray thePlayers = theJSON.getJSONArray("players");
-                JSONArray thePlayerNames = theJSON.getJSONArray("playerNames");
-                for (int i = 0; i < thePlayers.length(); i++) {
-                    String playerAddress = thePlayers.getString(i);
-                    if (playerAddress.startsWith("http://")) {
-                        playerAddress = playerAddress.replace("http://", "");
-                    }
-                    if (playerAddress.endsWith("/")) {
-                        playerAddress = playerAddress.substring(0, playerAddress.length()-1);
-                    }
-                    String[] splitAddress = playerAddress.split(":");
-                    hosts.add(splitAddress[0]);
-                    ports.add(Integer.parseInt(splitAddress[1]));
-                    names.add(thePlayerNames.getString(i));
-                }
-                
-                // Get the match into a state where we can publish it to
-                // the spectator server, so that we have a spectator server
-                // URL to return for this request.
-                theGame = RemoteGameRepository.loadSingleGame(gameURL);            
-                theMatch = new Match(matchId, startClock, playClock, theGame);
-                theMatch.setCryptographicKeys(theTiltyardKeys);
-                theMatch.setPlayerNamesFromHost(names);
-                theServer = new GameServer(theMatch, hosts, ports, names);
-                String theSpectatorURL = theServer.startPublishingToSpectatorServer(spectatorServerURL);
-                
-                // Limit the rate at which the match advances, to avoid overloading
-                // the players and the spectator server with many requests.
-                theServer.setForceUsingEntireClock();
-                
-                response = spectatorServerURL + "matches/" + theSpectatorURL + "/";
             }
 
             HttpWriter.writeAsServer(connection, response);
             connection.close();
-        }
-        
-        public String getMatchID() {
-            return matchId;
         }
         
         @Override
@@ -203,12 +201,11 @@ public final class TiltyardBackend
         GdlPool.caseSensitive = false;
         new TiltyardRegistration().start();
         
-        Set<String> knownMatches = new HashSet<String>();
+        Map<String, String> knownMatches = new HashMap<String, String>();
         while (true) {
             try {
                 Socket connection = listener.accept();
                 RunMatchThread handlerThread = new RunMatchThread(connection, knownMatches);
-                knownMatches.add(handlerThread.getMatchID());
                 handlerThread.start();
             } catch (Exception e) {
                 System.err.println(e);
