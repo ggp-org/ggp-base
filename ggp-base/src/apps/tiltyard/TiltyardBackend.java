@@ -135,6 +135,15 @@ public final class TiltyardBackend
 		                theMatch.setPlayerNamesFromHost(names);
 		                theServer = new GameServer(theMatch, hosts, ports, names);
 		                String theSpectatorURL = theServer.startPublishingToSpectatorServer(spectatorServerURL);
+
+		                // Force any players named "random" to play randomly. Such players
+		                // are added to the rotation by the Tiltyard scheduler when real players
+		                // aren't available to fill a spot in a particular match.
+		                for (int i = 0; i < names.size(); i++) {
+		                	if (names.get(i).toLowerCase().equals("random")) {
+		                		theServer.makePlayerPlayRandomly(i);
+		                	}
+		                }
 		                
 		                // Limit the rate at which the match advances, to avoid overloading
 		                // the players and the spectator server with many requests.
@@ -168,7 +177,7 @@ public final class TiltyardBackend
     static class TiltyardRegistration extends Thread {
         @Override
         public void run() {
-            // Send a registration ping to Tiltyard every minute.
+            // Send a registration ping to Tiltyard every five minutes.
             while (true) {
                 try {
                     RemoteResourceLoader.postRawWithTimeout(registrationURL, generateSignedPing(), 2500);                    
@@ -176,7 +185,7 @@ public final class TiltyardBackend
                     e.printStackTrace();
                 }
                 try {
-                    Thread.sleep(60000);
+                    Thread.sleep(5 * 60 * 1000);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

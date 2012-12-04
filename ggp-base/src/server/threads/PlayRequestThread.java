@@ -6,6 +6,7 @@ import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Random;
 
 import server.GameServer;
 import server.event.ServerConnectionErrorEvent;
@@ -32,11 +33,12 @@ public final class PlayRequestThread extends Thread
 	private final String playerName;
 	private final List<Move> previousMoves;
 	private final boolean unlimitedTime;
+	private final boolean playRandomly;
 	private final Role role;
 	
 	private Move move;
 
-	public PlayRequestThread(GameServer gameServer, Match match, List<Move> previousMoves, List<Move> legalMoves, Role role, String host, int port, String playerName, boolean unlimitedTime)
+	public PlayRequestThread(GameServer gameServer, Match match, List<Move> previousMoves, List<Move> legalMoves, Role role, String host, int port, String playerName, boolean unlimitedTime, boolean playRandomly)
 	{
 		this.gameServer = gameServer;
 		this.match = match;
@@ -47,6 +49,7 @@ public final class PlayRequestThread extends Thread
 		this.port = port;
 		this.playerName = playerName;
 		this.unlimitedTime = unlimitedTime;
+		this.playRandomly = playRandomly;
 
 		move = null;
 	}
@@ -59,6 +62,11 @@ public final class PlayRequestThread extends Thread
 	@Override
 	public void run()
 	{
+		if (playRandomly) {
+			move = legalMoves.get(new Random().nextInt(legalMoves.size()));
+			return;
+		}
+		
 		try
 		{
 		    InetAddress theHost = InetAddress.getByName(host);
@@ -73,7 +81,7 @@ public final class PlayRequestThread extends Thread
 			if (!new HashSet<Move>(legalMoves).contains(move))
 			{
 				gameServer.notifyObservers(new ServerIllegalMoveEvent(role, move));
-				move = legalMoves.get(0);
+				move = legalMoves.get(new Random().nextInt(legalMoves.size()));
 			}
 
 			socket.close();

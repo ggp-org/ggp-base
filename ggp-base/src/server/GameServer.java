@@ -40,7 +40,8 @@ public final class GameServer extends Thread implements Subject
     private final List<String> hosts;    
     private final List<Integer> ports;
     private final List<String>  playerNames;
-    private final Boolean[] playerGetsUnlimitedTime;    
+    private final Boolean[] playerGetsUnlimitedTime;
+    private final Boolean[] playerPlaysRandomly;
     
     private final List<Observer> observers;        
     private List<Move> previousMoves;
@@ -59,7 +60,10 @@ public final class GameServer extends Thread implements Subject
         this.playerNames = playerNames;
         
         playerGetsUnlimitedTime = new Boolean[hosts.size()];
-        Arrays.fill(playerGetsUnlimitedTime, Boolean.FALSE);        
+        Arrays.fill(playerGetsUnlimitedTime, Boolean.FALSE);
+        
+        playerPlaysRandomly = new Boolean[hosts.size()];
+        Arrays.fill(playerPlaysRandomly, Boolean.FALSE);        
 
         stateMachine = new ProverStateMachine();
         stateMachine.initialize(match.getGame().getRules());
@@ -188,7 +192,7 @@ public final class GameServer extends Thread implements Subject
         List<PlayRequestThread> threads = new ArrayList<PlayRequestThread>(hosts.size());
         for (int i = 0; i < hosts.size(); i++) {
             List<Move> legalMoves = stateMachine.getLegalMoves(currentState, stateMachine.getRoles().get(i));
-            threads.add(new PlayRequestThread(this, match, previousMoves, legalMoves, stateMachine.getRoles().get(i), hosts.get(i), ports.get(i), playerNames.get(i), playerGetsUnlimitedTime[i]));
+           	threads.add(new PlayRequestThread(this, match, previousMoves, legalMoves, stateMachine.getRoles().get(i), hosts.get(i), ports.get(i), playerNames.get(i), playerGetsUnlimitedTime[i], playerPlaysRandomly[i]));
         }
         for (PlayRequestThread thread : threads) {
             thread.start();
@@ -210,7 +214,9 @@ public final class GameServer extends Thread implements Subject
     private synchronized void sendStartRequests() throws InterruptedException {
         List<StartRequestThread> threads = new ArrayList<StartRequestThread>(hosts.size());
         for (int i = 0; i < hosts.size(); i++) {
-            threads.add(new StartRequestThread(this, match, stateMachine.getRoles().get(i), hosts.get(i), ports.get(i), playerNames.get(i)));
+        	if (!playerPlaysRandomly[i]) {
+        		threads.add(new StartRequestThread(this, match, stateMachine.getRoles().get(i), hosts.get(i), ports.get(i), playerNames.get(i)));
+        	}
         }
         for (StartRequestThread thread : threads) {
             thread.start();
@@ -226,7 +232,9 @@ public final class GameServer extends Thread implements Subject
     private synchronized void sendStopRequests(List<Move> previousMoves) throws InterruptedException {
         List<StopRequestThread> threads = new ArrayList<StopRequestThread>(hosts.size());
         for (int i = 0; i < hosts.size(); i++) {
-            threads.add(new StopRequestThread(this, match, previousMoves, stateMachine.getRoles().get(i), hosts.get(i), ports.get(i), playerNames.get(i)));
+        	if (playerPlaysRandomly[i]) {
+        		threads.add(new StopRequestThread(this, match, previousMoves, stateMachine.getRoles().get(i), hosts.get(i), ports.get(i), playerNames.get(i)));
+        	}
         }
         for (StopRequestThread thread : threads) {
             thread.start();
@@ -248,6 +256,10 @@ public final class GameServer extends Thread implements Subject
     
     public void givePlayerUnlimitedTime(int i) {
         playerGetsUnlimitedTime[i] = true;
+    }
+    
+    public void makePlayerPlayRandomly(int i) {
+        playerPlaysRandomly[i] = true;
     }
 
     // Why would you want to force the game server to wait for the entire clock?
