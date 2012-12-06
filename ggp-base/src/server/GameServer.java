@@ -232,7 +232,7 @@ public final class GameServer extends Thread implements Subject
     private synchronized void sendStopRequests(List<Move> previousMoves) throws InterruptedException {
         List<StopRequestThread> threads = new ArrayList<StopRequestThread>(hosts.size());
         for (int i = 0; i < hosts.size(); i++) {
-        	if (playerPlaysRandomly[i]) {
+        	if (!playerPlaysRandomly[i]) {
         		threads.add(new StopRequestThread(this, match, previousMoves, stateMachine.getRoles().get(i), hosts.get(i), ports.get(i), playerNames.get(i)));
         	}
         }
