@@ -6,14 +6,11 @@
               as the first entry and export the buildfile again. -->
 <project basedir="." default="build" name="GGP_Base">
     <property environment="env"/>
-    <property name="ECLIPSE_HOME" value="/usr/lib64/eclipse"/>
+    <property name="ECLIPSE_HOME" value="/usr/lib/eclipse"/>
     <property name="junit.output.dir" value="junit"/>
     <property name="debuglevel" value="source,lines,vars"/>
     <property name="target" value="1.6"/>
     <property name="source" value="1.6"/>
-    <path id="JUnit 3.libraryclasspath">
-        <pathelement location="${ECLIPSE_HOME}/plugins/org.junit_3.8.2.v20090203-1005/junit.jar"/>
-    </path>
     <path id="GGP_Base.classpath">
         <pathelement location="bin"/>
         <pathelement location="src/external/FlyingSaucer/core-renderer.jar"/>
@@ -21,7 +18,7 @@
         <pathelement location="src/external/JGoodiesForms/forms-1.2.1.jar"/>
         <pathelement location="src/external/Jython/jython.jar"/>
         <pathelement location="src/external/Clojure/clojure.jar"/>
-        <path refid="JUnit 3.libraryclasspath"/>
+    	<pathelement location="/usr/share/java/junit4.jar"/>
     </path>
     <target name="init">
         <mkdir dir="bin"/>
@@ -115,13 +112,13 @@
             <classpath refid="GGP_Base.classpath"/>
         </java>
     </target>
-    <target name="SimpleGameSim (1)">
+    <target name="SimpleGameSim">
         <java classname="apps.utilities.SimpleGameSim" failonerror="true" fork="yes">
             <classpath refid="GGP_Base.classpath"/>
         </java>
     </target>
     <target name="TiltyardBackend">
-        <java classname="apps.apollo.TiltyardBackend" failonerror="true" fork="yes">
+        <java classname="apps.tiltyard.TiltyardBackend" failonerror="true" fork="yes">
             <classpath refid="GGP_Base.classpath"/>
         </java>
     </target>
