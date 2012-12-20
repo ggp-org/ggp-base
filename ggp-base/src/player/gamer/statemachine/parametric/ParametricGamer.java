@@ -17,6 +17,7 @@ import java.util.Random;
 
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
@@ -79,7 +80,7 @@ public final class ParametricGamer extends StateMachineGamer
 		Move selection = (moves.get(new Random().nextInt(moves.size())));
 
 		try {
-			if (params.has("style") && params.getString("style").equals("simple")) {
+			if (params.has("style") && params.getString("strategy").equals("Simple")) {
 				// Shuffle the moves into a random order, so that when we find the first
 				// move that doesn't give our opponent a forced win, we aren't always choosing
 				// the first legal move over and over (which is visibly repetitive).
@@ -197,13 +198,18 @@ public final class ParametricGamer extends StateMachineGamer
 
 		final JButton saveButton;
 		final JTextField styleField;
+		final JComboBox strategyField;
 		public ParametricConfigPanel() {
 			super(new FlowLayout());
-						
+
 			this.add(new JLabel("Parametric player config."));
 
+			strategyField = new JComboBox(new String[] { "Simple", "Random" });			
+		    this.add(strategyField);
+			
 			styleField = new JTextField();
 			styleField.setColumns(20);
+			styleField.setVisible(false); // not yet used
 		    this.add(styleField);
 		    		    
 		    saveButton = new JButton(saveButtonMethod());
@@ -213,6 +219,7 @@ public final class ParametricGamer extends StateMachineGamer
 			loadParamsJSON();
 			setUIfromJSON();
 			
+			strategyField.addActionListener(this);
 			styleField.getDocument().addDocumentListener(this);
 		}
 		
@@ -248,6 +255,7 @@ public final class ParametricGamer extends StateMachineGamer
 				if (!styleField.getText().isEmpty()) {
 					newParams.put("style", styleField.getText());
 				}
+				newParams.put("strategy", strategyField.getSelectedItem().toString());
 			} catch (JSONException je) {
 				je.printStackTrace();
 			}
@@ -257,7 +265,10 @@ public final class ParametricGamer extends StateMachineGamer
 		void setUIfromJSON() {
 			try {
 				if (params.has("style")) {
-					styleField.setText(params.getString("style"));
+					styleField.setText(params.getString("style"));					
+				}
+				if (params.has("strategy")) {
+					strategyField.setSelectedItem(params.getString("strategy"));
 				}
 			} catch (JSONException je) {
 				je.printStackTrace();
