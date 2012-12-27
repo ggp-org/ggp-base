@@ -83,6 +83,14 @@ public class StaticValidationTests {
     public void testCleanNotDistinctValidation() throws Exception {
         validate("test_clean_not_distinct");
     }
+    @Test(expected=StaticValidatorException.class)
+    public void testFunctionAritiesDiffer() throws Exception {
+    	validate("test_invalid_function_arities_differ");
+    }
+    @Test(expected=StaticValidatorException.class)
+    public void testSentenceAritiesDiffer() throws Exception {
+    	validate("test_invalid_sentence_arities_differ");
+    }
     
     @Test
     public void testTicTacToeValidation() throws Exception {

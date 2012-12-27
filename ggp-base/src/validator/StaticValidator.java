@@ -522,7 +522,7 @@ public class StaticValidator {
 		for(GdlFunction function : getFunctionsInSentence(sentence)) {
 			Integer curArity = functionArities.get(function.getName());
 			if(curArity == null) {
-				
+				functionArities.put(function.getName(), function.arity());
 			} else if(curArity != function.arity()) {
 				throw new StaticValidatorException("The function with the name " + function.getName() + " appears with two different arities, " + function.arity() + " and " + curArity);
 			}

@@ -1,0 +1,13 @@
+; A sample .kif file with invalid GDL.
+; The sentence arities differ, so the game is invalid
+; according to the GDL specification.
+
+( role robot )
+( init p )
+( legal robot a )
+( <= ( next q ) ( true p ) )
+( <= terminal ( true q ) )
+( goal robot 100 )
+
+( foo bar )
+( foo bar bar )
