@@ -23,9 +23,6 @@ import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
-import external.JSON.JSONException;
-import external.JSON.JSONObject;
-
 import player.gamer.statemachine.StateMachineGamer;
 import player.gamer.statemachine.reflex.event.ReflexMoveSelectionEvent;
 import player.gamer.statemachine.reflex.gui.ReflexDetailPanel;
@@ -38,6 +35,8 @@ import util.statemachine.exceptions.TransitionDefinitionException;
 import util.statemachine.implementation.prover.ProverStateMachine;
 import apps.player.config.ConfigPanel;
 import apps.player.detail.DetailPanel;
+import external.JSON.JSONException;
+import external.JSON.JSONObject;
 
 /**
  * ParametricPlayer is a player that's designed to be configured via a set of
@@ -287,8 +286,12 @@ public final class ParametricGamer extends StateMachineGamer
 				StringBuilder pdata = new StringBuilder();
 				FileInputStream fis = new FileInputStream(paramsFilename);
 				BufferedReader br = new BufferedReader(new InputStreamReader(fis, Charset.forName("UTF-8")));
-				while ((line = br.readLine()) != null) {
-				    pdata.append(line);
+				try {
+					while ((line = br.readLine()) != null) {
+						pdata.append(line);
+					}
+				} finally {
+					br.close();
 				}
 				params = new JSONObject(pdata.toString());
 				params_dirty = false;
