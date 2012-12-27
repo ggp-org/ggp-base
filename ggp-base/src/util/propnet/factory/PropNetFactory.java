@@ -7,14 +7,12 @@ import util.gdl.grammar.GdlRule;
 import util.logging.GamerLogger;
 import util.propnet.architecture.PropNet;
 import util.propnet.factory.converter.PropNetConverter;
-import util.propnet.factory.flattener.PropNetAnnotatedFlattener;
 import util.propnet.factory.flattener.PropNetFlattener;
 
 /**
  * The PropNetFactory class defines the creation of PropNets from game
  * descriptions.
  */
-@SuppressWarnings("unused")
 public final class PropNetFactory
 {
 	/**

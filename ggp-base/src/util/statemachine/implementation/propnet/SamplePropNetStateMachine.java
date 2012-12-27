@@ -9,7 +9,6 @@ import java.util.Set;
 
 import util.gdl.grammar.Gdl;
 import util.gdl.grammar.GdlConstant;
-import util.gdl.grammar.GdlProposition;
 import util.gdl.grammar.GdlRelation;
 import util.gdl.grammar.GdlSentence;
 import util.gdl.grammar.GdlTerm;
