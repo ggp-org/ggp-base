@@ -4,8 +4,8 @@ import java.util.List;
 
 import org.junit.Test;
 
+import util.game.TestGameRepository;
 import util.gdl.grammar.Gdl;
-import util.kif.KifReader;
 import validator.StaticValidator;
 import validator.exception.StaticValidatorException;
 
@@ -13,7 +13,7 @@ public class StaticValidationTests {
 
     @Test
     public void testConn4Validation() throws Exception {
-        validate("../games/connectFour/connectFour");
+        validate("connectFour");
     }
     @Test
     public void testSimpleMutexValidation() throws Exception {
@@ -94,12 +94,11 @@ public class StaticValidationTests {
     
     @Test
     public void testTicTacToeValidation() throws Exception {
-        validate("../games/ticTacToe/ticTacToe");
-    }
+        validate("ticTacToe");
+    }    
     
-    protected void validate(String gameName) throws Exception {
-        List<Gdl> desc = KifReader.read("games/test/"+gameName+".kif");
+    protected void validate(String gameName) throws Exception {    	    	
+        List<Gdl> desc = new TestGameRepository().getGame(gameName).getRules();
         StaticValidator.validateDescription(desc);
     }
-    
 }

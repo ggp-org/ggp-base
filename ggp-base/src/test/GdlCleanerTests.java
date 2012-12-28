@@ -6,9 +6,9 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 
+import util.game.TestGameRepository;
 import util.gdl.grammar.Gdl;
 import util.gdl.transforms.GdlCleaner;
-import util.kif.KifReader;
 import util.statemachine.MachineState;
 import util.statemachine.Role;
 import util.statemachine.StateMachine;
@@ -19,7 +19,7 @@ public class GdlCleanerTests {
 
     @Test
     public void testCleanNotDistinct() throws Exception {
-        List<Gdl> description = KifReader.read("games/test/test_clean_not_distinct.kif");
+    	List<Gdl> description = new TestGameRepository().getGame("test_clean_not_distinct").getRules();
         description = GdlCleaner.run(description);
         
         StaticValidator.validateDescription(description);

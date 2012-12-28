@@ -8,12 +8,12 @@ import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 
+import util.game.TestGameRepository;
 import util.gdl.grammar.Gdl;
 import util.gdl.grammar.GdlConstant;
 import util.gdl.grammar.GdlPool;
 import util.gdl.grammar.GdlProposition;
 import util.gdl.grammar.GdlTerm;
-import util.kif.KifReader;
 import util.statemachine.MachineState;
 import util.statemachine.Move;
 import util.statemachine.Role;
@@ -30,7 +30,7 @@ public class ProverStateMachineTests extends Assert {
 
     @Test
     public void testProverOnTicTacToe() throws Exception {
-        List<Gdl> ticTacToeDesc = KifReader.read("games/games/ticTacToe/ticTacToe.kif");
+        List<Gdl> ticTacToeDesc = new TestGameRepository().getGame("ticTacToe").getRules();
         sm.initialize(ticTacToeDesc);
         MachineState state = sm.getInitialState();
         assertFalse(sm.isTerminal(state));
@@ -89,7 +89,7 @@ public class ProverStateMachineTests extends Assert {
 
     @Test
     public void testCase1A() throws Exception {
-        List<Gdl> desc = KifReader.read("games/test/test_case_1a.kif");
+        List<Gdl> desc = new TestGameRepository().getGame("test_case_1a").getRules();
         sm.initialize(desc);
         MachineState state = sm.getInitialState();
         Role you = new Role(GdlPool.getProposition(GdlPool.getConstant("you")));
@@ -104,7 +104,7 @@ public class ProverStateMachineTests extends Assert {
 
     @Test
     public void testCase3C() throws Exception {
-        List<Gdl> desc = KifReader.read("games/test/test_case_3c.kif");
+        List<Gdl> desc = new TestGameRepository().getGame("test_case_3c").getRules();
         sm.initialize(desc);
         MachineState state = sm.getInitialState();
         Role xplayer = new Role(GdlPool.getProposition(GdlPool.getConstant("xplayer")));
@@ -119,7 +119,7 @@ public class ProverStateMachineTests extends Assert {
 
     @Test
     public void testCase5A() throws Exception {
-        List<Gdl> desc = KifReader.read("games/test/test_case_5a.kif");
+        List<Gdl> desc = new TestGameRepository().getGame("test_case_5a").getRules();
         sm.initialize(desc);
         MachineState state = sm.getInitialState();
         Role you = new Role(GdlPool.getProposition(GdlPool.getConstant("you")));
@@ -134,7 +134,7 @@ public class ProverStateMachineTests extends Assert {
 
     @Test
     public void testCase5B() throws Exception {
-        List<Gdl> desc = KifReader.read("games/test/test_case_5b.kif");
+        List<Gdl> desc = new TestGameRepository().getGame("test_case_5b").getRules();
         sm.initialize(desc);
         MachineState state = sm.getInitialState();
         Role you = new Role(GdlPool.getProposition(GdlPool.getConstant("you")));
@@ -147,7 +147,7 @@ public class ProverStateMachineTests extends Assert {
     
     @Test
     public void testCase5C() throws Exception {
-        List<Gdl> desc = KifReader.read("games/test/test_case_5c.kif");
+        List<Gdl> desc = new TestGameRepository().getGame("test_case_5c").getRules();
         sm.initialize(desc);
         MachineState state = sm.getInitialState();
         Role you = new Role(GdlPool.getProposition(GdlPool.getConstant("you")));
