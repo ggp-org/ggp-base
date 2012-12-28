@@ -20,7 +20,6 @@ public abstract class GdlSentence extends GdlLiteral
 
 	public abstract GdlTerm toTerm();
 	
-	//TODO: remove if not needed
 	public abstract List<GdlTerm> getBody();
 
 }
