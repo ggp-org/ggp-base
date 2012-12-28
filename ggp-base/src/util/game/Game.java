@@ -45,6 +45,7 @@ import util.symbol.grammar.SymbolList;
  * 
  * @author Sam
  */
+
 public final class Game {
     private final String theKey;
     private final String theName;
@@ -114,17 +115,12 @@ public final class Game {
     			rulesheetBuilder.append(line.substring(0, cutoff));
     			rulesheetBuilder.append(" ");
     		}
-    		String processedRulesheet = rulesheetBuilder.toString();    		
+    		String processedRulesheet = rulesheetBuilder.toString();
     		
-    		// Also surround the rulesheet in parens to make it a proper
-    		// symbol list before we start processing it, if it's not already
-    		// formatted that way.
-    		if (processedRulesheet.trim().isEmpty() || processedRulesheet.trim().charAt(0) != '(') {
-    			processedRulesheet = "( " + processedRulesheet + " )";
-    		}
+    		// Add opening and closing parens for parsing as symbol list.
+    		processedRulesheet = "( " + processedRulesheet + " )";
     		
-    		// Finally, process the rulesheet as a symbol list and construct
-    		// the Gdl objects based on it.
+    		// Finally, construct Gdl based on the processed rulesheet symbols.
 	        List<Gdl> rules = new ArrayList<Gdl>();
 	        SymbolList list = (SymbolList) SymbolFactory.create(processedRulesheet);
 	        for (int i = 0; i < list.size(); i++)

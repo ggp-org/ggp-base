@@ -93,9 +93,14 @@ public final class RequestFactory
 
 		String matchId = arg1.getValue();
 		GdlProposition roleName = (GdlProposition) GdlFactory.create(arg2);
-		String theRulesheet = arg3.toString(); 
 		int startClock = Integer.valueOf(arg4.getValue());
 		int playClock = Integer.valueOf(arg5.getValue());
+		
+		StringBuilder theRulesheet = new StringBuilder();
+		for (int i = 0; i < arg3.size(); i++) {
+			theRulesheet.append(arg3.get(i).toString());
+			theRulesheet.append(" ");
+		}
 
 		// TODO: There may be more than five arguments. These may be worth
 		// parsing, once we find a meaningful way to handle them. They aren't
@@ -103,7 +108,7 @@ public final class RequestFactory
 		// stylesheet for visualizing a state of the game, or the URL for the
 		// game on a repository server.
 
-		Game theReceivedGame = Game.createEphemeralGame(theRulesheet);
+		Game theReceivedGame = Game.createEphemeralGame(theRulesheet.toString());
 		return new StartRequest(gamer, matchId, roleName, theReceivedGame, startClock, playClock);
 	}
 
