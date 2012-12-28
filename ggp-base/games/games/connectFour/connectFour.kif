@@ -39,7 +39,7 @@
 
 (<= (next (cell ?x 1 ?player))
     (does ?player (drop ?x))
-	  (columnEmpty ?x))
+      (columnEmpty ?x))
 (<= (next (cell ?x ?y2 ?player))
     (does ?player (drop ?x))
     (cellOpen ?x ?y2)
