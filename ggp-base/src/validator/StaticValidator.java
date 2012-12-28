@@ -108,7 +108,7 @@ public class StaticValidator {
 			} else if(gdl instanceof GdlRule) {
 				rules.add((GdlRule) gdl);
 			} else {
-				throw new StaticValidatorException("The rules include a GDL object of type " + gdl.getClass().getSimpleName() + ". Only GdlRelations and GdlRules are expected.");
+				throw new StaticValidatorException("The rules include a GDL object of type " + gdl.getClass().getSimpleName() + ". Only GdlRelations and GdlRules are expected. The Gdl object is: " + gdl);
 			}
 		}
 		//2) Do all negations apply directly to sentences?
