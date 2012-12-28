@@ -170,7 +170,7 @@ public class SamplePropNetStateMachine extends StateMachine {
 	 */
 	public static Move getMoveFromProposition(Proposition p)
 	{
-		return new Move(p.getName().toSentence().get(1));
+		return new Move(p.getName().get(1));
 	}
 	
 	/**
@@ -180,7 +180,7 @@ public class SamplePropNetStateMachine extends StateMachine {
 	 */	
     private int getGoalValue(Proposition goalProposition)
 	{
-		GdlRelation relation = (GdlRelation) goalProposition.getName().toSentence();
+		GdlRelation relation = (GdlRelation) goalProposition.getName();
 		GdlConstant constant = (GdlConstant) relation.get(1);
 		return Integer.parseInt(constant.toString());
 	}
@@ -199,7 +199,7 @@ public class SamplePropNetStateMachine extends StateMachine {
 			p.setValue(p.getSingleInput().getValue());
 			if (p.getValue())
 			{
-				contents.add(p.getName().toSentence());
+				contents.add(p.getName());
 			}
 
 		}

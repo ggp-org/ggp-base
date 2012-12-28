@@ -10,8 +10,10 @@ import java.util.Map;
 import java.util.Set;
 
 import util.gdl.grammar.GdlConstant;
-import util.gdl.grammar.GdlFunction;
 import util.gdl.grammar.GdlPool;
+import util.gdl.grammar.GdlProposition;
+import util.gdl.grammar.GdlRelation;
+import util.gdl.grammar.GdlSentence;
 import util.gdl.grammar.GdlTerm;
 import util.logging.GamerLogger;
 import util.propnet.architecture.components.And;
@@ -72,10 +74,10 @@ public final class PropNet
 	private final Set<Proposition> propositions;
 	
 	/** References to every BaseProposition in the PropNet, indexed by name. */
-	private final Map<GdlTerm, Proposition> basePropositions;
+	private final Map<GdlSentence, Proposition> basePropositions;
 	
 	/** References to every InputProposition in the PropNet, indexed by name. */
-	private final Map<GdlTerm, Proposition> inputPropositions;
+	private final Map<GdlSentence, Proposition> inputPropositions;
 	
 	/** References to every LegalProposition in the PropNet, indexed by role. */
 	private final Map<Role, Set<Proposition>> legalPropositions;
@@ -138,14 +140,14 @@ public final class PropNet
 		// Create a mapping from Body->Input.
 		Map<List<GdlTerm>, Proposition> inputPropsByBody = new HashMap<List<GdlTerm>, Proposition>();
 		for(Proposition inputProp : inputPropositions.values()) {
-			List<GdlTerm> inputPropBody = ((GdlFunction)inputProp.getName()).getBody();
+			List<GdlTerm> inputPropBody = (inputProp.getName()).getBody();
 			inputPropsByBody.put(inputPropBody, inputProp);
 		}
 		// Use that mapping to map Input->Legal and Legal->Input
 		// based on having the same Body proposition.
 		for(Set<Proposition> legalProps : legalPropositions.values()) {
 			for(Proposition legalProp : legalProps) {
-				List<GdlTerm> legalPropBody = ((GdlFunction)legalProp.getName()).getBody();
+				List<GdlTerm> legalPropBody = (legalProp.getName()).getBody();
 				if (inputPropsByBody.containsKey(legalPropBody)) {
     				Proposition inputProp = inputPropsByBody.get(legalPropBody);
     				legalInputMap.put(inputProp, legalProp);
@@ -162,7 +164,7 @@ public final class PropNet
 	 * @return References to every BaseProposition in the PropNet, indexed by
 	 *         name.
 	 */
-	public Map<GdlTerm, Proposition> getBasePropositions()
+	public Map<GdlSentence, Proposition> getBasePropositions()
 	{
 		return basePropositions;
 	}
@@ -204,7 +206,7 @@ public final class PropNet
 	 * @return References to every InputProposition in the PropNet, indexed by
 	 *         name.
 	 */
-	public Map<GdlTerm, Proposition> getInputPropositions()
+	public Map<GdlSentence, Proposition> getInputPropositions()
 	{
 		return inputPropositions;
 	}
@@ -288,9 +290,9 @@ public final class PropNet
 	 * 
 	 * @return An index over the BasePropositions in the PropNet.
 	 */
-	private Map<GdlTerm, Proposition> recordBasePropositions()
+	private Map<GdlSentence, Proposition> recordBasePropositions()
 	{
-		Map<GdlTerm, Proposition> basePropositions = new HashMap<GdlTerm, Proposition>();
+		Map<GdlSentence, Proposition> basePropositions = new HashMap<GdlSentence, Proposition>();
 		for (Proposition proposition : propositions) {
 		    // Skip all propositions without exactly one input.
 		    if (proposition.getInputs().size() != 1)
@@ -320,15 +322,15 @@ public final class PropNet
 		Map<Role, Set<Proposition>> goalPropositions = new HashMap<Role, Set<Proposition>>();
 		for (Proposition proposition : propositions)
 		{
-		    // Skip all propositions that aren't GdlFunctions.
-		    if (!(proposition.getName() instanceof GdlFunction))
+		    // Skip all propositions that aren't GdlRelations.
+		    if (!(proposition.getName() instanceof GdlRelation))
 		        continue;
 		    
-			GdlFunction function = (GdlFunction) proposition.getName();
-			if (!function.getName().getValue().equals("goal"))
+			GdlRelation relation = (GdlRelation) proposition.getName();
+			if (!relation.getName().getValue().equals("goal"))
 			    continue;
 			
-			Role theRole = new Role((GdlConstant) function.get(0));
+			Role theRole = new Role((GdlConstant) relation.get(0));
 			if (!goalPropositions.containsKey(theRole)) {
 				goalPropositions.put(theRole, new HashSet<Proposition>());
 			}
@@ -347,11 +349,11 @@ public final class PropNet
 	{
 		for (Proposition proposition : propositions)
 		{
-		    // Skip all propositions that aren't GdlConstants.
-			if (!(proposition.getName() instanceof GdlConstant))
+		    // Skip all propositions that aren't GdlPropositions.
+			if (!(proposition.getName() instanceof GdlProposition))
 			    continue;
 			
-			GdlConstant constant = (GdlConstant) proposition.getName();
+			GdlConstant constant = ((GdlProposition) proposition.getName()).getName();
 			if (constant.getValue().equals("INIT")) {
 				return proposition;
 			}
@@ -364,17 +366,17 @@ public final class PropNet
 	 * 
 	 * @return An index over the InputPropositions in the PropNet.
 	 */
-	private Map<GdlTerm, Proposition> recordInputPropositions()
+	private Map<GdlSentence, Proposition> recordInputPropositions()
 	{
-		Map<GdlTerm, Proposition> inputPropositions = new HashMap<GdlTerm, Proposition>();
+		Map<GdlSentence, Proposition> inputPropositions = new HashMap<GdlSentence, Proposition>();
 		for (Proposition proposition : propositions)
 		{
 		    // Skip all propositions that aren't GdlFunctions.
-			if (!(proposition.getName() instanceof GdlFunction))
+			if (!(proposition.getName() instanceof GdlRelation))
 			    continue;
 			
-			GdlFunction function = (GdlFunction) proposition.getName();
-			if (function.getName().getValue().equals("does")) {
+			GdlRelation relation = (GdlRelation) proposition.getName();
+			if (relation.getName().getValue().equals("does")) {
 				inputPropositions.put(proposition.getName(), proposition);
 			}
 		}
@@ -392,13 +394,13 @@ public final class PropNet
 		Map<Role, Set<Proposition>> legalPropositions = new HashMap<Role, Set<Proposition>>();
 		for (Proposition proposition : propositions)
 		{
-		    // Skip all propositions that aren't GdlFunctions.
-			if (!(proposition.getName() instanceof GdlFunction))
+		    // Skip all propositions that aren't GdlRelations.
+			if (!(proposition.getName() instanceof GdlRelation))
 			    continue;
 			
-			GdlFunction function = (GdlFunction) proposition.getName();
-			if (function.getName().getValue().equals("legal")) {
-				GdlConstant name = (GdlConstant) function.get(0);
+			GdlRelation relation = (GdlRelation) proposition.getName();
+			if (relation.getName().getValue().equals("legal")) {
+				GdlConstant name = (GdlConstant) relation.get(0);
 				Role r = new Role(name);
 				if (!legalPropositions.containsKey(r)) {
 					legalPropositions.put(r, new HashSet<Proposition>());
@@ -436,9 +438,9 @@ public final class PropNet
 	{
 		for ( Proposition proposition : propositions )
 		{
-			if ( proposition.getName() instanceof GdlConstant )
+			if ( proposition.getName() instanceof GdlProposition )
 			{
-				GdlConstant constant = (GdlConstant) proposition.getName();
+				GdlConstant constant = ((GdlProposition) proposition.getName()).getName();
 				if ( constant.getValue().equals("terminal") )
 				{
 					return proposition;
@@ -503,7 +505,7 @@ public final class PropNet
 		//Go through all the collections it could appear in
 		if(c instanceof Proposition) {
 			Proposition p = (Proposition) c;
-			GdlTerm name = p.getName();
+			GdlSentence name = p.getName();
 			if(basePropositions.containsKey(name)) {
 				basePropositions.remove(name);
 			} else if(inputPropositions.containsKey(name)) {
@@ -514,9 +516,9 @@ public final class PropNet
 					legalInputMap.remove(partner);
 					legalInputMap.remove(p);
 				}
-			} else if(name == GdlPool.getConstant("INIT")) {
+			} else if(name == GdlPool.getProposition(GdlPool.getConstant("INIT"))) {
 				throw new RuntimeException("The INIT component cannot be removed. Consider leaving it and ignoring it.");
-			} else if(name == GdlPool.getConstant("terminal")) {
+			} else if(name == GdlPool.getProposition(GdlPool.getConstant("terminal"))) {
 				throw new RuntimeException("The terminal component cannot be removed.");
 			} else {
 				for(Set<Proposition> propositions : legalPropositions.values()) {

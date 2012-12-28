@@ -1,6 +1,6 @@
 package util.propnet.architecture.components;
 
-import util.gdl.grammar.GdlTerm;
+import util.gdl.grammar.GdlSentence;
 import util.propnet.architecture.Component;
 
 /**
@@ -10,7 +10,7 @@ import util.propnet.architecture.Component;
 public final class Proposition extends Component
 {
 	/** The name of the Proposition. */
-	private GdlTerm name;
+	private GdlSentence name;
 	/** The value of the Proposition. */
 	private boolean value;
 
@@ -20,7 +20,7 @@ public final class Proposition extends Component
 	 * @param name
 	 *            The name of the Proposition.
 	 */
-	public Proposition(GdlTerm name)
+	public Proposition(GdlSentence name)
 	{
 		this.name = name;
 		this.value = false;
@@ -31,7 +31,7 @@ public final class Proposition extends Component
 	 * 
 	 * @return The name of the Proposition.
 	 */
-	public GdlTerm getName()
+	public GdlSentence getName()
 	{
 		return name;
 	}
@@ -44,7 +44,7 @@ public final class Proposition extends Component
      * 
      * @return The name of the Proposition.
      */
-    public void setName(GdlTerm newName)
+    public void setName(GdlSentence newName)
     {
         name = newName;
     }	

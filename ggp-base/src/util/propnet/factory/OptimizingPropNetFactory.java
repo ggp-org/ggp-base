@@ -19,10 +19,10 @@ import util.gdl.GdlUtils;
 import util.gdl.grammar.Gdl;
 import util.gdl.grammar.GdlConstant;
 import util.gdl.grammar.GdlDistinct;
-import util.gdl.grammar.GdlFunction;
 import util.gdl.grammar.GdlLiteral;
 import util.gdl.grammar.GdlNot;
 import util.gdl.grammar.GdlPool;
+import util.gdl.grammar.GdlProposition;
 import util.gdl.grammar.GdlRelation;
 import util.gdl.grammar.GdlRule;
 import util.gdl.grammar.GdlSentence;
@@ -92,11 +92,12 @@ public class OptimizingPropNetFactory {
 	static final private GdlConstant DOES = GdlPool.getConstant("does");
 	static final private GdlConstant GOAL = GdlPool.getConstant("goal");
 	static final private GdlConstant INIT = GdlPool.getConstant("init");
+	//TODO: This currently doesn't actually give a different constant from INIT
 	static final private GdlConstant INIT_CAPS = GdlPool.getConstant("INIT");
 	static final private GdlConstant TERMINAL = GdlPool.getConstant("terminal");
     static final private GdlConstant BASE = GdlPool.getConstant("base");
     static final private GdlConstant INPUT = GdlPool.getConstant("input");
-	static final private GdlConstant TEMP = GdlPool.getConstant("TEMP");
+	static final private GdlProposition TEMP = GdlPool.getProposition(GdlPool.getConstant("TEMP"));
 
 	/**
 	 * Creates a PropNet for the game with the given description.
@@ -229,7 +230,7 @@ public class OptimizingPropNetFactory {
 					while(sentenceItr.hasNext()) {
 						GdlSentence trueSentence = sentenceItr.next();
 						//System.out.println("Adding prop for sentence " + trueSentence);
-						Proposition trueProp = new Proposition(trueSentence.toTerm());
+						Proposition trueProp = new Proposition(trueSentence);
 						trueProp.addInput(trueComponent);
 						trueComponent.addOutput(trueProp);
 						//components.put(trueSentence, trueProp);
@@ -325,13 +326,13 @@ public class OptimizingPropNetFactory {
 		for(Component component : componentSet) {
 			if(component instanceof Proposition) {
 				Proposition p = (Proposition) component;
-				GdlTerm sentenceAsTerm = p.getName();
-				if(sentenceAsTerm instanceof GdlFunction) {
-					GdlFunction sentenceAsFunction = (GdlFunction) sentenceAsTerm;
-					if(sentenceAsFunction.getName().equals(NEXT)) {
-						p.setName(GdlPool.getConstant("anon"));
-					} else if(sentenceAsFunction.getName().equals(TRUE)) {
-						p.setName(sentenceAsFunction.get(0));
+				GdlSentence sentence = p.getName();
+				if(sentence instanceof GdlRelation) {
+					GdlRelation relation = (GdlRelation) sentence;
+					if(relation.getName().equals(NEXT)) {
+						p.setName(GdlPool.getProposition(GdlPool.getConstant("anon")));
+					} else if(relation.getName().equals(TRUE)) {
+						p.setName(relation.get(0).toSentence());
 					}
 				}
 			}
@@ -478,8 +479,8 @@ public class OptimizingPropNetFactory {
 					output.removeInput(falseComponent);
 					//Update its location to the trueComponent in our map
 					if(components != null) {
-					    components.put(prop.getName().toSentence(), falseComponent);
-					    negations.put(prop.getName().toSentence(), trueComponent);
+					    components.put(prop.getName(), falseComponent);
+					    negations.put(prop.getName(), trueComponent);
 					} else {
 					    pn.removeComponent(output);
 					}
@@ -574,8 +575,8 @@ public class OptimizingPropNetFactory {
 					output.removeInput(trueComponent);
 					//Update its location to the trueComponent in our map
 					if(components != null) {
-					    components.put(prop.getName().toSentence(), trueComponent);
-					    negations.put(prop.getName().toSentence(), falseComponent);
+					    components.put(prop.getName(), trueComponent);
+					    negations.put(prop.getName(), falseComponent);
 					} else {
 					    pn.removeComponent(output);
 					}
@@ -664,7 +665,7 @@ public class OptimizingPropNetFactory {
 		//but we would still want to keep as propositions to be read by the
 		//state machine
 		Proposition prop = (Proposition) component;
-		GdlConstant name = prop.getName().toSentence().getName();
+		GdlConstant name = prop.getName().getName();
 
 		return (name.equals(LEGAL) || name.equals(NEXT) || name.equals(GOAL) || name.equals(INIT));
 	}
@@ -721,7 +722,7 @@ public class OptimizingPropNetFactory {
 	private static void setUpInit(Map<GdlSentence, Component> components,
 			Constant trueComponent, Constant falseComponent,
 			ConstantChecker constantChecker) {
-		Proposition initProposition = new Proposition(INIT_CAPS);
+		Proposition initProposition = new Proposition(GdlPool.getProposition(INIT_CAPS));
 		for(Entry<GdlSentence, Component> entry : components.entrySet()) {
 			//Is this something that will be true?
 			if(entry.getValue() == trueComponent) {
@@ -884,7 +885,7 @@ public class OptimizingPropNetFactory {
 			if(relation.getName().equals(LEGAL)
 					|| relation.getName().equals(NEXT)
 					|| relation.getName().equals(GOAL)) {
-				Proposition prop = new Proposition(relation.toTerm());
+				Proposition prop = new Proposition(relation);
 				//Attach to true
 				trueComponent.addOutput(prop);
 				prop.addInput(trueComponent);
@@ -905,7 +906,7 @@ public class OptimizingPropNetFactory {
 			while(itr.hasNext()) {
 				GdlSentence inputSentence = itr.next();
 				GdlSentence doesSentence = GdlPool.getRelation(DOES, inputSentence.getBody());
-				Proposition prop = new Proposition(doesSentence.toTerm());
+				Proposition prop = new Proposition(doesSentence);
 				components.put(doesSentence, prop);
 			}
 			return;
@@ -916,7 +917,7 @@ public class OptimizingPropNetFactory {
 			while(itr.hasNext()) {
 				GdlSentence baseSentence = itr.next();
 				GdlSentence trueSentence = GdlPool.getRelation(TRUE, baseSentence.getBody());
-				Proposition prop = new Proposition(trueSentence.toTerm());
+				Proposition prop = new Proposition(trueSentence);
 				components.put(trueSentence, prop);
 			}
 			return;
@@ -968,7 +969,7 @@ public class OptimizingPropNetFactory {
 						}
 						if(conj == null && SentenceModelUtils.inSentenceFormGroup(transformed, recursionForms)) {
 							//Set up a temporary component
-							Proposition tempProp = new Proposition(transformed.toTerm());
+							Proposition tempProp = new Proposition(transformed);
 							temporaryComponents.put(transformed, tempProp);
 							conj = tempProp;
 						}
@@ -1020,7 +1021,7 @@ public class OptimizingPropNetFactory {
 							}
 							if(positive == null) {
 								//Make the temporary proposition
-								Proposition tempProp = new Proposition(transformed.toTerm());
+								Proposition tempProp = new Proposition(transformed);
 								temporaryComponents.put(transformed, tempProp);
 								positive = tempProp;
 							}
@@ -1104,7 +1105,7 @@ public class OptimizingPropNetFactory {
 				}
 			}
 
-			Proposition prop = new Proposition(sentence.toTerm());
+			Proposition prop = new Proposition(sentence);
 			orify(realInputs, prop, falseComponent);
 			components.put(sentence, prop);
 		}
@@ -1117,7 +1118,7 @@ public class OptimizingPropNetFactory {
 			for(GdlSentence sentence : model.getSentenceIterable(form)) {
 				ConcurrencyUtils.checkForInterruption();
 
-				Proposition prop = new Proposition(sentence.toTerm());
+				Proposition prop = new Proposition(sentence);
 				components.put(sentence, prop);
 			}
 		}
@@ -1241,11 +1242,11 @@ public class OptimizingPropNetFactory {
 	        reachability.put(c, Type.STAR);
 	        if(c instanceof Proposition) {
 	            Proposition p = (Proposition) c;
-	            if(p.getName() instanceof GdlFunction) {
-	                GdlFunction f = (GdlFunction) p.getName();
-	                if(f.getName().equals(INIT)) {
+	            if(p.getName() instanceof GdlRelation) {
+	                GdlRelation r = (GdlRelation) p.getName();
+	                if(r.getName().equals(INIT)) {
 	                    //Add the base
-	                    initted.add(f.get(0));
+	                    initted.add(r.get(0));
 	                }
 	            }
 	        }
@@ -1258,13 +1259,13 @@ public class OptimizingPropNetFactory {
             toReevaluate.addAll(p.getOutputs());
         }
 	    //Every base with "init" can be true, every base without "init" can be false
-	    for(Entry<GdlTerm, Proposition> entry : pn.getBasePropositions().entrySet()) {
+	    for(Entry<GdlSentence, Proposition> entry : pn.getBasePropositions().entrySet()) {
             Proposition p = entry.getValue();
 	        //So, does it have init?
 	        //TODO: Remove "true" dereferencing? Need "global" option for that
 	        //if(initted.contains(entry.getKey())) {
-	        if(entry.getKey() instanceof GdlFunction
-	                && initted.contains(((GdlFunction)entry.getKey()).get(0))) {
+	        if(entry.getKey() instanceof GdlRelation
+	                && initted.contains(((GdlRelation)entry.getKey()).get(0))) {
 	            reachability.put(p, Type.TRUE);
 	        } else {
 	            reachability.put(entry.getValue(), Type.FALSE);
@@ -1358,7 +1359,7 @@ public class OptimizingPropNetFactory {
 	            //TODO: Special case: Inputs
 	            Proposition p = (Proposition) curComp;
 	            if(pn.getLegalInputMap().containsKey(curComp)) {
-	                GdlFunction r = (GdlFunction) p.getName();
+	                GdlRelation r = (GdlRelation) p.getName();
 	                if(r.getName().equals(DOES)) {
 	                    //The legal prop. is a pseudo-parent
 	                    Component legal = pn.getLegalInputMap().get(curComp);
@@ -1520,9 +1521,9 @@ public class OptimizingPropNetFactory {
 	public static void removeInits(PropNet pn) {
 		List<Proposition> toRemove = new ArrayList<Proposition>();
 		for(Proposition p : pn.getPropositions()) {
-			if(p.getName() instanceof GdlFunction) {
-				GdlFunction function = (GdlFunction) p.getName();
-				if(function.getName() == INIT) {
+			if(p.getName() instanceof GdlRelation) {
+				GdlRelation relation = (GdlRelation) p.getName();
+				if(relation.getName() == INIT) {
 					toRemove.add(p);
 				}
 			}
@@ -1550,13 +1551,13 @@ public class OptimizingPropNetFactory {
 			if(p.getInputs().size() == 1 && p.getSingleInput() instanceof Transition)
 				//It's a base proposition
 				continue;
-			GdlTerm term = p.getName();
-			if(term instanceof GdlConstant) {
-				if(term == TERMINAL || term == INIT_CAPS)
+			GdlSentence sentence = p.getName();
+			if(sentence instanceof GdlProposition) {
+				if(sentence.getName() == TERMINAL || sentence.getName() == INIT_CAPS)
 					continue;
 			} else {
-				GdlFunction function = (GdlFunction) term;
-				GdlConstant name = function.getName();
+				GdlRelation relation = (GdlRelation) sentence;
+				GdlConstant name = relation.getName();
 				if(name == LEGAL || name == GOAL || name == DOES
 						|| name == INIT)
 					continue;
