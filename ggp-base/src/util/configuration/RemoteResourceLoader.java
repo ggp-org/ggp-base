@@ -47,7 +47,7 @@ public class RemoteResourceLoader {
         do {
             String nextLine = br.readLine();
             if (nextLine == null) break;
-            theJSON.append(nextLine);
+            theJSON.append(nextLine + "\n");
         } while (true);
         return theJSON.toString();
     }
