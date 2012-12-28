@@ -72,8 +72,6 @@ public final class SymbolFactory
 
 	private static String preprocess(String string)
 	{
-		//string = string.toLowerCase();
-
 		string = string.replaceAll("\\(", " ( ");
 		string = string.replaceAll("\\)", " ) ");
 
