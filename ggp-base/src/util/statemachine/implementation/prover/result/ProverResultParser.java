@@ -7,7 +7,6 @@ import java.util.Set;
 
 import util.gdl.grammar.GdlConstant;
 import util.gdl.grammar.GdlPool;
-import util.gdl.grammar.GdlProposition;
 import util.gdl.grammar.GdlSentence;
 import util.gdl.grammar.GdlTerm;
 import util.statemachine.MachineState;
@@ -35,7 +34,7 @@ public final class ProverResultParser
 		List<Role> roles = new ArrayList<Role>();
 		for (GdlSentence result : results)
 		{
-			GdlProposition name = (GdlProposition) result.get(0).toSentence();
+			GdlConstant name = (GdlConstant) result.get(0);
 			roles.add(new Role(name));
 		}
 

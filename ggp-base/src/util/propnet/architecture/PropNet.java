@@ -12,7 +12,6 @@ import java.util.Set;
 import util.gdl.grammar.GdlConstant;
 import util.gdl.grammar.GdlFunction;
 import util.gdl.grammar.GdlPool;
-import util.gdl.grammar.GdlProposition;
 import util.gdl.grammar.GdlTerm;
 import util.logging.GamerLogger;
 import util.propnet.architecture.components.And;
@@ -329,7 +328,7 @@ public final class PropNet
 			if (!function.getName().getValue().equals("goal"))
 			    continue;
 			
-			Role theRole = new Role((GdlProposition)(function.get(0).toSentence()));
+			Role theRole = new Role((GdlConstant) function.get(0));
 			if (!goalPropositions.containsKey(theRole)) {
 				goalPropositions.put(theRole, new HashSet<Proposition>());
 			}
@@ -400,8 +399,7 @@ public final class PropNet
 			GdlFunction function = (GdlFunction) proposition.getName();
 			if (function.getName().getValue().equals("legal")) {
 				GdlConstant name = (GdlConstant) function.get(0);
-				GdlProposition prop = (GdlProposition)name.toSentence();
-				Role r = new Role(prop);
+				Role r = new Role(name);
 				if (!legalPropositions.containsKey(r)) {
 					legalPropositions.put(r, new HashSet<Proposition>());
 				}

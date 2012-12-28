@@ -11,7 +11,6 @@ import java.util.Set;
 import util.gdl.grammar.Gdl;
 import util.gdl.grammar.GdlConstant;
 import util.gdl.grammar.GdlPool;
-import util.gdl.grammar.GdlProposition;
 import util.gdl.grammar.GdlRelation;
 import util.gdl.grammar.GdlRule;
 import util.gdl.grammar.GdlTerm;
@@ -73,7 +72,7 @@ public class MoveMutexFinder {
 					GdlTerm playerName = rule.getHead().get(0);
 					if(!(playerName instanceof GdlConstant))
 						throw new RuntimeException("LegalSplitter failed on rule " + rule + " (reported by MoveMutexFinder)");
-					Role role = new Role((GdlProposition)playerName.toSentence());
+					Role role = new Role((GdlConstant) playerName);
 					
 					if(!moveTurnsByRole.containsKey(role))
 						moveTurnsByRole.put(role, new HashSet<Integer>());
@@ -87,7 +86,7 @@ public class MoveMutexFinder {
 				Set<GdlRelation> legalRelations = model.getRelations(form);
 				for(GdlRelation relation : legalRelations) {
 					GdlTerm playerName = relation.get(0);
-					Role role = new Role((GdlProposition)playerName.toSentence());
+					Role role = new Role((GdlConstant) playerName);
 					
 					if(!moveTurnsByRole.containsKey(role))
 						moveTurnsByRole.put(role, new HashSet<Integer>());

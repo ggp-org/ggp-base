@@ -12,7 +12,6 @@ import util.game.TestGameRepository;
 import util.gdl.grammar.Gdl;
 import util.gdl.grammar.GdlConstant;
 import util.gdl.grammar.GdlPool;
-import util.gdl.grammar.GdlProposition;
 import util.gdl.grammar.GdlTerm;
 import util.statemachine.MachineState;
 import util.statemachine.Move;
@@ -36,10 +35,8 @@ public class ProverStateMachineTests extends Assert {
         assertFalse(sm.isTerminal(state));
         GdlConstant X_PLAYER = GdlPool.getConstant("xplayer");
         GdlConstant O_PLAYER = GdlPool.getConstant("oplayer");
-        GdlProposition X_PLAYER_P = GdlPool.getProposition(X_PLAYER);
-        GdlProposition O_PLAYER_P = GdlPool.getProposition(O_PLAYER);
-        Role xRole = new Role(X_PLAYER_P);
-        Role oRole = new Role(O_PLAYER_P);
+        Role xRole = new Role(X_PLAYER);
+        Role oRole = new Role(O_PLAYER);
         List<Role> roles = Arrays.asList(xRole, oRole);
         assertEquals(roles, sm.getRoles());
 
@@ -92,7 +89,7 @@ public class ProverStateMachineTests extends Assert {
         List<Gdl> desc = new TestGameRepository().getGame("test_case_1a").getRules();
         sm.initialize(desc);
         MachineState state = sm.getInitialState();
-        Role you = new Role(GdlPool.getProposition(GdlPool.getConstant("you")));
+        Role you = new Role(GdlPool.getConstant("you"));
         assertFalse(sm.isTerminal(state));
         assertEquals(100, sm.getGoal(state, you));
         assertEquals(Collections.singletonList(100), sm.getGoals(state));
@@ -107,7 +104,7 @@ public class ProverStateMachineTests extends Assert {
         List<Gdl> desc = new TestGameRepository().getGame("test_case_3c").getRules();
         sm.initialize(desc);
         MachineState state = sm.getInitialState();
-        Role xplayer = new Role(GdlPool.getProposition(GdlPool.getConstant("xplayer")));
+        Role xplayer = new Role(GdlPool.getConstant("xplayer"));
         assertFalse(sm.isTerminal(state));
         assertEquals(1, sm.getLegalMoves(state, xplayer).size());
         assertEquals(move("win"), sm.getLegalMoves(state, xplayer).get(0));
@@ -122,7 +119,7 @@ public class ProverStateMachineTests extends Assert {
         List<Gdl> desc = new TestGameRepository().getGame("test_case_5a").getRules();
         sm.initialize(desc);
         MachineState state = sm.getInitialState();
-        Role you = new Role(GdlPool.getProposition(GdlPool.getConstant("you")));
+        Role you = new Role(GdlPool.getConstant("you"));
         assertFalse(sm.isTerminal(state));
         assertEquals(1, sm.getLegalMoves(state, you).size());
         assertEquals(move("proceed"), sm.getLegalMoves(state, you).get(0));
@@ -137,7 +134,7 @@ public class ProverStateMachineTests extends Assert {
         List<Gdl> desc = new TestGameRepository().getGame("test_case_5b").getRules();
         sm.initialize(desc);
         MachineState state = sm.getInitialState();
-        Role you = new Role(GdlPool.getProposition(GdlPool.getConstant("you")));
+        Role you = new Role(GdlPool.getConstant("you"));
         assertFalse(sm.isTerminal(state));
         assertEquals(1, sm.getLegalMoves(state, you).size());
         assertEquals(move("draw 1 1 1 2"), sm.getLegalMoves(state, you).get(0));
@@ -150,7 +147,7 @@ public class ProverStateMachineTests extends Assert {
         List<Gdl> desc = new TestGameRepository().getGame("test_case_5c").getRules();
         sm.initialize(desc);
         MachineState state = sm.getInitialState();
-        Role you = new Role(GdlPool.getProposition(GdlPool.getConstant("you")));
+        Role you = new Role(GdlPool.getConstant("you"));
         assertFalse(sm.isTerminal(state));
         assertEquals(1, sm.getLegalMoves(state, you).size());
         assertEquals(move("proceed"), sm.getLegalMoves(state, you).get(0));

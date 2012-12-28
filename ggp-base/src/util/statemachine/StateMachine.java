@@ -9,7 +9,7 @@ import java.util.Random;
 import java.util.Set;
 
 import util.gdl.grammar.Gdl;
-import util.gdl.grammar.GdlProposition;
+import util.gdl.grammar.GdlConstant;
 import util.gdl.grammar.GdlSentence;
 import util.gdl.grammar.GdlTerm;
 import util.statemachine.exceptions.GoalDefinitionException;
@@ -47,8 +47,8 @@ public abstract class StateMachine
     public MachineState getMachineStateFromSentenceList(Set<GdlSentence> sentenceList) {
         return new MachineState(sentenceList);
     }
-    public Role getRoleFromProp(GdlProposition proposition) {
-        return new Role(proposition);
+    public Role getRoleFromConstant(GdlConstant constant) {
+        return new Role(constant);
     }
     public Move getMoveFromTerm(GdlTerm term) {
         return new Move(term);

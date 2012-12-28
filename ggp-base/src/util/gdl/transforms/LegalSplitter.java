@@ -46,7 +46,7 @@ public class LegalSplitter {
 						
 						//Here we split the rule up
 						for(Role role : roles) {
-							GdlConstant playerName = role.getName().getName();
+							GdlConstant playerName = role.getName();
 							//Substitute into the rule...
 							GdlRule newRule = CommonTransforms.replaceVariable(rule, (GdlVariable) playerTerm, playerName);
 							newDescription.add(newRule);

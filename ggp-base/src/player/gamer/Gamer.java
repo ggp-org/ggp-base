@@ -5,7 +5,7 @@ import java.util.List;
 
 import player.gamer.exception.MetaGamingException;
 import player.gamer.exception.MoveSelectionException;
-import util.gdl.grammar.GdlProposition;
+import util.gdl.grammar.GdlConstant;
 import util.gdl.grammar.GdlTerm;
 import util.match.Match;
 import util.observer.Event;
@@ -24,7 +24,7 @@ import apps.player.detail.EmptyDetailPanel;
 public abstract class Gamer implements Subject
 {	
 	private Match match;
-	private GdlProposition roleName;
+	private GdlConstant roleName;
 
 	public Gamer()
 	{
@@ -76,11 +76,11 @@ public abstract class Gamer implements Subject
 		this.match = match;
 	}
 
-	public final GdlProposition getRoleName() {
+	public final GdlConstant getRoleName() {
 		return roleName;
 	}
 	
-	public final void setRoleName(GdlProposition roleName) {
+	public final void setRoleName(GdlConstant roleName) {
 		this.roleName = roleName;
 	}
 	

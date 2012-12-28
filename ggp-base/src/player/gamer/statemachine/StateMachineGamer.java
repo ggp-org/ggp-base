@@ -124,7 +124,7 @@ public abstract class StateMachineGamer extends Gamer
     protected final void switchStateMachine(StateMachine newStateMachine) {
         try {        
             MachineState newCurrentState = newStateMachine.getInitialState();
-            Role newRole = newStateMachine.getRoleFromProp(getRoleName());
+            Role newRole = newStateMachine.getRoleFromConstant(getRoleName());
 
             // Attempt to run through the game history in the new machine
             List<List<GdlTerm>> theMoveHistory = getMatch().getMoveHistory();
@@ -165,7 +165,7 @@ public abstract class StateMachineGamer extends Gamer
 			stateMachine = getInitialStateMachine();
 			stateMachine.initialize(getMatch().getGame().getRules());
 			currentState = stateMachine.getInitialState();
-			role = stateMachine.getRoleFromProp(getRoleName());
+			role = stateMachine.getRoleFromConstant(getRoleName());
 			getMatch().appendState(currentState.getContents());
 
 			stateMachineMetaGame(timeout);

@@ -5,7 +5,7 @@ import player.gamer.Gamer;
 import player.gamer.event.GamerNewMatchEvent;
 import player.gamer.event.GamerUnrecognizedMatchEvent;
 import util.game.Game;
-import util.gdl.grammar.GdlProposition;
+import util.gdl.grammar.GdlConstant;
 import util.logging.GamerLogger;
 import util.match.Match;
 
@@ -15,10 +15,10 @@ public final class StartRequest extends Request
 	private final Gamer gamer;
 	private final String matchId;
 	private final int playClock;
-	private final GdlProposition roleName;
+	private final GdlConstant roleName;
 	private final int startClock;
 
-	public StartRequest(Gamer gamer, String matchId, GdlProposition roleName, Game theGame, int startClock, int playClock)
+	public StartRequest(Gamer gamer, String matchId, GdlConstant roleName, Game theGame, int startClock, int playClock)
 	{
 		this.gamer = gamer;
 		this.matchId = matchId;

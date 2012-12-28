@@ -95,7 +95,7 @@ public class BasesInputsValidator {
 					for (Role role : sm.getRoles()) {
 						List<Move> legalMoves = sm.getLegalMoves(state, role);
 						for (Move move : legalMoves) {
-							legalSentences.add(GdlPool.getRelation(LEGAL, new GdlTerm[] {role.getName().toTerm(), move.getContents()}));
+							legalSentences.add(GdlPool.getRelation(LEGAL, new GdlTerm[] {role.getName(), move.getContents()}));
 						}
 					}
 					if (!legalsFromInputs.containsAll(legalSentences)) {

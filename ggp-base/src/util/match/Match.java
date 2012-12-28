@@ -75,7 +75,7 @@ public final class Match
 		
 		this.theRoleNames = new ArrayList<String>();
 		for(Role r : Role.computeRoles(theGame.getRules())) {
-		    this.theRoleNames.add(r.getName().getName().toString());
+		    this.theRoleNames.add(r.getName().toString());
 		}
 		
 		this.moveHistory = new ArrayList<List<GdlTerm>>();
@@ -114,7 +114,7 @@ public final class Match
             }
         } else {
             for(Role r : Role.computeRoles(this.theGame.getRules())) {
-                this.theRoleNames.add(r.getName().getName().toString());
+                this.theRoleNames.add(r.getName().toString());
             }
         }
         

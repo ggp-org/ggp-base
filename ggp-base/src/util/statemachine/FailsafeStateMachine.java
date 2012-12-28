@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Set;
 
 import util.gdl.grammar.Gdl;
-import util.gdl.grammar.GdlProposition;
+import util.gdl.grammar.GdlConstant;
 import util.gdl.grammar.GdlSentence;
 import util.gdl.grammar.GdlTerm;
 import util.logging.GamerLogger;
@@ -271,12 +271,12 @@ public class FailsafeStateMachine extends StateMachine
     }    
 
     @Override
-    public Role getRoleFromProp(GdlProposition proposition) {
+    public Role getRoleFromConstant(GdlConstant constant) {
         if(theBackingMachine == null)
             return null;
         
         try {
-            return theBackingMachine.getRoleFromProp(proposition);
+            return theBackingMachine.getRoleFromConstant(constant);
         } catch(Exception e) {
             failGracefully(e, null);
         } catch(ThreadDeath d) {
@@ -287,7 +287,7 @@ public class FailsafeStateMachine extends StateMachine
             failGracefully(null, e);            
         }
         
-        return getRoleFromProp(proposition);
+        return getRoleFromConstant(constant);
     }
     
     @Override

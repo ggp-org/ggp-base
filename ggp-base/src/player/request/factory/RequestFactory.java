@@ -14,7 +14,7 @@ import player.request.grammar.StopRequest;
 import util.game.Game;
 import util.gdl.factory.GdlFactory;
 import util.gdl.factory.exceptions.GdlFormatException;
-import util.gdl.grammar.GdlProposition;
+import util.gdl.grammar.GdlConstant;
 import util.gdl.grammar.GdlTerm;
 import util.symbol.factory.SymbolFactory;
 import util.symbol.grammar.Symbol;
@@ -92,7 +92,7 @@ public final class RequestFactory
 		SymbolAtom arg5 = (SymbolAtom) list.get(5);
 
 		String matchId = arg1.getValue();
-		GdlProposition roleName = (GdlProposition) GdlFactory.create(arg2);
+		GdlConstant roleName = (GdlConstant) GdlFactory.createTerm(arg2);
 		String theRulesheet = arg3.toString();
 		int startClock = Integer.valueOf(arg4.getValue());
 		int playClock = Integer.valueOf(arg5.getValue());
