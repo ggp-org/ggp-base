@@ -2,10 +2,8 @@ package util.game;
 
 import java.io.File;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
-import util.gdl.grammar.Gdl;
 import util.kif.KifReader;
 
 /**
@@ -26,8 +24,7 @@ public final class TestGameRepository extends GameRepository {
     
     protected Game getUncachedGame(String theKey) {
     	try {
-    		List<Gdl> theRules = KifReader.read(new File("games/test/" + theKey + ".kif").getAbsolutePath());
-    		return new Game(theKey, null, null, null, null, theRules);
+    		return Game.createEphemeralGame(KifReader.read(new File("games/test/" + theKey + ".kif").getAbsolutePath()));
     	} catch (Exception e) {
     		throw new RuntimeException(e);
     	}        
