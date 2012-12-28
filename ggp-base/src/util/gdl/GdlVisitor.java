@@ -25,8 +25,6 @@ import util.gdl.grammar.GdlVariable;
  * @author Alex Landau
  */
 public abstract class GdlVisitor {
-	//TODO: Do we also want for Gdl, GdlTerm, GdlLiteral?
-	//For sentence: Break down into GdlRelation, GdlProposition?
 	public void visitGdl(Gdl gdl) {
 		// Do nothing; override in a subclass to do something.
 	}
