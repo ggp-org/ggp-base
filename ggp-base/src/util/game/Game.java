@@ -104,7 +104,28 @@ public final class Game {
      */
     public List<Gdl> getRules() {
     	try {
-	        List<Gdl> rules = new ArrayList<Gdl>();        
+    		// First, strip all of the comments from the rulesheet.
+    		StringBuilder rulesheetBuilder = new StringBuilder();
+    		String[] rulesheetLines = theRulesheet.split("\n");
+    		for (int i = 0; i < rulesheetLines.length; i++) {
+    			String line = rulesheetLines[i];
+    			int comment = line.indexOf(';');
+    			int cutoff = (comment == -1) ? line.length() : comment;
+    			rulesheetBuilder.append(line.substring(0, cutoff));
+    			rulesheetBuilder.append(" ");
+    		}
+    		String processedRulesheet = rulesheetBuilder.toString();
+    		
+    		// Also surround the rulesheet in parens to make it a proper
+    		// symbol list before we start processing it, if it's not already
+    		// formatted that way.
+    		if (!processedRulesheet.trim().startsWith("(")) {
+    			processedRulesheet = "( " + processedRulesheet + " )";
+    		}
+    		
+    		// Finally, process the rulesheet as a symbol list and construct
+    		// the Gdl objects based on it.
+	        List<Gdl> rules = new ArrayList<Gdl>();
 	        SymbolList list = (SymbolList) SymbolFactory.create(theRulesheet);
 	        for (int i = 0; i < list.size(); i++)
 	        {
