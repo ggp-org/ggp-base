@@ -31,7 +31,7 @@ public final class GdlFactory
 	{
 		return create(SymbolFactory.create(string));
 	}
-
+	
 	public static Gdl create(Symbol symbol) throws GdlFormatException
 	{
 		try
@@ -170,7 +170,12 @@ public final class GdlFactory
 		}
 	}
 
-	private static GdlTerm createTerm(Symbol symbol)
+	public static GdlTerm createTerm(String string) throws SymbolFormatException
+	{
+		return createTerm(SymbolFactory.create(string));
+	}
+
+	public static GdlTerm createTerm(Symbol symbol)
 	{
 		if (symbol instanceof SymbolAtom)
 		{

@@ -46,7 +46,7 @@ public class ProverStateMachineTests extends Assert {
         assertEquals(9, sm.getLegalJointMoves(state).size());
         assertEquals(9, sm.getLegalMoves(state, xRole).size());
         assertEquals(1, sm.getLegalMoves(state, oRole).size());
-        Move noop = new Move(GdlPool.getProposition(GdlPool.getConstant("noop")));
+        Move noop = new Move(GdlPool.getConstant("noop"));
         assertEquals(noop, sm.getLegalMoves(state, oRole).get(0));
 
         Move m11 = move("mark 1 1");
@@ -164,11 +164,11 @@ public class ProverStateMachineTests extends Assert {
         String[] parts = description.split(" ");
         GdlConstant head = GdlPool.getConstant(parts[0]);
         if(parts.length == 1)
-            return new Move(GdlPool.getProposition(head));
+            return new Move(head);
         List<GdlTerm> body = new ArrayList<GdlTerm>();
         for(int i = 1; i < parts.length; i++) {
             body.add(GdlPool.getConstant(parts[i]));
         }
-        return new Move(GdlPool.getRelation(head, body));
+        return new Move(GdlPool.getFunction(head, body));
     }
 }

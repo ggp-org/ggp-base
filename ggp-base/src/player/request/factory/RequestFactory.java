@@ -15,7 +15,7 @@ import util.game.Game;
 import util.gdl.factory.GdlFactory;
 import util.gdl.factory.exceptions.GdlFormatException;
 import util.gdl.grammar.GdlProposition;
-import util.gdl.grammar.GdlSentence;
+import util.gdl.grammar.GdlTerm;
 import util.symbol.factory.SymbolFactory;
 import util.symbol.grammar.Symbol;
 import util.symbol.grammar.SymbolAtom;
@@ -73,7 +73,7 @@ public final class RequestFactory
 		Symbol arg2 = list.get(2);
 
 		String matchId = arg1.getValue();
-		List<GdlSentence> moves = parseMoves(arg2);
+		List<GdlTerm> moves = parseMoves(arg2);
 
 		return new PlayRequest(gamer, matchId, moves);
 	}
@@ -118,7 +118,7 @@ public final class RequestFactory
 		Symbol arg2 = list.get(2);
 
 		String matchId = arg1.getValue();
-		List<GdlSentence> moves = parseMoves(arg2);
+		List<GdlTerm> moves = parseMoves(arg2);
 
 		return new StopRequest(gamer, matchId, moves);
 	}
@@ -146,7 +146,7 @@ public final class RequestFactory
         return new PingRequest(gamer);
     }       
 
-	private List<GdlSentence> parseMoves(Symbol symbol) throws GdlFormatException
+	private List<GdlTerm> parseMoves(Symbol symbol) throws GdlFormatException
 	{
 		if (symbol instanceof SymbolAtom)
 		{
@@ -154,12 +154,12 @@ public final class RequestFactory
 		}
 		else
 		{
-			List<GdlSentence> moves = new ArrayList<GdlSentence>();
+			List<GdlTerm> moves = new ArrayList<GdlTerm>();
 			SymbolList list = (SymbolList) symbol;
 
 			for (int i = 0; i < list.size(); i++)
 			{
-				moves.add((GdlSentence) GdlFactory.create(list.get(i)));
+				moves.add(GdlFactory.createTerm(list.get(i)));
 			}
 
 			return moves;

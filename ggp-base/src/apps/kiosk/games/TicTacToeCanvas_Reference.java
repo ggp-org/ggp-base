@@ -4,12 +4,12 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.util.List;
 
-import apps.kiosk.GameCanvas;
-
-import util.gdl.grammar.GdlProposition;
+import util.gdl.grammar.GdlConstant;
+import util.gdl.grammar.GdlFunction;
 import util.gdl.grammar.GdlSentence;
 import util.statemachine.Move;
 import util.statemachine.exceptions.MoveDefinitionException;
+import apps.kiosk.GameCanvas;
 
 /**
  * A reference implementation of Tic-Tac-Toe based purely on GameCanvas,
@@ -77,11 +77,12 @@ public class TicTacToeCanvas_Reference extends GameCanvas {
             List<Move> legalMoves = stateMachine.getLegalMoves(gameState, myRole);
             
             for(Move legalMove : legalMoves) {
-                if(legalMove.getContents() instanceof GdlProposition)
+                if(legalMove.getContents() instanceof GdlConstant)
                     continue;
                 
-                int xCell = Integer.parseInt(legalMove.getContents().getBody().get(0).toString());
-                int yCell = Integer.parseInt(legalMove.getContents().getBody().get(1).toString());
+                GdlFunction moveContents = (GdlFunction) legalMove.getContents();
+				int xCell = Integer.parseInt(moveContents.getBody().get(0).toString());
+                int yCell = Integer.parseInt(moveContents.getBody().get(1).toString());
                 
                 int xSpot = (xCell-1)*width/3 + 2;
                 int ySpot = (yCell-1)*height/3 + 2;

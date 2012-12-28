@@ -7,22 +7,22 @@ import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
-import external.JSON.JSONArray;
-import external.JSON.JSONException;
-import external.JSON.JSONObject;
-
-import util.crypto.SignableJSON;
 import util.crypto.BaseCryptography.EncodedKeyPair;
+import util.crypto.SignableJSON;
 import util.game.Game;
 import util.game.RemoteGameRepository;
 import util.gdl.factory.GdlFactory;
 import util.gdl.factory.exceptions.GdlFormatException;
 import util.gdl.grammar.GdlSentence;
+import util.gdl.grammar.GdlTerm;
 import util.statemachine.Move;
 import util.statemachine.Role;
 import util.symbol.factory.SymbolFactory;
 import util.symbol.factory.exceptions.SymbolFormatException;
 import util.symbol.grammar.SymbolList;
+import external.JSON.JSONArray;
+import external.JSON.JSONException;
+import external.JSON.JSONObject;
 
 /**
  * Match encapsulates all of the information relating to a single match.
@@ -51,7 +51,7 @@ public final class Match
     private final Date startTime;
 	private final Game theGame;
 	private final List<String> theRoleNames;  // TODO: remove this
-	private final List<List<GdlSentence>> moveHistory;
+	private final List<List<GdlTerm>> moveHistory;
 	private final List<Set<GdlSentence>> stateHistory;
 	private final List<List<String>> errorHistory;
 	private final List<Date> stateTimeHistory;
@@ -78,7 +78,7 @@ public final class Match
 		    this.theRoleNames.add(r.getName().getName().toString());
 		}
 		
-		this.moveHistory = new ArrayList<List<GdlSentence>>();
+		this.moveHistory = new ArrayList<List<GdlTerm>>();
 		this.stateHistory = new ArrayList<Set<GdlSentence>>();
 		this.stateTimeHistory = new ArrayList<Date>();
 		this.errorHistory = new ArrayList<List<String>>();
@@ -118,17 +118,17 @@ public final class Match
             }
         }
         
-        this.moveHistory = new ArrayList<List<GdlSentence>>();
+        this.moveHistory = new ArrayList<List<GdlTerm>>();
         this.stateHistory = new ArrayList<Set<GdlSentence>>();
         this.stateTimeHistory = new ArrayList<Date>();
         this.errorHistory = new ArrayList<List<String>>();
         
         JSONArray theMoves = theMatchObject.getJSONArray("moves");
         for (int i = 0; i < theMoves.length(); i++) {
-            List<GdlSentence> theMove = new ArrayList<GdlSentence>();
+            List<GdlTerm> theMove = new ArrayList<GdlTerm>();
             JSONArray moveElements = theMoves.getJSONArray(i);
             for (int j = 0; j < moveElements.length(); j++) {
-                theMove.add((GdlSentence)GdlFactory.create(moveElements.getString(j)));
+                theMove.add(GdlFactory.createTerm(moveElements.getString(j)));
             }
             moveHistory.add(theMove);
         }
@@ -189,7 +189,7 @@ public final class Match
 	    this.thePlayerNamesFromHost = thePlayerNames;
 	}
 
-	public void appendMoves(List<GdlSentence> moves) {	    
+	public void appendMoves(List<GdlTerm> moves) {	    
 		moveHistory.add(moves);
 	}
 
@@ -197,13 +197,11 @@ public final class Match
 	    // NOTE: This is appendMoves2 because it Java can't handle two
 	    // appendMove methods that both take List objects with different
 	    // templatized parameters.
-        if (moves.get(0) instanceof Move) {
-            List<GdlSentence> theMoves = new ArrayList<GdlSentence>();
-            for(Move m : moves) {
-                theMoves.add(m.getContents());
-            }
-            appendMoves(theMoves);          
-        }
+		List<GdlTerm> theMoves = new ArrayList<GdlTerm>();
+		for(Move m : moves) {
+			theMoves.add(m.getContents());
+		}
+		appendMoves(theMoves);          
 	}
 	
 	public void appendState(Set<GdlSentence> state) {
@@ -278,7 +276,7 @@ public final class Match
         return theJSON.toString();
     }
     
-    public List<GdlSentence> getMostRecentMoves() {
+    public List<GdlTerm> getMostRecentMoves() {
         if (moveHistory.size() == 0)
             return null;
         return moveHistory.get(moveHistory.size()-1);
@@ -316,7 +314,7 @@ public final class Match
 		return theGame;
 	}
 
-	public List<List<GdlSentence>> getMoveHistory() {
+	public List<List<GdlTerm>> getMoveHistory() {
 		return moveHistory;
 	}
 	
@@ -391,9 +389,9 @@ public final class Match
         return renderedStates;
     }
 
-    private static List<String> renderMoveHistory(List<List<GdlSentence>> moveHistory) {
+    private static List<String> renderMoveHistory(List<List<GdlTerm>> moveHistory) {
         List<String> renderedMoves = new ArrayList<String>();
-        for (List<GdlSentence> aMove : moveHistory) {
+        for (List<GdlTerm> aMove : moveHistory) {
             renderedMoves.add(renderArrayAsJSON(aMove, true));
         }
         return renderedMoves;        

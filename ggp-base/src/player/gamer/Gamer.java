@@ -6,7 +6,7 @@ import java.util.List;
 import player.gamer.exception.MetaGamingException;
 import player.gamer.exception.MoveSelectionException;
 import util.gdl.grammar.GdlProposition;
-import util.gdl.grammar.GdlSentence;
+import util.gdl.grammar.GdlTerm;
 import util.match.Match;
 import util.observer.Event;
 import util.observer.Observer;
@@ -47,7 +47,7 @@ public abstract class Gamer implements Subject
 	// ==== The Gaming Algorithms ====
 	public abstract void metaGame(long timeout) throws MetaGamingException;
 	
-	public abstract GdlSentence selectMove(long timeout) throws MoveSelectionException;
+	public abstract GdlTerm selectMove(long timeout) throws MoveSelectionException;
 	
 	/* Note that the match's goal values will not necessarily be known when
 	 * stop() is called, as we only know the final set of moves and haven't

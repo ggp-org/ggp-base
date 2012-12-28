@@ -24,7 +24,7 @@ public final class ProverResultParser
 		List<Move> moves = new ArrayList<Move>();
 		for (GdlSentence result : results)
 		{
-			moves.add(new Move(result.get(1).toSentence()));
+			moves.add(new Move(result.get(1)));
 		}
 
 		return moves;

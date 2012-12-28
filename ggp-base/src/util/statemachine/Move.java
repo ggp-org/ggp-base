@@ -2,14 +2,14 @@ package util.statemachine;
 
 import java.io.Serializable;
 
-import util.gdl.grammar.GdlSentence;
+import util.gdl.grammar.GdlTerm;
 
 @SuppressWarnings("serial")
 public class Move implements Serializable
 {
-    protected final GdlSentence contents;
+    protected final GdlTerm contents;
 
-    public Move(GdlSentence contents)
+    public Move(GdlTerm contents)
     {
         this.contents = contents;
     }
@@ -25,7 +25,7 @@ public class Move implements Serializable
         return false;
     }
 
-    public GdlSentence getContents()
+    public GdlTerm getContents()
     {
         return contents;
     }

@@ -74,7 +74,7 @@ public final class ProverQueryBuilder
 
 	public static GdlRelation toDoes(Role role, Move move)
 	{
-		return GdlPool.getRelation(DOES, new GdlTerm[] { role.getName().toTerm(), move.getContents().toTerm() });
+		return GdlPool.getRelation(DOES, new GdlTerm[] { role.getName().toTerm(), move.getContents() });
 	}
 
 }

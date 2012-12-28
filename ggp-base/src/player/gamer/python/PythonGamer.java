@@ -1,14 +1,13 @@
 package player.gamer.python;
 
-import util.gdl.grammar.GdlSentence;
-import util.logging.GamerLogger;
-
 import org.python.core.PyObject;
 import org.python.util.PythonInterpreter;
 
 import player.gamer.Gamer;
 import player.gamer.exception.MetaGamingException;
 import player.gamer.exception.MoveSelectionException;
+import util.gdl.grammar.GdlTerm;
+import util.logging.GamerLogger;
 
 /**
  * PythonGamer is a superclass that allows you to hook Python gamers into the
@@ -72,7 +71,7 @@ public abstract class PythonGamer extends Gamer
     }
     
     @Override
-    public final GdlSentence selectMove(long timeout) throws MoveSelectionException {
+    public final GdlTerm selectMove(long timeout) throws MoveSelectionException {
         thePythonGamer.setMatch(getMatch());
         thePythonGamer.setRoleName(getRoleName());
         try {

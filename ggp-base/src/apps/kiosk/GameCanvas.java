@@ -220,7 +220,7 @@ public abstract class GameCanvas extends JPanel implements Subject {
 
     protected Move stringToMove(String move) {
         try {
-            return stateMachine.getMoveFromSentence((GdlSentence)GdlFactory.create(move));
+            return stateMachine.getMoveFromTerm(GdlFactory.createTerm(move));
         } catch(Exception e) {
             return null;
         }

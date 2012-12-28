@@ -14,8 +14,6 @@ import server.event.ServerIllegalMoveEvent;
 import server.event.ServerTimeoutEvent;
 import server.request.RequestBuilder;
 import util.gdl.factory.GdlFactory;
-import util.gdl.factory.exceptions.GdlFormatException;
-import util.gdl.grammar.GdlSentence;
 import util.http.HttpReader;
 import util.http.HttpWriter;
 import util.match.Match;
@@ -77,7 +75,7 @@ public final class PlayRequestThread extends Thread
 			HttpWriter.writeAsClient(socket, theHost.getHostName(), request, playerName);
 			String response = unlimitedTime ? HttpReader.readAsClient(socket) : HttpReader.readAsClient(socket, match.getPlayClock() * 1000 + 1000);
 
-			move = gameServer.getStateMachine().getMoveFromSentence((GdlSentence) GdlFactory.create(response));
+			move = gameServer.getStateMachine().getMoveFromTerm(GdlFactory.createTerm(response));
 			if (!new HashSet<Move>(legalMoves).contains(move))
 			{
 				gameServer.notifyObservers(new ServerIllegalMoveEvent(role, move));
@@ -94,11 +92,6 @@ public final class PlayRequestThread extends Thread
 		catch (IOException e)
 		{
 			gameServer.notifyObservers(new ServerConnectionErrorEvent(role));
-			move = legalMoves.get(0);
-		}
-		catch (GdlFormatException e)
-		{
-			gameServer.notifyObservers(new ServerIllegalMoveEvent(role, move));
 			move = legalMoves.get(0);
 		}
 		catch (SymbolFormatException e)

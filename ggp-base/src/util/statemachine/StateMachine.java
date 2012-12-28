@@ -11,6 +11,7 @@ import java.util.Set;
 import util.gdl.grammar.Gdl;
 import util.gdl.grammar.GdlProposition;
 import util.gdl.grammar.GdlSentence;
+import util.gdl.grammar.GdlTerm;
 import util.statemachine.exceptions.GoalDefinitionException;
 import util.statemachine.exceptions.MoveDefinitionException;
 import util.statemachine.exceptions.TransitionDefinitionException;
@@ -49,8 +50,8 @@ public abstract class StateMachine
     public Role getRoleFromProp(GdlProposition proposition) {
         return new Role(proposition);
     }
-    public Move getMoveFromSentence(GdlSentence sentence) {
-        return new Move(sentence);
+    public Move getMoveFromTerm(GdlTerm term) {
+        return new Move(term);
     }
 
     // ============================================

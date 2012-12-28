@@ -170,7 +170,7 @@ public class SamplePropNetStateMachine extends StateMachine {
 	 */
 	public static Move getMoveFromProposition(Proposition p)
 	{
-		return new Move(p.getName().toSentence().get(1).toSentence());
+		return new Move(p.getName().toSentence().get(1));
 	}
 	
 	/**

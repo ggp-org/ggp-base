@@ -6,7 +6,7 @@ import java.util.List;
 import player.gamer.Gamer;
 import player.gamer.exception.MetaGamingException;
 import player.gamer.exception.MoveSelectionException;
-import util.gdl.grammar.GdlSentence;
+import util.gdl.grammar.GdlTerm;
 import util.logging.GamerLogger;
 import util.statemachine.MachineState;
 import util.statemachine.Move;
@@ -127,11 +127,11 @@ public abstract class StateMachineGamer extends Gamer
             Role newRole = newStateMachine.getRoleFromProp(getRoleName());
 
             // Attempt to run through the game history in the new machine
-            List<List<GdlSentence>> theMoveHistory = getMatch().getMoveHistory();
-            for(List<GdlSentence> nextMove : theMoveHistory) {
+            List<List<GdlTerm>> theMoveHistory = getMatch().getMoveHistory();
+            for(List<GdlTerm> nextMove : theMoveHistory) {
                 List<Move> theJointMove = new ArrayList<Move>();
-                for(GdlSentence theSentence : nextMove)
-                    theJointMove.add(newStateMachine.getMoveFromSentence(theSentence));                    
+                for(GdlTerm theSentence : nextMove)
+                    theJointMove.add(newStateMachine.getMoveFromTerm(theSentence));                    
                 newCurrentState = newStateMachine.getNextStateDestructively(newCurrentState, theJointMove);
             }
             
@@ -184,19 +184,19 @@ public abstract class StateMachineGamer extends Gamer
 	 * current state.
 	 */
 	@Override
-	public final GdlSentence selectMove(long timeout) throws MoveSelectionException
+	public final GdlTerm selectMove(long timeout) throws MoveSelectionException
 	{
 		try
 		{
 			stateMachine.doPerMoveWork();
 
-			List<GdlSentence> lastMoves = getMatch().getMostRecentMoves();
+			List<GdlTerm> lastMoves = getMatch().getMostRecentMoves();
 			if (lastMoves != null)
 			{
 				List<Move> moves = new ArrayList<Move>();
-				for (GdlSentence sentence : lastMoves)
+				for (GdlTerm sentence : lastMoves)
 				{
-					moves.add(stateMachine.getMoveFromSentence(sentence));
+					moves.add(stateMachine.getMoveFromTerm(sentence));
 				}
 
 				currentState = stateMachine.getNextState(currentState, moves);
@@ -217,13 +217,13 @@ public abstract class StateMachineGamer extends Gamer
 		try {
 			stateMachine.doPerMoveWork();
 
-			List<GdlSentence> lastMoves = getMatch().getMostRecentMoves();
+			List<GdlTerm> lastMoves = getMatch().getMostRecentMoves();
 			if (lastMoves != null)
 			{
 				List<Move> moves = new ArrayList<Move>();
-				for (GdlSentence sentence : lastMoves)
+				for (GdlTerm sentence : lastMoves)
 				{
-					moves.add(stateMachine.getMoveFromSentence(sentence));
+					moves.add(stateMachine.getMoveFromTerm(sentence));
 				}
 
 				currentState = stateMachine.getNextState(currentState, moves);

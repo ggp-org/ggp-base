@@ -5,16 +5,16 @@ import java.util.List;
 import player.event.PlayerTimeEvent;
 import player.gamer.Gamer;
 import player.gamer.event.GamerUnrecognizedMatchEvent;
-import util.gdl.grammar.GdlSentence;
+import util.gdl.grammar.GdlTerm;
 import util.logging.GamerLogger;
 
 public final class PlayRequest extends Request
 {
 	private final Gamer gamer;
 	private final String matchId;
-	private final List<GdlSentence> moves;
+	private final List<GdlTerm> moves;
 
-	public PlayRequest(Gamer gamer, String matchId, List<GdlSentence> moves)
+	public PlayRequest(Gamer gamer, String matchId, List<GdlTerm> moves)
 	{
 		this.gamer = gamer;
 		this.matchId = matchId;

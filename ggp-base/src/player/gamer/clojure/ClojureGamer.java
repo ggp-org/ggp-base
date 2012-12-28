@@ -1,18 +1,16 @@
 package player.gamer.clojure;
 
-import util.game.GameRepository;
-import util.gdl.grammar.GdlPool;
-import util.gdl.grammar.GdlSentence;
-import util.logging.GamerLogger;
-import util.match.Match;
-
-import clojure.lang.RT;
-import clojure.lang.Var;
-
 import player.gamer.Gamer;
 import player.gamer.clojure.stubs.ClojureLegalGamerStub;
 import player.gamer.exception.MetaGamingException;
 import player.gamer.exception.MoveSelectionException;
+import util.game.GameRepository;
+import util.gdl.grammar.GdlPool;
+import util.gdl.grammar.GdlTerm;
+import util.logging.GamerLogger;
+import util.match.Match;
+import clojure.lang.RT;
+import clojure.lang.Var;
 
 /**
  * ClojureGamer is a superclass that allows you to hook Clojure gamers into the
@@ -77,7 +75,7 @@ public abstract class ClojureGamer extends Gamer
     }
     
     @Override
-    public final GdlSentence selectMove(long timeout) throws MoveSelectionException {
+    public final GdlTerm selectMove(long timeout) throws MoveSelectionException {
         theClojureGamer.setMatch(getMatch());
         theClojureGamer.setRoleName(getRoleName());
         try {

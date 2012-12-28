@@ -6,6 +6,7 @@ import java.util.Set;
 import util.gdl.grammar.Gdl;
 import util.gdl.grammar.GdlProposition;
 import util.gdl.grammar.GdlSentence;
+import util.gdl.grammar.GdlTerm;
 import util.logging.GamerLogger;
 import util.statemachine.exceptions.GoalDefinitionException;
 import util.statemachine.exceptions.MoveDefinitionException;
@@ -206,12 +207,12 @@ public class FailsafeStateMachine extends StateMachine
     }
 
     @Override
-    public Move getMoveFromSentence(GdlSentence sentence) {
+    public Move getMoveFromTerm(GdlTerm term) {
         if(theBackingMachine == null)
             return null;
         
         try {
-            return theBackingMachine.getMoveFromSentence(sentence);
+            return theBackingMachine.getMoveFromTerm(term);
         } catch(Exception e) {
             failGracefully(e, null);
         } catch(ThreadDeath d) {
@@ -222,7 +223,7 @@ public class FailsafeStateMachine extends StateMachine
             failGracefully(null, e);            
         }
         
-        return getMoveFromSentence(sentence);
+        return getMoveFromTerm(term);
     }
 
     @Override
