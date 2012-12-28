@@ -1,7 +1,6 @@
 package util.gdl.model;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -16,6 +15,8 @@ import java.util.Stack;
 
 import util.concurrency.ConcurrencyUtils;
 import util.gdl.GdlUtils;
+import util.gdl.GdlVisitor;
+import util.gdl.GdlVisitors;
 import util.gdl.grammar.Gdl;
 import util.gdl.grammar.GdlConstant;
 import util.gdl.grammar.GdlDistinct;
@@ -188,8 +189,7 @@ public class SentenceModelImpl implements RuleSplittableSentenceModel {
 			if(injectIntoHead(head, null, null))
 				somethingChanged = true;
 
-			List<String> variablesInHead = new ArrayList<String>();
-			GdlUtils.addVariableNames(variablesInHead, head);
+			List<String> variablesInHead = GdlUtils.getVariableNames(head);
 			for(GdlLiteral literal : rule.getBody()) {
 				if(!(literal instanceof GdlNot)) {
 					if(injectVariable(head, literal, variablesInHead))
@@ -957,32 +957,16 @@ public class SentenceModelImpl implements RuleSplittableSentenceModel {
 		return changing;
 	}
 
-
-	private Set<SentenceForm> extractSentenceForms(GdlRule rule) {
-		Set<SentenceForm> forms = new HashSet<SentenceForm>();
-		extractSentenceForms(forms, rule.getHead());
-		for(GdlLiteral literal : rule.getBody())
-			extractSentenceForms(forms, literal);
+	private Set<SentenceForm> extractSentenceForms(Gdl gdl) {
+		final Set<SentenceForm> forms = new HashSet<SentenceForm>();
+		GdlVisitors.visitAll(gdl, new GdlVisitor() {
+			@Override
+			public void visitSentence(GdlSentence sentence) {
+				forms.add(new SentenceFormImpl(sentence));
+			}
+		});
 		return forms;
 	}
-	private Set<SentenceForm> extractSentenceForms(GdlLiteral literal) {
-		Set<SentenceForm> forms = new HashSet<SentenceForm>();
-		extractSentenceForms(forms, literal);
-		return forms;
-	}
-	private void extractSentenceForms(Collection<SentenceForm> forms, GdlLiteral literal) {
-		if(literal instanceof GdlSentence) {
-			forms.add(new SentenceFormImpl((GdlSentence)literal));
-		} else if(literal instanceof GdlNot) {
-			extractSentenceForms(forms, ((GdlNot) literal).getBody());
-		} else if(literal instanceof GdlOr) {
-			GdlOr or = (GdlOr) literal;
-			for(int i = 0; i < or.arity(); i++)
-				extractSentenceForms(forms, or.get(i));
-		}
-		//Distincts are unnecessary to record
-	}
-
 
 	public class SentenceFormImpl implements SentenceForm {
 		public SentenceFormImpl(GdlSentence sentence) {
@@ -1304,8 +1288,6 @@ public class SentenceModelImpl implements RuleSplittableSentenceModel {
 	}
 
 	public void addSentence(String newName, String sentenceToCopy) {
-		//System.out.println(newName + ", " + sentenceToCopy);
-		//System.out.println("stc: " + sentences.get(sentenceToCopy));
 		if(!sentences.containsKey(newName))
 			sentences.put(newName, TermModel.copy(sentences.get(sentenceToCopy)));
 		else
@@ -1328,14 +1310,7 @@ public class SentenceModelImpl implements RuleSplittableSentenceModel {
 		if(sentenceForms == null) {
 			sentenceForms = new HashSet<SentenceForm>();
 			for(Gdl gdl : description) {
-				if(gdl instanceof GdlRelation) {
-					extractSentenceForms(sentenceForms, (GdlRelation) gdl);
-				} else if(gdl instanceof GdlRule) {
-					GdlRule rule = (GdlRule) gdl;
-					extractSentenceForms(sentenceForms, rule.getHead());
-					for(GdlLiteral literal : rule.getBody())
-						extractSentenceForms(sentenceForms, literal);
-				}
+				sentenceForms.addAll(extractSentenceForms(gdl));
 			}
 			if(!ignoreLanguageRules)
 				addImpliedSentenceForms(sentenceForms);
