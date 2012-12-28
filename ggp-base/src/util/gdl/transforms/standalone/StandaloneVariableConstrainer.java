@@ -6,11 +6,10 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
 
-import util.gdl.factory.exceptions.GdlFormatException;
+import util.files.FileUtils;
+import util.game.Game;
 import util.gdl.grammar.Gdl;
 import util.gdl.transforms.VariableConstrainer;
-import util.kif.KifReader;
-import util.symbol.factory.exceptions.SymbolFormatException;
 import validator.StaticValidator;
 import validator.exception.StaticValidatorException;
 
@@ -34,21 +33,10 @@ public class StandaloneVariableConstrainer {
 		}
 		
 		String filename = args[0];
-		
-		List<Gdl> description;
-		try {
-			description = KifReader.read(filename);
-		} catch (IOException e) {
-			System.err.println("Problem reading the file " + filename + ".");
-			e.printStackTrace();
-			return;
-		} catch (SymbolFormatException e) {
-			System.err.println("The file is not a GDL file, or it contains errors.");
-			e.printStackTrace();
-			return;
-		} catch (GdlFormatException e) {
-			System.err.println("The file is not a GDL file, or it contains errors.");
-			e.printStackTrace();
+		Game theGame = Game.createEphemeralGame(FileUtils.readFileAsString(new File(filename)));
+		List<Gdl> description = theGame.getRules();
+		if (description == null || description.size() == 0) {
+			System.err.println("Problem reading the file " + filename + " or parsing the GDL.");
 			return;
 		}
 		

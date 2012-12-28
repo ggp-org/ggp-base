@@ -2,12 +2,9 @@ package util.game;
 
 import java.io.IOException;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import util.configuration.RemoteResourceLoader;
-import util.gdl.grammar.Gdl;
-import util.kif.KifReader;
 import external.JSON.JSONArray;
 import external.JSON.JSONException;
 import external.JSON.JSONObject;
@@ -77,10 +74,10 @@ public final class RemoteGameRepository extends GameRepository {
         
         String theDescription = getGameResourceFromMetadata(theGameURL, theMetadata, "description");                
         String theStylesheet = getGameResourceFromMetadata(theGameURL, theMetadata, "stylesheet");
-        List<Gdl> theRules = getGameRulesheetFromMetadata(theGameURL, theMetadata);
+        String theRulesheet = getGameResourceFromMetadata(theGameURL, theMetadata, "rulesheet");
         
-        if (theRules.size() == 0) return null;
-        return new Game(theKey, theName, theDescription, theGameURL, theStylesheet, theRules);        
+        if (theRulesheet == null || theRulesheet.isEmpty()) return null;
+        return new Game(theKey, theName, theDescription, theGameURL, theStylesheet, theRulesheet);        
     }
     
     public JSONObject getBundledMetadata() {
@@ -116,15 +113,6 @@ public final class RemoteGameRepository extends GameRepository {
             return null;
         }
     } 
-        
-    protected static List<Gdl> getGameRulesheetFromMetadata(String theGameURL, JSONObject theMetadata) {
-        try {
-            String theRulesheetFile = theMetadata.getString("rulesheet");
-            return KifReader.readURL(theGameURL + theRulesheetFile);
-        } catch (Exception e) {
-            return null;
-        }
-    }
     
     public static String properlyFormatURL(String theURL) {
         if (!theURL.startsWith("http://"))

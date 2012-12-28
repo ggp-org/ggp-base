@@ -14,7 +14,6 @@ import player.request.grammar.StopRequest;
 import util.game.Game;
 import util.gdl.factory.GdlFactory;
 import util.gdl.factory.exceptions.GdlFormatException;
-import util.gdl.grammar.Gdl;
 import util.gdl.grammar.GdlProposition;
 import util.gdl.grammar.GdlSentence;
 import util.symbol.factory.SymbolFactory;
@@ -94,7 +93,7 @@ public final class RequestFactory
 
 		String matchId = arg1.getValue();
 		GdlProposition roleName = (GdlProposition) GdlFactory.create(arg2);
-		List<Gdl> theRules = parseDescription(arg3);
+		String theRulesheet = arg3.toString(); 
 		int startClock = Integer.valueOf(arg4.getValue());
 		int playClock = Integer.valueOf(arg5.getValue());
 
@@ -104,7 +103,7 @@ public final class RequestFactory
 		// stylesheet for visualizing a state of the game, or the URL for the
 		// game on a repository server.
 
-		Game theReceivedGame = Game.createEphemeralGame(theRules);
+		Game theReceivedGame = Game.createEphemeralGame(theRulesheet);
 		return new StartRequest(gamer, matchId, roleName, theReceivedGame, startClock, playClock);
 	}
 
@@ -146,17 +145,6 @@ public final class RequestFactory
 
         return new PingRequest(gamer);
     }       
-
-	private List<Gdl> parseDescription(SymbolList list) throws GdlFormatException
-	{
-		List<Gdl> description = new ArrayList<Gdl>();
-		for (int i = 0; i < list.size(); i++)
-		{
-			description.add(GdlFactory.create(list.get(i)));
-		}
-
-		return description;
-	}
 
 	private List<GdlSentence> parseMoves(Symbol symbol) throws GdlFormatException
 	{

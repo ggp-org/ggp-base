@@ -20,6 +20,7 @@ import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
@@ -38,6 +39,7 @@ import server.event.ServerTimeoutEvent;
 import util.game.CloudGameRepository;
 import util.game.Game;
 import util.game.GameRepository;
+import util.gdl.grammar.GdlPool;
 import util.logging.GamerLogger;
 import util.match.Match;
 import util.observer.Event;
@@ -253,10 +255,20 @@ public final class Kiosk extends JPanel implements ActionListener, ItemListener,
     @Override
     public void actionPerformed(ActionEvent e) {
         if(e.getSource() == runButton) {
+            // TODO: Figure out what the right behavior should be when the user
+            // interrupts a match by trying to start another match. For now, simply
+        	// display an error message and don't proceed with starting a new match.        	
+            if (kioskServer != null && !kioskServer.getMatch().isCompleted()) {
+            	JOptionPane.showMessageDialog(this, "Cannot start a new match while existing match is ongoing.", "Error", JOptionPane.ERROR_MESSAGE);
+            	return;
+            }
+            
             try {
+                GdlPool.drainPool();
+                
                 AvailableGame theGame = (AvailableGame) (selectedGame.getSelectedValue());
                 Game game = theRepository.getGame(theGame.kifFile);
-
+                
                 String matchId = "kiosk." + theGame.kifFile + "-" + System.currentTimeMillis();
                 int startClock = Integer.valueOf(startClockTextField.getText());
                 int playClock = Integer.valueOf(playClockTextField.getText());
@@ -318,11 +330,6 @@ public final class Kiosk extends JPanel implements ActionListener, ItemListener,
                     hosts.add("127.0.0.1");
                     ports.add(theHumanPlayer.getGamerPort());
                     playerNames.add("Human");                                   
-                }                
-
-                if (kioskServer != null && !kioskServer.getMatch().isCompleted()) {
-                    // TODO: Figure out what the right behavior should be when the user
-                    // interrupts a match by trying to start another match.
                 }
                 
                 GamerLogger.startFileLogging(match, "kiosk");
@@ -349,7 +356,7 @@ public final class Kiosk extends JPanel implements ActionListener, ItemListener,
             }
             validate();
         }        
-    }        
+    }
 
     @Override
     public void observe(Event event) {

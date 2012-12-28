@@ -4,7 +4,7 @@ import java.io.File;
 import java.util.HashSet;
 import java.util.Set;
 
-import util.kif.KifReader;
+import util.files.FileUtils;
 
 /**
  * Test game repository that provides rulesheet-only access to games with no
@@ -24,7 +24,7 @@ public final class TestGameRepository extends GameRepository {
     
     protected Game getUncachedGame(String theKey) {
     	try {
-    		return Game.createEphemeralGame(KifReader.read(new File("games/test/" + theKey + ".kif").getAbsolutePath()));
+    		return Game.createEphemeralGame(FileUtils.readFileAsString(new File("games/test/" + theKey + ".kif")));
     	} catch (Exception e) {
     		throw new RuntimeException(e);
     	}        

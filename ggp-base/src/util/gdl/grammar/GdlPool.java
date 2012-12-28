@@ -3,6 +3,8 @@ package util.gdl.grammar;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -25,7 +27,17 @@ public final class GdlPool
     
     // Controls whether we normalize the case of incoming constants and variables.
     public static boolean caseSensitive = true;
-	
+
+    // Special keyword constants. These are never drained between games and are always
+    // represented as lower-case so that they can easily be referred to internally and
+    // so that all of the "true" objects are equal to each other in the Java == sense.
+    // For example, attempting to create a GdlConstant "TRUE" will return the same constant
+    // as if one had attempted to create the GdlConstant "true", regardless of whether the
+    // game-specific constants are case-sensitive or not. These special keywords are never
+    // sent over the network in PLAY requests and responses, so this should be safe.
+    private static final HashSet<String> keywords = new HashSet<String>(Arrays.asList(
+    		new String[] {"init","true","next","role","does","goal","legal","terminal"}));
+    
 	/**
 	 * Drains the contents of the GdlPool. Useful to control memory usage
 	 * once you have finished playing a large game.
@@ -43,11 +55,23 @@ public final class GdlPool
 	    variablePool.clear();	    
 	    variableCases.clear();
 	    
-	    // NOTE: We do *not* drain the constantPool because, elsewhere,
-	    // parts of the Prover rely on having a handle to the "true" constant
-	    // that does not change over the course of the program.
-	    //constantPool.clear();
-	    //constantCases.clear();
+	    // When draining the pool between matches, we still need to preserve the keywords
+	    // since there are global references to them. For example, the Prover state machine
+	    // has a reference to the GdlConstant "true", and that reference must still point
+	    // to the authoritative GdlConstant "true" after the pool is drained and another
+	    // game has begun. As such, when draining the constant pool, these special keywords
+	    // are set aside and returned to the pool after all of the other constants (which
+	    // were game-specific) have been drained.
+	    Map<String, GdlConstant> keywordConstants = new HashMap<String, GdlConstant>();
+	    for (String keyword : keywords) {
+	    	keywordConstants.put(keyword, GdlPool.getConstant(keyword));
+	    }
+	    constantPool.clear();
+	    constantCases.clear();	    
+	    for (Map.Entry<String,GdlConstant> keywordEntry : keywordConstants.entrySet()) {
+	    	constantCases.put(keywordEntry.getKey(), keywordEntry.getKey());
+	    	constantPool.put(keywordEntry.getKey(), keywordEntry.getValue());
+	    }
 	}
 	
 	/**
@@ -70,6 +94,9 @@ public final class GdlPool
 
 	public static GdlConstant getConstant(String value)
 	{
+		if (keywords.contains(value.toLowerCase())) {
+			value = value.toLowerCase();
+		}
 	    if (!caseSensitive) {
 	        if (constantCases.containsKey(value)) {
 	            value = constantCases.get(value);
