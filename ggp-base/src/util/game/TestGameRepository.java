@@ -24,7 +24,7 @@ public final class TestGameRepository extends GameRepository {
     
     protected Game getUncachedGame(String theKey) {
     	try {
-    		return Game.createEphemeralGame(FileUtils.readFileAsString(new File("games/test/" + theKey + ".kif")));
+    		return Game.createEphemeralGame(Game.preprocessRulesheet(FileUtils.readFileAsString(new File("games/test/" + theKey + ".kif"))));
     	} catch (Exception e) {
     		throw new RuntimeException(e);
     	}        

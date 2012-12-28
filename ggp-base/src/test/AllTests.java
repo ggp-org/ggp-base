@@ -7,7 +7,8 @@ import org.junit.runners.Suite;
 @Suite.SuiteClasses({GdlCleanerTests.class,
                      NoTabsInRulesheetsTest.class,
                      ProverStateMachineTests.class,
-                     StaticValidationTests.class
+                     StaticValidationTests.class,
+                     GameParsingTests.class
                      })
 public class AllTests {
     

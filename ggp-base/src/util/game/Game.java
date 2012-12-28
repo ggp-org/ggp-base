@@ -43,6 +43,12 @@ import util.symbol.grammar.SymbolList;
  * can be many Match objects all associated with a single Game object, just
  * as there can be many matches played of a particular game.
  * 
+ * NOTE: Games operate only on "processed" rulesheets, which have been stripped
+ * of comments and are properly formatted as SymbolLists. Rulesheets which have
+ * not been processed in this fashion will break the Game object. This processing
+ * can be done by calling "Game.preprocessRulesheet" on the raw rulesheet. Note
+ * that rules transmitted over the network are always processed.
+ * 
  * @author Sam
  */
 
@@ -90,6 +96,36 @@ public final class Game {
     public String getRulesheet() {
     	return theRulesheet;
     }
+    
+    /**
+     * Pre-process a rulesheet into the standard form. This involves stripping
+     * comments and adding opening and closing parens so that the rulesheet is
+     * a valid SymbolList. This must be done to any raw rulesheets coming from
+     * the local disk or a repository server. This is always done to rulesheets
+     * before they're stored in Game objects or sent over the network as part
+     * of a START request.
+     * 
+     * @param raw rulesheet
+     * @return processed rulesheet
+     */
+    public static String preprocessRulesheet(String rawRulesheet) {
+		// First, strip all of the comments from the rulesheet.
+		StringBuilder rulesheetBuilder = new StringBuilder();
+		String[] rulesheetLines = rawRulesheet.split("\n");
+		for (int i = 0; i < rulesheetLines.length; i++) {
+			String line = rulesheetLines[i];
+			int comment = line.indexOf(';');
+			int cutoff = (comment == -1) ? line.length() : comment;
+			rulesheetBuilder.append(line.substring(0, cutoff));
+			rulesheetBuilder.append(" ");
+		}
+		String processedRulesheet = rulesheetBuilder.toString();
+		
+		// Add opening and closing parens for parsing as symbol list.
+		processedRulesheet = "( " + processedRulesheet + " )";
+		
+		return processedRulesheet;
+    }
 
     /**
      * Gets the GDL object representation of the game rulesheet. This representation
@@ -105,24 +141,8 @@ public final class Game {
      */
     public List<Gdl> getRules() {
     	try {
-    		// First, strip all of the comments from the rulesheet.
-    		StringBuilder rulesheetBuilder = new StringBuilder();
-    		String[] rulesheetLines = theRulesheet.split("\n");
-    		for (int i = 0; i < rulesheetLines.length; i++) {
-    			String line = rulesheetLines[i];
-    			int comment = line.indexOf(';');
-    			int cutoff = (comment == -1) ? line.length() : comment;
-    			rulesheetBuilder.append(line.substring(0, cutoff));
-    			rulesheetBuilder.append(" ");
-    		}
-    		String processedRulesheet = rulesheetBuilder.toString();
-    		
-    		// Add opening and closing parens for parsing as symbol list.
-    		processedRulesheet = "( " + processedRulesheet + " )";
-    		
-    		// Finally, construct Gdl based on the processed rulesheet symbols.
 	        List<Gdl> rules = new ArrayList<Gdl>();
-	        SymbolList list = (SymbolList) SymbolFactory.create(processedRulesheet);
+	        SymbolList list = (SymbolList) SymbolFactory.create(theRulesheet);
 	        for (int i = 0; i < list.size(); i++)
 	        {
 	            rules.add(GdlFactory.create(list.get(i)));

@@ -74,7 +74,7 @@ public final class RemoteGameRepository extends GameRepository {
         
         String theDescription = getGameResourceFromMetadata(theGameURL, theMetadata, "description");                
         String theStylesheet = getGameResourceFromMetadata(theGameURL, theMetadata, "stylesheet");
-        String theRulesheet = getGameResourceFromMetadata(theGameURL, theMetadata, "rulesheet");
+        String theRulesheet = Game.preprocessRulesheet(getGameResourceFromMetadata(theGameURL, theMetadata, "rulesheet"));
         
         if (theRulesheet == null || theRulesheet.isEmpty()) return null;
         return new Game(theKey, theName, theDescription, theGameURL, theStylesheet, theRulesheet);        

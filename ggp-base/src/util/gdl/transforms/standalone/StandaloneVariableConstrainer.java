@@ -33,7 +33,7 @@ public class StandaloneVariableConstrainer {
 		}
 		
 		String filename = args[0];
-		Game theGame = Game.createEphemeralGame(FileUtils.readFileAsString(new File(filename)));
+		Game theGame = Game.createEphemeralGame(Game.preprocessRulesheet(FileUtils.readFileAsString(new File(filename))));
 		List<Gdl> description = theGame.getRules();
 		if (description == null || description.size() == 0) {
 			System.err.println("Problem reading the file " + filename + " or parsing the GDL.");
