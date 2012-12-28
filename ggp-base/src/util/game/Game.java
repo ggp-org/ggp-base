@@ -119,7 +119,7 @@ public final class Game {
     		// Also surround the rulesheet in parens to make it a proper
     		// symbol list before we start processing it, if it's not already
     		// formatted that way.
-    		if (!processedRulesheet.trim().startsWith("\\(")) {
+    		if (processedRulesheet.isEmpty() || processedRulesheet.trim().charAt(0) != '(') {
     			processedRulesheet = "( " + processedRulesheet + " )";
     		}
     		
