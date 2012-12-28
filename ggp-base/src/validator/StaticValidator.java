@@ -16,7 +16,8 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.Stack;
 
-import util.gdl.factory.exceptions.GdlFormatException;
+import util.game.GameRepository;
+import util.game.TestGameRepository;
 import util.gdl.grammar.Gdl;
 import util.gdl.grammar.GdlConstant;
 import util.gdl.grammar.GdlDistinct;
@@ -31,8 +32,6 @@ import util.gdl.grammar.GdlRule;
 import util.gdl.grammar.GdlSentence;
 import util.gdl.grammar.GdlTerm;
 import util.gdl.grammar.GdlVariable;
-import util.kif.KifReader;
-import util.symbol.factory.exceptions.SymbolFormatException;
 import validator.exception.StaticValidatorException;
 
 public class StaticValidator {
@@ -586,30 +585,32 @@ public class StaticValidator {
 	 * be run when developing a new game to spot errors.
 	 */
 	public static void main(String[] args) {
-		File kifDirectory = new File("games/rulesheets");
-		for(File kifFile : kifDirectory.listFiles()) {
-			if(!kifFile.getName().endsWith(".kif"))
-				continue;
+		GameRepository testGameRepo = new TestGameRepository();
+		
+		for(String gameKey : testGameRepo.getGameKeys()) {			
 			//These are test cases for smooth handling of errors that often
 			//appear in rulesheets. They are intentionally invalid.
-			if(kifFile.getName().equals("test_case_3b.kif"))
+			if(gameKey.equals("test_case_3b"))
 				continue;
-			if(kifFile.getName().equals("test_case_3e.kif"))
+			if(gameKey.equals("test_case_3e"))
 				continue;
-			if(kifFile.getName().equals("test_case_3f.kif"))
+			if(gameKey.equals("test_case_3f"))
+				continue;
+			// TODO(alex): Should this be excluded?
+			if(gameKey.equals("test_invalid_function_arities_differ"))
+				continue;
+			// TODO(alex): Should this be excluded?			
+			if(gameKey.equals("test_invalid_sentence_arities_differ"))
+				continue;
+			// TODO(alex): Should this be excluded?
+			if(gameKey.equals("test_clean_not_distinct"))
 				continue;
 			
-			System.out.println("Testing " + kifFile.getName());
+			System.out.println("Testing " + gameKey);
 			try {
-				matchParentheses(kifFile);
-				List<Gdl> description = KifReader.read(kifFile.getAbsolutePath());
+				matchParentheses(new File("games/test/" + gameKey + ".kif"));
+				List<Gdl> description = testGameRepo.getGame(gameKey).getRules();
 				StaticValidator.validateDescription(description);
-			} catch (IOException e) {
-				e.printStackTrace();
-			} catch (SymbolFormatException e) {
-				e.printStackTrace();
-			} catch (GdlFormatException e) {
-				e.printStackTrace();
 			} catch (StaticValidatorException e) {
 				e.printStackTrace();
 				//Draw attention to the error
