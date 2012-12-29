@@ -354,7 +354,7 @@ public final class PropNet
 			    continue;
 			
 			GdlConstant constant = ((GdlProposition) proposition.getName()).getName();
-			if (constant.getValue().equals("INIT")) {
+			if (constant.getValue().toUpperCase().equals("INIT")) {
 				return proposition;
 			}
 		}
