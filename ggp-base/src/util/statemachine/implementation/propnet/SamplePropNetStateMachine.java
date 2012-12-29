@@ -11,7 +11,6 @@ import util.gdl.grammar.Gdl;
 import util.gdl.grammar.GdlConstant;
 import util.gdl.grammar.GdlRelation;
 import util.gdl.grammar.GdlSentence;
-import util.gdl.grammar.GdlTerm;
 import util.propnet.architecture.Component;
 import util.propnet.architecture.PropNet;
 import util.propnet.architecture.components.Proposition;
@@ -143,22 +142,22 @@ public class SamplePropNetStateMachine extends StateMachine {
 	 * The Input propositions are indexed by (does ?player ?action).
 	 * 
 	 * This translates a list of Moves (backed by a sentence that is simply ?action)
-	 * into GdlTerms that can be used to get Propositions from inputPropositions.
+	 * into GdlSentences that can be used to get Propositions from inputPropositions.
 	 * and accordingly set their values etc.  This is a naive implementation when coupled with 
 	 * setting input values, feel free to change this for a more efficient implementation.
 	 * 
 	 * @param moves
 	 * @return
 	 */
-	private List<GdlTerm> toDoes(List<Move> moves)
+	private List<GdlSentence> toDoes(List<Move> moves)
 	{
-		List<GdlTerm> doeses = new ArrayList<GdlTerm>(moves.size());
+		List<GdlSentence> doeses = new ArrayList<GdlSentence>(moves.size());
 		Map<Role, Integer> roleIndices = getRoleIndices();
 		
 		for (int i = 0; i < roles.size(); i++)
 		{
 			int index = roleIndices.get(roles.get(i));
-			doeses.add(ProverQueryBuilder.toDoes(roles.get(i), moves.get(index)).toTerm());
+			doeses.add(ProverQueryBuilder.toDoes(roles.get(i), moves.get(index)));
 		}
 		return doeses;
 	}
