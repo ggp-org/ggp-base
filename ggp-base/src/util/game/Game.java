@@ -3,13 +3,13 @@ package util.game;
 import java.util.ArrayList;
 import java.util.List;
 
-import external.JSON.JSONObject;
 import util.gdl.factory.GdlFactory;
 import util.gdl.factory.exceptions.GdlFormatException;
 import util.gdl.grammar.Gdl;
 import util.symbol.factory.SymbolFactory;
 import util.symbol.factory.exceptions.SymbolFormatException;
 import util.symbol.grammar.SymbolList;
+import external.JSON.JSONObject;
 
 /**
  * Game objects contain all of the relevant information about a specific game,
@@ -111,7 +111,7 @@ public final class Game {
     public static String preprocessRulesheet(String rawRulesheet) {
 		// First, strip all of the comments from the rulesheet.
 		StringBuilder rulesheetBuilder = new StringBuilder();
-		String[] rulesheetLines = rawRulesheet.split("\n");
+		String[] rulesheetLines = rawRulesheet.split("[\n\r]");
 		for (int i = 0; i < rulesheetLines.length; i++) {
 			String line = rulesheetLines[i];
 			int comment = line.indexOf(';');
