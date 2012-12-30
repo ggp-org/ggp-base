@@ -81,7 +81,12 @@ public final class CloudGameRepository extends GameRepository {
     }
     
     protected Game getUncachedGame(String theKey) {
-        return loadGameFromCache(theKey);
+        Game cachedGame = loadGameFromCache(theKey);
+        if (cachedGame != null) {
+        	return cachedGame;
+        }
+        // Request the game directly on a cache miss.
+        return new RemoteGameRepository(theRepoURL).getGame(theKey);
     }
 
     // ================================================================

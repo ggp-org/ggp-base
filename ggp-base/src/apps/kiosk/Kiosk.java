@@ -265,6 +265,11 @@ public final class Kiosk extends JPanel implements ActionListener, ItemListener,
                 AvailableGame theGame = (AvailableGame) (selectedGame.getSelectedValue());
                 Game game = theRepository.getGame(theGame.kifFile);
                 
+                if (game == null) {
+                	JOptionPane.showMessageDialog(this, "Cannot load game data for " + theGame.kifFile, "Error", JOptionPane.ERROR_MESSAGE);
+                	return;                	
+                }
+                
                 String matchId = "kiosk." + theGame.kifFile + "-" + System.currentTimeMillis();
                 int startClock = Integer.valueOf(startClockTextField.getText());
                 int playClock = Integer.valueOf(playClockTextField.getText());
