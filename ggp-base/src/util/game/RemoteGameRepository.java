@@ -80,7 +80,7 @@ public final class RemoteGameRepository extends GameRepository {
         return new Game(theKey, theName, theDescription, theGameURL, theStylesheet, theRulesheet);        
     }
     
-    public JSONObject getBundledMetadata() {
+    JSONObject getBundledMetadata() {
         try {
             return RemoteResourceLoader.loadJSON(theRepoURL + "/games/metadata");
         } catch (IOException e) {
@@ -114,7 +114,7 @@ public final class RemoteGameRepository extends GameRepository {
         }
     } 
     
-    public static String properlyFormatURL(String theURL) {
+    static String properlyFormatURL(String theURL) {
         if (!theURL.startsWith("http://"))
             theURL = "http://" + theURL;
         if (theURL.endsWith("/"))
