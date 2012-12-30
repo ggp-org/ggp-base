@@ -33,6 +33,7 @@ import util.logging.GamerLogger;
 import util.observer.Event;
 import util.observer.Observer;
 import util.observer.Subject;
+import util.symbol.grammar.SymbolPool;
 
 /**
  * ProxyGamePlayer starts a separate process running an instance of the Gamer
@@ -370,6 +371,7 @@ public final class ProxyGamePlayer extends Thread implements Subject
 	                
 	                theDefaultGamer = new RandomGamer();
 	                GdlPool.drainPool();
+	                SymbolPool.drainPool();
 
                     long usedMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
                     double usedMemoryInMegs = usedMemory / 1024.0 / 1024.0;

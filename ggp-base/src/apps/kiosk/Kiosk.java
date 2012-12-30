@@ -45,6 +45,7 @@ import util.match.Match;
 import util.observer.Event;
 import util.observer.Observer;
 import util.reflection.ProjectSearcher;
+import util.symbol.grammar.SymbolPool;
 import util.ui.*;
 
 /**
@@ -265,6 +266,7 @@ public final class Kiosk extends JPanel implements ActionListener, ItemListener,
             
             try {
                 GdlPool.drainPool();
+                SymbolPool.drainPool();
                 
                 AvailableGame theGame = (AvailableGame) (selectedGame.getSelectedValue());
                 Game game = theRepository.getGame(theGame.kifFile);

@@ -52,5 +52,17 @@ public final class SymbolPool
 		return getList(Arrays.asList(contents));
 	}
 
+	/**
+	 * Drains the contents of the SymbolPool. Useful to control memory usage
+	 * once you have finished playing a large game. This should be safe to call
+	 * any time during gameplay, but according to my experiments the SymbolPool
+	 * has a 97% cache hit rate during a game, so you likely only want to call
+	 * this between games (since the symbols from an old game are unlikely to
+	 * reappear in another unrelated game).
+	 */
+	public static void drainPool() {
+		atomPool.clear();
+		listPool.clear();
+	}
 }
 

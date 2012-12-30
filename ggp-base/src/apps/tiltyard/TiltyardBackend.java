@@ -25,6 +25,7 @@ import util.gdl.grammar.GdlPool;
 import util.http.HttpReader;
 import util.http.HttpWriter;
 import util.match.Match;
+import util.symbol.grammar.SymbolPool;
 
 /**
  * The Tiltyard Backend Server is a multi-threaded web server that runs matches
@@ -55,6 +56,8 @@ public final class TiltyardBackend
     public static final int SERVER_PORT = 9124;
     private static final String spectatorServerURL = "http://matches.ggp.org/";
     private static final String registrationURL = "http://tiltyard.ggp.org/backends/register";
+    
+    private static Integer ongoingMatches = new Integer(0);
 
     static EncodedKeyPair getKeyPair(String keyPairString) {
     	if (keyPairString == null)
@@ -161,15 +164,28 @@ public final class TiltyardBackend
         
         @Override
         public void run() {
-            if (theServer != null) {
-                System.out.println("On " + new Date() + ", starting match: " + matchId);
+            if (theServer != null) {                
+                synchronized (ongoingMatches) {
+                	ongoingMatches++;
+                }
+                System.out.println("On " + new Date() + ", starting match: " + matchId + ". There are now " + ongoingMatches + " ongoing matches.");
                 theServer.start();
                 try {
                     theServer.join();
                 } catch (InterruptedException e) {
                     e.printStackTrace();
+                }                
+                synchronized (ongoingMatches) {
+                	ongoingMatches--;                	
+                	if (ongoingMatches == 0) {
+                		GdlPool.drainPool();
+                		SymbolPool.drainPool();
+                		System.gc();
+                		System.out.println("On " + new Date() + ", completed match: " + matchId + ". Pools drained since there are no ongoing matches.");
+                	} else {
+                		System.out.println("On " + new Date() + ", completed match: " + matchId + ". There are now " + ongoingMatches + " ongoing matches.");
+                	}
                 }
-                System.out.println("On " + new Date() + ", completed match: " + matchId);
             }
         }
     }
@@ -190,7 +206,7 @@ public final class TiltyardBackend
                     e.printStackTrace();
                 }
             }
-       }        
+       }
     }
     
     public static void main(String[] args) {        
