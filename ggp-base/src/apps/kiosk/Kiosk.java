@@ -10,7 +10,6 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -26,8 +25,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.border.TitledBorder;
-
-import apps.kiosk.games.*;
 
 import player.GamePlayer;
 import player.gamer.Gamer;
@@ -117,9 +114,6 @@ public final class Kiosk extends JPanel implements ActionListener, ItemListener,
             } catch(Exception e) {
                 ;
             }
-        }
-        if(theAvailableGames.size() == 0) {
-            theAvailableGames = getFakeAvailableGames();
         }
         
         flipRoles = new JCheckBox("Flip roles?");
@@ -372,47 +366,5 @@ public final class Kiosk extends JPanel implements ActionListener, ItemListener,
             ServerConnectionErrorEvent x = (ServerConnectionErrorEvent)event;
             System.err.println("Connection error when communicating with role [" + x.getRole() + "].");            
         }
-    }
-    
-    // TODO: Fix things so that this isn't necessary.
-    // Right now this is here for applets/self-executing-JARs.
-    private void addToSet(Set<AvailableGame> theSet, Class<?> availableCanvas) {
-        try {
-            GameCanvas theCanvas = (GameCanvas) availableCanvas.newInstance();
-            theSet.add(new AvailableGame(theCanvas.getGameName(), theCanvas.getGameKey(), availableCanvas));
-        } catch(Exception e) {
-            e.printStackTrace();
-        }
     }    
-    private SortedSet<AvailableGame> getFakeAvailableGames() {        
-        SortedSet<AvailableGame> theAvailableGames = new TreeSet<AvailableGame>();
-        addToSet(theAvailableGames, BattleCanvas.class);
-        addToSet(theAvailableGames, BiddingTicTacToeCanvas.class);
-        addToSet(theAvailableGames, BlockerCanvas.class);
-        addToSet(theAvailableGames, BreakthroughCanvas.class);
-        addToSet(theAvailableGames, BreakthroughHolesCanvas.class);
-        addToSet(theAvailableGames, BreakthroughSmallCanvas.class);
-        addToSet(theAvailableGames, CephalopodCanvas.class);
-        addToSet(theAvailableGames, CheckersCanvas.class);
-        addToSet(theAvailableGames, CheckersSmallCanvas.class);
-        addToSet(theAvailableGames, CheckersTinyCanvas.class);
-        addToSet(theAvailableGames, ChessCanvas.class);
-        addToSet(theAvailableGames, ChickenTicTacToeCanvas.class);
-        addToSet(theAvailableGames, ConnectFiveCanvas.class);
-        addToSet(theAvailableGames, ConnectFourCanvas.class);
-        addToSet(theAvailableGames, FFACanvas.class);
-        addToSet(theAvailableGames, GoldenRectangleCanvas.class);
-        addToSet(theAvailableGames, KnightFightCanvas.class);
-        addToSet(theAvailableGames, KnightthroughCanvas.class);
-        addToSet(theAvailableGames, NumberTicTacToeCanvas.class);
-        addToSet(theAvailableGames, PawnWhoppingCanvas.class);
-        addToSet(theAvailableGames, PentagoCanvas.class);
-        addToSet(theAvailableGames, QyshinsuCanvas.class);
-        addToSet(theAvailableGames, TicTacToeCanvas.class);
-        addToSet(theAvailableGames, TTCC4Canvas.class);
-        addToSet(theAvailableGames, TTCC4SmallCanvas.class);
-        addToSet(theAvailableGames, TTCCanvas.class);
-        addToSet(theAvailableGames, TTTxNineCanvas.class);
-        return theAvailableGames;
-    }
 }
