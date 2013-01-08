@@ -55,7 +55,7 @@ public final class TiltyardBackend
 {
     public static final int SERVER_PORT = 9124;
     private static final String spectatorServerURL = "http://matches.ggp.org/";
-    private static final String registrationURL = "http://tiltyard.ggp.org/backends/register";
+    private static final String registrationURL = "http://tiltyard.ggp.org/backends/register/host";
     
     private static Integer ongoingMatches = new Integer(0);
 
