@@ -110,9 +110,9 @@ public final class ParametricPlayerPanel extends JPanel
 					player.start();					
 
 					JTabbedPane tab = new JTabbedPane();
+					tab.addTab("Configuration", configPanel);
 					tab.addTab("Match", matchPanel);
 					tab.addTab("Network", networkPanel);
-					tab.addTab("Configuration", configPanel);
 					tab.addTab("Detail", detailPanel);
 					playersTabbedPane.addTab("Port " + player.getGamerPort() + "", tab);
 					playersTabbedPane.setSelectedIndex(playersTabbedPane.getTabCount()-1);
