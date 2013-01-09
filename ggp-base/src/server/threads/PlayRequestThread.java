@@ -1,8 +1,6 @@
 package server.threads;
 
 import java.io.IOException;
-import java.net.InetAddress;
-import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.util.HashSet;
 import java.util.List;
@@ -14,8 +12,7 @@ import server.event.ServerIllegalMoveEvent;
 import server.event.ServerTimeoutEvent;
 import server.request.RequestBuilder;
 import util.gdl.factory.GdlFactory;
-import util.http.HttpReader;
-import util.http.HttpWriter;
+import util.http.HttpRequest;
 import util.match.Match;
 import util.statemachine.Move;
 import util.statemachine.Role;
@@ -67,13 +64,8 @@ public final class PlayRequestThread extends Thread
 		
 		try
 		{
-		    InetAddress theHost = InetAddress.getByName(host);
-		    
-			Socket socket = new Socket(theHost.getHostAddress(), port);
 			String request = (previousMoves == null) ? RequestBuilder.getPlayRequest(match.getMatchId()) : RequestBuilder.getPlayRequest(match.getMatchId(), previousMoves);
-
-			HttpWriter.writeAsClient(socket, theHost.getHostName(), request, playerName);
-			String response = unlimitedTime ? HttpReader.readAsClient(socket) : HttpReader.readAsClient(socket, match.getPlayClock() * 1000 + 1000);
+			String response = HttpRequest.issueRequest(host, port, playerName, request, unlimitedTime ? -1 : (match.getPlayClock() * 1000 + 1000));
 
 			move = gameServer.getStateMachine().getMoveFromTerm(GdlFactory.createTerm(response));
 			if (!new HashSet<Move>(legalMoves).contains(move))
@@ -81,8 +73,6 @@ public final class PlayRequestThread extends Thread
 				gameServer.notifyObservers(new ServerIllegalMoveEvent(role, move));
 				move = legalMoves.get(new Random().nextInt(legalMoves.size()));
 			}
-
-			socket.close();
 		}
 		catch (SocketTimeoutException e)
 		{

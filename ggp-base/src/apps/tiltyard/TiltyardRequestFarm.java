@@ -2,7 +2,6 @@ package apps.tiltyard;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
@@ -18,6 +17,7 @@ import util.crypto.SignableJSON;
 import util.crypto.BaseCryptography.EncodedKeyPair;
 import util.files.FileUtils;
 import util.http.HttpReader;
+import util.http.HttpRequest;
 import util.http.HttpWriter;
 
 /**
@@ -84,7 +84,7 @@ public final class TiltyardRequestFarm
     	String targetHost, requestContent, forPlayerName, callbackURL, originalRequest;    	
     	int targetPort, timeoutClock;
     	Set<String> activeRequests;
-                
+
         public RunRequestThread(Socket connection, Set<String> activeRequests) throws IOException, JSONException {
             String line = HttpReader.readAsServer(connection);
             System.out.println("On " + new Date() + ", client has requested: " + line);
@@ -128,13 +128,9 @@ public final class TiltyardRequestFarm
                 try {
                 	responseJSON.put("originalRequest", originalRequest);
 	                try {
-	                	InetAddress theHost = InetAddress.getByName(targetHost);
-	                	Socket socket = new Socket(theHost.getHostAddress(), targetPort);
-	                	HttpWriter.writeAsClient(socket, theHost.getHostName(), requestContent, forPlayerName);
-	                	String response = (timeoutClock < 0) ? HttpReader.readAsClient(socket) : HttpReader.readAsClient(socket, timeoutClock);
+	                	String response = HttpRequest.issueRequest(targetHost, targetPort, forPlayerName, requestContent, timeoutClock);
 	                	responseJSON.put("response", response);
-	                	responseJSON.put("responseType", "OK");
-	                	socket.close();
+	                	responseJSON.put("responseType", "OK");	                	
 	                } catch (SocketTimeoutException te) {
 	                	responseJSON.put("responseType", "TO");
 	                } catch (IOException ie) {
