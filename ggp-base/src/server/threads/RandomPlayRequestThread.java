@@ -3,15 +3,16 @@ package server.threads;
 import java.util.List;
 import java.util.Random;
 
+import util.match.Match;
 import util.statemachine.Move;
 
 public final class RandomPlayRequestThread extends PlayRequestThread
 {
 	private Move move;
 
-	public RandomPlayRequestThread(List<Move> legalMoves)
+	public RandomPlayRequestThread(Match match, List<Move> legalMoves)
 	{
-		super(null, null, null, null, null, null, 0, null, false);
+		super(null, match, null, null, null, null, 0, null, true);
 		move = legalMoves.get(new Random().nextInt(legalMoves.size()));
 	}
 
