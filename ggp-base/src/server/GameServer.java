@@ -16,6 +16,7 @@ import server.event.ServerNewMovesEvent;
 import server.event.ServerTimeEvent;
 import server.event.ServerTimeoutEvent;
 import server.threads.PlayRequestThread;
+import server.threads.RandomPlayRequestThread;
 import server.threads.StartRequestThread;
 import server.threads.StopRequestThread;
 import util.match.Match;
@@ -192,7 +193,11 @@ public final class GameServer extends Thread implements Subject
         List<PlayRequestThread> threads = new ArrayList<PlayRequestThread>(hosts.size());
         for (int i = 0; i < hosts.size(); i++) {
             List<Move> legalMoves = stateMachine.getLegalMoves(currentState, stateMachine.getRoles().get(i));
-           	threads.add(new PlayRequestThread(this, match, previousMoves, legalMoves, stateMachine.getRoles().get(i), hosts.get(i), ports.get(i), playerNames.get(i), playerGetsUnlimitedTime[i], playerPlaysRandomly[i]));
+            if (playerPlaysRandomly[i]) {
+            	threads.add(new RandomPlayRequestThread(legalMoves));
+            } else {
+                threads.add(new PlayRequestThread(this, match, previousMoves, legalMoves, stateMachine.getRoles().get(i), hosts.get(i), ports.get(i), playerNames.get(i), playerGetsUnlimitedTime[i]));
+            }
         }
         for (PlayRequestThread thread : threads) {
             thread.start();

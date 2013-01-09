@@ -18,7 +18,7 @@ import util.statemachine.Move;
 import util.statemachine.Role;
 import util.symbol.factory.exceptions.SymbolFormatException;
 
-public final class PlayRequestThread extends Thread
+public class PlayRequestThread extends Thread
 {
 	private final GameServer gameServer;
 	private final String host;
@@ -28,12 +28,11 @@ public final class PlayRequestThread extends Thread
 	private final String playerName;
 	private final List<Move> previousMoves;
 	private final boolean unlimitedTime;
-	private final boolean playRandomly;
 	private final Role role;
 	
 	private Move move;
 
-	public PlayRequestThread(GameServer gameServer, Match match, List<Move> previousMoves, List<Move> legalMoves, Role role, String host, int port, String playerName, boolean unlimitedTime, boolean playRandomly)
+	public PlayRequestThread(GameServer gameServer, Match match, List<Move> previousMoves, List<Move> legalMoves, Role role, String host, int port, String playerName, boolean unlimitedTime)
 	{
 		this.gameServer = gameServer;
 		this.match = match;
@@ -44,7 +43,6 @@ public final class PlayRequestThread extends Thread
 		this.port = port;
 		this.playerName = playerName;
 		this.unlimitedTime = unlimitedTime;
-		this.playRandomly = playRandomly;
 
 		move = null;
 	}
@@ -57,11 +55,6 @@ public final class PlayRequestThread extends Thread
 	@Override
 	public void run()
 	{
-		if (playRandomly) {
-			move = legalMoves.get(new Random().nextInt(legalMoves.size()));
-			return;
-		}
-		
 		try
 		{
 			String request = (previousMoves == null) ? RequestBuilder.getPlayRequest(match.getMatchId()) : RequestBuilder.getPlayRequest(match.getMatchId(), previousMoves);
