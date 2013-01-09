@@ -12,7 +12,7 @@ public final class RandomPlayRequestThread extends PlayRequestThread
 
 	public RandomPlayRequestThread(Match match, List<Move> legalMoves)
 	{
-		super(null, match, null, null, null, null, 0, null, true);
+		super(null, match, null, legalMoves, null, null, 0, null, true);
 		move = legalMoves.get(new Random().nextInt(legalMoves.size()));
 	}
 
