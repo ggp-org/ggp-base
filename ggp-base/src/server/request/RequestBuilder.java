@@ -3,12 +3,13 @@ package server.request;
 import java.util.List;
 
 import util.gdl.grammar.Gdl;
+import util.gdl.scrambler.GdlScrambler;
 import util.statemachine.Move;
 import util.statemachine.Role;
 
 public final class RequestBuilder
 {
-	public static String getPlayRequest(String matchId, List<Move> moves)
+	public static String getPlayRequest(String matchId, List<Move> moves, GdlScrambler scrambler)
 	{
 		if (moves == null) {
 			return "( PLAY " + matchId + " NIL )";
@@ -18,7 +19,7 @@ public final class RequestBuilder
 			sb.append("( PLAY " + matchId + " (");
 			for (Move move : moves)
 			{
-				sb.append(move.getContents() + " ");
+				sb.append(scrambler.scramble(move.getContents()) + " ");
 			}
 			sb.append(") )");
 
@@ -26,21 +27,21 @@ public final class RequestBuilder
 		}
 	}
 
-	public static String getStartRequest(String matchId, Role role, List<Gdl> description, int startClock, int playClock)
+	public static String getStartRequest(String matchId, Role role, List<Gdl> description, int startClock, int playClock, GdlScrambler scrambler)
 	{
 		StringBuilder sb = new StringBuilder();
 
-		sb.append("( START " + matchId + " " + role + " (");
+		sb.append("( START " + matchId + " " + scrambler.scramble(role.getName()) + " (");
 		for (Gdl gdl : description)
 		{
-			sb.append(gdl + " ");
+			sb.append(scrambler.scramble(gdl) + " ");
 		}
 		sb.append(") " + startClock + " " + playClock + ")");
 
 		return sb.toString();
 	}
 
-	public static String getStopRequest(String matchId, List<Move> moves)
+	public static String getStopRequest(String matchId, List<Move> moves, GdlScrambler scrambler)
 	{
 		if (moves == null) {
 			return "( STOP " + matchId + " NIL )";
@@ -50,7 +51,7 @@ public final class RequestBuilder
 			sb.append("( STOP " + matchId + " (");
 			for (Move move : moves)
 			{
-				sb.append(move.getContents() + " ");
+				sb.append(scrambler.scramble(move.getContents()) + " ");
 			}
 			sb.append(") )");
 	

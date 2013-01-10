@@ -8,6 +8,7 @@ import server.GameServer;
 import server.event.ServerIllegalMoveEvent;
 import server.request.RequestBuilder;
 import util.gdl.factory.GdlFactory;
+import util.gdl.factory.exceptions.GdlFormatException;
 import util.match.Match;
 import util.statemachine.Move;
 import util.statemachine.Role;
@@ -17,15 +18,17 @@ public class PlayRequestThread extends RequestThread
 {
 	private final GameServer gameServer;
 	private final List<Move> legalMoves;
+	private final Match match;
 	private final Role role;
 	
 	private Move move;
 
 	public PlayRequestThread(GameServer gameServer, Match match, List<Move> previousMoves, List<Move> legalMoves, Role role, String host, int port, String playerName, boolean unlimitedTime)
 	{
-		super(gameServer, role, host, port, playerName, unlimitedTime ? -1 : (match.getPlayClock() * 1000 + 1000), RequestBuilder.getPlayRequest(match.getMatchId(), previousMoves));
+		super(gameServer, role, host, port, playerName, unlimitedTime ? -1 : (match.getPlayClock() * 1000 + 1000), RequestBuilder.getPlayRequest(match.getMatchId(), previousMoves, match.getGdlScrambler()));
 		this.gameServer = gameServer;
 		this.legalMoves = legalMoves;
+		this.match = match;
 		this.role = role;
 
 		move = legalMoves.get(new Random().nextInt(legalMoves.size()));
@@ -39,15 +42,16 @@ public class PlayRequestThread extends RequestThread
 	@Override
 	protected void handleResponse(String response) {
 		try {
-			Move candidateMove = gameServer.getStateMachine().getMoveFromTerm(GdlFactory.createTerm(response));
+			Move candidateMove = gameServer.getStateMachine().getMoveFromTerm(GdlFactory.createTerm(match.getGdlScrambler().unscramble(response).toString()));
 			if (new HashSet<Move>(legalMoves).contains(candidateMove)) {
 				move = candidateMove;
 			} else {
 				gameServer.notifyObservers(new ServerIllegalMoveEvent(role, candidateMove));
 			}
+		} catch (GdlFormatException e) {
+			gameServer.notifyObservers(new ServerIllegalMoveEvent(role, null));
 		} catch (SymbolFormatException e) {
 			gameServer.notifyObservers(new ServerIllegalMoveEvent(role, null));
 		}
-
 	}
 }

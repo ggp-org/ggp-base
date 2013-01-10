@@ -35,7 +35,7 @@ public final class GdlPool
     // as if one had attempted to create the GdlConstant "true", regardless of whether the
     // game-specific constants are case-sensitive or not. These special keywords are never
     // sent over the network in PLAY requests and responses, so this should be safe.
-    private static final HashSet<String> keywords = new HashSet<String>(Arrays.asList(
+    public static final HashSet<String> keywords = new HashSet<String>(Arrays.asList(
     		new String[] {"init","true","next","role","does","goal","legal","terminal","base","input"}));
     
 	/**

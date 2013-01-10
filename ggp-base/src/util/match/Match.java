@@ -15,6 +15,8 @@ import util.gdl.factory.GdlFactory;
 import util.gdl.factory.exceptions.GdlFormatException;
 import util.gdl.grammar.GdlSentence;
 import util.gdl.grammar.GdlTerm;
+import util.gdl.scrambler.GdlScrambler;
+import util.gdl.scrambler.NoOpGdlScrambler;
 import util.statemachine.Move;
 import util.statemachine.Role;
 import util.symbol.factory.SymbolFactory;
@@ -60,6 +62,8 @@ public final class Match
 	
 	private EncodedKeyPair theCryptographicKeys;
 	private List<String> thePlayerNamesFromHost;
+	
+	private GdlScrambler theGdlScrambler = new NoOpGdlScrambler();
 
 	public Match(String matchId, int startClock, int playClock, Game theGame)
 	{
@@ -185,6 +189,10 @@ public final class Match
 	    this.theCryptographicKeys = k;
 	}
 	
+	public void setGdlScrambler(GdlScrambler gs) {
+		this.theGdlScrambler = gs;
+	}
+	
 	public void setPlayerNamesFromHost(List<String> thePlayerNames) {
 	    this.thePlayerNamesFromHost = thePlayerNames;
 	}
@@ -253,6 +261,7 @@ public final class Match
             if (thePlayerNamesFromHost != null) {
                 theJSON.put("playerNamesFromHost", thePlayerNamesFromHost);
             }
+            theJSON.put("scrambled", theGdlScrambler != null ? theGdlScrambler.scrambles() : false);
         } catch (JSONException e) {
             return null;
         }
@@ -348,6 +357,10 @@ public final class Match
 	
 	public List<Integer> getGoalValues() {
 	    return goalValues;
+	}
+	
+	public GdlScrambler getGdlScrambler() {
+		return theGdlScrambler;
 	}
 	
 	/* Static methods */

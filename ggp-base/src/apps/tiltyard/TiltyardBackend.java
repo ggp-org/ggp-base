@@ -22,6 +22,7 @@ import util.files.FileUtils;
 import util.game.Game;
 import util.game.RemoteGameRepository;
 import util.gdl.grammar.GdlPool;
+import util.gdl.scrambler.MappingGdlScrambler;
 import util.http.HttpReader;
 import util.http.HttpWriter;
 import util.match.Match;
@@ -135,6 +136,7 @@ public final class TiltyardBackend
 		                theGame = RemoteGameRepository.loadSingleGame(gameURL);            
 		                theMatch = new Match(matchId, startClock, playClock, theGame);
 		                theMatch.setCryptographicKeys(theTiltyardKeys);
+		                theMatch.setGdlScrambler(new MappingGdlScrambler());
 		                theMatch.setPlayerNamesFromHost(names);
 		                theServer = new GameServer(theMatch, hosts, ports, names);
 		                String theSpectatorURL = theServer.startPublishingToSpectatorServer(spectatorServerURL);
