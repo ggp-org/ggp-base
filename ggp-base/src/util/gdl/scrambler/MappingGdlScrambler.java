@@ -1,8 +1,10 @@
 package util.gdl.scrambler;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Random;
 import java.util.Stack;
@@ -15,7 +17,6 @@ import util.gdl.factory.GdlFactory;
 import util.gdl.factory.exceptions.GdlFormatException;
 import util.gdl.grammar.Gdl;
 import util.gdl.grammar.GdlConstant;
-import util.gdl.grammar.GdlPool;
 import util.gdl.grammar.GdlVariable;
 import util.symbol.factory.exceptions.SymbolFormatException;
 
@@ -119,8 +120,13 @@ public class MappingGdlScrambler implements GdlScrambler {
 		}
 	}
 	
+	// TODO(schreib): Factor this out so that the keyword list can be shared
+	// between the GdlPool and the MappingGdlScrambler without causing problems
+	// for projects that import this project to depend on it.
+	private static final HashSet<String> keywords = new HashSet<String>(Arrays.asList(
+    		new String[] {"init","true","next","role","does","goal","legal","terminal","base","input"}));
 	private static boolean shouldMap(String token) {
-		if (GdlPool.keywords.contains(token.toLowerCase())) {
+		if (keywords.contains(token.toLowerCase())) {
 			return false;
 		}
 		try {
