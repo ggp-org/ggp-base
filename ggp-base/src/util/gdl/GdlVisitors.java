@@ -104,6 +104,8 @@ public class GdlVisitors {
 			visitor.visitVariable((GdlVariable) term);
 		} else if (term instanceof GdlFunction) {
 			visitFunction((GdlFunction) term, visitor);
+		} else {
+			throw new RuntimeException("Unexpected GdlTerm type " + term.getClass());
 		}
 	}
 	private static void visitFunction(GdlFunction function, GdlVisitor visitor) {
