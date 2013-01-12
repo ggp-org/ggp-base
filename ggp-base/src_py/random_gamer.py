@@ -4,11 +4,11 @@
 
 import random
 
-from util.statemachine import MachineState
-from util.statemachine.implementation.prover import ProverStateMachine
+from org.ggp.base.util.statemachine import MachineState
+from org.ggp.base.util.statemachine.implementation.prover import ProverStateMachine
 
-from player.gamer.statemachine import StateMachineGamer
-from player.gamer.statemachine.reflex.event import ReflexMoveSelectionEvent
+from org.ggp.base.player.gamer.statemachine import StateMachineGamer
+from org.ggp.base.player.gamer.statemachine.reflex.event import ReflexMoveSelectionEvent
 
 class RandomGamer(StateMachineGamer):
 

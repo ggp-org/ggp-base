@@ -4,9 +4,9 @@
 #
 # -Sam
 
-from util.kif import KifReader
-from util.configuration import ProjectConfiguration
-from util.statemachine.implementation.prover import ProverStateMachine
+from org.ggp.base.util.kif import KifReader
+from org.ggp.base.util.configuration import ProjectConfiguration
+from org.ggp.base.util.statemachine.implementation.prover import ProverStateMachine
 
 def load_game(game_name):
     game_filename = ProjectConfiguration.gameRulesheetsPath + game_name + ".kif"

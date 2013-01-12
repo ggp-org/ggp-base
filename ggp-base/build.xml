@@ -76,49 +76,49 @@
         <antcall target="build"/>
     </target>
     <target name="ClojureConsole">
-        <java classname="apps.consoles.ClojureConsole" failonerror="true" fork="yes">
+        <java classname="org.ggp.base.apps.consoles.ClojureConsole" failonerror="true" fork="yes">
             <classpath refid="GGP_Base.classpath"/>
         </java>
     </target>
     <target name="ClojureGamer">
-        <java classname="player.gamer.clojure.ClojureGamer" failonerror="true" fork="yes">
+        <java classname="org.ggp.base.player.gamer.clojure.ClojureGamer" failonerror="true" fork="yes">
             <classpath refid="GGP_Base.classpath"/>
         </java>
     </target>
     <target name="GameStateRenderPanel">
-        <java classname="util.xhtml.GameStateRenderPanel" failonerror="true" fork="yes">
+        <java classname="org.ggp.base.util.xhtml.GameStateRenderPanel" failonerror="true" fork="yes">
             <classpath refid="GGP_Base.classpath"/>
         </java>
     </target>
     <target name="Kiosk">
-        <java classname="apps.kiosk.Kiosk" failonerror="true" fork="yes">
+        <java classname="org.ggp.base.apps.kiosk.Kiosk" failonerror="true" fork="yes">
             <jvmarg line="-mx1500m -server -XX:-DontCompileHugeMethods -XX:MinHeapFreeRatio=10 -XX:MaxHeapFreeRatio=10"/>
             <classpath refid="GGP_Base.classpath"/>
         </java>
     </target>
     <target name="LoadPropnet">
-        <java classname="apps.examples.LoadPropnet" failonerror="true" fork="yes">
+        <java classname="org.ggp.base.apps.examples.LoadPropnet" failonerror="true" fork="yes">
             <jvmarg line="-mx1500m -Xss20m -server -XX:-DontCompileHugeMethods -XX:MinHeapFreeRatio=10 -XX:MaxHeapFreeRatio=10"/>
             <classpath refid="GGP_Base.classpath"/>
         </java>
     </target>
     <target name="PythonConsole">
-        <java classname="apps.consoles.PythonConsole" failonerror="true" fork="yes">
+        <java classname="org.ggp.base.apps.consoles.PythonConsole" failonerror="true" fork="yes">
             <classpath refid="GGP_Base.classpath"/>
         </java>
     </target>
     <target name="ServerPanel">
-        <java classname="apps.server.ServerPanel" failonerror="true" fork="yes">
+        <java classname="org.ggp.base.apps.server.ServerPanel" failonerror="true" fork="yes">
             <classpath refid="GGP_Base.classpath"/>
         </java>
     </target>
     <target name="SimpleGameSim">
-        <java classname="apps.utilities.SimpleGameSim" failonerror="true" fork="yes">
+        <java classname="org.ggp.base.apps.utilities.SimpleGameSim" failonerror="true" fork="yes">
             <classpath refid="GGP_Base.classpath"/>
         </java>
     </target>
     <target name="TiltyardBackend">
-        <java classname="apps.tiltyard.TiltyardBackend" failonerror="true" fork="yes">
+        <java classname="org.ggp.base.apps.tiltyard.TiltyardBackend" failonerror="true" fork="yes">
             <classpath refid="GGP_Base.classpath"/>
         </java>
     </target>
@@ -131,12 +131,12 @@
         </junit>
     </target>
     <target name="PlayerPanel">
-        <java classname="apps.player.PlayerPanel" failonerror="true" fork="yes">
+        <java classname="org.ggp.base.apps.player.PlayerPanel" failonerror="true" fork="yes">
             <classpath refid="GGP_Base.classpath"/>
         </java>
     </target>
     <target name="PropNetAnnotater">
-        <java classname="util.propnet.factory.annotater.PropNetAnnotater" failonerror="true" fork="yes">
+        <java classname="org.ggp.base.util.propnet.factory.annotater.PropNetAnnotater" failonerror="true" fork="yes">
             <classpath refid="GGP_Base.classpath"/>
         </java>
     </target>

@@ -6,12 +6,12 @@
 (ns gamer_namespace)
 
 (defn LegalGamer []
-  (proxy [player.gamer.statemachine.StateMachineGamer] []
+  (proxy [org.ggp.base.player.gamer.statemachine.StateMachineGamer] []
     (getName []
       "LegalGamer (Clojure)")
 
     (getInitialStateMachine []
-      (new util.statemachine.implementation.prover.ProverStateMachine))
+      (new org.ggp.base.util.statemachine.implementation.prover.ProverStateMachine))
 
     (stateMachineMetaGame [timeout]
       ())
