@@ -88,7 +88,7 @@ public final class Match
 		this.goalValues = new ArrayList<Integer>();
 	}
 	
-	public Match(String theJSON, Game theGame) throws JSONException, SymbolFormatException, GdlFormatException {
+	public Match(String theJSON, Game theGame, String authToken) throws JSONException, SymbolFormatException, GdlFormatException {
         JSONObject theMatchObject = new JSONObject(theJSON);
 
         this.matchId = theMatchObject.getString("matchId");
@@ -105,7 +105,7 @@ public final class Match
         
         this.startTime = new Date(theMatchObject.getLong("startTime"));
         this.randomToken = theMatchObject.getString("randomToken");
-        this.spectatorAuthToken = null;
+        this.spectatorAuthToken = authToken;
         this.isCompleted = theMatchObject.getBoolean("isCompleted");
 
         this.numRoles = Role.computeRoles(theGame.getRules()).size();
