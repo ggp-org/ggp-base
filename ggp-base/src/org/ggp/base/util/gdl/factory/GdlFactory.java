@@ -32,7 +32,7 @@ public final class GdlFactory
 	{
 		return create(SymbolFactory.create(string));
 	}
-	
+
 	public static Gdl create(Symbol symbol) throws GdlFormatException
 	{
 		try
