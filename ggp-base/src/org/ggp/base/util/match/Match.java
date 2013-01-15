@@ -53,13 +53,13 @@ public final class Match
     private final int startClock;
     private final Date startTime;
 	private final Game theGame;
-	private final List<String> theRoleNames;  // TODO: remove this
 	private final List<List<GdlTerm>> moveHistory;
 	private final List<Set<GdlSentence>> stateHistory;
 	private final List<List<String>> errorHistory;
 	private final List<Date> stateTimeHistory;
 	private boolean isCompleted;	
 	private final List<Integer> goalValues;
+	private final int numRoles;
 	
 	private EncodedKeyPair theCryptographicKeys;
 	private List<String> thePlayerNamesFromHost;
@@ -78,10 +78,7 @@ public final class Match
 		this.spectatorAuthToken = getRandomString(12);
 		this.isCompleted = false;
 		
-		this.theRoleNames = new ArrayList<String>();
-		for(Role r : Role.computeRoles(theGame.getRules())) {
-		    this.theRoleNames.add(r.getName().toString());
-		}
+		this.numRoles = Role.computeRoles(theGame.getRules()).size();
 		
 		this.moveHistory = new ArrayList<List<GdlTerm>>();
 		this.stateHistory = new ArrayList<Set<GdlSentence>>();
@@ -111,17 +108,7 @@ public final class Match
         this.spectatorAuthToken = null;
         this.isCompleted = theMatchObject.getBoolean("isCompleted");
 
-        this.theRoleNames = new ArrayList<String>();
-        if (theMatchObject.has("gameRoleNames")) {
-            JSONArray theNames = theMatchObject.getJSONArray("gameRoleNames");
-            for (int i = 0; i < theNames.length(); i++) {
-                this.theRoleNames.add(theNames.getString(i));
-            }
-        } else {
-            for(Role r : Role.computeRoles(this.theGame.getRules())) {
-                this.theRoleNames.add(r.getName().toString());
-            }
-        }
+        this.numRoles = Role.computeRoles(theGame.getRules()).size();
         
         this.moveHistory = new ArrayList<List<GdlTerm>>();
         this.stateHistory = new ArrayList<Set<GdlSentence>>();
@@ -224,7 +211,7 @@ public final class Match
 
     public void appendNoErrors() {
         List<String> theNoErrors = new ArrayList<String>();
-        for (int i = 0; i < this.theRoleNames.size(); i++) {
+        for (int i = 0; i < this.numRoles; i++) {
             theNoErrors.add("");
         }
         errorHistory.add(theNoErrors);
