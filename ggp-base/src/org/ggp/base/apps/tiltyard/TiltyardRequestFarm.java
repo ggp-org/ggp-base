@@ -9,7 +9,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.ggp.base.util.configuration.RemoteResourceLoader;
+import org.ggp.base.util.loader.RemoteResourceLoader;
 import org.ggp.base.util.crypto.SignableJSON;
 import org.ggp.base.util.crypto.BaseCryptography.EncodedKeyPair;
 import org.ggp.base.util.files.FileUtils;
@@ -19,7 +19,6 @@ import org.ggp.base.util.http.HttpWriter;
 
 import external.JSON.JSONException;
 import external.JSON.JSONObject;
-
 
 /**
  * The Tiltyard Request Farm is a multi-threaded web server that opens network

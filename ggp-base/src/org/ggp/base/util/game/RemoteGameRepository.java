@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.ggp.base.util.configuration.RemoteResourceLoader;
+import org.ggp.base.util.loader.RemoteResourceLoader;
 
 import external.JSON.JSONArray;
 import external.JSON.JSONException;

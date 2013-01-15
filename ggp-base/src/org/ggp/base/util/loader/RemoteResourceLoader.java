@@ -1,4 +1,4 @@
-package org.ggp.base.util.configuration;
+package org.ggp.base.util.loader;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -13,10 +13,6 @@ import external.JSON.JSONObject;
 /**
  * RemoteResourceLoader loads remotely-stored resources. It can load resources
  * as raw strings, JSON objects, or JSON arrays.
- * 
- * TODO: This doesn't really belong in "util.configuration" because it's not
- * related to the project's local configuration, but it seems like a reasonable
- * place to put it for now because it's near LocalResourceLoader.
  * 
  * @author Sam
  */

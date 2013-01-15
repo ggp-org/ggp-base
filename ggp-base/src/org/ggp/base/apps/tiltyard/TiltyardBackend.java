@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.ggp.base.server.GameServer;
-import org.ggp.base.util.configuration.RemoteResourceLoader;
+import org.ggp.base.util.loader.RemoteResourceLoader;
 import org.ggp.base.util.crypto.SignableJSON;
 import org.ggp.base.util.crypto.BaseCryptography.EncodedKeyPair;
 import org.ggp.base.util.files.FileUtils;
@@ -27,7 +27,6 @@ import org.ggp.base.util.symbol.grammar.SymbolPool;
 import external.JSON.JSONArray;
 import external.JSON.JSONException;
 import external.JSON.JSONObject;
-
 
 /**
  * The Tiltyard Backend Server is a multi-threaded web server that runs matches

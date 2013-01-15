@@ -4,14 +4,13 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Random;
 
-import org.ggp.base.util.configuration.RemoteResourceLoader;
+import org.ggp.base.util.loader.RemoteResourceLoader;
 import org.ggp.base.util.http.HttpReader;
 import org.ggp.base.util.http.HttpWriter;
 
 import junit.framework.TestCase;
 
 import external.JSON.JSONObject;
-
 
 public class TiltyardRequestFarm_Test extends TestCase {
 	public void testThroughput() {
