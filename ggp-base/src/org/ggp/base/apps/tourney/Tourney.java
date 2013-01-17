@@ -181,7 +181,7 @@ public final class Tourney extends JPanel implements ActionListener {
             int startClock = Integer.parseInt(startClockTextField.getText());
             int numReps = Integer.parseInt(numRepsTextField.getText());
             
-            Match theMatchModel = new Match("MatchID", startClock, playClock, theGame);
+            Match theMatchModel = new Match("MatchID", -1, startClock, playClock, theGame);
             
             TourneyManager theManager = new TourneyManager(thePlayers, theMatchModel, gameName, numReps, eventsPanel);
             theManager.start();

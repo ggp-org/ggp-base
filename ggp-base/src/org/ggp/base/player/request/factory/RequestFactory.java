@@ -6,6 +6,7 @@ import java.util.List;
 import org.ggp.base.player.gamer.Gamer;
 import org.ggp.base.player.request.factory.exceptions.RequestFormatException;
 import org.ggp.base.player.request.grammar.AbortRequest;
+import org.ggp.base.player.request.grammar.AnalyzeRequest;
 import org.ggp.base.player.request.grammar.PingRequest;
 import org.ggp.base.player.request.grammar.PlayRequest;
 import org.ggp.base.player.request.grammar.Request;
@@ -51,6 +52,10 @@ public final class RequestFactory
 			else if (type.equals("ping"))
 			{
 			    return createPing(gamer, list);
+			}
+			else if (type.equals("analyze"))
+			{
+				return createAnalyze(gamer, list);
 			}
 			else
 			{
@@ -128,7 +133,7 @@ public final class RequestFactory
     {
         if (list.size() != 2)
         {
-            throw new IllegalArgumentException("Expected exactly 2 arguments!");
+            throw new IllegalArgumentException("Expected exactly 1 argument!");
         }
 
         SymbolAtom arg1 = (SymbolAtom) list.get(1);
@@ -139,13 +144,30 @@ public final class RequestFactory
     
     private PingRequest createPing(Gamer gamer, SymbolList list) throws GdlFormatException
     {
-        if (list.size() != 1)
+        if (list.size() != 0)
         {
-            throw new IllegalArgumentException("Expected exactly 1 argument!");
+            throw new IllegalArgumentException("Expected no arguments!");
         }
 
         return new PingRequest(gamer);
-    }       
+    }
+    
+    private AnalyzeRequest createAnalyze(Gamer gamer, SymbolList list) throws GdlFormatException
+    {
+		if (list.size() != 3)
+		{
+			throw new IllegalArgumentException("Expected exactly 2 arguments!");
+		}
+
+		SymbolAtom arg1 = (SymbolAtom) list.get(1);
+		SymbolAtom arg2 = (SymbolAtom) list.get(2);
+
+		String theRulesheet = arg1.toString();
+		int analysisClock = Integer.valueOf(arg2.getValue());
+		
+		Game theReceivedGame = Game.createEphemeralGame(theRulesheet);
+		return new AnalyzeRequest(gamer, theReceivedGame, analysisClock);
+    }    
 
 	private List<GdlTerm> parseMoves(Symbol symbol) throws GdlFormatException
 	{

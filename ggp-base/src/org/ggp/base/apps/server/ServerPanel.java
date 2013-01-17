@@ -137,7 +137,7 @@ public final class ServerPanel extends JPanel implements ActionListener
 					
 					int startClock = Integer.valueOf(serverPanel.startClockTextField.getText());
 					int playClock = Integer.valueOf(serverPanel.playClockTextField.getText());
-					Match match = new Match(matchId, startClock, playClock, serverPanel.theGame);
+					Match match = new Match(matchId, -1, startClock, playClock, serverPanel.theGame);
 
 					List<String> hosts = new ArrayList<String>(serverPanel.hostportTextFields.size());
 					List<Integer> ports = new ArrayList<Integer>(serverPanel.hostportTextFields.size());

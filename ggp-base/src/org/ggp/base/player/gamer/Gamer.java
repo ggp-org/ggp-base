@@ -7,8 +7,10 @@ import org.ggp.base.apps.player.config.ConfigPanel;
 import org.ggp.base.apps.player.config.EmptyConfigPanel;
 import org.ggp.base.apps.player.detail.DetailPanel;
 import org.ggp.base.apps.player.detail.EmptyDetailPanel;
+import org.ggp.base.player.gamer.exception.GameAnalysisException;
 import org.ggp.base.player.gamer.exception.MetaGamingException;
 import org.ggp.base.player.gamer.exception.MoveSelectionException;
+import org.ggp.base.util.game.Game;
 import org.ggp.base.util.gdl.grammar.GdlConstant;
 import org.ggp.base.util.gdl.grammar.GdlTerm;
 import org.ggp.base.util.match.Match;
@@ -56,6 +58,10 @@ public abstract class Gamer implements Subject
 	 * moves of the game.
 	 */
 	public abstract void stop();
+
+	public void analyze(Game g, long timeout) throws GameAnalysisException {
+		// TODO(schreib): Eventually make this abstract and force everyone to implement it.
+	}
 	
 	// ==== Gamer Profile and Configuration ====
 	public abstract String getName();

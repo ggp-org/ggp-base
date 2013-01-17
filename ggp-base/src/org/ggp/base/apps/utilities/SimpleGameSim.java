@@ -44,7 +44,7 @@ public class SimpleGameSim {
     
     public static void main(String[] args) {
         Game theGame = GameRepository.getDefaultRepository().getGame("nineBoardTicTacToe");
-        Match theMatch = new Match("simpleGameSim." + Match.getRandomString(5), 0, 0, theGame);
+        Match theMatch = new Match("simpleGameSim." + Match.getRandomString(5), -1, 0, 0, theGame);
         theMatch.setPlayerNamesFromHost(Arrays.asList(new String[] {"SamplePlayer1", "SamplePlayer2"}));
         try {
             // Load a sample set of cryptographic keys. These sample keys are not secure,

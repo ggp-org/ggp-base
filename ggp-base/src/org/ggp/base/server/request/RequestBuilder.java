@@ -41,6 +41,20 @@ public final class RequestBuilder
 
 		return sb.toString();
 	}
+	
+	public static String getAnalyzeRequest(List<Gdl> description, int analysisClock, GdlScrambler scrambler)
+	{
+		StringBuilder sb = new StringBuilder();
+
+		sb.append("( ANALYZE (");
+		for (Gdl gdl : description)
+		{
+			sb.append(scrambler.scramble(gdl) + " ");
+		}
+		sb.append(") " + analysisClock + " )");
+
+		return sb.toString();
+	}	
 
 	public static String getStopRequest(String matchId, List<Move> moves, GdlScrambler scrambler)
 	{

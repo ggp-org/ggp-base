@@ -1,8 +1,10 @@
 package org.ggp.base.player.gamer.python;
 
 import org.ggp.base.player.gamer.Gamer;
+import org.ggp.base.player.gamer.exception.GameAnalysisException;
 import org.ggp.base.player.gamer.exception.MetaGamingException;
 import org.ggp.base.player.gamer.exception.MoveSelectionException;
+import org.ggp.base.util.game.Game;
 import org.ggp.base.util.gdl.grammar.GdlTerm;
 import org.ggp.base.util.logging.GamerLogger;
 import org.python.core.PyObject;
@@ -57,6 +59,16 @@ public abstract class PythonGamer extends Gamer
     // implement the real methods in the actual Python gamer. Essentially, any
     // subclass of this class is a Java-implementation stub for the actual real
     // Python implementation.
+    
+    @Override
+    public final void analyze(Game game, long timeout) throws GameAnalysisException {
+        try {
+            thePythonGamer.analyze(game, timeout);
+        } catch(RuntimeException e) {
+            GamerLogger.logError("GamePlayer", "Caught exception in Python stateMachineAnalyze:");
+            GamerLogger.logStackTrace("GamePlayer", e);
+        }
+    }    
     
     @Override
     public final void metaGame(long timeout) throws MetaGamingException {

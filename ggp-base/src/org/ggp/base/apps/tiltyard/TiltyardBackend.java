@@ -84,7 +84,7 @@ public final class TiltyardBackend
     
     // Matches are run asynchronously in their own threads.
     static class RunMatchThread extends Thread {
-        int playClock, startClock;
+        int playClock, startClock, analysisClock;
         String gameURL, matchId;
         List<String> names, hosts;
         List<Integer> ports;
@@ -103,9 +103,15 @@ public final class TiltyardBackend
             } else {
                 JSONObject theJSON = new JSONObject(line);
                 playClock = theJSON.getInt("playClock");
-                startClock = theJSON.getInt("startClock");
+                startClock = theJSON.getInt("startClock");                
                 gameURL = theJSON.getString("gameURL");                
                 matchId = theJSON.getString("matchId");
+                
+                if (theJSON.has("analysisClock")) {
+                	analysisClock = theJSON.getInt("analysisClock");
+                } else {
+                	analysisClock = -1;
+                }
                 
                 synchronized (knownMatches) {
 	                if (knownMatches.containsKey(matchId)) {
@@ -134,7 +140,7 @@ public final class TiltyardBackend
 		                // the spectator server, so that we have a spectator server
 		                // URL to return for this request.
 		                theGame = RemoteGameRepository.loadSingleGame(gameURL);            
-		                theMatch = new Match(matchId, startClock, playClock, theGame);
+		                theMatch = new Match(matchId, analysisClock, startClock, playClock, theGame);
 		                theMatch.setCryptographicKeys(theTiltyardKeys);
 		                theMatch.setGdlScrambler(new MappingGdlScrambler());
 		                theMatch.setPlayerNamesFromHost(names);

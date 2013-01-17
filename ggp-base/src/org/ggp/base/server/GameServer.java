@@ -15,6 +15,7 @@ import org.ggp.base.server.event.ServerNewMatchEvent;
 import org.ggp.base.server.event.ServerNewMovesEvent;
 import org.ggp.base.server.event.ServerTimeEvent;
 import org.ggp.base.server.event.ServerTimeoutEvent;
+import org.ggp.base.server.threads.AnalyzeRequestThread;
 import org.ggp.base.server.threads.PlayRequestThread;
 import org.ggp.base.server.threads.RandomPlayRequestThread;
 import org.ggp.base.server.threads.StartRequestThread;
@@ -142,6 +143,10 @@ public final class GameServer extends Thread implements Subject
     @Override
     public void run() {
         try {
+        	if (match.getAnalysisClock() >= 0) {
+        		sendAnalyzeRequests();
+        	}
+        	
             notifyObservers(new ServerNewMatchEvent(stateMachine.getRoles(), currentState));                        
             notifyObservers(new ServerTimeEvent(match.getStartClock() * 1000));
             sendStartRequests();
@@ -217,6 +222,24 @@ public final class GameServer extends Thread implements Subject
         return moves;
     }
 
+    private synchronized void sendAnalyzeRequests() throws InterruptedException {
+        List<AnalyzeRequestThread> threads = new ArrayList<AnalyzeRequestThread>(hosts.size());
+        for (int i = 0; i < hosts.size(); i++) {
+        	if (!playerPlaysRandomly[i]) {
+        		threads.add(new AnalyzeRequestThread(this, match, stateMachine.getRoles().get(i), hosts.get(i), ports.get(i), playerNames.get(i)));
+        	}
+        }
+        for (AnalyzeRequestThread thread : threads) {
+            thread.start();
+        }
+        if (forceUsingEntireClock) {
+            Thread.sleep(match.getStartClock() * 1000);
+        }        
+        for (AnalyzeRequestThread thread : threads) {
+            thread.join();
+        }
+    }    
+    
     private synchronized void sendStartRequests() throws InterruptedException {
         List<StartRequestThread> threads = new ArrayList<StartRequestThread>(hosts.size());
         for (int i = 0; i < hosts.size(); i++) {

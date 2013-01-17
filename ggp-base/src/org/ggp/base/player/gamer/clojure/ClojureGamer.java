@@ -2,8 +2,10 @@ package org.ggp.base.player.gamer.clojure;
 
 import org.ggp.base.player.gamer.Gamer;
 import org.ggp.base.player.gamer.clojure.stubs.ClojureLegalGamerStub;
+import org.ggp.base.player.gamer.exception.GameAnalysisException;
 import org.ggp.base.player.gamer.exception.MetaGamingException;
 import org.ggp.base.player.gamer.exception.MoveSelectionException;
+import org.ggp.base.util.game.Game;
 import org.ggp.base.util.game.GameRepository;
 import org.ggp.base.util.gdl.grammar.GdlPool;
 import org.ggp.base.util.gdl.grammar.GdlTerm;
@@ -64,6 +66,16 @@ public abstract class ClojureGamer extends Gamer
     // Clojure implementation.
     
     @Override
+    public final void analyze(Game game, long timeout) throws GameAnalysisException {
+        try {
+            theClojureGamer.analyze(game, timeout);
+        } catch(RuntimeException e) {
+            GamerLogger.logError("GamePlayer", "Caught exception in Clojure stateMachineMetaGame:");
+            GamerLogger.logStackTrace("GamePlayer", e);
+        }
+    }    
+    
+    @Override
     public final void metaGame(long timeout) throws MetaGamingException {
         theClojureGamer.setMatch(getMatch());
         theClojureGamer.setRoleName(getRoleName());
@@ -117,7 +129,7 @@ public abstract class ClojureGamer extends Gamer
             Gamer g = new ClojureLegalGamerStub();
             System.out.println(g.getName());
 
-            Match m = new Match("", 1000, 1000, GameRepository.getDefaultRepository().getGame("conn4"));
+            Match m = new Match("", -1, 1000, 1000, GameRepository.getDefaultRepository().getGame("conn4"));
             g.setMatch(m);
             g.setRoleName(GdlPool.getConstant("xplayer"));
             g.metaGame(1000);
