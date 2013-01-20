@@ -144,7 +144,7 @@ public final class RequestFactory
     
     private PingRequest createPing(Gamer gamer, SymbolList list) throws GdlFormatException
     {
-        if (list.size() != 0)
+        if (list.size() != 1)
         {
             throw new IllegalArgumentException("Expected no arguments!");
         }
