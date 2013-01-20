@@ -219,7 +219,7 @@ public final class ServerPanel extends JPanel implements ActionListener
             int newRowCount = 7;
             for (int i = 0; i < roles.size(); i++) {
                 roleLabels.add(new JLabel(roles.get(i).getName().toString() + ":"));
-                hostportTextFields.add(new JTextField("" + i + ".player.ggp.org:80"));
+                hostportTextFields.add(new JTextField("localhost:" + (i + 9147)));
                 playerNameTextFields.add(new JTextField("defaultPlayerName"));
 
                 hostportTextFields.get(i).setColumns(15);
