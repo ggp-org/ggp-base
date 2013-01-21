@@ -122,6 +122,11 @@
             <classpath refid="GGP_Base.classpath"/>
         </java>
     </target>
+    <target name="TiltyardRequestFarm">
+        <java classname="org.ggp.base.apps.tiltyard.TiltyardRequestFarm" failonerror="true" fork="yes">
+            <classpath refid="GGP_Base.classpath"/>
+        </java>
+    </target>	
     <target name="Test_Http">
         <mkdir dir="${junit.output.dir}"/>
         <junit fork="yes" printsummary="withOutAndErr">
