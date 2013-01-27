@@ -64,6 +64,7 @@ public final class Match
 	
 	private EncodedKeyPair theCryptographicKeys;
 	private List<String> thePlayerNamesFromHost;
+	private List<Boolean> isPlayerHuman;
 	
 	private GdlScrambler theGdlScrambler = new NoOpGdlScrambler();
 
@@ -177,6 +178,13 @@ public final class Match
                 thePlayerNamesFromHost.add(thePlayerNames.getString(i));
             }
         }
+        if (theMatchObject.has("isPlayerHuman")) {
+        	isPlayerHuman = new ArrayList<Boolean>();
+            JSONArray isPlayerHumanArray = theMatchObject.getJSONArray("isPlayerHuman");
+            for (int i = 0; i < isPlayerHumanArray.length(); i++) {
+            	isPlayerHuman.add(isPlayerHumanArray.getBoolean(i));
+            }        	
+        }
 	}
 	
 	/* Mutators */
@@ -191,6 +199,10 @@ public final class Match
 	
 	public void setPlayerNamesFromHost(List<String> thePlayerNames) {
 	    this.thePlayerNamesFromHost = thePlayerNames;
+	}
+	
+	public void setWhichPlayersAreHuman(List<Boolean> isPlayerHuman) {
+		this.isPlayerHuman = isPlayerHuman;
 	}
 
 	public void appendMoves(List<GdlTerm> moves) {	    
@@ -257,6 +269,9 @@ public final class Match
             theJSON.put("playClock", playClock);
             if (thePlayerNamesFromHost != null) {
                 theJSON.put("playerNamesFromHost", thePlayerNamesFromHost);
+            }
+            if (isPlayerHuman != null) {
+            	theJSON.put("isPlayerHuman", isPlayerHuman);
             }
             theJSON.put("scrambled", theGdlScrambler != null ? theGdlScrambler.scrambles() : false);
         } catch (JSONException e) {
@@ -343,7 +358,7 @@ public final class Match
 	public int getPlayClock() {
 		return playClock;
 	}
-	
+
 	public int getStartClock() {
 		return startClock;
 	}
