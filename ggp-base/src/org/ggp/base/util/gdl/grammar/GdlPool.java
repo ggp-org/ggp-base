@@ -158,8 +158,10 @@ public final class GdlPool
 			bucket = addToPool(name, new ConcurrentHashMap<List<GdlTerm>, GdlFunction>(), functionPool);
 		
 		GdlFunction ret = bucket.get(body);
-		if(ret == null)
+		if(ret == null) {
+		    body = getImmutableCopy(body);
 			ret = addToPool(body, new GdlFunction(name, body), bucket);
+		}
 		
 		return ret;
 	}
@@ -181,8 +183,10 @@ public final class GdlPool
 	public static GdlOr getOr(List<GdlLiteral> disjuncts)
 	{
 		GdlOr ret = orPool.get(disjuncts);
-		if(ret == null)
+		if(ret == null) {
+		    disjuncts = getImmutableCopy(disjuncts);
 			ret = addToPool(disjuncts, new GdlOr(disjuncts), orPool);
+		}
 		
 		return ret;
 	}
@@ -214,8 +218,10 @@ public final class GdlPool
 			bucket = addToPool(name, new ConcurrentHashMap<List<GdlTerm>, GdlRelation>(), relationPool);
 		
 		GdlRelation ret = bucket.get(body);
-		if(ret == null)
+		if(ret == null) {
+		    body = getImmutableCopy(body);
 			ret = addToPool(body, new GdlRelation(name, body), bucket);
+		}
 		
 		return ret;
 	}
@@ -238,10 +244,16 @@ public final class GdlPool
 			bucket = addToPool(head, new ConcurrentHashMap<List<GdlLiteral>, GdlRule>(), rulePool);
 		
 		GdlRule ret = bucket.get(body);
-		if(ret == null)
+		if(ret == null) {
+		    body = getImmutableCopy(body);
 			ret = addToPool(body, new GdlRule(head, body), bucket);
+		}
 		
 		return ret;
+	}
+	
+	private static <T> List<T> getImmutableCopy(List<T> list) {
+	    return Collections.unmodifiableList(new ArrayList<T>(list));
 	}
 
 	/**
