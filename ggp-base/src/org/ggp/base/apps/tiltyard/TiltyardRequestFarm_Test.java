@@ -13,9 +13,29 @@ import junit.framework.TestCase;
 import external.JSON.JSONObject;
 
 public class TiltyardRequestFarm_Test extends TestCase {
-	public void testThroughput() {
-		runThroughputTest();
+	public void setUp() {
+		new RequestFarmLoopThread().start();
 	}
+	
+	public void testThroughput() {
+    	new ResponderLoopThread(2000).start();
+    	new ReceiverLoopThread("OK").start();
+    	runTestingLoop();
+	}
+
+	/* TODO(schreib): Get all of these working at the same time.
+
+	public void testConnectionError() {
+    	new ReceiverLoopThread("CE").start();
+    	runTestingLoop();
+	}
+	
+	public void testTimeout() {
+    	new ResponderLoopThread(4000).start();
+    	new ReceiverLoopThread("TO").start();
+    	runTestingLoop();
+	}
+	*/	
 	
 	static long doMath(long a) {
 		return a/2+3;
@@ -24,16 +44,18 @@ public class TiltyardRequestFarm_Test extends TestCase {
     // Connections are run asynchronously in their own threads.
     class ResponderThread extends Thread {
     	private Socket conn;
+    	private int sleepTime;
     	
-    	public ResponderThread(Socket connection) {
+    	public ResponderThread(Socket connection, int sleepTime) {
     		conn = connection;
+    		this.sleepTime = sleepTime;
     	}
     	
         @Override
         public void run() {
             try {
                 String line = HttpReader.readAsServer(conn);
-                Thread.sleep(20000); // 20s
+                Thread.sleep(sleepTime);
                 HttpWriter.writeAsServer(conn, "" + doMath(Long.parseLong(line)));
                 conn.close();
             } catch (Exception e) {
@@ -47,9 +69,11 @@ public class TiltyardRequestFarm_Test extends TestCase {
     // Connections are run asynchronously in their own threads.
     class ReceiverThread extends Thread {
     	private Socket conn;
+    	private String response;
     	
-    	public ReceiverThread(Socket connection) {
+    	public ReceiverThread(Socket connection, String expectedResponse) {
     		conn = connection;
+    		response = expectedResponse;
     	}
     	
         @Override
@@ -59,13 +83,15 @@ public class TiltyardRequestFarm_Test extends TestCase {
                 HttpWriter.writeAsServer(conn, "cool");
                 conn.close();
                 JSONObject responseJSON = new JSONObject(line);
-                assertEquals("OK", responseJSON.getString("responseType"));
-                long original = Long.parseLong(new JSONObject(responseJSON.getString("originalRequest")).getString("requestContent"));
-            	long response = Long.parseLong(responseJSON.getString("response"));
-            	assertEquals(response, doMath(original));
+                assertEquals(response, responseJSON.getString("responseType"));
+                if (responseJSON.getString("responseType").equals("OK")) {
+                    long original = Long.parseLong(new JSONObject(responseJSON.getString("originalRequest")).getString("requestContent"));
+                	long response = Long.parseLong(responseJSON.getString("response"));
+                	assertEquals(response, doMath(original));
+                }
             	synchronized (nSuccesses) {
             		nSuccesses++;
-            	}
+            	}                
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -73,6 +99,11 @@ public class TiltyardRequestFarm_Test extends TestCase {
     }
     
     class ResponderLoopThread extends Thread {
+    	private int sleepTime;
+    	public ResponderLoopThread(int sleepTime) {
+    		this.sleepTime = sleepTime;
+    	}
+    	
         @Override
         public void run() {
             try {
@@ -80,7 +111,7 @@ public class TiltyardRequestFarm_Test extends TestCase {
                 while (true) {
                     try {
                         Socket connection = listener.accept();
-                        new ResponderThread(connection).start();
+                        new ResponderThread(connection, sleepTime).start();
                     } catch (Exception e) {
                         System.err.println(e);
                     }
@@ -92,6 +123,11 @@ public class TiltyardRequestFarm_Test extends TestCase {
     }
     
     class ReceiverLoopThread extends Thread {
+    	private String response;
+    	public ReceiverLoopThread(String expectResponse) {
+    		response = expectResponse;
+    	}
+    	
         @Override
         public void run() {
             try {
@@ -99,12 +135,12 @@ public class TiltyardRequestFarm_Test extends TestCase {
                 while (true) {
                     try {
                         Socket connection = listener.accept();
-                        new ReceiverThread(connection).start();
+                        new ReceiverThread(connection, response).start();
                     } catch (Exception e) {
                         System.err.println(e);
                     }
                 }
-            } catch (Exception e) {
+            } catch (Exception e) {            	
                 e.printStackTrace();
             }
         }
@@ -120,19 +156,15 @@ public class TiltyardRequestFarm_Test extends TestCase {
                 e.printStackTrace();
             }
         }
-    }    
+    }
     
-    public void runThroughputTest() {
+    public void runTestingLoop() {
     	try {
-	    	new ResponderLoopThread().start();
-	    	new ReceiverLoopThread().start();
-	    	new RequestFarmLoopThread().start();
-	    	
 	    	Random r = new Random();
     		JSONObject theRequest = new JSONObject();
     		theRequest.put("targetPort", 12345);
     		theRequest.put("targetHost", "127.0.0.1");
-    		theRequest.put("timeoutClock", 30000);
+    		theRequest.put("timeoutClock", 3000);
     		theRequest.put("callbackURL", "http://127.0.0.1:12346");
     		theRequest.put("forPlayerName", "");
 	    	
@@ -145,7 +177,7 @@ public class TiltyardRequestFarm_Test extends TestCase {
 	    		Thread.sleep(10);
 	    		synchronized (nSuccesses) {
 	    			System.out.println("Successes so far: " + nSuccesses + " vs Requests: " + nRequests);
-	    			if (nSuccesses > 10000) {
+	    			if (nSuccesses > 3000) {
 	    				assertTrue(nRequests > nSuccesses);
 	    				break;
 	    			}
@@ -153,6 +185,6 @@ public class TiltyardRequestFarm_Test extends TestCase {
 	    	}
     	} catch (Exception e) {
     		e.printStackTrace();
-    	}
+    	}    		
     }
 }

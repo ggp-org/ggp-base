@@ -2,6 +2,7 @@ package org.ggp.base.util.http;
 
 import java.io.IOException;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.Socket;
 
 /**
@@ -14,8 +15,9 @@ import java.net.Socket;
 public final class HttpRequest
 {
 	public static String issueRequest(String targetHost, int targetPort, String forPlayerName, String requestContent, int timeoutClock) throws IOException {
-    	InetAddress theHost = InetAddress.getByName(targetHost);
-    	Socket socket = new Socket(theHost.getHostAddress(), targetPort);
+		Socket socket = new Socket();
+    	InetAddress theHost = InetAddress.getByName(targetHost);    	
+    	socket.connect(new InetSocketAddress(theHost.getHostAddress(), targetPort), 5000);
     	HttpWriter.writeAsClient(socket, theHost.getHostName(), requestContent, forPlayerName);
     	String response = (timeoutClock < 0) ? HttpReader.readAsClient(socket) : HttpReader.readAsClient(socket, timeoutClock);
     	socket.close();

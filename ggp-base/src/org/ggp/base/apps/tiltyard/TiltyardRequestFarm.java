@@ -83,6 +83,7 @@ public final class TiltyardRequestFarm
     static class RunRequestThread extends Thread {
     	String targetHost, requestContent, forPlayerName, callbackURL, originalRequest;    	
     	int targetPort, timeoutClock;
+    	boolean fastReturn;
     	Set<String> activeRequests;
 
         public RunRequestThread(Socket connection, Set<String> activeRequests) throws IOException, JSONException {
@@ -109,6 +110,12 @@ public final class TiltyardRequestFarm
                 callbackURL = theJSON.getString("callbackURL");
                 forPlayerName = theJSON.getString("forPlayerName");
                 requestContent = theJSON.getString("requestContent");
+                if (theJSON.has("fastReturn")) {
+                	fastReturn = theJSON.getBoolean("fastReturn");
+                } else {
+                	fastReturn = true;
+                }
+                
                 originalRequest = line;
                 response = "okay";
             }
@@ -124,11 +131,12 @@ public final class TiltyardRequestFarm
                 	ongoingRequests++;
                 }                
                 System.out.println("On " + new Date() + ", starting request. There are now " + ongoingRequests + " ongoing requests.");
-                JSONObject responseJSON = new JSONObject();
+                long startTime = System.currentTimeMillis();
+                JSONObject responseJSON = new JSONObject();                
                 try {
                 	responseJSON.put("originalRequest", originalRequest);
 	                try {
-	                	String response = HttpRequest.issueRequest(targetHost, targetPort, forPlayerName, requestContent, timeoutClock);
+	                	String response = HttpRequest.issueRequest(targetHost, targetPort, forPlayerName, requestContent, timeoutClock);	                	
 	                	responseJSON.put("response", response);
 	                	responseJSON.put("responseType", "OK");	                	
 	                } catch (SocketTimeoutException te) {
@@ -141,6 +149,14 @@ public final class TiltyardRequestFarm
 	                }
                 } catch (JSONException je) {
                 	throw new RuntimeException(je);
+                }
+                long timeSpent = System.currentTimeMillis() - startTime;
+                if (!fastReturn && timeSpent < timeoutClock) {
+                	try {
+						Thread.sleep(timeoutClock - timeSpent);
+					} catch (InterruptedException e) {
+						;
+					}
                 }
                 boolean successfulPost = false;
                 for (int retries = 0; retries < 10; retries++) {
