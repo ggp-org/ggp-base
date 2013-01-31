@@ -70,12 +70,13 @@ public final class TiltyardBackend
         }
     }
     public static final EncodedKeyPair theTiltyardKeys = getKeyPair(FileUtils.readFileAsString(new File("src/org/ggp/base/apps/tiltyard/TiltyardKeys.json")));
+    public static final EncodedKeyPair theBackendKeys = getKeyPair(FileUtils.readFileAsString(new File("src/org/ggp/base/apps/tiltyard/BackendKeys.json")));
     public static String generateSignedPing() {
         JSONObject thePing = new JSONObject();
         try {
             thePing.put("lastTimeBlock", (System.currentTimeMillis() / 3600000));
             thePing.put("nextTimeBlock", (System.currentTimeMillis() / 3600000)+1);
-            SignableJSON.signJSON(thePing, theTiltyardKeys.thePublicKey, theTiltyardKeys.thePrivateKey);
+            SignableJSON.signJSON(thePing, theBackendKeys.thePublicKey, theBackendKeys.thePrivateKey);
         } catch (JSONException e) {
             e.printStackTrace();
         }

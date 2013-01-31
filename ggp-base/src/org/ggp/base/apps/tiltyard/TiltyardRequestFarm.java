@@ -65,14 +65,14 @@ public final class TiltyardRequestFarm
         } catch (JSONException e) {
             return null;
         }
-    }
-    public static final EncodedKeyPair theTiltyardKeys = getKeyPair(FileUtils.readFileAsString(new File("src/org/ggp/base/apps/tiltyard/TiltyardKeys.json")));
+    }    
+    public static final EncodedKeyPair theBackendKeys = getKeyPair(FileUtils.readFileAsString(new File("src/org/ggp/base/apps/tiltyard/BackendKeys.json")));
     public static String generateSignedPing() {
         JSONObject thePing = new JSONObject();
         try {
             thePing.put("lastTimeBlock", (System.currentTimeMillis() / 3600000));
             thePing.put("nextTimeBlock", (System.currentTimeMillis() / 3600000)+1);
-            SignableJSON.signJSON(thePing, theTiltyardKeys.thePublicKey, theTiltyardKeys.thePrivateKey);
+            SignableJSON.signJSON(thePing, theBackendKeys.thePublicKey, theBackendKeys.thePrivateKey);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -145,7 +145,7 @@ public final class TiltyardRequestFarm
 	                	responseJSON.put("responseType", "CE");
 	                }
 	                if (!testMode) {
-	                	SignableJSON.signJSON(responseJSON, theTiltyardKeys.thePublicKey, theTiltyardKeys.thePrivateKey);
+	                	SignableJSON.signJSON(responseJSON, theBackendKeys.thePublicKey, theBackendKeys.thePrivateKey);
 	                }
                 } catch (JSONException je) {
                 	throw new RuntimeException(je);
@@ -224,8 +224,8 @@ public final class TiltyardRequestFarm
             return;
         }
         if (!testMode) {
-	        if (theTiltyardKeys == null) {
-	            System.err.println("Could not load cryptographic keys for signing Tiltyard request responses.");
+	        if (theBackendKeys == null) {
+	            System.err.println("Could not load cryptographic keys for signing request responses.");
 	            return;
 	        }	
 	        new TiltyardRegistration().start();
