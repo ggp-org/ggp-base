@@ -1,6 +1,5 @@
 package org.ggp.base.util.gdl.scrambler;
 
-import java.io.File;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -10,7 +9,6 @@ import java.util.Random;
 import java.util.Stack;
 
 import org.ggp.base.util.crypto.BaseHashing;
-import org.ggp.base.util.files.FileUtils;
 import org.ggp.base.util.gdl.factory.GdlFactory;
 import org.ggp.base.util.gdl.factory.exceptions.GdlFormatException;
 import org.ggp.base.util.gdl.grammar.Gdl;
@@ -19,7 +17,6 @@ import org.ggp.base.util.gdl.grammar.GdlVariable;
 import org.ggp.base.util.symbol.factory.exceptions.SymbolFormatException;
 
 import external.Base64Coder.Base64Coder;
-
 
 public class MappingGdlScrambler implements GdlScrambler {	
 	private Map<String,String> scrambleMapping;	
@@ -33,14 +30,10 @@ public class MappingGdlScrambler implements GdlScrambler {
 		unscrambleMapping = new HashMap<String,String>();
 		
 		prepopulatedFakeWords = new Stack<String>();
-		String wordListFile = FileUtils.readFileAsString(new File("src/org/ggp/base/util/gdl/scrambler/WordList"));
-		if (wordListFile != null && !wordListFile.isEmpty()) {
-			String[] words = wordListFile.split("[\n\r]");
-			for (String word : words) {
-				prepopulatedFakeWords.push(word);
-			}
-			Collections.shuffle(prepopulatedFakeWords);
-		}		
+		for (String word : WordList.words) {
+			prepopulatedFakeWords.push(word);
+		}
+		Collections.shuffle(prepopulatedFakeWords);
 	}
 	
 	private class ScramblingRenderer extends GdlRenderer {
