@@ -201,6 +201,10 @@ public final class Match
 	    this.thePlayerNamesFromHost = thePlayerNames;
 	}
 	
+	public List<String> getPlayerNamesFromHost() {
+		return thePlayerNamesFromHost;
+	}
+	
 	public void setWhichPlayersAreHuman(List<Boolean> isPlayerHuman) {
 		this.isPlayerHuman = isPlayerHuman;
 	}

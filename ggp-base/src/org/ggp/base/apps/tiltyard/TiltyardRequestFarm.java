@@ -53,7 +53,6 @@ public final class TiltyardRequestFarm
     private static final String registrationURL = "http://tiltyard.ggp.org/backends/register/farm";
     
     private static Integer ongoingRequests = new Integer(0);
-    private static Integer failedPosts = new Integer(0);
     
     public static boolean testMode = false;
     
@@ -158,23 +157,19 @@ public final class TiltyardRequestFarm
 						;
 					}
                 }
-                boolean successfulPost = false;
-                for (int retries = 0; retries < 10; retries++) {
+                int nPostAttempts = 0;
+                while (true) {
                 	try {
                 		RemoteResourceLoader.postRawWithTimeout(callbackURL, responseJSON.toString(), Integer.MAX_VALUE);
-                		successfulPost = true;
                 		break;
                 	} catch (IOException ie) {
+                		nPostAttempts++;
                 		try {
-							Thread.sleep(1000);
+							Thread.sleep(nPostAttempts < 10 ? 1000 : 15000);
 						} catch (InterruptedException e) {
-							break;
+							;
 						}
                 	}
-                }
-                if (!successfulPost) {
-                	System.err.println("Failed to post response.");
-                	failedPosts++;
                 }
                 synchronized (ongoingRequests) {
                 	ongoingRequests--;                	
@@ -183,9 +178,6 @@ public final class TiltyardRequestFarm
                 		System.out.println("On " + new Date() + ", completed request. Garbage collecting since there are no ongoing requests.");
                 	} else {
                 		System.out.println("On " + new Date() + ", completed request. There are now " + ongoingRequests + " ongoing requests.");
-                	}
-                	if (failedPosts > 0) {
-                		System.out.println("So far there have been " + failedPosts + " failed POST attempts overall.");
                 	}
                 }
                 synchronized (activeRequests) {
