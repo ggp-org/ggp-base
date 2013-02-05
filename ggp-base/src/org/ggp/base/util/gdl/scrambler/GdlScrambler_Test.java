@@ -2,6 +2,7 @@ package org.ggp.base.util.gdl.scrambler;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import org.ggp.base.util.game.Game;
 import org.ggp.base.util.game.GameRepository;
@@ -20,18 +21,7 @@ import junit.framework.TestCase;
  * 
  * @author Sam
  */
-public class GdlScrambler_Test extends TestCase {	
-	/**
-	 * When scrambling is enabled, the "MappingGdlScrambler" is used. This class
-     * systematically replaces all of the constant and variable names in the Gdl
-     * with scrambled versions, drawing new random tokens first from a list of
-     * English words, and then generating random word-like strings when the list
-     * has been exhausted.
-	 */
-    public void testMappingScrambler() throws GdlFormatException, SymbolFormatException {
-    	runScramblerTest(new MappingGdlScrambler());
-    }
-    
+public class GdlScrambler_Test extends TestCase {
     /**
      * When scrambling is disabled, the "NoOpGdlScrambler" is used. This class
      * simply renders the Gdl and parses it in the naive way, without doing any
@@ -39,7 +29,54 @@ public class GdlScrambler_Test extends TestCase {
      */
     public void testNoOpScrambler() throws GdlFormatException, SymbolFormatException {
     	runScramblerTest(new NoOpGdlScrambler());
+    }	
+	
+	/**
+	 * When scrambling is enabled, the "MappingGdlScrambler" is used. This class
+     * systematically replaces all of the constant and variable names in the Gdl
+     * with scrambled versions, drawing new random tokens first from a list of
+     * English words, and appending suffixes when the original list is exhausted.
+	 */
+    public void testMappingScrambler() throws GdlFormatException, SymbolFormatException {
+    	runScramblerTest(new MappingGdlScrambler(new Random()));
     }
+    
+    /**
+     * Furthermore, the mapping scrambler can be initialized with a Random object,
+     * which can be used to ensure deterministic, reproducible scrambling. This can
+     * be used to scramble a specific match in the same way, even if it stored and
+     * reloaded in the meantime.
+     */
+    public void testMappingScramblerConsistency() {
+    	GdlScrambler aScrambler = new MappingGdlScrambler(new Random(123));
+    	GdlScrambler bScrambler = new MappingGdlScrambler(new Random(123));
+    	GdlScrambler cScrambler = new MappingGdlScrambler(new Random(234));
+    	GameRepository repo = GameRepository.getDefaultRepository();
+    	for (String gameKey : repo.getGameKeys()) {
+    		Game game = repo.getGame(gameKey);
+    		StringBuilder aScrambledRules = new StringBuilder();
+    		StringBuilder bScrambledRules = new StringBuilder();
+    		StringBuilder cScrambledRules = new StringBuilder();
+    		StringBuilder dScrambledRules = new StringBuilder();
+    		StringBuilder eScrambledRules = new StringBuilder();
+    		StringBuilder fScrambledRules = new StringBuilder();
+    		for(Gdl rule : game.getRules()) {
+    			aScrambledRules.append(aScrambler.scramble(rule)+"\n");
+    			bScrambledRules.append(bScrambler.scramble(rule)+"\n");
+    			cScrambledRules.append(cScrambler.scramble(rule)+"\n");
+    		}
+    		for(Gdl rule : game.getRules()) {
+    			dScrambledRules.append(aScrambler.scramble(rule)+"\n");
+    			eScrambledRules.append(bScrambler.scramble(rule)+"\n");
+    			fScrambledRules.append(cScrambler.scramble(rule)+"\n");
+    		}
+    		assertEquals(aScrambledRules.toString(), bScrambledRules.toString());
+    		assertEquals(aScrambledRules.toString(), dScrambledRules.toString());
+    		assertEquals(aScrambledRules.toString(), eScrambledRules.toString());    		
+    		assertFalse(aScrambledRules.toString().equals(cScrambledRules.toString()));
+    		assertEquals(cScrambledRules.toString(), fScrambledRules.toString());
+    	}
+    }    
     
     private void runScramblerTest(GdlScrambler scrambler) throws SymbolFormatException, GdlFormatException {
     	GameRepository repo = GameRepository.getDefaultRepository();

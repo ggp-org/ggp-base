@@ -8,7 +8,6 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Stack;
 
-import org.ggp.base.util.crypto.BaseHashing;
 import org.ggp.base.util.gdl.factory.GdlFactory;
 import org.ggp.base.util.gdl.factory.exceptions.GdlFormatException;
 import org.ggp.base.util.gdl.grammar.Gdl;
@@ -16,24 +15,25 @@ import org.ggp.base.util.gdl.grammar.GdlConstant;
 import org.ggp.base.util.gdl.grammar.GdlVariable;
 import org.ggp.base.util.symbol.factory.exceptions.SymbolFormatException;
 
-import external.Base64Coder.Base64Coder;
-
 public class MappingGdlScrambler implements GdlScrambler {	
 	private Map<String,String> scrambleMapping;	
-	private Map<String,String> unscrambleMapping;
-	private Stack<String> prepopulatedFakeWords;
+	private Map<String,String> unscrambleMapping;	
 	private Random random;
 	
-	public MappingGdlScrambler() {
-		random = new Random();
+	private int scrambledPrefix;
+	private Stack<String> scrambledTokens;
+	
+	public MappingGdlScrambler(Random theRandom) {
+		random = theRandom;
 		scrambleMapping = new HashMap<String,String>();
 		unscrambleMapping = new HashMap<String,String>();
 		
-		prepopulatedFakeWords = new Stack<String>();
+		scrambledPrefix = 0;
+		scrambledTokens = new Stack<String>();
 		for (String word : WordList.words) {
-			prepopulatedFakeWords.push(word);
+			scrambledTokens.add(word);
 		}
-		Collections.shuffle(prepopulatedFakeWords);
+		Collections.shuffle(scrambledTokens, random);
 	}
 	
 	private class ScramblingRenderer extends GdlRenderer {
@@ -77,7 +77,7 @@ public class MappingGdlScrambler implements GdlScrambler {
 			return realWord;
 		}
 		if (!scrambleMapping.containsKey(realWord)) {
-			String fakeWord = generateNewRandomWord();
+			String fakeWord = getRandomWord();
 			if (realWord.startsWith("?")) {
 				fakeWord = "?" + fakeWord;
 			}
@@ -98,20 +98,15 @@ public class MappingGdlScrambler implements GdlScrambler {
 		return unscrambleMapping.get(fakeWord);
 	}
 
-	private String generateNewRandomWord() {
-		String word = null;		
-		do {
-			word = generateRandomWord().toLowerCase();
-		} while (unscrambleMapping.containsKey(word));
-		return word;
-	}
-	
-	private String generateRandomWord() {
-		if (prepopulatedFakeWords.isEmpty()) {
-			return Base64Coder.encodeString(BaseHashing.computeSHA1Hash("" + System.currentTimeMillis() + random.nextLong())).replace('+', 'a').replace('/', 'b').replace('=','c').toLowerCase();
-		} else {
-			return prepopulatedFakeWords.pop();
+	private String getRandomWord() {
+		if (scrambledTokens.isEmpty()) {
+			for (String word : WordList.words) {
+				scrambledTokens.add(word + scrambledPrefix);
+			}
+			Collections.shuffle(scrambledTokens, random);
+			scrambledPrefix++;
 		}
+		return scrambledTokens.pop();
 	}
 	
 	// TODO(schreib): Factor this out so that the keyword list can be shared

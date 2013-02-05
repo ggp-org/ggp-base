@@ -13,9 +13,11 @@ import org.ggp.base.util.game.Game;
 import org.ggp.base.util.game.RemoteGameRepository;
 import org.ggp.base.util.gdl.factory.GdlFactory;
 import org.ggp.base.util.gdl.factory.exceptions.GdlFormatException;
+import org.ggp.base.util.gdl.grammar.Gdl;
 import org.ggp.base.util.gdl.grammar.GdlSentence;
 import org.ggp.base.util.gdl.grammar.GdlTerm;
 import org.ggp.base.util.gdl.scrambler.GdlScrambler;
+import org.ggp.base.util.gdl.scrambler.MappingGdlScrambler;
 import org.ggp.base.util.gdl.scrambler.NoOpGdlScrambler;
 import org.ggp.base.util.statemachine.Move;
 import org.ggp.base.util.statemachine.Role;
@@ -193,8 +195,11 @@ public final class Match
 	    this.theCryptographicKeys = k;
 	}
 	
-	public void setGdlScrambler(GdlScrambler gs) {
-		this.theGdlScrambler = gs;
+	public void enableScrambling() {
+		theGdlScrambler = new MappingGdlScrambler(new Random(startTime.getTime()));
+		for (Gdl rule : theGame.getRules()) {
+			theGdlScrambler.scramble(rule);
+		}
 	}
 	
 	public void setPlayerNamesFromHost(List<String> thePlayerNames) {
