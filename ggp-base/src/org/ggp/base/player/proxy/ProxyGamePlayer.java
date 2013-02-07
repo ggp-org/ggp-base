@@ -100,7 +100,7 @@ public final class ProxyGamePlayer extends Thread implements Subject
 	        processArgs.add("-XX:MaxHeapFreeRatio=10");
 	        processArgs.add("-classpath");
 	        processArgs.add(System.getProperty("java.class.path"));
-	        processArgs.add("player.proxy.ProxyGamePlayerClient");
+	        processArgs.add("org.ggp.base.player.proxy.ProxyGamePlayerClient");
 	        processArgs.add(gamerName);
 	        processArgs.add("" + clientListener.getLocalPort());	        	
 	        if(GamerConfiguration.runningOnLinux()) {
