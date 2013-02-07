@@ -61,9 +61,16 @@ public abstract class StateMachineGamer extends Gamer
     public abstract Move stateMachineSelectMove(long timeout) throws TransitionDefinitionException, MoveDefinitionException, GoalDefinitionException;
 
     /**
-     * Defines any actions that the player takes upon the game ending.
+     * Defines any actions that the player takes upon the game cleanly ending.
      */
     public abstract void stateMachineStop();
+    
+    /**
+     * Defines any actions that the player takes upon the game abruptly ending.
+     */
+    public void stateMachineAbort() {
+    	// TODO(schreib): Eventually make this abstract and make everyone implement it.
+    }
     
     // =====================================================================
     // Next, methods which can be used by subclasses to get information about
@@ -174,6 +181,7 @@ public abstract class StateMachineGamer extends Gamer
 		catch (Exception e)
 		{
 		    GamerLogger.logStackTrace("GamePlayer", e);
+		    // TODO: Add a way to pass "e" along in the MetaGamingException for display		    
 			throw new MetaGamingException();
 		}
 	}
@@ -209,6 +217,7 @@ public abstract class StateMachineGamer extends Gamer
 		catch (Exception e)
 		{
 		    GamerLogger.logStackTrace("GamePlayer", e);
+		    // TODO: Add a way to pass "e" along in the MoveSelectionException for display
 			throw new MoveSelectionException();
 		}
 	}
@@ -238,9 +247,22 @@ public abstract class StateMachineGamer extends Gamer
 		{
 			GamerLogger.logStackTrace("GamePlayer", e);
 			//TODO: This might deserve its own exception type.
-			throw new RuntimeException();
+			throw new RuntimeException(e);
 		}
 	}
+	
+	@Override
+	public void abort() {
+		try {
+			stateMachineAbort();
+		}
+		catch (Exception e)
+		{
+			GamerLogger.logStackTrace("GamePlayer", e);
+			//TODO: This might deserve its own exception type.
+			throw new RuntimeException(e);
+		}
+	}	
     
     // Internal state about the current state of the state machine.
     private Role role;

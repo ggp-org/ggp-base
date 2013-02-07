@@ -1,10 +1,9 @@
 package org.ggp.base.player.request.grammar;
 
 import org.ggp.base.player.gamer.Gamer;
-import org.ggp.base.player.gamer.event.GamerCompletedMatchEvent;
+import org.ggp.base.player.gamer.event.GamerAbortedMatchEvent;
 import org.ggp.base.player.gamer.event.GamerUnrecognizedMatchEvent;
 import org.ggp.base.util.logging.GamerLogger;
-
 
 public final class AbortRequest extends Request
 {
@@ -35,7 +34,10 @@ public final class AbortRequest extends Request
 			return "busy";
 		}
 
-		gamer.notifyObservers(new GamerCompletedMatchEvent());
+		// Mark the match as aborted and notify observers
+		gamer.getMatch().markAborted();
+		gamer.notifyObservers(new GamerAbortedMatchEvent());
+		gamer.abort();
 		
 		// Once the match has ended, set 'roleName' and 'match'
 		// to NULL to indicate that we're ready to begin a new match.

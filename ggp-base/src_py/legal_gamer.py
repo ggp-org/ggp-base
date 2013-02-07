@@ -27,5 +27,8 @@ class LegalGamer(StateMachineGamer):
     def stateMachineStop(self):
         pass
         
+    def stateMachineAbort(self):
+        pass        
+        
     def getInitialStateMachine(self):
         return ProverStateMachine()

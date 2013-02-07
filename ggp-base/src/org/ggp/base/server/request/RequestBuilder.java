@@ -73,4 +73,14 @@ public final class RequestBuilder
 			return sb.toString();
 		}
 	}
+	
+	public static String getAbortRequest(String matchId)
+	{
+		return "( ABORT " + matchId + " )";
+	}
+	
+	public static String getPingRequest()
+	{
+		return "( PING )";
+	}
 }

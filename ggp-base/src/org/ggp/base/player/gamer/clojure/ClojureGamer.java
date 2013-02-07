@@ -112,6 +112,18 @@ public abstract class ClojureGamer extends Gamer
         }
     }
     
+    @Override
+    public final void abort() {
+        theClojureGamer.setMatch(getMatch());
+        theClojureGamer.setRoleName(getRoleName());
+        try {
+            theClojureGamer.abort();
+        } catch(RuntimeException e) {
+            GamerLogger.logError("GamePlayer", "Caught exception in Clojure stateMachineAbort:");
+            GamerLogger.logStackTrace("GamePlayer", e);
+        }
+    }    
+    
    @Override
     public final String getName() {
         try {

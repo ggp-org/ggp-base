@@ -60,7 +60,8 @@ public final class Match
 	private final List<Set<GdlSentence>> stateHistory;
 	private final List<List<String>> errorHistory;
 	private final List<Date> stateTimeHistory;
-	private boolean isCompleted;	
+	private boolean isCompleted;
+	private boolean isAborted;
 	private final List<Integer> goalValues;
 	private final int numRoles;
 	
@@ -82,6 +83,7 @@ public final class Match
 		this.randomToken = getRandomString(32);
 		this.spectatorAuthToken = getRandomString(12);
 		this.isCompleted = false;
+		this.isAborted = false;
 		
 		this.numRoles = Role.computeRoles(theGame.getRules()).size();
 		
@@ -118,6 +120,11 @@ public final class Match
         this.randomToken = theMatchObject.getString("randomToken");
         this.spectatorAuthToken = authToken;
         this.isCompleted = theMatchObject.getBoolean("isCompleted");
+        if (theMatchObject.has("isAborted")) {
+        	this.isAborted = theMatchObject.getBoolean("isAborted");
+        } else {
+        	this.isAborted = false;
+        }
 
         this.numRoles = Role.computeRoles(theGame.getRules()).size();
         
@@ -253,6 +260,10 @@ public final class Match
 	    }
 	}
 	
+	public void markAborted() {
+		this.isAborted = true;
+	}
+
 	/* Complex accessors */
 		
     public String toJSON() {
@@ -264,6 +275,7 @@ public final class Match
             theJSON.put("startTime", startTime.getTime());
             theJSON.put("gameMetaURL", getGameRepositoryURL());
             theJSON.put("isCompleted", isCompleted);
+            theJSON.put("isAborted", isAborted);
             theJSON.put("states", new JSONArray(renderArrayAsJSON(renderStateHistory(stateHistory), true)));
             theJSON.put("moves", new JSONArray(renderArrayAsJSON(renderMoveHistory(moveHistory), false)));
             theJSON.put("stateTimes", new JSONArray(renderArrayAsJSON(stateTimeHistory, false)));
@@ -379,7 +391,11 @@ public final class Match
 	public boolean isCompleted() {
 	    return isCompleted;
 	}
-	
+
+	public boolean isAborted() {
+	    return isAborted;
+	}
+
 	public List<Integer> getGoalValues() {
 	    return goalValues;
 	}

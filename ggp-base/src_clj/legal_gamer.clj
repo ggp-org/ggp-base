@@ -29,6 +29,9 @@
     )
     
     (stateMachineStop []
-      ())      
+      ())
+      
+    (stateMachineAbort []
+      ())
   )
 )

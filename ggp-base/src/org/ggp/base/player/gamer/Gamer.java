@@ -57,7 +57,9 @@ public abstract class Gamer implements Subject
 	 * interpreted them yet. To get the final goal values, process the final
 	 * moves of the game.
 	 */
-	public abstract void stop();
+	public abstract void stop();  // Cleanly stop playing the match
+	
+	public abstract void abort();  // Abruptly stop playing the match
 
 	public void analyze(Game g, long timeout) throws GameAnalysisException {
 		// TODO(schreib): Eventually make this abstract and force everyone to implement it.
