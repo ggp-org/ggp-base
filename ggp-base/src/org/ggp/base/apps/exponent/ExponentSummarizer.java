@@ -3,14 +3,12 @@ package org.ggp.base.apps.exponent;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.Date;
 
 import org.ggp.base.util.http.HttpReader;
 import org.ggp.base.util.http.HttpWriter;
 import org.ggp.base.util.logging.LogSummaryGenerator;
 
 import external.JSON.JSONException;
-
 
 /**
  * The Exponent Summarizer Server is a multi-threaded web server that generates
@@ -43,7 +41,6 @@ public class ExponentSummarizer
         public void run() {
             try {
                 String matchId = HttpReader.readAsServer(connection);
-                System.out.println("On " + new Date() + ", client has requested: " + matchId);
                 String theResponse = theGenerator.getLogSummary(matchId);
                 HttpWriter.writeAsServer(connection, theResponse);
                 connection.close();

@@ -416,9 +416,14 @@ public final class ProxyGamePlayer extends Thread implements Subject
         long timeToSleep = 0L;
         
 	    try {
-    	    if(theRequest instanceof PlayRequest) {
-    	        // They have this long to play
-    	        timeToFinish = receptionTime + theDefaultGamer.getMatch().getPlayClock() * 1000 - PLAY_BUFFER;
+    	    if(theRequest instanceof PlayRequest) {    	        
+    	    	if (theDefaultGamer.getMatch() != null) {
+                  // They have this long to play
+                  timeToFinish = receptionTime + theDefaultGamer.getMatch().getPlayClock() * 1000 - PLAY_BUFFER;
+                } else {
+                  // Respond immediately if we're not tracking this match (and so don't know the play clock).
+                  timeToFinish = System.currentTimeMillis();
+                }
     	        timeToSleep = timeToFinish - System.currentTimeMillis();
     	        if(timeToSleep > 0)
     	            Thread.sleep(timeToSleep);
