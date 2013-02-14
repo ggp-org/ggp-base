@@ -9,7 +9,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
+import java.util.List;
 import java.util.Set;
+
+import org.ggp.base.util.statemachine.Role;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
@@ -142,7 +145,7 @@ public final class LocalGameRepository extends GameRepository {
                 byte[] theBytes = getBytesForVersionedFile(thePrefix, theFetchedVersion, theSuffix);
                 if (theBytes != null) {
                     if (theSuffix.equals("METADATA")) {
-                        theBytes = adjustMetadataJSON(theBytes, theExplicitVersion, nMaxVersion);
+                        theBytes = adjustMetadataJSON(reqURI, theBytes, theExplicitVersion, nMaxVersion);
                     }
                     return theBytes;
                 }
@@ -153,15 +156,16 @@ public final class LocalGameRepository extends GameRepository {
         
         // When the user requests a particular version, the metadata should always be for that version.
         // When the user requests the latest version, the metadata should always indicate the most recent version.
-        // TODO(schreib): Clean this up later: perhaps generate the metadata entirely?
-        public static byte[] adjustMetadataJSON(byte[] theMetaBytes, Integer nExplicitVersion, int nMaxVersion) throws IOException {
+        public static byte[] adjustMetadataJSON(String reqURI, byte[] theMetaBytes, Integer nExplicitVersion, int nMaxVersion) throws IOException {
             try {
                 JSONObject theMetaJSON = new JSONObject(new String(theMetaBytes));
                 if (nExplicitVersion == null) {
-                    theMetaJSON.put("version", nMaxVersion);
+                    theMetaJSON.put("version", nMaxVersion);             
                 } else {
                     theMetaJSON.put("version", nExplicitVersion);
                 }
+                String theRulesheet = new String(getResponseBytesForURI(reqURI.replace("METADATA",theMetaJSON.getString("rulesheet"))));
+                MetadataCompleter.completeMetadataFromRulesheet(theMetaJSON, theRulesheet);
                 return theMetaJSON.toString().getBytes();
             } catch (JSONException je) {
                 throw new IOException(je);
@@ -240,7 +244,7 @@ public final class LocalGameRepository extends GameRepository {
 
             String[] children = theDirectory.list();
             for (int i=0; i<children.length; i++) {
-                if (children[i].equals(".svn")) continue;
+            	if (children[i].equals(".svn")) continue;
                 // Get filename of file or directory
                 response.append("\"");
                 response.append(children[i]);
@@ -254,8 +258,8 @@ public final class LocalGameRepository extends GameRepository {
         
         public static String readFile(File rootFile) throws IOException {
             // Show contents of the file.                                        
-        	FileReader fr = new FileReader(rootFile);
-        	BufferedReader br = new BufferedReader(fr);
+            FileReader fr = new FileReader(rootFile);
+            BufferedReader br = new BufferedReader(fr);
         	try {
         		String response = "";
         		String line;
@@ -282,5 +286,23 @@ public final class LocalGameRepository extends GameRepository {
             
             return out.toByteArray();
         }
+    }
+    
+    static class MetadataCompleter {
+    	/**
+    	 * Complete fields in the metadata procedurally, based on the game rulesheet.
+    	 * This is used to fill in the number of roles, and create a list containing
+    	 * the names of all of the roles. Applications which read the game metadata
+    	 * can use these without also having to process the rulesheet.
+    	 * 
+    	 * @param theMetaJSON
+    	 * @param theRulesheet
+    	 * @throws JSONException
+    	 */
+    	public static void completeMetadataFromRulesheet(JSONObject theMetaJSON, String theRulesheet) throws JSONException {
+    		List<Role> theRoles = Role.computeRoles(Game.createEphemeralGame(Game.preprocessRulesheet(theRulesheet)).getRules());
+            theMetaJSON.put("roleNames", theRoles);
+            theMetaJSON.put("numRoles", theRoles.size());
+    	}    	
     }
 }
