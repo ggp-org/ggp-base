@@ -125,7 +125,24 @@ public final class Kiosk extends JPanel implements ActionListener, ItemListener,
         computerAddress = new JTextField("player.ggp.org:80");        
         playerComboBox = new JComboBox();
         playerComboBox.addItemListener(this);
-        new FindGamersThread().start();        
+
+        gamers = ProjectSearcher.getAllClassesThatAre(Gamer.class);
+        List<Class<?>> gamersCopy = new ArrayList<Class<?>>(gamers);            
+        for(Class<?> gamer : gamersCopy)
+        {
+            try {
+                Gamer g = (Gamer) gamer.newInstance();
+                
+                // TODO: Come up with a more elegant way to exclude
+                // the HumanPlayer, which doesn't fit the Kiosk model.
+                if(g.getName().equals("Human")) throw new RuntimeException();
+                
+                playerComboBox.addItem(g.getName());
+            } catch(Exception ex) {
+                gamers.remove(gamer);
+            }
+        }            
+        playerComboBox.addItem(remotePlayerString);        
         
         runButton = new JButton("Run!");
         runButton.addActionListener(this);
@@ -178,32 +195,6 @@ public final class Kiosk extends JPanel implements ActionListener, ItemListener,
         // game (with rulesheet) stored on this repository server. Changing this is
         // likely to break things unless you know what you're doing.
         theRepository = new CloudGameRepository("http://games.ggp.org/base/");        
-    }
-    
-    // Load the gamers asynchronously, so that we don't stall when loading
-    // gamers that require Python/Clojure runtimes to be activated before
-    // we can look up their names.
-    class FindGamersThread extends Thread {
-        @Override
-        public void run() {
-            gamers = ProjectSearcher.getAllClassesThatAre(Gamer.class);
-            List<Class<?>> gamersCopy = new ArrayList<Class<?>>(gamers);            
-            for(Class<?> gamer : gamersCopy)
-            {
-                try {
-                    Gamer g = (Gamer) gamer.newInstance();
-                    
-                    // TODO: Come up with a more elegant way to exclude
-                    // the HumanPlayer, which doesn't fit the Kiosk model.
-                    if(g.getName().equals("Human")) throw new RuntimeException();
-                    
-                    playerComboBox.addItem(g.getName());
-                } catch(Exception ex) {
-                    gamers.remove(gamer);
-                }
-            }            
-            playerComboBox.addItem(remotePlayerString);
-        }
     }
     
     class AvailableGame implements Comparable<AvailableGame> {

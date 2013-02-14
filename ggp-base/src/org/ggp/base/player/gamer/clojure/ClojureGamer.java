@@ -40,22 +40,25 @@ public abstract class ClojureGamer extends Gamer
     protected abstract String getClojureGamerFile();
     protected abstract String getClojureGamerName();    
     
-    public ClojureGamer() {
-        super();
-        
-        try {
-            // Load the Clojure script -- as a side effect this initializes the runtime.
-            RT.loadResourceScript(getClojureGamerFile() + ".clj");
-
-            // Get a reference to the gamer-generating function.
-            Var gamerVar = RT.var("gamer_namespace", getClojureGamerName());
-     
-            // Call it!
-            theClojureGamer = (Gamer)gamerVar.invoke();
-        } catch(Exception e) {
-            GamerLogger.logError("GamePlayer", "Caught exception in Clojure initialization:");
-            GamerLogger.logStackTrace("GamePlayer", e);
-        }
+    // Gamer stubs are lazily loaded because the Clojure interface takes
+    // time to initialize, so we only want to load it when necessary, and
+    // not for light-weight things like returning the player name.
+    private void lazilyLoadGamerStub() {
+    	if (theClojureGamer == null) {
+	        try {
+	            // Load the Clojure script -- as a side effect this initializes the runtime.
+	            RT.loadResourceScript(getClojureGamerFile() + ".clj");
+	
+	            // Get a reference to the gamer-generating function.
+	            Var gamerVar = RT.var("gamer_namespace", getClojureGamerName());
+	     
+	            // Call it!
+	            theClojureGamer = (Gamer)gamerVar.invoke();
+	        } catch(Exception e) {
+	            GamerLogger.logError("GamePlayer", "Caught exception in Clojure initialization:");
+	            GamerLogger.logStackTrace("GamePlayer", e);
+	        }
+    	}
     }
     
     // The following methods are overriden as 'final' because they should not
@@ -67,6 +70,7 @@ public abstract class ClojureGamer extends Gamer
     
     @Override
     public final void analyze(Game game, long timeout) throws GameAnalysisException {
+    	lazilyLoadGamerStub();
         try {
             theClojureGamer.analyze(game, timeout);
         } catch(RuntimeException e) {
@@ -77,6 +81,7 @@ public abstract class ClojureGamer extends Gamer
     
     @Override
     public final void metaGame(long timeout) throws MetaGamingException {
+    	lazilyLoadGamerStub();
         theClojureGamer.setMatch(getMatch());
         theClojureGamer.setRoleName(getRoleName());
         try {
@@ -89,6 +94,7 @@ public abstract class ClojureGamer extends Gamer
     
     @Override
     public final GdlTerm selectMove(long timeout) throws MoveSelectionException {
+    	lazilyLoadGamerStub();
         theClojureGamer.setMatch(getMatch());
         theClojureGamer.setRoleName(getRoleName());
         try {
@@ -102,6 +108,7 @@ public abstract class ClojureGamer extends Gamer
     
     @Override
     public final void stop() {
+    	lazilyLoadGamerStub();
         theClojureGamer.setMatch(getMatch());
         theClojureGamer.setRoleName(getRoleName());
         try {
@@ -114,6 +121,7 @@ public abstract class ClojureGamer extends Gamer
     
     @Override
     public final void abort() {
+    	lazilyLoadGamerStub();
         theClojureGamer.setMatch(getMatch());
         theClojureGamer.setRoleName(getRoleName());
         try {
@@ -126,13 +134,7 @@ public abstract class ClojureGamer extends Gamer
     
    @Override
     public final String getName() {
-        try {
-            return theClojureGamer.getName();
-        } catch(RuntimeException e) {
-            GamerLogger.logError("GamePlayer", "Caught exception in Clojure getName:");
-            GamerLogger.logStackTrace("GamePlayer", e);
-            return this.getClass().getSimpleName();
-        }
+	   return getClojureGamerName();
     } 
 
     // TODO: This code should be put somewhere more general.

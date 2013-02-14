@@ -12,5 +12,5 @@ import org.ggp.base.player.gamer.clojure.ClojureGamer;
 public final class ClojureLegalGamerStub extends ClojureGamer
 {
     protected String getClojureGamerFile() { return "legal_gamer"; }
-    protected String getClojureGamerName() { return "LegalGamer"; }
+    protected String getClojureGamerName() { return "ClojureLegalGamer"; }
 }

@@ -12,5 +12,5 @@ import org.ggp.base.player.gamer.python.PythonGamer;
 public final class PythonLegalGamerStub extends PythonGamer
 {
     protected String getPythonGamerModule() { return "legal_gamer"; }
-    protected String getPythonGamerName() { return "LegalGamer"; }
+    protected String getPythonGamerName() { return "PythonLegalGamer"; }
 }

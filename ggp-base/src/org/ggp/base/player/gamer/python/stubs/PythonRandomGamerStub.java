@@ -12,5 +12,5 @@ import org.ggp.base.player.gamer.python.PythonGamer;
 public final class PythonRandomGamerStub extends PythonGamer
 {
     protected String getPythonGamerModule() { return "random_gamer"; }
-    protected String getPythonGamerName() { return "RandomGamer"; }
+    protected String getPythonGamerName() { return "PythonRandomGamer"; }
 }

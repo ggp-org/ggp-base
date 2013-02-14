@@ -5,10 +5,10 @@
 
 (ns gamer_namespace)
 
-(defn LegalGamer []
+(defn ClojureLegalGamer []
   (proxy [org.ggp.base.player.gamer.statemachine.StateMachineGamer] []
     (getName []
-      "LegalGamer (Clojure)")
+      ())
 
     (getInitialStateMachine []
       (new org.ggp.base.util.statemachine.implementation.prover.ProverStateMachine))

@@ -10,10 +10,10 @@ from org.ggp.base.util.statemachine.implementation.prover import ProverStateMach
 from org.ggp.base.player.gamer.statemachine import StateMachineGamer
 from org.ggp.base.player.gamer.statemachine.reflex.event import ReflexMoveSelectionEvent
 
-class LegalGamer(StateMachineGamer):
+class PythonLegalGamer(StateMachineGamer):
 
     def getName(self):
-        return "LegalGamer (Python)"
+        pass
         
     def stateMachineMetaGame(self, timeout):
         pass

@@ -10,10 +10,10 @@ from org.ggp.base.util.statemachine.implementation.prover import ProverStateMach
 from org.ggp.base.player.gamer.statemachine import StateMachineGamer
 from org.ggp.base.player.gamer.statemachine.reflex.event import ReflexMoveSelectionEvent
 
-class RandomGamer(StateMachineGamer):
+class PythonRandomGamer(StateMachineGamer):
 
     def getName(self):
-        return "RandomGamer (Python)"
+        pass
         
     def stateMachineMetaGame(self, timeout):
         pass
