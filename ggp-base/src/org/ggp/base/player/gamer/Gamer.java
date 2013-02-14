@@ -7,9 +7,11 @@ import org.ggp.base.apps.player.config.ConfigPanel;
 import org.ggp.base.apps.player.config.EmptyConfigPanel;
 import org.ggp.base.apps.player.detail.DetailPanel;
 import org.ggp.base.apps.player.detail.EmptyDetailPanel;
+import org.ggp.base.player.gamer.exception.AbortingException;
 import org.ggp.base.player.gamer.exception.GameAnalysisException;
 import org.ggp.base.player.gamer.exception.MetaGamingException;
 import org.ggp.base.player.gamer.exception.MoveSelectionException;
+import org.ggp.base.player.gamer.exception.StoppingException;
 import org.ggp.base.util.game.Game;
 import org.ggp.base.util.gdl.grammar.GdlConstant;
 import org.ggp.base.util.gdl.grammar.GdlTerm;
@@ -57,9 +59,9 @@ public abstract class Gamer implements Subject
 	 * interpreted them yet. To get the final goal values, process the final
 	 * moves of the game.
 	 */
-	public abstract void stop();  // Cleanly stop playing the match
+	public abstract void stop() throws StoppingException;  // Cleanly stop playing the match
 	
-	public abstract void abort();  // Abruptly stop playing the match
+	public abstract void abort() throws AbortingException;  // Abruptly stop playing the match
 
 	public void analyze(Game g, long timeout) throws GameAnalysisException {
 		// TODO(schreib): Eventually make this abstract and force everyone to implement it.

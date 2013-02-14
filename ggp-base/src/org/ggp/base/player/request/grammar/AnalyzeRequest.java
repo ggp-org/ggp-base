@@ -1,6 +1,7 @@
 package org.ggp.base.player.request.grammar;
 
 import org.ggp.base.player.gamer.Gamer;
+import org.ggp.base.player.gamer.exception.GameAnalysisException;
 import org.ggp.base.util.game.Game;
 import org.ggp.base.util.logging.GamerLogger;
 
@@ -38,7 +39,7 @@ public final class AnalyzeRequest extends Request
 			//gamer.notifyObservers(new PlayerTimeEvent(gamer.getMatch().getStartClock() * 1000));
 			gamer.analyze(game, analysisClock * 1000 + receptionTime);
 			//gamer.metaGame(gamer.getMatch().getStartClock() * 1000 + receptionTime);
-		} catch (Exception e) {		    
+		} catch (GameAnalysisException e) {		    
 		    GamerLogger.logStackTrace("GamePlayer", e);
 
 		    // Upon encountering an uncaught exception during analysis,

@@ -4,8 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.ggp.base.player.gamer.Gamer;
+import org.ggp.base.player.gamer.exception.AbortingException;
 import org.ggp.base.player.gamer.exception.MetaGamingException;
 import org.ggp.base.player.gamer.exception.MoveSelectionException;
+import org.ggp.base.player.gamer.exception.StoppingException;
 import org.ggp.base.util.gdl.grammar.GdlTerm;
 import org.ggp.base.util.logging.GamerLogger;
 import org.ggp.base.util.statemachine.MachineState;
@@ -181,8 +183,7 @@ public abstract class StateMachineGamer extends Gamer
 		catch (Exception e)
 		{
 		    GamerLogger.logStackTrace("GamePlayer", e);
-		    // TODO: Add a way to pass "e" along in the MetaGamingException for display		    
-			throw new MetaGamingException();
+			throw new MetaGamingException(e);
 		}
 	}
 	
@@ -217,13 +218,12 @@ public abstract class StateMachineGamer extends Gamer
 		catch (Exception e)
 		{
 		    GamerLogger.logStackTrace("GamePlayer", e);
-		    // TODO: Add a way to pass "e" along in the MoveSelectionException for display
-			throw new MoveSelectionException();
+			throw new MoveSelectionException(e);
 		}
 	}
 	
 	@Override
-	public void stop() {
+	public void stop() throws StoppingException {
 		try {
 			stateMachine.doPerMoveWork();
 
@@ -246,21 +246,19 @@ public abstract class StateMachineGamer extends Gamer
 		catch (Exception e)
 		{
 			GamerLogger.logStackTrace("GamePlayer", e);
-			//TODO: This might deserve its own exception type.
-			throw new RuntimeException(e);
+			throw new StoppingException(e);
 		}
 	}
 	
 	@Override
-	public void abort() {
+	public void abort() throws AbortingException {
 		try {
 			stateMachineAbort();
 		}
 		catch (Exception e)
 		{
 			GamerLogger.logStackTrace("GamePlayer", e);
-			//TODO: This might deserve its own exception type.
-			throw new RuntimeException(e);
+			throw new AbortingException(e);
 		}
 	}	
     

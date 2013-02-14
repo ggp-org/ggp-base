@@ -5,9 +5,9 @@ import java.util.List;
 import org.ggp.base.player.gamer.Gamer;
 import org.ggp.base.player.gamer.event.GamerCompletedMatchEvent;
 import org.ggp.base.player.gamer.event.GamerUnrecognizedMatchEvent;
+import org.ggp.base.player.gamer.exception.StoppingException;
 import org.ggp.base.util.gdl.grammar.GdlTerm;
 import org.ggp.base.util.logging.GamerLogger;
-
 
 public final class StopRequest extends Request
 {
@@ -46,7 +46,11 @@ public final class StopRequest extends Request
 		}
 		gamer.getMatch().markCompleted(null);
 		gamer.notifyObservers(new GamerCompletedMatchEvent());
-		gamer.stop();
+		try {
+			gamer.stop();
+		} catch (StoppingException e) {
+		    GamerLogger.logStackTrace("GamePlayer", e);
+		}
 		
 		// Once the match has ended, set 'roleName' and 'match'
 		// to NULL to indicate that we're ready to begin a new match.

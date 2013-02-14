@@ -28,6 +28,7 @@ import javax.swing.border.TitledBorder;
 
 import org.ggp.base.player.GamePlayer;
 import org.ggp.base.player.gamer.Gamer;
+import org.ggp.base.player.gamer.exception.AbortingException;
 import org.ggp.base.server.GameServer;
 import org.ggp.base.server.event.ServerConnectionErrorEvent;
 import org.ggp.base.server.event.ServerIllegalMoveEvent;
@@ -250,7 +251,11 @@ public final class Kiosk extends JPanel implements ActionListener, ItemListener,
             	// has no time limits for processing play messages.
             	kioskServer.abort();
             	kioskServer = null;
-            	theHumanGamer.abort();            	
+            	try {
+            		theHumanGamer.abort();
+            	} catch (AbortingException ae) {
+            		ae.printStackTrace();
+            	}
             	System.gc();
             }
             

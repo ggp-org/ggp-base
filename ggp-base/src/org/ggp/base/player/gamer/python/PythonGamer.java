@@ -1,9 +1,11 @@
 package org.ggp.base.player.gamer.python;
 
 import org.ggp.base.player.gamer.Gamer;
+import org.ggp.base.player.gamer.exception.AbortingException;
 import org.ggp.base.player.gamer.exception.GameAnalysisException;
 import org.ggp.base.player.gamer.exception.MetaGamingException;
 import org.ggp.base.player.gamer.exception.MoveSelectionException;
+import org.ggp.base.player.gamer.exception.StoppingException;
 import org.ggp.base.util.game.Game;
 import org.ggp.base.util.gdl.grammar.GdlTerm;
 import org.ggp.base.util.logging.GamerLogger;
@@ -67,7 +69,7 @@ public abstract class PythonGamer extends Gamer
     	lazilyLoadGamerStub();
         try {
             thePythonGamer.analyze(game, timeout);
-        } catch(RuntimeException e) {
+        } catch(GameAnalysisException e) {
             GamerLogger.logError("GamePlayer", "Caught exception in Python stateMachineAnalyze:");
             GamerLogger.logStackTrace("GamePlayer", e);
         }
@@ -80,7 +82,7 @@ public abstract class PythonGamer extends Gamer
         thePythonGamer.setRoleName(getRoleName());
         try {
             thePythonGamer.metaGame(timeout);
-        } catch(RuntimeException e) {
+        } catch(MetaGamingException e) {
             GamerLogger.logError("GamePlayer", "Caught exception in Python stateMachineMetaGame:");
             GamerLogger.logStackTrace("GamePlayer", e);
         }
@@ -93,7 +95,7 @@ public abstract class PythonGamer extends Gamer
         thePythonGamer.setRoleName(getRoleName());
         try {
             return thePythonGamer.selectMove(timeout);
-        } catch(RuntimeException e) {
+        } catch(MoveSelectionException e) {
             GamerLogger.logError("GamePlayer", "Caught exception in Python stateMachineSelectMove:");
             GamerLogger.logStackTrace("GamePlayer", e);
             return null;
@@ -107,7 +109,7 @@ public abstract class PythonGamer extends Gamer
         thePythonGamer.setRoleName(getRoleName());
         try {
             thePythonGamer.stop();
-        } catch(RuntimeException e) {
+        } catch(StoppingException e) {
             GamerLogger.logError("GamePlayer", "Caught exception in Python stateMachineStop:");
             GamerLogger.logStackTrace("GamePlayer", e);
         }
@@ -120,7 +122,7 @@ public abstract class PythonGamer extends Gamer
         thePythonGamer.setRoleName(getRoleName());
         try {
             thePythonGamer.abort();
-        } catch(RuntimeException e) {
+        } catch(AbortingException e) {
             GamerLogger.logError("GamePlayer", "Caught exception in Python stateMachineAbort:");
             GamerLogger.logStackTrace("GamePlayer", e);
         }

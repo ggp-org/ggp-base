@@ -2,9 +2,11 @@ package org.ggp.base.player.gamer.clojure;
 
 import org.ggp.base.player.gamer.Gamer;
 import org.ggp.base.player.gamer.clojure.stubs.ClojureRandomGamerStub;
+import org.ggp.base.player.gamer.exception.AbortingException;
 import org.ggp.base.player.gamer.exception.GameAnalysisException;
 import org.ggp.base.player.gamer.exception.MetaGamingException;
 import org.ggp.base.player.gamer.exception.MoveSelectionException;
+import org.ggp.base.player.gamer.exception.StoppingException;
 import org.ggp.base.util.game.Game;
 import org.ggp.base.util.game.GameRepository;
 import org.ggp.base.util.gdl.grammar.GdlPool;
@@ -73,7 +75,7 @@ public abstract class ClojureGamer extends Gamer
     	lazilyLoadGamerStub();
         try {
             theClojureGamer.analyze(game, timeout);
-        } catch(RuntimeException e) {
+        } catch(GameAnalysisException e) {
             GamerLogger.logError("GamePlayer", "Caught exception in Clojure stateMachineMetaGame:");
             GamerLogger.logStackTrace("GamePlayer", e);
         }
@@ -86,7 +88,7 @@ public abstract class ClojureGamer extends Gamer
         theClojureGamer.setRoleName(getRoleName());
         try {
             theClojureGamer.metaGame(timeout);
-        } catch(RuntimeException e) {
+        } catch(MetaGamingException e) {
             GamerLogger.logError("GamePlayer", "Caught exception in Clojure stateMachineMetaGame:");
             GamerLogger.logStackTrace("GamePlayer", e);
         }
@@ -99,7 +101,7 @@ public abstract class ClojureGamer extends Gamer
         theClojureGamer.setRoleName(getRoleName());
         try {
             return theClojureGamer.selectMove(timeout);
-        } catch(RuntimeException e) {
+        } catch(MoveSelectionException e) {
             GamerLogger.logError("GamePlayer", "Caught exception in Clojure stateMachineSelectMove:");
             GamerLogger.logStackTrace("GamePlayer", e);
             return null;
@@ -113,7 +115,7 @@ public abstract class ClojureGamer extends Gamer
         theClojureGamer.setRoleName(getRoleName());
         try {
             theClojureGamer.stop();
-        } catch(RuntimeException e) {
+        } catch(StoppingException e) {
             GamerLogger.logError("GamePlayer", "Caught exception in Clojure stateMachineStop:");
             GamerLogger.logStackTrace("GamePlayer", e);
         }
@@ -126,7 +128,7 @@ public abstract class ClojureGamer extends Gamer
         theClojureGamer.setRoleName(getRoleName());
         try {
             theClojureGamer.abort();
-        } catch(RuntimeException e) {
+        } catch(AbortingException e) {
             GamerLogger.logError("GamePlayer", "Caught exception in Clojure stateMachineAbort:");
             GamerLogger.logStackTrace("GamePlayer", e);
         }

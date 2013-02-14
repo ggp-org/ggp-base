@@ -4,6 +4,7 @@ import org.ggp.base.player.event.PlayerTimeEvent;
 import org.ggp.base.player.gamer.Gamer;
 import org.ggp.base.player.gamer.event.GamerNewMatchEvent;
 import org.ggp.base.player.gamer.event.GamerUnrecognizedMatchEvent;
+import org.ggp.base.player.gamer.exception.MetaGamingException;
 import org.ggp.base.util.game.Game;
 import org.ggp.base.util.gdl.grammar.GdlConstant;
 import org.ggp.base.util.logging.GamerLogger;
@@ -56,7 +57,7 @@ public final class StartRequest extends Request
 		try {
 			gamer.notifyObservers(new PlayerTimeEvent(gamer.getMatch().getStartClock() * 1000));
 			gamer.metaGame(gamer.getMatch().getStartClock() * 1000 + receptionTime);
-		} catch (Exception e) {		    
+		} catch (MetaGamingException e) {		    
 		    GamerLogger.logStackTrace("GamePlayer", e);
 
 		    // Upon encountering an uncaught exception during metagaming,
