@@ -23,9 +23,8 @@ import org.python.util.PythonInterpreter;
  *    directory for this project. Make sure that the stub points to this class,
  *    and that the Python class is a valid subclass of Gamer.
  *    
- * For examples where this has already been done, see @PythonLegalGamerStub and
- * @PythonRandomGamerStub, which are both implemented in Python and hook into
- * the Java framework using the PythonGamer stubs.
+ * For examples where this has already been done, see @PythonRandomGamerStub, which
+ * is implemented in Python and hooks into the Java framework using the PythonGamer stub.
  * 
  * @author Sam
  * @author evancox

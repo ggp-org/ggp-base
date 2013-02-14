@@ -1,7 +1,7 @@
 package org.ggp.base.player.gamer.clojure;
 
 import org.ggp.base.player.gamer.Gamer;
-import org.ggp.base.player.gamer.clojure.stubs.ClojureLegalGamerStub;
+import org.ggp.base.player.gamer.clojure.stubs.ClojureRandomGamerStub;
 import org.ggp.base.player.gamer.exception.GameAnalysisException;
 import org.ggp.base.player.gamer.exception.MetaGamingException;
 import org.ggp.base.player.gamer.exception.MoveSelectionException;
@@ -140,7 +140,7 @@ public abstract class ClojureGamer extends Gamer
     // TODO: This code should be put somewhere more general.
     public static void main(String args[]) {
         try {
-            Gamer g = new ClojureLegalGamerStub();
+            Gamer g = new ClojureRandomGamerStub();
             System.out.println(g.getName());
 
             Match m = new Match("", -1, 1000, 1000, GameRepository.getDefaultRepository().getGame("conn4"));
