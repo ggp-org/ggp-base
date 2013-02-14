@@ -82,4 +82,9 @@ public final class HumanGamer extends StateMachineGamer
 	public DetailPanel getDetailPanel() {
 		return new HumanDetailPanel();
 	}
+	
+	@Override
+	public boolean isComputerPlayer() {
+		return false;
+	}	
 }

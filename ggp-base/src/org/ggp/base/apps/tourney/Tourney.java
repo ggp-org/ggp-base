@@ -102,11 +102,9 @@ public final class Tourney extends JPanel implements ActionListener {
             Gamer g;
             try {
                 g = (Gamer) gamer.newInstance();
-                
-                // TODO: Come up with a more elegant way to exclude
-                // the HumanPlayer, which doesn't fit the Tourney model.
-                if(g.getName().equals("Human")) throw new RuntimeException();
-                
+                if (!g.isComputerPlayer()) {
+                	throw new Exception("Tourney only considers computer players");
+                }
                 newBox.addItem(g.getName());
             } catch (Exception ex) {
             	gamers.remove(gamer);

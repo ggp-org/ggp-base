@@ -133,11 +133,9 @@ public final class Kiosk extends JPanel implements ActionListener, ItemListener,
         {
             try {
                 Gamer g = (Gamer) gamer.newInstance();
-                
-                // TODO: Come up with a more elegant way to exclude
-                // the HumanPlayer, which doesn't fit the Kiosk model.
-                if(g.getName().equals("Human")) throw new RuntimeException();
-                
+                if (!g.isComputerPlayer()) {
+                	throw new Exception("Kiosk only considers computer players");
+                }
                 playerComboBox.addItem(g.getName());
             } catch(Exception ex) {
                 gamers.remove(gamer);

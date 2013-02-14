@@ -70,6 +70,10 @@ public abstract class Gamer implements Subject
 	// ==== Gamer Profile and Configuration ====
 	public abstract String getName();
 	
+	public boolean isComputerPlayer() {
+		return true;
+	}
+	
 	public ConfigPanel getConfigPanel() {
 		return new EmptyConfigPanel();
 	}

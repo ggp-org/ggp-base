@@ -132,5 +132,10 @@ public class KioskGamer extends StateMachineGamer implements Observer {
 		// when it arrives.
 		theQueue.add(new Move(GdlPool.getConstant("ABORT")));
 		theGUI.showFinalMessage("Aborted");		
-	}	
+	}
+	
+	@Override
+	public boolean isComputerPlayer() {
+		return false;
+	}
 }
