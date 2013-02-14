@@ -206,11 +206,6 @@ public final class Game {
 
             String theRulesheet = null;
             try {
-            	// TODO(schreib): Eventually get rid of this; it's kept only
-            	// to ensure compatibility with caches written using the older code.
-            	theRulesheet = theGameObject.getString("theProcessedRulesheet");
-            } catch (Exception e) {}
-            try {
             	theRulesheet = theGameObject.getString("theRulesheet");
             } catch (Exception e) {}
             
