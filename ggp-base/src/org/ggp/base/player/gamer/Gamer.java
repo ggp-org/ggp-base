@@ -63,9 +63,7 @@ public abstract class Gamer implements Subject
 	
 	public abstract void abort() throws AbortingException;  // Abruptly stop playing the match
 
-	public void analyze(Game g, long timeout) throws GameAnalysisException {
-		// TODO(schreib): Eventually make this abstract and force everyone to implement it.
-	}
+	public abstract void analyze(Game g, long timeout) throws GameAnalysisException;  // Analyze a game
 	
 	// ==== Gamer Profile and Configuration ====
 	public abstract String getName();

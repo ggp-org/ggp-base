@@ -7,9 +7,11 @@ import java.util.concurrent.BlockingQueue;
 
 import javax.swing.JPanel;
 
+import org.ggp.base.player.gamer.exception.GameAnalysisException;
 import org.ggp.base.player.gamer.statemachine.StateMachineGamer;
 import org.ggp.base.server.event.ServerCompletedMatchEvent;
 import org.ggp.base.server.event.ServerNewGameStateEvent;
+import org.ggp.base.util.game.Game;
 import org.ggp.base.util.gdl.grammar.GdlPool;
 import org.ggp.base.util.observer.Event;
 import org.ggp.base.util.observer.Observer;
@@ -138,4 +140,9 @@ public class KioskGamer extends StateMachineGamer implements Observer {
 	public boolean isComputerPlayer() {
 		return false;
 	}
+	
+	@Override
+	public void analyze(Game g, long timeout) throws GameAnalysisException {
+		;
+	}	
 }

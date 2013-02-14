@@ -5,9 +5,11 @@ import java.util.List;
 import java.util.Random;
 
 import org.ggp.base.apps.player.detail.DetailPanel;
+import org.ggp.base.player.gamer.exception.GameAnalysisException;
 import org.ggp.base.player.gamer.statemachine.StateMachineGamer;
 import org.ggp.base.player.gamer.statemachine.reflex.event.ReflexMoveSelectionEvent;
 import org.ggp.base.player.gamer.statemachine.reflex.gui.ReflexDetailPanel;
+import org.ggp.base.util.game.Game;
 import org.ggp.base.util.statemachine.MachineState;
 import org.ggp.base.util.statemachine.Move;
 import org.ggp.base.util.statemachine.StateMachine;
@@ -186,4 +188,9 @@ public final class SimpleSearchLightGamer extends StateMachineGamer
 	public DetailPanel getDetailPanel() {
 		return new ReflexDetailPanel();
 	}
+	
+	@Override
+	public void analyze(Game g, long timeout) throws GameAnalysisException {
+		;
+	}	
 }
