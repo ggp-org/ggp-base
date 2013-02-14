@@ -1,18 +1,14 @@
 package org.ggp.base.player.gamer.clojure;
 
 import org.ggp.base.player.gamer.Gamer;
-import org.ggp.base.player.gamer.clojure.stubs.ClojureRandomGamerStub;
 import org.ggp.base.player.gamer.exception.AbortingException;
 import org.ggp.base.player.gamer.exception.GameAnalysisException;
 import org.ggp.base.player.gamer.exception.MetaGamingException;
 import org.ggp.base.player.gamer.exception.MoveSelectionException;
 import org.ggp.base.player.gamer.exception.StoppingException;
 import org.ggp.base.util.game.Game;
-import org.ggp.base.util.game.GameRepository;
-import org.ggp.base.util.gdl.grammar.GdlPool;
 import org.ggp.base.util.gdl.grammar.GdlTerm;
 import org.ggp.base.util.logging.GamerLogger;
-import org.ggp.base.util.match.Match;
 
 import clojure.lang.RT;
 import clojure.lang.Var;
@@ -138,20 +134,4 @@ public abstract class ClojureGamer extends Gamer
     public final String getName() {
 	   return getClojureGamerName();
     } 
-
-    // TODO: This code should be put somewhere more general.
-    public static void main(String args[]) {
-        try {
-            Gamer g = new ClojureRandomGamerStub();
-            System.out.println(g.getName());
-
-            Match m = new Match("", -1, 1000, 1000, GameRepository.getDefaultRepository().getGame("conn4"));
-            g.setMatch(m);
-            g.setRoleName(GdlPool.getConstant("xplayer"));
-            g.metaGame(1000);
-            System.out.println(g.selectMove(1000));
-        } catch(Exception e) {
-            e.printStackTrace();
-        }
-    }
 }
