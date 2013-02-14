@@ -102,12 +102,9 @@ public final class RequestFactory
 		String theRulesheet = arg3.toString();
 		int startClock = Integer.valueOf(arg4.getValue());
 		int playClock = Integer.valueOf(arg5.getValue());
-		
-		// TODO: There may be more than five arguments. These may be worth
-		// parsing, once we find a meaningful way to handle them. They aren't
-		// yet standardized, but, for example, one might be the URL of an XSL
-		// stylesheet for visualizing a state of the game, or the URL for the
-		// game on a repository server.
+
+		// For now, there are only five standard arguments. If there are any
+		// new standard arguments added to START, they should be added here.
 
 		Game theReceivedGame = Game.createEphemeralGame(theRulesheet);
 		return new StartRequest(gamer, matchId, roleName, theReceivedGame, startClock, playClock);
