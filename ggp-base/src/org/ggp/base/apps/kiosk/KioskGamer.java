@@ -10,6 +10,7 @@ import javax.swing.JPanel;
 import org.ggp.base.player.gamer.statemachine.StateMachineGamer;
 import org.ggp.base.server.event.ServerCompletedMatchEvent;
 import org.ggp.base.server.event.ServerNewGameStateEvent;
+import org.ggp.base.util.gdl.grammar.GdlPool;
 import org.ggp.base.util.observer.Event;
 import org.ggp.base.util.observer.Observer;
 import org.ggp.base.util.statemachine.MachineState;
@@ -121,5 +122,15 @@ public class KioskGamer extends StateMachineGamer implements Observer {
 	@Override
 	public void stateMachineStop() {
 		// Do nothing
-	}    
+	}
+	
+	@Override
+	public void stateMachineAbort() {
+		// Add an "ABORT" move to the queue so that we don't wait indefinitely
+		// for a human to submit a move for the aborted match; instead we should
+		// finish it up as quickly as possible so we can display the next match
+		// when it arrives.
+		theQueue.add(new Move(GdlPool.getConstant("ABORT")));
+		theGUI.showFinalMessage("Aborted");		
+	}	
 }

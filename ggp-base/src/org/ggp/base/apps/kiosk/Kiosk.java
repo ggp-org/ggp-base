@@ -249,12 +249,18 @@ public final class Kiosk extends JPanel implements ActionListener, ItemListener,
     @Override
     public void actionPerformed(ActionEvent e) {
         if(e.getSource() == runButton) {
-            // TODO: Figure out what the right behavior should be when the user
-            // interrupts a match by trying to start another match. For now, simply
-        	// display an error message and don't proceed with starting a new match.        	
             if (kioskServer != null && !kioskServer.getMatch().isCompleted()) {
-            	JOptionPane.showMessageDialog(this, "Cannot start a new match while existing match is ongoing.", "Error", JOptionPane.ERROR_MESSAGE);
-            	return;
+            	// When a match is started while another match is still running,
+            	// abort the ongoing match so that the new one can start. This
+            	// also directly tells the human gamer to abort, since otherwise
+            	// it will wait indefinitely for the human to submit their last
+            	// move before it processes the abort message from the server,
+            	// since messages are processed serially, and the human gamer
+            	// has no time limits for processing play messages.
+            	kioskServer.abort();
+            	kioskServer = null;
+            	theHumanGamer.abort();            	
+            	System.gc();
             }
             
             try {
@@ -305,7 +311,7 @@ public final class Kiosk extends JPanel implements ActionListener, ItemListener,
                     hosts.add("127.0.0.1");
                     ports.add(theHumanPlayer.getGamerPort());
                     playerNames.add("Human");                                   
-                }                                
+                }
                 
                 if(playerComboBox.getSelectedItem().equals(remotePlayerString)) {
                     try {

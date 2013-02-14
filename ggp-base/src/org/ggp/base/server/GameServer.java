@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.ggp.base.server.event.ServerAbortedMatchEvent;
 import org.ggp.base.server.event.ServerCompletedMatchEvent;
 import org.ggp.base.server.event.ServerConnectionErrorEvent;
 import org.ggp.base.server.event.ServerIllegalMoveEvent;
@@ -15,6 +16,7 @@ import org.ggp.base.server.event.ServerNewMatchEvent;
 import org.ggp.base.server.event.ServerNewMovesEvent;
 import org.ggp.base.server.event.ServerTimeEvent;
 import org.ggp.base.server.event.ServerTimeoutEvent;
+import org.ggp.base.server.threads.AbortRequestThread;
 import org.ggp.base.server.threads.AnalyzeRequestThread;
 import org.ggp.base.server.threads.PlayRequestThread;
 import org.ggp.base.server.threads.RandomPlayRequestThread;
@@ -171,9 +173,25 @@ public final class GameServer extends Thread implements Subject
             notifyObservers(new ServerNewGameStateEvent(currentState));
             notifyObservers(new ServerCompletedMatchEvent(getGoals()));
             sendStopRequests(previousMoves);
+        } catch (InterruptedException ie) {
+        	if (match.isAborted()) {
+        		return;
+        	} else {
+        		ie.printStackTrace();
+        	}
         } catch (Exception e) {
-            e.printStackTrace();
+        	e.printStackTrace();
         }
+    }
+    
+    public void abort() {
+    	try {
+    		match.markAborted();
+    		sendAbortRequests();
+    		notifyObservers(new ServerAbortedMatchEvent());
+    	} catch (Exception e) {
+    		e.printStackTrace();
+    	}
     }
 
     private String publishWhenNecessary() {
@@ -272,6 +290,22 @@ public final class GameServer extends Thread implements Subject
             thread.join();
         }
     }
+    
+    private void sendAbortRequests() throws InterruptedException {
+        List<AbortRequestThread> threads = new ArrayList<AbortRequestThread>(hosts.size());
+        for (int i = 0; i < hosts.size(); i++) {
+        	if (!playerPlaysRandomly[i]) {
+        		threads.add(new AbortRequestThread(this, match, stateMachine.getRoles().get(i), hosts.get(i), ports.get(i), playerNames.get(i)));
+        	}
+        }
+        for (AbortRequestThread thread : threads) {
+            thread.start();
+        }
+        for (AbortRequestThread thread : threads) {
+            thread.join();
+        }
+        interrupt();
+    }    
     
     public List<String> getHistory() {
         return history;
