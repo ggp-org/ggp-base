@@ -56,8 +56,6 @@ public class PentagoCanvas extends GameCanvas_FancyGrid {
                 if(!(xCell == 2 || xCell == 5)) return;
                 if(!(yCell == 2 || yCell == 5)) return;
                 
-                // TODO: Better visualizations for curved arrows,
-                // to indicate clockwise/counterclockwise rotation.
                 int width = g.getClipBounds().width;
                 int height = g.getClipBounds().height;
                 if(moveParts[3].equals("clockwise")) {
