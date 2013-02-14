@@ -70,9 +70,7 @@ public abstract class StateMachineGamer extends Gamer
     /**
      * Defines any actions that the player takes upon the game abruptly ending.
      */
-    public void stateMachineAbort() {
-    	// TODO(schreib): Eventually make this abstract and make everyone implement it.
-    }
+    public abstract void stateMachineAbort();
     
     // =====================================================================
     // Next, methods which can be used by subclasses to get information about

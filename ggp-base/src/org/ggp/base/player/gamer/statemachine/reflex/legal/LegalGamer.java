@@ -79,6 +79,11 @@ public final class LegalGamer extends StateMachineGamer
 
 	@Override
 	public void analyze(Game g, long timeout) throws GameAnalysisException {
-		;
+		// Do nothing.
+	}
+	
+	@Override
+	public void stateMachineAbort() {
+		// Do nothing.
 	}
 }
