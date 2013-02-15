@@ -4,13 +4,11 @@
 #
 # -Sam
 
-from org.ggp.base.util.kif import KifReader
-from org.ggp.base.util.configuration import ProjectConfiguration
+from org.ggp.base.util.game import GameRepository
 from org.ggp.base.util.statemachine.implementation.prover import ProverStateMachine
 
 def load_game(game_name):
-    game_filename = ProjectConfiguration.gameRulesheetsPath + game_name + ".kif"
-    game_description = KifReader.read(game_filename)
+    game_description = GameRepository.getDefaultRepository().getGame(game_name).getRules()
     machine = ProverStateMachine()
     machine.initialize(game_description)
     return machine
