@@ -1,4 +1,4 @@
-package org.ggp.base.player.gamer.statemachine.simple;
+package org.ggp.base.player.gamer.statemachine.sample;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,7 +20,7 @@ import org.ggp.base.util.statemachine.implementation.prover.cache.CachedProverSt
 
 
 /**
- * SimpleSearchLightGamer is a simple state-machine-based Gamer. It will,
+ * SampleSearchLightGamer is a simple state-machine-based Gamer. It will,
  * to the best of its ability, never pick a move which will give its opponent
  * a possible one-move win. It will also spend up to two seconds looking for
  * one-move wins it can take. This makes it slightly more challenging than the
@@ -40,7 +40,7 @@ import org.ggp.base.util.statemachine.implementation.prover.cache.CachedProverSt
  * 
  * @author Sam Schreiber
  */
-public final class SimpleSearchLightGamer extends StateMachineGamer
+public final class SampleSearchLightGamer extends StateMachineGamer
 {
 	/**
 	 * Does nothing
@@ -54,7 +54,7 @@ public final class SimpleSearchLightGamer extends StateMachineGamer
 	private Random theRandom = new Random();
 	
 	/**
-	 * Employs a simple "Search Light" algorithm.  First selects a default legal move.  
+	 * Employs a simple sample "Search Light" algorithm.  First selects a default legal move.  
 	 * It then iterates through all of the legal moves in random order, updating the current move selection 
 	 * using the following criteria.
 	 * <ol>
@@ -181,7 +181,7 @@ public final class SimpleSearchLightGamer extends StateMachineGamer
 
 	@Override
 	public String getName() {
-		return "SimpleSearchLight";
+		return "SampleSearchLight";
 	}
 
 	@Override

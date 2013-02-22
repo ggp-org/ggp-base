@@ -1,4 +1,4 @@
-package org.ggp.base.player.gamer.statemachine.simple;
+package org.ggp.base.player.gamer.statemachine.sample;
 
 import java.util.List;
 
@@ -18,7 +18,7 @@ import org.ggp.base.util.statemachine.implementation.prover.cache.CachedProverSt
 
 
 /**
- * SimpleMonteCarloGamer is a simple state-machine-based Gamer. It will use a
+ * SampleMonteCarloGamer is a simple state-machine-based Gamer. It will use a
  * pure Monte Carlo approach towards picking moves, doing simulations and then
  * choosing the move that has the highest expected score. It should be slightly
  * more challenging than the RandomGamer, while still playing reasonably fast.
@@ -30,7 +30,7 @@ import org.ggp.base.util.statemachine.implementation.prover.cache.CachedProverSt
  * 
  * @author Sam Schreiber
  */
-public final class SimpleMonteCarloGamer extends StateMachineGamer
+public final class SampleMonteCarloGamer extends StateMachineGamer
 {
 	/**
 	 * Does nothing
@@ -42,7 +42,7 @@ public final class SimpleMonteCarloGamer extends StateMachineGamer
 	}
 
 	/**
-	 * Employs a simple "Monte Carlo" algorithm.
+	 * Employs a simple sample "Monte Carlo" algorithm.
 	 */
 	@Override
 	public Move stateMachineSelectMove(long timeout) throws TransitionDefinitionException, MoveDefinitionException, GoalDefinitionException
@@ -57,7 +57,8 @@ public final class SimpleMonteCarloGamer extends StateMachineGamer
     		int[] moveTotalPoints = new int[moves.size()];
     		int[] moveTotalAttempts = new int[moves.size()];
     		
-    		// ...
+    		// Perform depth charges for each candidate move, and keep track
+    		// of the total score and total attempts accumulated for each move.
     		for (int i = 0; true; i = (i+1) % moves.size()) {
     		    if (System.currentTimeMillis() > finishBy)
     		        break;
@@ -118,7 +119,7 @@ public final class SimpleMonteCarloGamer extends StateMachineGamer
 
 	@Override
 	public String getName() {
-		return "SimpleMonteCarlo";
+		return "SampleMonteCarlo";
 	}
 
 	@Override
