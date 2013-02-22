@@ -12,7 +12,7 @@ import org.ggp.base.player.event.PlayerDroppedPacketEvent;
 import org.ggp.base.player.event.PlayerReceivedMessageEvent;
 import org.ggp.base.player.event.PlayerSentMessageEvent;
 import org.ggp.base.player.gamer.Gamer;
-import org.ggp.base.player.gamer.statemachine.reflex.legal.LegalGamer;
+import org.ggp.base.player.gamer.statemachine.random.RandomGamer;
 import org.ggp.base.player.request.factory.RequestFactory;
 import org.ggp.base.player.request.grammar.AbortRequest;
 import org.ggp.base.player.request.grammar.Request;
@@ -23,7 +23,6 @@ import org.ggp.base.util.observer.Event;
 import org.ggp.base.util.observer.Observer;
 import org.ggp.base.util.observer.Subject;
 import org.ggp.base.util.reflection.ProjectSearcher;
-
 
 public final class ProxyGamePlayerClient extends Thread implements Subject, Observer
 {
@@ -131,7 +130,7 @@ public final class ProxyGamePlayerClient extends Thread implements Subject, Obse
 
 				Request request = new RequestFactory().create(gamer, in);
 				if(request instanceof StartRequest) {
-				    LegalGamer theDefaultGamer = new LegalGamer();
+				    RandomGamer theDefaultGamer = new RandomGamer();
 				    new RequestFactory().create(theDefaultGamer, in).process(1);
 				    GamerLogger.startFileLogging(theDefaultGamer.getMatch(), theDefaultGamer.getRoleName().toString());
 				    GamerLogger.log("Proxy", "[ProxyClient] Got message: " + theMessage);

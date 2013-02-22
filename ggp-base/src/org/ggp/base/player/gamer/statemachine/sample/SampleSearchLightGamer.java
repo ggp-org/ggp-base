@@ -5,10 +5,10 @@ import java.util.List;
 import java.util.Random;
 
 import org.ggp.base.apps.player.detail.DetailPanel;
+import org.ggp.base.apps.player.detail.SimpleDetailPanel;
+import org.ggp.base.player.gamer.event.GamerSelectedMoveEvent;
 import org.ggp.base.player.gamer.exception.GameAnalysisException;
 import org.ggp.base.player.gamer.statemachine.StateMachineGamer;
-import org.ggp.base.player.gamer.statemachine.reflex.event.ReflexMoveSelectionEvent;
-import org.ggp.base.player.gamer.statemachine.reflex.gui.ReflexDetailPanel;
 import org.ggp.base.util.game.Game;
 import org.ggp.base.util.statemachine.MachineState;
 import org.ggp.base.util.statemachine.Move;
@@ -164,7 +164,7 @@ public final class SampleSearchLightGamer extends StateMachineGamer
 
 		long stop = System.currentTimeMillis();
 
-		notifyObservers(new ReflexMoveSelectionEvent(moves, selection, stop - start));
+		notifyObservers(new GamerSelectedMoveEvent(moves, selection, stop - start));
 		return selection;
 	}
 	@Override
@@ -186,7 +186,7 @@ public final class SampleSearchLightGamer extends StateMachineGamer
 
 	@Override
 	public DetailPanel getDetailPanel() {
-		return new ReflexDetailPanel();
+		return new SimpleDetailPanel();
 	}
 	
 	@Override
