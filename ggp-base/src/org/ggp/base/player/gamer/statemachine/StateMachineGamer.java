@@ -25,7 +25,7 @@ import org.ggp.base.util.statemachine.exceptions.TransitionDefinitionException;
  * methods for interpreting the match history as transitions in a state machine,
  * and for keeping an up-to-date view of the current state of the game.
  * 
- * See @SimpleSearchLightGamer, @HumanGamer, and @LegalGamer for examples.
+ * See @SimpleSearchLightGamer, @HumanGamer, and @RandomGamer for examples.
  * 
  * @author evancox
  * @author Sam

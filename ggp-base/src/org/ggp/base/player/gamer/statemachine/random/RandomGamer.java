@@ -65,7 +65,7 @@ public final class RandomGamer extends StateMachineGamer
 	@Override
 	public void stateMachineAbort() {
 		// Random gamer does no special cleanup when the match ends abruptly.
-	}	
+	}
 
 	@Override
 	public DetailPanel getDetailPanel() {

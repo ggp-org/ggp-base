@@ -16,30 +16,23 @@ import org.ggp.base.util.statemachine.exceptions.MoveDefinitionException;
 import org.ggp.base.util.statemachine.exceptions.TransitionDefinitionException;
 import org.ggp.base.util.statemachine.implementation.prover.cache.CachedProverStateMachine;
 
-
+/**
+ * HumanGamer is a simple apparatus for letting a human control a player,
+ * by manually choosing moves in the player's detail panel. This player will
+ * not work without a human actually interacting with the detail panel. This
+ * player has a very simplistic user interface; if you actually want to play
+ * as a human, you're probably better off using the purpose-built Kiosk app.
+ */
 public final class HumanGamer extends StateMachineGamer
 {
-	private Move move;
-	
-	/**
-	 * Sets the currentMove
-	 * @param move 
-	 */
-	public void setMove(Move move)
-	{
-		this.move = move;
-	}
-	/**
-	 * Default constructor
-	 */
 	@Override
-	public void stateMachineMetaGame(long timeout) throws TransitionDefinitionException, MoveDefinitionException, GoalDefinitionException
-	{
-		// Do nothing.
+	public String getName() {
+		return "Human";
 	}
 	
 	/**
-	 * Selects the default move as the first legal move, and then waits while the Human sets their move
+	 * Selects the default move as the first legal move, and then waits
+	 * while the Human sets their move. This is done via the HumanDetailPanel.
 	 */
 	@Override
 	public synchronized Move stateMachineSelectMove(long timeout) throws TransitionDefinitionException, MoveDefinitionException, GoalDefinitionException
@@ -47,56 +40,55 @@ public final class HumanGamer extends StateMachineGamer
 		List<Move> moves = getStateMachine().getLegalMoves(getCurrentState(), getRole());
 		move = moves.get(0);
 
-		try
-		{
+		try {
 			notifyObservers(new HumanNewMovesEvent(moves, move));
 			wait(timeout - System.currentTimeMillis() - 500);
 			notifyObservers(new HumanTimeoutEvent(this));
-		}
-		catch (Exception e)
-		{
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 
 		return move;
+	}	
+
+	private Move move;
+	public void setMove(Move move) {
+		this.move = move;
 	}
 	
 	@Override
+	public DetailPanel getDetailPanel() {
+		return new HumanDetailPanel();
+	}	
+
+	@Override
+	public void analyze(Game g, long timeout) throws GameAnalysisException {
+		// Human gamer does no game analysis.
+	}	
+	
+	@Override
+	public void stateMachineMetaGame(long timeout) throws TransitionDefinitionException, MoveDefinitionException, GoalDefinitionException
+	{
+		// Human gamer does no metagaming at the beginning of the match.
+	}	
+	
+	@Override
 	public void stateMachineStop() {
-		// Do nothing.
+		// Human gamer does no special cleanup when the match ends normally.
 	}
 	
-	/**
-	 * Uses a CachedProverStateMachine
-	 */
+	@Override
+	public void stateMachineAbort() {
+		// Human gamer does no special cleanup when the match ends abruptly.
+	}		
+	
 	@Override
 	public StateMachine getInitialStateMachine() {
 		return new CachedProverStateMachine();
 	}
 	
 	@Override
-	public String getName() {
-		return "Human";
-	}
-	
-	
-	@Override
-	public DetailPanel getDetailPanel() {
-		return new HumanDetailPanel();
-	}
-	
-	@Override
 	public boolean isComputerPlayer() {
 		return false;
-	}
-	
-	@Override
-	public void analyze(Game g, long timeout) throws GameAnalysisException {
-		// Do nothing.
-	}
-	
-	@Override
-	public void stateMachineAbort() {
-		// Do nothing.
 	}	
 }
