@@ -2,20 +2,13 @@ package org.ggp.base.player.gamer.statemachine.sample;
 
 import java.util.List;
 
-import org.ggp.base.apps.player.detail.DetailPanel;
-import org.ggp.base.apps.player.detail.SimpleDetailPanel;
 import org.ggp.base.player.gamer.event.GamerSelectedMoveEvent;
-import org.ggp.base.player.gamer.exception.GameAnalysisException;
-import org.ggp.base.player.gamer.statemachine.StateMachineGamer;
-import org.ggp.base.util.game.Game;
 import org.ggp.base.util.statemachine.MachineState;
 import org.ggp.base.util.statemachine.Move;
 import org.ggp.base.util.statemachine.StateMachine;
 import org.ggp.base.util.statemachine.exceptions.GoalDefinitionException;
 import org.ggp.base.util.statemachine.exceptions.MoveDefinitionException;
 import org.ggp.base.util.statemachine.exceptions.TransitionDefinitionException;
-import org.ggp.base.util.statemachine.implementation.prover.cache.CachedProverStateMachine;
-
 
 /**
  * SampleMonteCarloGamer is a simple state-machine-based Gamer. It will use a
@@ -30,17 +23,8 @@ import org.ggp.base.util.statemachine.implementation.prover.cache.CachedProverSt
  * 
  * @author Sam Schreiber
  */
-public final class SampleMonteCarloGamer extends StateMachineGamer
+public final class SampleMonteCarloGamer extends SampleGamer
 {
-	/**
-	 * Does nothing
-	 */
-	@Override
-	public void stateMachineMetaGame(long timeout) throws TransitionDefinitionException, MoveDefinitionException, GoalDefinitionException
-	{
-		// Do nothing.
-	}
-
 	/**
 	 * Employs a simple sample "Monte Carlo" algorithm.
 	 */
@@ -103,37 +87,5 @@ public final class SampleMonteCarloGamer extends StateMachineGamer
             e.printStackTrace();
             return 0;
         }
-	}
-	
-	@Override
-	public void stateMachineStop() {
-		// Do nothing.
-	}
-	/**
-	 * Uses a CachedProverStateMachine
-	 */
-	@Override
-	public StateMachine getInitialStateMachine() {
-		return new CachedProverStateMachine();
-	}
-
-	@Override
-	public String getName() {
-		return "SampleMonteCarlo";
-	}
-
-	@Override
-	public DetailPanel getDetailPanel() {
-		return new SimpleDetailPanel();
-	}
-	
-	@Override
-	public void analyze(Game g, long timeout) throws GameAnalysisException {
-		// Do nothing.
-	}
-	
-	@Override
-	public void stateMachineAbort() {
-		// Do nothing.
 	}
 }
