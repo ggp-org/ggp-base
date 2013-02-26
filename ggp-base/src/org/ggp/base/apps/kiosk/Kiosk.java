@@ -140,7 +140,8 @@ public final class Kiosk extends JPanel implements ActionListener, ItemListener,
             } catch(Exception ex) {
                 gamers.remove(gamer);
             }
-        }            
+        }
+        playerComboBox.setSelectedItem("Random");
         playerComboBox.addItem(remotePlayerString);        
         
         runButton = new JButton("Run!");
