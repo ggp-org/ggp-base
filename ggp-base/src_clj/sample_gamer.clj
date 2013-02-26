@@ -1,11 +1,11 @@
-; An implementation of the random gamer in Clojure.
+; An implementation of a sample random gamer in Clojure.
 ; -Sam Schreiber
 
 ; NOTE: the implicit 'this symbol is bound to the local class.
 
 (ns gamer_namespace)
 
-(defn ClojureRandomGamer []
+(defn SampleClojureGamer []
   (proxy [org.ggp.base.player.gamer.statemachine.StateMachineGamer] []
     (getInitialStateMachine []
       (new org.ggp.base.util.statemachine.implementation.prover.ProverStateMachine))

@@ -8,7 +8,7 @@ from org.ggp.base.util.statemachine import MachineState
 from org.ggp.base.util.statemachine.implementation.prover import ProverStateMachine
 from org.ggp.base.player.gamer.statemachine import StateMachineGamer
 
-class PythonRandomGamer(StateMachineGamer):
+class SamplePythonGamer(StateMachineGamer):
 
     def getName(self):
         pass
