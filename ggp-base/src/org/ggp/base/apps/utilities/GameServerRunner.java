@@ -81,7 +81,7 @@ public final class GameServerRunner
 		f = new File(tourneyName + "/" + matchName + ".xml");
 		if (f.exists()) f.delete();		
 		BufferedWriter bw = new BufferedWriter(new FileWriter(f));
-		bw.write(server.getGameXML());
+		bw.write(match.toXML());
 		bw.flush();
 		bw.close();
 		

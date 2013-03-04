@@ -15,14 +15,13 @@ import org.ggp.base.server.event.ServerNewMatchEvent;
 import org.ggp.base.server.event.ServerTimeEvent;
 import org.ggp.base.util.game.Game;
 import org.ggp.base.util.game.GameRepository;
+import org.ggp.base.util.match.Match;
 import org.ggp.base.util.observer.Event;
 import org.ggp.base.util.observer.Observer;
 import org.ggp.base.util.statemachine.MachineState;
 import org.ggp.base.util.statemachine.StateMachine;
 import org.ggp.base.util.statemachine.implementation.prover.cache.CachedProverStateMachine;
 import org.ggp.base.util.ui.timer.JTimerBar;
-
-
 
 @SuppressWarnings("serial")
 public final class VisualizationPanel extends JPanel implements Observer
@@ -75,7 +74,7 @@ public final class VisualizationPanel extends JPanel implements Observer
 	    {
 	        JPanel newPanel = null;
 	        try {
-                String XML = s.toXML();
+                String XML = Match.renderStateXML(s.getContents());
                 String XSL = theGame.getStylesheet();
                 if (XSL != null) {
                     newPanel = new VizContainerPanel(XML, XSL, myThis);

@@ -50,7 +50,6 @@ public final class GameServer extends Thread implements Subject
     
     private final List<Observer> observers;        
     private List<Move> previousMoves;
-    private List<String> history;
     
     private Map<Role,String> mostRecentErrors;
     
@@ -79,7 +78,6 @@ public final class GameServer extends Thread implements Subject
         
         match.appendState(currentState.getContents());
         
-        history = new ArrayList<String>();
         observers = new ArrayList<Observer>();
         
         spectatorServerURL = null;
@@ -161,7 +159,6 @@ public final class GameServer extends Thread implements Subject
                 previousMoves = sendPlayRequests();
 
                 notifyObservers(new ServerNewMovesEvent(previousMoves));
-                history.add(currentState.toXML());
                 currentState = stateMachine.getNextState(currentState, previousMoves);
                 
                 match.appendMoves2(previousMoves);
@@ -306,16 +303,6 @@ public final class GameServer extends Thread implements Subject
         }
         interrupt();
     }    
-    
-    public List<String> getHistory() {
-        return history;
-    }
-    
-    public String getGameXML() {
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < history.size(); i++) sb.append(history.get(i));
-        return sb.toString();
-    }
     
     public void givePlayerUnlimitedTime(int i) {
         playerGetsUnlimitedTime[i] = true;

@@ -1,13 +1,7 @@
 package org.ggp.base.util.statemachine;
 
 import java.util.Set;
-
-import org.ggp.base.util.gdl.grammar.Gdl;
-import org.ggp.base.util.gdl.grammar.GdlConstant;
-import org.ggp.base.util.gdl.grammar.GdlFunction;
-import org.ggp.base.util.gdl.grammar.GdlRelation;
 import org.ggp.base.util.gdl.grammar.GdlSentence;
-
 
 public class MachineState {
     public MachineState() {
@@ -59,70 +53,5 @@ public class MachineState {
         }
 
         return false;
-    }    
-    
-    // TODO: Do we really need this method?
-    // Should we update it to something more JSON-friendly?
-    public final String toXML()
-    {
-        String rval = "<state>\n";
-        Set<GdlSentence> theContents = getContents();
-        for(GdlSentence sentence : theContents)
-        {
-            rval += gdlToXML(sentence);
-        }
-        rval += "</state>";
-        return rval;
-    }
-    
-    // TODO: Do we really need this method?
-    // Should we update it to something more JSON-friendly?    
-    public final String toMatchXML()
-    {
-        String rval = "<match>\n <herstory>\n";
-        rval += toXML();
-        rval += " </herstory>\n</match>";
-        return rval;
-    }
-    
-    // TODO: Do we really need this method?
-    // Should we update it to something more JSON-friendly?    
-    private final String gdlToXML(Gdl gdl)
-    {
-        String rval = "";
-        if(gdl instanceof GdlConstant)
-        {
-            GdlConstant c = (GdlConstant)gdl;
-            return c.getValue();
-        } else if(gdl instanceof GdlFunction) {
-            GdlFunction f = (GdlFunction)gdl;
-            if(f.getName().toString().equals("true"))
-            {
-                return "\t<fact>\n"+gdlToXML(f.get(0))+"\t</fact>\n";
-            }
-            else
-            {
-                rval += "\t\t<relation>"+f.getName()+"</relation>\n";
-                for(int i=0; i<f.arity(); i++)
-                    rval += "\t\t<argument>"+gdlToXML(f.get(i))+"</argument>\n";
-                return rval;
-            }
-        } else if (gdl instanceof GdlRelation) {
-            GdlRelation relation = (GdlRelation) gdl;
-            if(relation.getName().toString().equals("true"))
-            {
-                for(int i=0; i<relation.arity(); i++)
-                    rval+="\t<fact>\n"+gdlToXML(relation.get(i))+"\t</fact>\n";
-                return rval;
-            } else {
-                rval+="\t\t<relation>"+relation.getName()+"</relation>\n";
-                for(int i=0; i<relation.arity(); i++)
-                    rval+="\t\t<argument>"+gdlToXML(relation.get(i))+"</argument>\n";
-                return rval;
-            }
-        } else {
-            System.err.println("MachineState gdlToXML Error: could not handle "+gdl.toString());
-            return "";
-        }
     }
 }

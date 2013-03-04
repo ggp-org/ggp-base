@@ -14,6 +14,9 @@ import org.ggp.base.util.game.RemoteGameRepository;
 import org.ggp.base.util.gdl.factory.GdlFactory;
 import org.ggp.base.util.gdl.factory.exceptions.GdlFormatException;
 import org.ggp.base.util.gdl.grammar.Gdl;
+import org.ggp.base.util.gdl.grammar.GdlConstant;
+import org.ggp.base.util.gdl.grammar.GdlFunction;
+import org.ggp.base.util.gdl.grammar.GdlRelation;
 import org.ggp.base.util.gdl.grammar.GdlSentence;
 import org.ggp.base.util.gdl.grammar.GdlTerm;
 import org.ggp.base.util.gdl.scrambler.GdlScrambler;
@@ -317,6 +320,36 @@ public final class Match
         
         return theJSON.toString();
     }
+
+    public String toXML() {
+    	try {
+    		JSONObject theJSON = new JSONObject(toJSON());
+
+    		StringBuilder theXML = new StringBuilder();
+    		theXML.append("<match>");
+    		for (String key : JSONObject.getNames(theJSON)) {
+    			Object value = theJSON.get(key);
+    			if (value instanceof JSONObject) {
+    				throw new RuntimeException("Unexpected embedded JSONObject in match JSON with tag " + key + "; could not convert to XML.");
+    			} else if (!(value instanceof JSONArray)) {
+    				theXML.append(renderLeafXML(key, theJSON.get(key)));
+    			} else if (key.equals("states")) {
+    				theXML.append(renderStateHistoryXML(stateHistory));
+    			} else if (key.equals("moves")) {
+    				theXML.append(renderMoveHistoryXML(moveHistory));
+    			} else if (key.equals("errors")) {
+    				theXML.append(renderErrorHistoryXML(errorHistory));
+    			} else {
+    				theXML.append(renderArrayXML(key, (JSONArray)value));
+    			}
+    		}
+    		theXML.append("</match>");
+    		
+    		return theXML.toString();
+    	} catch (JSONException je) {
+    		return null;
+    	}
+    }
     
     public List<GdlTerm> getMostRecentMoves() {
         if (moveHistory.size() == 0)
@@ -406,7 +439,7 @@ public final class Match
 	
 	/* Static methods */
 	
-    public static String getRandomString(int nLength) {
+    public static final String getRandomString(int nLength) {
         Random theGenerator = new Random();
         String theString = "";
         for (int i = 0; i < nLength; i++) {
@@ -418,7 +451,9 @@ public final class Match
         return theString;
     }
     
-    private static String renderArrayAsJSON(List<?> theList, boolean useQuotes) {
+    /* JSON rendering methods */
+    
+    private static final String renderArrayAsJSON(List<?> theList, boolean useQuotes) {
         String s = "[";
         for (int i = 0; i < theList.size(); i++) {
             Object o = theList.get(i);
@@ -435,7 +470,7 @@ public final class Match
         return s + "]";        
     }
 
-    private static List<String> renderStateHistory(List<Set<GdlSentence>> stateHistory) {
+    private static final List<String> renderStateHistory(List<Set<GdlSentence>> stateHistory) {
         List<String> renderedStates = new ArrayList<String>();
         for (Set<GdlSentence> aState : stateHistory) {
             renderedStates.add(renderStateAsSymbolList(aState));
@@ -443,7 +478,7 @@ public final class Match
         return renderedStates;
     }
 
-    private static List<String> renderMoveHistory(List<List<GdlTerm>> moveHistory) {
+    private static final List<String> renderMoveHistory(List<List<GdlTerm>> moveHistory) {
         List<String> renderedMoves = new ArrayList<String>();
         for (List<GdlTerm> aMove : moveHistory) {
             renderedMoves.add(renderArrayAsJSON(aMove, true));
@@ -451,7 +486,7 @@ public final class Match
         return renderedMoves;        
     }
     
-    private static List<String> renderErrorHistory(List<List<String>> errorHistory) {
+    private static final List<String> renderErrorHistory(List<List<String>> errorHistory) {
         List<String> renderedErrors = new ArrayList<String>();
         for (List<String> anError : errorHistory) {
             renderedErrors.add(renderArrayAsJSON(anError, true));
@@ -459,7 +494,7 @@ public final class Match
         return renderedErrors;        
     }    
 
-    private static String renderStateAsSymbolList(Set<GdlSentence> theState) {
+    private static final String renderStateAsSymbolList(Set<GdlSentence> theState) {
         // Strip out the TRUE proposition, since those are implied for states.
         String s = "( ";
         for (GdlSentence sent : theState) {
@@ -467,5 +502,104 @@ public final class Match
             s += sentString.substring(6, sentString.length()-2).trim() + " ";
         }
         return s + ")";
+    }
+    
+    /* XML Rendering methods -- these are horribly inefficient and are included only for legacy/standards compatibility */
+    
+    private static final String renderLeafXML(String tagName, Object value) {
+    	return "<" + tagName + ">" + value.toString() + "</" + tagName + ">";
+    }
+    
+    private static final String renderMoveHistoryXML(List<List<GdlTerm>> moveHistory) {
+    	StringBuilder theXML = new StringBuilder();
+		theXML.append("<history>");
+		for (List<GdlTerm> move : moveHistory) {
+			theXML.append("<move>");
+			for (GdlTerm action : move) {
+				theXML.append(renderLeafXML("action", renderGdlToXML(action)));
+			}
+			theXML.append("</move>");
+		}
+		theXML.append("</history>");
+		return theXML.toString();
+    }
+    
+    private static final String renderErrorHistoryXML(List<List<String>> errorHistory) {
+    	StringBuilder theXML = new StringBuilder();
+		theXML.append("<errorHistory>");
+		for (List<String> errors : errorHistory) {
+			theXML.append("<errors>");
+			for (String error : errors) {
+				theXML.append(renderLeafXML("error", error));
+			}
+			theXML.append("</errors>");
+		}
+		theXML.append("</errorHistory>");
+		return theXML.toString();
+    }
+    
+    private static final String renderStateHistoryXML(List<Set<GdlSentence>> stateHistory) {
+    	StringBuilder theXML = new StringBuilder();
+		theXML.append("<herstory>");
+		for (Set<GdlSentence> state : stateHistory) {
+			theXML.append(renderStateXML(state));
+		}
+		theXML.append("</herstory>");
+		return theXML.toString();
+    }
+    
+    public static final String renderStateXML(Set<GdlSentence> state) {
+    	StringBuilder theXML = new StringBuilder();
+		theXML.append("<state>");
+		for (GdlSentence sentence : state) {
+			theXML.append(renderGdlToXML(sentence));
+		}
+		theXML.append("</state>");
+		return theXML.toString();
+    }
+    
+    private static final String renderArrayXML(String tag, JSONArray arr) throws JSONException {
+    	StringBuilder theXML = new StringBuilder();
+    	for (int i = 0; i < arr.length(); i++) {
+    		theXML.append(renderLeafXML(tag, arr.get(i)));
+    	}
+		return theXML.toString();
+    }
+    
+    private static final String renderGdlToXML(Gdl gdl) {
+        String rval = "";
+        if(gdl instanceof GdlConstant) {
+            GdlConstant c = (GdlConstant)gdl;
+            return c.getValue();
+        } else if(gdl instanceof GdlFunction) {
+            GdlFunction f = (GdlFunction)gdl;
+            if(f.getName().toString().equals("true"))
+            {
+                return "<fact>"+renderGdlToXML(f.get(0))+"</fact>";
+            }
+            else
+            {
+                rval += "<relation>"+f.getName()+"</relation>";
+                for(int i=0; i<f.arity(); i++)
+                    rval += "<argument>"+renderGdlToXML(f.get(i))+"</argument>";
+                return rval;
+            }
+        } else if (gdl instanceof GdlRelation) {
+            GdlRelation relation = (GdlRelation) gdl;
+            if(relation.getName().toString().equals("true"))
+            {
+                for(int i=0; i<relation.arity(); i++)
+                    rval+="<fact>"+renderGdlToXML(relation.get(i))+"</fact>";
+                return rval;
+            } else {
+                rval+="<relation>"+relation.getName()+"</relation>";
+                for(int i=0; i<relation.arity(); i++)
+                    rval+="<argument>"+renderGdlToXML(relation.get(i))+"</argument>";
+                return rval;
+            }
+        } else {
+            System.err.println("gdlToXML Error: could not handle "+gdl.toString());
+            return null;
+        }
     }    
 }

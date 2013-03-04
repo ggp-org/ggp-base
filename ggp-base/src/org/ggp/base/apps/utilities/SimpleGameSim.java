@@ -118,7 +118,7 @@ public class SimpleGameSim {
                 System.out.println("Goal for " + r + ": " + theMachine.getGoal(theCurrentState, r));
             System.out.println("Match information cryptographically signed? " + SignableJSON.isSignedJSON(new JSONObject(theMatch.toJSON())));
             System.out.println("Match information cryptographic signature valid? " + SignableJSON.verifySignedJSON(new JSONObject(theMatch.toJSON())));
-            System.out.println("Game over.");            
+            System.out.println("Game over.");
         } catch(Exception e) {
             e.printStackTrace();
         }
