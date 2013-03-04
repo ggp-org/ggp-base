@@ -45,7 +45,7 @@ public abstract class StateMachineGamer extends Gamer
     
     /**
      * Defines the metagaming action taken by a player during the START_CLOCK
-     * @param timeout the START_CLOCK for the current game
+     * @param timeout time in milliseconds since the era when this function must return
      * @throws TransitionDefinitionException
      * @throws MoveDefinitionException
      * @throws GoalDefinitionException
@@ -54,7 +54,7 @@ public abstract class StateMachineGamer extends Gamer
     
     /**
      * Defines the algorithm that the player uses to select their move.
-     * @param timeout the START_CLOCK for the current game
+     * @param timeout time in milliseconds since the era when this function must return
      * @return Move - the move selected by the player
      * @throws TransitionDefinitionException
      * @throws MoveDefinitionException
