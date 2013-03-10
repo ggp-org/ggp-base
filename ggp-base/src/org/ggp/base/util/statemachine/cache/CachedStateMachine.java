@@ -1,21 +1,22 @@
-package org.ggp.base.util.statemachine.implementation.prover.cache;
+package org.ggp.base.util.statemachine.cache;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.ggp.base.util.cache.TtlCache;
+import org.ggp.base.util.gdl.grammar.Gdl;
+import org.ggp.base.util.statemachine.StateMachine;
 import org.ggp.base.util.statemachine.MachineState;
 import org.ggp.base.util.statemachine.Move;
 import org.ggp.base.util.statemachine.Role;
 import org.ggp.base.util.statemachine.exceptions.GoalDefinitionException;
 import org.ggp.base.util.statemachine.exceptions.MoveDefinitionException;
 import org.ggp.base.util.statemachine.exceptions.TransitionDefinitionException;
-import org.ggp.base.util.statemachine.implementation.prover.ProverStateMachine;
 
-
-public final class CachedProverStateMachine extends ProverStateMachine
+public final class CachedStateMachine extends StateMachine
 {
+	private final StateMachine backingStateMachine;
+	private final TtlCache<MachineState, Entry> ttlCache;	
 
 	private final class Entry
 	{
@@ -33,10 +34,9 @@ public final class CachedProverStateMachine extends ProverStateMachine
 		}
 	}
 
-	private final TtlCache<MachineState, Entry> ttlCache;
-
-	public CachedProverStateMachine()
+	public CachedStateMachine(StateMachine backingStateMachine)
 	{
+		this.backingStateMachine = backingStateMachine;
 		ttlCache = new TtlCache<MachineState, Entry>(1);
 	}
 
@@ -58,7 +58,7 @@ public final class CachedProverStateMachine extends ProverStateMachine
 		{
 			if (!entry.goals.containsKey(role))
 			{
-				entry.goals.put(role, super.getGoal(state, role));
+				entry.goals.put(role, backingStateMachine.getGoal(state, role));
 			}
 
 			return entry.goals.get(role);
@@ -73,7 +73,7 @@ public final class CachedProverStateMachine extends ProverStateMachine
 		{
 			if (!entry.moves.containsKey(role))
 			{
-				entry.moves.put(role, super.getLegalMoves(state, role));
+				entry.moves.put(role, backingStateMachine.getLegalMoves(state, role));
 			}
 
 			return entry.moves.get(role);
@@ -88,7 +88,7 @@ public final class CachedProverStateMachine extends ProverStateMachine
 		{
 			if (!entry.nexts.containsKey(moves))
 			{
-				entry.nexts.put(moves, super.getNextState(state, moves));
+				entry.nexts.put(moves, backingStateMachine.getNextState(state, moves));
 			}
 
 			return entry.nexts.get(moves);
@@ -103,7 +103,7 @@ public final class CachedProverStateMachine extends ProverStateMachine
 		{
 			if (entry.terminal == null)
 			{
-				entry.terminal = super.isTerminal(state);
+				entry.terminal = backingStateMachine.isTerminal(state);
 			}
 
 			return entry.terminal;
@@ -121,4 +121,20 @@ public final class CachedProverStateMachine extends ProverStateMachine
 		ttlCache.prune();
 	}
 
+	@Override
+	public void initialize(List<Gdl> description) {
+		backingStateMachine.initialize(description);		
+	}
+
+	@Override
+	public List<Role> getRoles() {
+		// TODO(schreib): Should this be cached as well?
+		return backingStateMachine.getRoles();
+	}
+
+	@Override
+	public MachineState getInitialState() {
+		// TODO(schreib): Should this be cached as well?		
+		return backingStateMachine.getInitialState();
+	}
 }

@@ -11,10 +11,11 @@ import org.ggp.base.player.gamer.statemachine.human.gui.HumanDetailPanel;
 import org.ggp.base.util.game.Game;
 import org.ggp.base.util.statemachine.Move;
 import org.ggp.base.util.statemachine.StateMachine;
+import org.ggp.base.util.statemachine.cache.CachedStateMachine;
 import org.ggp.base.util.statemachine.exceptions.GoalDefinitionException;
 import org.ggp.base.util.statemachine.exceptions.MoveDefinitionException;
 import org.ggp.base.util.statemachine.exceptions.TransitionDefinitionException;
-import org.ggp.base.util.statemachine.implementation.prover.cache.CachedProverStateMachine;
+import org.ggp.base.util.statemachine.implementation.prover.ProverStateMachine;
 
 /**
  * HumanGamer is a simple apparatus for letting a human control a player,
@@ -84,7 +85,7 @@ public final class HumanGamer extends StateMachineGamer
 	
 	@Override
 	public StateMachine getInitialStateMachine() {
-		return new CachedProverStateMachine();
+		return new CachedStateMachine(new ProverStateMachine());
 	}
 	
 	@Override

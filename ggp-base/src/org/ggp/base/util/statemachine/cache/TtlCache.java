@@ -1,4 +1,4 @@
-package org.ggp.base.util.cache;
+package org.ggp.base.util.statemachine.cache;
 
 import java.util.ArrayList;
 import java.util.Collection;

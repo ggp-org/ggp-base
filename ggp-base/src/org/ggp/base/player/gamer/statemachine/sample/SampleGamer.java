@@ -6,10 +6,11 @@ import org.ggp.base.player.gamer.exception.GameAnalysisException;
 import org.ggp.base.player.gamer.statemachine.StateMachineGamer;
 import org.ggp.base.util.game.Game;
 import org.ggp.base.util.statemachine.StateMachine;
+import org.ggp.base.util.statemachine.cache.CachedStateMachine;
 import org.ggp.base.util.statemachine.exceptions.GoalDefinitionException;
 import org.ggp.base.util.statemachine.exceptions.MoveDefinitionException;
 import org.ggp.base.util.statemachine.exceptions.TransitionDefinitionException;
-import org.ggp.base.util.statemachine.implementation.prover.cache.CachedProverStateMachine;
+import org.ggp.base.util.statemachine.implementation.prover.ProverStateMachine;
 
 /**
  * SampleGamer is a simplified version of the StateMachineGamer, dropping some
@@ -45,7 +46,7 @@ public abstract class SampleGamer extends StateMachineGamer
 	
 	@Override
 	public StateMachine getInitialStateMachine() {
-		return new CachedProverStateMachine();
+		return new CachedStateMachine(new ProverStateMachine());
 	}	
 
 	@Override

@@ -20,7 +20,8 @@ import org.ggp.base.util.observer.Event;
 import org.ggp.base.util.observer.Observer;
 import org.ggp.base.util.statemachine.MachineState;
 import org.ggp.base.util.statemachine.StateMachine;
-import org.ggp.base.util.statemachine.implementation.prover.cache.CachedProverStateMachine;
+import org.ggp.base.util.statemachine.cache.CachedStateMachine;
+import org.ggp.base.util.statemachine.implementation.prover.ProverStateMachine;
 import org.ggp.base.util.ui.timer.JTimerBar;
 
 @SuppressWarnings("serial")
@@ -117,7 +118,7 @@ public final class VisualizationPanel extends JPanel implements Observer
         frame.pack();
         frame.setVisible(true);
         
-        StateMachine theMachine = new CachedProverStateMachine();        
+        StateMachine theMachine = new CachedStateMachine(new ProverStateMachine());        
         theMachine.initialize(theGame.getRules());
         try {
             MachineState theCurrentState = theMachine.getInitialState();            

@@ -17,13 +17,12 @@ import org.ggp.base.util.statemachine.MachineState;
 import org.ggp.base.util.statemachine.Move;
 import org.ggp.base.util.statemachine.Role;
 import org.ggp.base.util.statemachine.StateMachine;
+import org.ggp.base.util.statemachine.cache.CachedStateMachine;
 import org.ggp.base.util.statemachine.implementation.prover.ProverStateMachine;
-import org.ggp.base.util.statemachine.implementation.prover.cache.CachedProverStateMachine;
 import org.ggp.base.util.statemachine.verifier.StateMachineVerifier;
 
 import external.JSON.JSONException;
 import external.JSON.JSONObject;
-
 
 /**
  * SimpleGameSim is a utility program that lets you simulate play through a
@@ -62,7 +61,7 @@ public class SimpleGameSim {
         // ---------------------------------------------------------
         // Construct the machine: change this to select which machine
         // you're interested in using to simulate the game.
-        StateMachine theMachine = new CachedProverStateMachine();        
+        StateMachine theMachine = new CachedStateMachine(new ProverStateMachine());        
         theMachine.initialize(theGame.getRules());
         
         // Check for consistency, before we simulate the game.
