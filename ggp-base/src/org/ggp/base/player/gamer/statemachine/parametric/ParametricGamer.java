@@ -15,6 +15,7 @@ import org.ggp.base.util.gdl.grammar.GdlPool;
 import org.ggp.base.util.statemachine.MachineState;
 import org.ggp.base.util.statemachine.Move;
 import org.ggp.base.util.statemachine.StateMachine;
+import org.ggp.base.util.statemachine.cache.CachedStateMachine;
 import org.ggp.base.util.statemachine.exceptions.GoalDefinitionException;
 import org.ggp.base.util.statemachine.exceptions.MoveDefinitionException;
 import org.ggp.base.util.statemachine.exceptions.TransitionDefinitionException;
@@ -96,7 +97,17 @@ public final class ParametricGamer extends StateMachineGamer
 	
 	@Override
 	public StateMachine getInitialStateMachine() {
-		return new ProverStateMachine();
+		StateMachine theMachine;
+		String stateMachine = configPanel.getParameter("stateMachine", "Prover");
+		if (stateMachine.equals("Prover")) {
+			theMachine = new ProverStateMachine();
+		} else {
+			theMachine = new ProverStateMachine();
+		}
+		if (configPanel.getParameter("cacheStateMachine", false)) {
+			theMachine = new CachedStateMachine(theMachine);
+		}
+		return theMachine;
 	}
 
 	@Override
@@ -251,13 +262,6 @@ public final class ParametricGamer extends StateMachineGamer
 	
 	// HEURISTIC GAMER
 	
-	/**
-	 * MAX_DEPTH defines how many layers of the game tree should be expanded by
-	 * the minimax algorithm before non-terminal states are evaluated using the
-	 * heuristic functions.
-	 */
-	private static final int MAX_DEPTH = 5;
-	
 	public Move selectHeuristicMove(long finishBy) throws TransitionDefinitionException, MoveDefinitionException, GoalDefinitionException
 	{
 		List<Move> moves = getStateMachine().getLegalMoves(getCurrentState(), getRole());
@@ -265,7 +269,7 @@ public final class ParametricGamer extends StateMachineGamer
 		Move bestMoveSoFar = null;
 		
 		for (Move move : moves) {
-			int bestScoreAfterMove = heuristicScoreForMove(getCurrentState(), move, MAX_DEPTH);
+			int bestScoreAfterMove = heuristicScoreForMove(getCurrentState(), move, configPanel.getParameter("maxPlys", 5));
 			if (bestScoreAfterMove > bestScoreSoFar) {
 				bestScoreSoFar = bestScoreAfterMove;
 				bestMoveSoFar = move;

@@ -16,11 +16,16 @@ import java.nio.charset.Charset;
 
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JSpinner;
 import javax.swing.JTextField;
+import javax.swing.SpinnerNumberModel;
 import javax.swing.border.TitledBorder;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
@@ -29,45 +34,71 @@ import org.ggp.base.apps.player.config.ConfigPanel;
 import external.JSON.JSONException;
 import external.JSON.JSONObject;
 
-class ParametricConfigPanel extends ConfigPanel implements ActionListener, DocumentListener {
+class ParametricConfigPanel extends ConfigPanel implements ActionListener, DocumentListener, ChangeListener {
 	private static final long serialVersionUID = 1L;
 	
 	private JSONObject params;
 	private boolean params_dirty;
 
 	final JButton saveButton;
-	final JTextField styleField;
-	final JComboBox strategyField;
+	final JTextField style;
+	final JComboBox strategy;
+	final JComboBox stateMachine;
+	final JCheckBox cacheStateMachine;
+	final JSpinner maxPlys;
+	final JPanel rightPanel;
 	public ParametricConfigPanel() {
 		super(new GridBagLayout());		
 		JPanel leftPanel = new JPanel(new GridBagLayout());
 		leftPanel.setBorder(new TitledBorder("Major Parameters"));
-		JPanel rightPanel = new JPanel(new GridBagLayout());
+		rightPanel = new JPanel(new GridBagLayout());
 		rightPanel.setBorder(new TitledBorder("Minor Parameters"));
 
-		strategyField = new JComboBox(new String[] { "Noop", "Legal", "Random", "Puzzle", "Minimax", "SearchLight", "Heuristic", "Monte Carlo" });
+		strategy = new JComboBox(new String[] { "Noop", "Legal", "Random", "Puzzle", "Minimax", "SearchLight", "Heuristic", "Monte Carlo" });
+		stateMachine = new JComboBox(new String[] { "Prover" });
+		cacheStateMachine = new JCheckBox();
+		maxPlys = new JSpinner(new SpinnerNumberModel(5,1,100,1));
 
-		styleField = new JTextField();
-		styleField.setColumns(20);
+		style = new JTextField();
+		style.setColumns(20);
 		
 		saveButton = new JButton(saveButtonMethod());
 	    saveButton.setEnabled(false);
 		
 		int nRow = 0;
 		leftPanel.add(new JLabel("Strategy"), new GridBagConstraints(0, nRow, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 5, 5));
-		leftPanel.add(strategyField, new GridBagConstraints(1, nRow++, 1, 1, 1.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 5, 5));
-		leftPanel.add(new JLabel("Style"), new GridBagConstraints(0, nRow, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 5, 5));
-		leftPanel.add(styleField, new GridBagConstraints(1, nRow++, 1, 1, 1.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 5, 5));
-		leftPanel.add(saveButton, new GridBagConstraints(1, nRow++, 1, 1, 1.0, 1.0, GridBagConstraints.SOUTHEAST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 5, 5));
-
+		leftPanel.add(strategy, new GridBagConstraints(1, nRow++, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 5, 5));
+		leftPanel.add(new JLabel("State Machine"), new GridBagConstraints(0, nRow, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 5, 5));
+		leftPanel.add(stateMachine, new GridBagConstraints(1, nRow++, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 5, 5));		
+		//leftPanel.add(new JLabel("Style"), new GridBagConstraints(0, nRow, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 5, 5));
+		//leftPanel.add(styleField, new GridBagConstraints(1, nRow++, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 5, 5));
+		leftPanel.add(saveButton, new GridBagConstraints(1, nRow++, 1, 1, 1.0, 1.0, GridBagConstraints.SOUTHEAST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 5, 5));		
+		layoutRightPanel();
+		
 		add(leftPanel, new GridBagConstraints(0, 0, 1, 1, 0.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 5, 5));
 		add(rightPanel, new GridBagConstraints(1, 0, 1, 1, 1.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 5, 5));		
 		
 		loadParamsJSON();
 		setUIfromJSON();
 		
-		strategyField.addActionListener(this);
-		styleField.getDocument().addDocumentListener(this);		
+		strategy.addActionListener(this);
+		stateMachine.addActionListener(this);
+		cacheStateMachine.addActionListener(this);
+		maxPlys.addChangeListener(this);
+		style.getDocument().addDocumentListener(this);		
+	}
+	
+	private void layoutRightPanel() {
+		int nRow = 0;
+		rightPanel.removeAll();
+		rightPanel.add(new JLabel("State machine cache?"), new GridBagConstraints(0, nRow, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 5, 5));
+		rightPanel.add(cacheStateMachine, new GridBagConstraints(1, nRow++, 1, 1, 1.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 5, 5));
+		if (strategy.getSelectedItem().toString().equals("Heuristic")) {
+			rightPanel.add(new JLabel("Max plys?"), new GridBagConstraints(0, nRow, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 5, 5));
+			rightPanel.add(maxPlys, new GridBagConstraints(1, nRow++, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 5, 5));
+		}
+		rightPanel.add(new JLabel(), new GridBagConstraints(2, nRow++, 1, 1, 1.0, 1.0, GridBagConstraints.SOUTHEAST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 5, 5));
+		rightPanel.repaint();
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -85,6 +116,9 @@ class ParametricConfigPanel extends ConfigPanel implements ActionListener, Docum
 	
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
+		if (arg0.getSource() == strategy) {
+			layoutRightPanel();
+		}
 		syncJSONtoUI();
 	}		
 	@Override
@@ -98,7 +132,11 @@ class ParametricConfigPanel extends ConfigPanel implements ActionListener, Docum
 	@Override
 	public void removeUpdate(DocumentEvent e) {
 		syncJSONtoUI();
-	}		
+	}
+	@Override
+	public void stateChanged(ChangeEvent arg0) {
+		syncJSONtoUI();
+	}
 	
 	void syncJSONtoUI() {
 		JSONObject newParams = getJSONfromUI();
@@ -112,10 +150,13 @@ class ParametricConfigPanel extends ConfigPanel implements ActionListener, Docum
 	JSONObject getJSONfromUI() {
 		JSONObject newParams = new JSONObject();
 		try {
-			if (!styleField.getText().isEmpty()) {
-				newParams.put("style", styleField.getText());
+			if (!style.getText().isEmpty()) {
+				newParams.put("style", style.getText());
 			}
-			newParams.put("strategy", strategyField.getSelectedItem().toString());
+			newParams.put("strategy", strategy.getSelectedItem().toString());
+			newParams.put("stateMachine", stateMachine.getSelectedItem().toString());
+			newParams.put("cacheStateMachine", cacheStateMachine.isSelected());
+			newParams.put("maxPlys", maxPlys.getModel().getValue());
 		} catch (JSONException je) {
 			je.printStackTrace();
 		}
@@ -125,10 +166,19 @@ class ParametricConfigPanel extends ConfigPanel implements ActionListener, Docum
 	void setUIfromJSON() {
 		try {
 			if (params.has("style")) {
-				styleField.setText(params.getString("style"));					
+				style.setText(params.getString("style"));					
 			}
 			if (params.has("strategy")) {
-				strategyField.setSelectedItem(params.getString("strategy"));
+				strategy.setSelectedItem(params.getString("strategy"));
+			}
+			if (params.has("stateMachine")) {
+				stateMachine.setSelectedItem(params.getString("stateMachine"));
+			}
+			if (params.has("cacheStateMachine")) {
+				cacheStateMachine.setSelected(params.getBoolean("cacheStateMachine"));
+			}
+			if (params.has("maxPlys")) {
+				maxPlys.getModel().setValue(params.getInt("maxPlys"));
 			}
 		} catch (JSONException je) {
 			je.printStackTrace();
