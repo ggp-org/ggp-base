@@ -41,7 +41,7 @@ class ParametricConfigPanel extends ConfigPanel implements ActionListener, Docum
 	private boolean params_dirty;
 
 	final JButton saveButton;
-	final JTextField style;
+	final JTextField name;
 	final JComboBox strategy;
 	final JComboBox stateMachine;
 	final JCheckBox cacheStateMachine;
@@ -59,19 +59,20 @@ class ParametricConfigPanel extends ConfigPanel implements ActionListener, Docum
 		cacheStateMachine = new JCheckBox();
 		maxPlys = new JSpinner(new SpinnerNumberModel(5,1,100,1));
 
-		style = new JTextField();
-		style.setColumns(20);
+		name = new JTextField();
+		name.setColumns(20);
+		name.setText("Parametric");
 		
 		saveButton = new JButton(saveButtonMethod());
 	    saveButton.setEnabled(false);
 		
 		int nRow = 0;
+		leftPanel.add(new JLabel("Name"), new GridBagConstraints(0, nRow, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 5, 5));
+		leftPanel.add(name, new GridBagConstraints(1, nRow++, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 5, 5));		
 		leftPanel.add(new JLabel("Strategy"), new GridBagConstraints(0, nRow, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 5, 5));
 		leftPanel.add(strategy, new GridBagConstraints(1, nRow++, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 5, 5));
 		leftPanel.add(new JLabel("State Machine"), new GridBagConstraints(0, nRow, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 5, 5));
 		leftPanel.add(stateMachine, new GridBagConstraints(1, nRow++, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 5, 5));		
-		//leftPanel.add(new JLabel("Style"), new GridBagConstraints(0, nRow, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 5, 5));
-		//leftPanel.add(styleField, new GridBagConstraints(1, nRow++, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 5, 5));
 		leftPanel.add(saveButton, new GridBagConstraints(1, nRow++, 1, 1, 1.0, 1.0, GridBagConstraints.SOUTHEAST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 5, 5));		
 		layoutRightPanel();
 		
@@ -85,7 +86,7 @@ class ParametricConfigPanel extends ConfigPanel implements ActionListener, Docum
 		stateMachine.addActionListener(this);
 		cacheStateMachine.addActionListener(this);
 		maxPlys.addChangeListener(this);
-		style.getDocument().addDocumentListener(this);		
+		name.getDocument().addDocumentListener(this);		
 	}
 	
 	private void layoutRightPanel() {
@@ -150,8 +151,8 @@ class ParametricConfigPanel extends ConfigPanel implements ActionListener, Docum
 	JSONObject getJSONfromUI() {
 		JSONObject newParams = new JSONObject();
 		try {
-			if (!style.getText().isEmpty()) {
-				newParams.put("style", style.getText());
+			if (!name.getText().isEmpty()) {
+				newParams.put("name", name.getText());
 			}
 			newParams.put("strategy", strategy.getSelectedItem().toString());
 			newParams.put("stateMachine", stateMachine.getSelectedItem().toString());
@@ -165,8 +166,8 @@ class ParametricConfigPanel extends ConfigPanel implements ActionListener, Docum
 	
 	void setUIfromJSON() {
 		try {
-			if (params.has("style")) {
-				style.setText(params.getString("style"));					
+			if (params.has("name")) {
+				name.setText(params.getString("name"));					
 			}
 			if (params.has("strategy")) {
 				strategy.setSelectedItem(params.getString("strategy"));

@@ -37,7 +37,7 @@ public final class ParametricGamer extends StateMachineGamer
 	
 	@Override
 	public String getName() {
-		return "Parametric";
+		return configPanel.getParameter("name", "Parametric");
 	}
 	
 	/**
