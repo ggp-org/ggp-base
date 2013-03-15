@@ -83,8 +83,6 @@ public class PlayerSelector {
 				textLabel = textLabel.substring(0, maxLabelLength-3) + "...";
 			}
 			
-			System.out.println("Rendering " + textLabel);
-			
 			setIcon(new ImageIcon(img));
 			setText(textLabel);
 			setFont(list.getFont());		

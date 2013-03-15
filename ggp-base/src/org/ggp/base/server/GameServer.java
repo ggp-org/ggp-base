@@ -1,5 +1,8 @@
 package org.ggp.base.server;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -35,7 +38,6 @@ import org.ggp.base.util.statemachine.exceptions.GoalDefinitionException;
 import org.ggp.base.util.statemachine.exceptions.MoveDefinitionException;
 import org.ggp.base.util.statemachine.implementation.prover.ProverStateMachine;
 
-
 public final class GameServer extends Thread implements Subject
 {
     private final Match match;
@@ -53,7 +55,8 @@ public final class GameServer extends Thread implements Subject
     
     private Map<Role,String> mostRecentErrors;
     
-    private String spectatorServerURL;
+    private String saveToFilename;
+    private String spectatorServerURL;    
     private boolean forceUsingEntireClock;
     
     public GameServer(Match match, List<String> hosts, List<Integer> ports, List<String> playerNames) {
@@ -82,6 +85,10 @@ public final class GameServer extends Thread implements Subject
         
         spectatorServerURL = null;
         forceUsingEntireClock = false;
+    }
+    
+    public void startSavingToFilename(String theFilename) {
+    	saveToFilename = theFilename;
     }
     
     public String startPublishingToSpectatorServer(String theURL) {
@@ -154,6 +161,7 @@ public final class GameServer extends Thread implements Subject
 
             while (!stateMachine.isTerminal(currentState)) {
                 publishWhenNecessary();
+                saveWhenNecessary();
                 notifyObservers(new ServerNewGameStateEvent(currentState));
                 notifyObservers(new ServerTimeEvent(match.getPlayClock() * 1000));
                 previousMoves = sendPlayRequests();
@@ -167,6 +175,7 @@ public final class GameServer extends Thread implements Subject
             }
             match.markCompleted(stateMachine.getGoals(currentState));
             publishWhenNecessary();
+            saveWhenNecessary();
             notifyObservers(new ServerNewGameStateEvent(currentState));
             notifyObservers(new ServerCompletedMatchEvent(getGoals()));
             sendStopRequests(previousMoves);
@@ -188,6 +197,26 @@ public final class GameServer extends Thread implements Subject
     		notifyObservers(new ServerAbortedMatchEvent());
     	} catch (Exception e) {
     		e.printStackTrace();
+    	}
+    }
+    
+    private void saveWhenNecessary() {
+    	if (saveToFilename == null) {
+    		return;
+    	}
+    	
+    	try {
+			File file = new File(saveToFilename);
+			if (!file.exists()) {				
+				file.createNewFile();
+			}
+			FileWriter fw = new FileWriter(file);
+			BufferedWriter bw = new BufferedWriter(fw);
+			bw.write(match.toJSON().toString());
+			bw.close();
+			fw.close();
+    	} catch (IOException ie) {
+    		ie.printStackTrace();
     	}
     }
 

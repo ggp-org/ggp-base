@@ -7,11 +7,13 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -20,13 +22,13 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
+import javax.swing.JSpinner;
 import javax.swing.JTabbedPane;
-import javax.swing.JTextField;
+import javax.swing.SpinnerNumberModel;
 import javax.swing.border.TitledBorder;
 
 import org.ggp.base.apps.server.error.ErrorPanel;
 import org.ggp.base.apps.server.history.HistoryPanel;
-import org.ggp.base.apps.server.publishing.PublishingPanel;
 import org.ggp.base.apps.server.states.StatesPanel;
 import org.ggp.base.apps.server.visualization.VisualizationPanel;
 import org.ggp.base.server.GameServer;
@@ -74,10 +76,9 @@ public final class ServerPanel2 extends JPanel implements ActionListener
 	}
 	
 	private Game theGame;
-	private final JPanel managerPanel;
-	private final JTabbedPane matchesTabbedPane;
-	private final JTextField playClockTextField;
 	
+	private final JPanel managerPanel;
+	private final JTabbedPane matchesTabbedPane;	
 	private final JPanel gamePanel;
 	private final JPanel playersPanel;
 
@@ -85,7 +86,12 @@ public final class ServerPanel2 extends JPanel implements ActionListener
 	private final List<JLabel> roleLabels;
 	private final JButton runButton;
 
-	private final JTextField startClockTextField;
+	private final JSpinner startClockSpinner;
+	private final JSpinner playClockSpinner;
+	
+	private final JCheckBox shouldPublish;
+	private final JCheckBox shouldSave;
+	
 	private final GameSelector gameSelector;
 	private final PlayerSelector playerSelector;
 	private final JList playerSelectorList;
@@ -102,8 +108,8 @@ public final class ServerPanel2 extends JPanel implements ActionListener
 		super(new GridBagLayout());
 		
 		runButton = new JButton(runButtonMethod());
-		startClockTextField = new JTextField("30");
-		playClockTextField = new JTextField("15");		
+		startClockSpinner = new JSpinner(new SpinnerNumberModel(30,1,600,1));
+		playClockSpinner = new JSpinner(new SpinnerNumberModel(15,1,300,1));;
 		matchesTabbedPane = new JTabbedPane();
 		
 		managerPanel = new JPanel(new GridBagLayout());
@@ -114,9 +120,10 @@ public final class ServerPanel2 extends JPanel implements ActionListener
 		playerFields = new ArrayList<JComboBox>();
 		theGame = null;
 
+		shouldSave = new JCheckBox("Save match to disk?", false);
+		shouldPublish = new JCheckBox("Publish match to the web?", false);
+		
 		runButton.setEnabled(false);
-		startClockTextField.setColumns(15);
-		playClockTextField.setColumns(15);
 
 		gameSelector = new GameSelector();
 		playerSelector = new PlayerSelector();
@@ -124,19 +131,21 @@ public final class ServerPanel2 extends JPanel implements ActionListener
 		
 		int nRowCount = 0;
 		gamePanel.add(new BoldJLabel("Match Setup"), new GridBagConstraints(0, nRowCount++, 3, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(5, 25, 5, 25), 0, 0));
-		gamePanel.add(new JLabel("Repository:"), new GridBagConstraints(0, nRowCount, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 5, 5));
-		gamePanel.add(gameSelector.getRepositoryList(), new GridBagConstraints(1, nRowCount++, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 5, 5));
-		gamePanel.add(new JLabel("Game:"), new GridBagConstraints(0, nRowCount, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 5, 5));
-		gamePanel.add(gameSelector.getGameList(), new GridBagConstraints(1, nRowCount++, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 5, 5));
-		gamePanel.add(new JLabel("Start Clock:"), new GridBagConstraints(0, nRowCount, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 5, 5));
-		gamePanel.add(startClockTextField, new GridBagConstraints(1, nRowCount++, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 5, 5));
-		gamePanel.add(new JLabel("Play Clock:"), new GridBagConstraints(0, nRowCount, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 5, 5));
-		gamePanel.add(playClockTextField, new GridBagConstraints(1, nRowCount++, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 5, 5));
+		gamePanel.add(new JLabel("Repository:"), new GridBagConstraints(0, nRowCount, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 1, 5), 5, 5));
+		gamePanel.add(gameSelector.getRepositoryList(), new GridBagConstraints(1, nRowCount++, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 1, 5), 5, 5));
+		gamePanel.add(new JLabel("Game:"), new GridBagConstraints(0, nRowCount, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(1, 5, 5, 5), 5, 5));
+		gamePanel.add(gameSelector.getGameList(), new GridBagConstraints(1, nRowCount++, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.HORIZONTAL, new Insets(1, 5, 5, 5), 5, 5));
+		gamePanel.add(new JLabel("Start Clock:"), new GridBagConstraints(0, nRowCount, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 1, 5), 5, 5));
+		gamePanel.add(startClockSpinner, new GridBagConstraints(1, nRowCount++, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 1, 5), 5, 5));
+		gamePanel.add(new JLabel("Play Clock:"), new GridBagConstraints(0, nRowCount, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(1, 5, 5, 5), 5, 5));
+		gamePanel.add(playClockSpinner, new GridBagConstraints(1, nRowCount++, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.HORIZONTAL, new Insets(1, 5, 5, 5), 5, 5));
+		gamePanel.add(shouldSave, new GridBagConstraints(1, nRowCount++, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 1, 5), 5, 5));
+		gamePanel.add(shouldPublish, new GridBagConstraints(1, nRowCount++, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.HORIZONTAL, new Insets(1, 5, 5, 5), 5, 5));		
 		gamePanel.add(runButton, new GridBagConstraints(1, nRowCount, 1, 1, 0.0, 1.0, GridBagConstraints.SOUTH, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 0, 0));
 		
 		nRowCount = 0;
 		playersPanel.add(new BoldJLabel("Player List"), new GridBagConstraints(0, nRowCount++, 2, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(5, 25, 5, 25), 0, 0));
-		playersPanel.add(new JScrollPane(playerSelectorList), new GridBagConstraints(0, nRowCount++, 2, 1, 1.0, 1.0, GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(5, 25, 5, 25), 0, 0));
+		playersPanel.add(new JScrollPane(playerSelectorList), new GridBagConstraints(0, nRowCount++, 2, 1, 1.0, 1.0, GridBagConstraints.WEST, GridBagConstraints.BOTH, new Insets(5, 25, 5, 25), 0, 0));
 		playersPanel.add(new JButton(addPlayerButtonMethod()), new GridBagConstraints(0, nRowCount, 1, 1, 1.0, 1.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 0, 0));
 		playersPanel.add(new JButton(removePlayerButtonMethod()), new GridBagConstraints(1, nRowCount, 1, 1, 1.0, 1.0, GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 0, 0));
 		//playersPanel.add(new JButton("Test"), new GridBagConstraints(2, nRowCount++, 1, 1, 1.0, 1.0, GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 0, 0));
@@ -144,7 +153,7 @@ public final class ServerPanel2 extends JPanel implements ActionListener
 		nRowCount = 0;
 		managerPanel.add(gamePanel, new GridBagConstraints(0, nRowCount++, 1, 1, 1.0, 0.0, GridBagConstraints.NORTHWEST, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 5, 5));
 		managerPanel.add(new JSeparator(), new GridBagConstraints(0, nRowCount++, 1, 1, 0.0, 0.0, GridBagConstraints.NORTHWEST, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 5, 5));
-		managerPanel.add(playersPanel, new GridBagConstraints(0, nRowCount++, 1, 1, 1.0, 1.0, GridBagConstraints.NORTHWEST, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 5, 5));
+		managerPanel.add(playersPanel, new GridBagConstraints(0, nRowCount++, 1, 1, 1.0, 1.0, GridBagConstraints.NORTHWEST, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 5, 5));
 
 		JPanel matchesPanel = new JPanel(new GridBagLayout());
 		matchesPanel.setBorder(new TitledBorder("Matches"));
@@ -163,8 +172,8 @@ public final class ServerPanel2 extends JPanel implements ActionListener
 				try {
 					String matchId = "BaseServer." + theGame.getKey() + "." + System.currentTimeMillis();
 					
-					int startClock = Integer.valueOf(startClockTextField.getText());
-					int playClock = Integer.valueOf(playClockTextField.getText());
+					int startClock = (Integer)startClockSpinner.getValue();
+					int playClock = (Integer)playClockSpinner.getValue();
 					Match match = new Match(matchId, -1, startClock, playClock, theGame);
 
 					List<String> hosts = new ArrayList<String>(playerFields.size());
@@ -202,9 +211,21 @@ public final class ServerPanel2 extends JPanel implements ActionListener
 					gameServer.addObserver(visualizationPanel);					
 					gameServer.addObserver(statesPanel);
 					gameServer.start();
-					
-					// TODO: Implement this as a checkbox upon match creation
-					tab.addTab("Publishing", new PublishingPanel(gameServer));
+
+					if (shouldSave.isSelected()) {
+						File matchesDir = new File("matches");
+						if (!matchesDir.exists()) {
+							matchesDir.mkdir();
+						}
+						File matchFile = new File(matchesDir, match.getMatchId() + ".json");
+						gameServer.startSavingToFilename(matchFile.getAbsolutePath());
+					}
+					if (shouldPublish.isSelected()) {
+						if (!match.getGame().getRepositoryURL().contains("127.0.0.1")) {
+							// TODO: Do something with the ID returned here.
+							gameServer.startPublishingToSpectatorServer("http://matches.ggp.org/");
+						}
+					}
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -261,8 +282,8 @@ public final class ServerPanel2 extends JPanel implements ActionListener
                 playerFields.add(playerSelector.getPlayerSelectorBox());
                 playerFields.get(i).setSelectedIndex(i%playerFields.get(i).getModel().getSize());
 
-                gamePanel.add(roleLabels.get(i), new GridBagConstraints(0, newRowCount, 1, 1, 1.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 5, 5));
-                gamePanel.add(playerFields.get(i), new GridBagConstraints(1, newRowCount++, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 5, 5));
+                gamePanel.add(roleLabels.get(i), new GridBagConstraints(0, newRowCount, 1, 1, 1.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(1, 5, 1, 5), 5, 5));
+                gamePanel.add(playerFields.get(i), new GridBagConstraints(1, newRowCount++, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(1, 5, 1, 5), 5, 5));
             }
             gamePanel.add(runButton, new GridBagConstraints(1, newRowCount, 1, 1, 0.0, 1.0, GridBagConstraints.SOUTH, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 0, 0));
 
