@@ -25,12 +25,9 @@ import external.JSON.JSONObject;
 public class PlayerPresenceManager implements Subject {
 	private Map<String,PlayerPresence> monitoredPlayers;
 	
-	public class PlayerPresenceChanged extends Event {
-	}
-	public class PlayerPresenceAdded extends Event {
-	}
-	public class PlayerPresenceRemoved extends Event {
-	}
+	public class PlayerPresenceChanged extends Event {}
+	public class PlayerPresenceAdded extends Event {}
+	public class PlayerPresenceRemoved extends Event {}
 	
 	public static boolean isDifferent(String a, String b) {
 		if (a == null && b == null) return false;
@@ -72,23 +69,40 @@ public class PlayerPresenceManager implements Subject {
 		monitoredPlayers = new HashMap<String,PlayerPresence>();
 		loadPlayersJSON();
 		if (monitoredPlayers.size() == 0) {
-			// When starting from a blank slate, add some initial players to the
-			// monitoring list just so that it's clear how it works.
-			addPlayer("127.0.0.1:9147");
-			addPlayer("127.0.0.1:9148");
+			try {
+				// When starting from a blank slate, add some initial players to the
+				// monitoring list just so that it's clear how it works.				
+				addPlayer("127.0.0.1:9147");
+				addPlayer("127.0.0.1:9148");
+			} catch (InvalidHostportException e) {
+				;
+			}
 		}
 		new PresenceMonitor().start();
 	}
 	
-	private PlayerPresence addPlayerSilently(String hostport) {
-		String host = hostport.split(":")[0];
-		int port = Integer.parseInt(hostport.split(":")[1]);		
-		PlayerPresence presence = new PlayerPresence(host, port);
-		monitoredPlayers.put(hostport, presence);
-		return presence;
+	@SuppressWarnings("serial")
+	public class InvalidHostportException extends Exception {}
+	
+	private PlayerPresence addPlayerSilently(String hostport) throws InvalidHostportException {
+		try {
+			if (!monitoredPlayers.containsKey(hostport)) {
+				String host = hostport.split(":")[0];
+				int port = Integer.parseInt(hostport.split(":")[1]);
+				PlayerPresence presence = new PlayerPresence(host, port);
+				monitoredPlayers.put(hostport, presence);
+				return presence;
+			} else {
+				return monitoredPlayers.get(hostport);
+			}
+		} catch (ArrayIndexOutOfBoundsException e) {
+			throw new InvalidHostportException();
+		} catch (NumberFormatException e) {
+			throw new InvalidHostportException();
+		}
 	}	
 	
-	public PlayerPresence addPlayer(String hostport) {
+	public PlayerPresence addPlayer(String hostport) throws InvalidHostportException {
 		PlayerPresence presence = addPlayerSilently(hostport);
 		notifyObservers(new PlayerPresenceAdded());
 		savePlayersJSON();
@@ -159,7 +173,11 @@ public class PlayerPresenceManager implements Subject {
 			if (playerListJSON.has("hostports")) {
 				JSONArray theHostports = playerListJSON.getJSONArray("hostports");
 				for (int i = 0; i < theHostports.length(); i++) {
-					addPlayerSilently(theHostports.get(i).toString());
+					try {
+						addPlayerSilently(theHostports.get(i).toString());
+					} catch (InvalidHostportException e) {
+						;
+					}
 				}
 			}
 		} catch (IOException ie) {

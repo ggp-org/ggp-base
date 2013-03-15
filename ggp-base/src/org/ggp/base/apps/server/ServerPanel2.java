@@ -34,6 +34,7 @@ import org.ggp.base.util.game.Game;
 import org.ggp.base.util.gdl.grammar.GdlPool;
 import org.ggp.base.util.match.Match;
 import org.ggp.base.util.presence.PlayerPresence;
+import org.ggp.base.util.presence.PlayerPresenceManager.InvalidHostportException;
 import org.ggp.base.util.statemachine.Role;
 import org.ggp.base.util.statemachine.StateMachine;
 import org.ggp.base.util.statemachine.implementation.prover.ProverStateMachine;
@@ -214,8 +215,12 @@ public final class ServerPanel2 extends JPanel implements ActionListener
 	private AbstractAction addPlayerButtonMethod() {
 		return new AbstractAction("Add") {
 			public void actionPerformed(ActionEvent evt) {
-				String hostport = JOptionPane.showInputDialog(null, "Please enter the host:port of the player to add.", "FOO", JOptionPane.QUESTION_MESSAGE, null, null, "127.0.0.1:9147").toString();
-				playerSelector.addPlayer(hostport);
+				String hostport = JOptionPane.showInputDialog(null, "What is the new player's address?\nPlease use the format \"host:port\".", "Add a player", JOptionPane.QUESTION_MESSAGE, null, null, "127.0.0.1:9147").toString();
+				try {
+					playerSelector.addPlayer(hostport);
+				} catch (InvalidHostportException e) {
+					JOptionPane.showMessageDialog(null, "Could not parse the new player's address! Sorry.", "Error adding player", JOptionPane.ERROR_MESSAGE);
+				}
 			}
 		};
 	}

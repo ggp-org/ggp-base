@@ -16,6 +16,7 @@ import org.ggp.base.util.observer.Event;
 import org.ggp.base.util.observer.Observer;
 import org.ggp.base.util.presence.PlayerPresence;
 import org.ggp.base.util.presence.PlayerPresenceManager;
+import org.ggp.base.util.presence.PlayerPresenceManager.InvalidHostportException;
 
 public class PlayerSelector {
 	private PlayerPresenceManager thePresenceManager;
@@ -153,7 +154,7 @@ public class PlayerSelector {
 		}    	
     }
     
-    public void addPlayer(String hostport) {
+    public void addPlayer(String hostport) throws InvalidHostportException {
     	thePresenceManager.addPlayer(hostport);
     }
     
