@@ -9,6 +9,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.swing.AbstractAction;
@@ -25,7 +26,6 @@ import javax.swing.JSeparator;
 import javax.swing.JSpinner;
 import javax.swing.JTabbedPane;
 import javax.swing.SpinnerNumberModel;
-import javax.swing.border.TitledBorder;
 
 import org.ggp.base.apps.server.error.ErrorPanel;
 import org.ggp.base.apps.server.history.HistoryPanel;
@@ -33,6 +33,7 @@ import org.ggp.base.apps.server.states.StatesPanel;
 import org.ggp.base.apps.server.visualization.VisualizationPanel;
 import org.ggp.base.server.GameServer;
 import org.ggp.base.util.game.Game;
+import org.ggp.base.util.game.GameRepository;
 import org.ggp.base.util.gdl.grammar.GdlPool;
 import org.ggp.base.util.match.Match;
 import org.ggp.base.util.presence.PlayerPresence;
@@ -144,116 +145,24 @@ public final class ServerPanel2 extends JPanel implements ActionListener
 		gamePanel.add(runButton, new GridBagConstraints(1, nRowCount, 1, 1, 0.0, 1.0, GridBagConstraints.SOUTH, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 0, 0));
 		
 		nRowCount = 0;
-		playersPanel.add(new BoldJLabel("Player List"), new GridBagConstraints(0, nRowCount++, 2, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(5, 25, 5, 25), 0, 0));
-		playersPanel.add(new JScrollPane(playerSelectorList), new GridBagConstraints(0, nRowCount++, 2, 1, 1.0, 1.0, GridBagConstraints.WEST, GridBagConstraints.BOTH, new Insets(5, 25, 5, 25), 0, 0));
+		playersPanel.add(new BoldJLabel("Player List"), new GridBagConstraints(0, nRowCount++, 3, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(5, 25, 5, 25), 0, 0));
+		playersPanel.add(new JScrollPane(playerSelectorList), new GridBagConstraints(0, nRowCount++, 3, 1, 1.0, 1.0, GridBagConstraints.WEST, GridBagConstraints.BOTH, new Insets(5, 25, 5, 25), 0, 0));
 		playersPanel.add(new JButton(addPlayerButtonMethod()), new GridBagConstraints(0, nRowCount, 1, 1, 1.0, 1.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 0, 0));
-		playersPanel.add(new JButton(removePlayerButtonMethod()), new GridBagConstraints(1, nRowCount, 1, 1, 1.0, 1.0, GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 0, 0));
-		//playersPanel.add(new JButton("Test"), new GridBagConstraints(2, nRowCount++, 1, 1, 1.0, 1.0, GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 0, 0));
+		playersPanel.add(new JButton(removePlayerButtonMethod()), new GridBagConstraints(1, nRowCount, 1, 1, 0.0, 1.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 0, 0));
+		playersPanel.add(new JButton(testPlayerButtonMethod()), new GridBagConstraints(2, nRowCount++, 1, 1, 1.0, 1.0, GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 0, 0));
 		
 		nRowCount = 0;
 		managerPanel.add(gamePanel, new GridBagConstraints(0, nRowCount++, 1, 1, 1.0, 0.0, GridBagConstraints.NORTHWEST, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 5, 5));
 		managerPanel.add(new JSeparator(), new GridBagConstraints(0, nRowCount++, 1, 1, 0.0, 0.0, GridBagConstraints.NORTHWEST, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 5, 5));
 		managerPanel.add(playersPanel, new GridBagConstraints(0, nRowCount++, 1, 1, 1.0, 1.0, GridBagConstraints.NORTHWEST, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 5, 5));
 
-		JPanel matchesPanel = new JPanel(new GridBagLayout());
-		matchesPanel.setBorder(new TitledBorder("Matches"));
-		matchesPanel.add(matchesTabbedPane, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 5, 5));
-
 		this.add(managerPanel, new GridBagConstraints(0, 0, 1, 1, 0.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 5, 5));
-		this.add(matchesPanel, new GridBagConstraints(1, 0, 1, 1, 1.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 5, 5));
+		this.add(matchesTabbedPane, new GridBagConstraints(1, 0, 1, 1, 1.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 5, 5));
 		
         gameSelector.getGameList().addActionListener(this);
         gameSelector.repopulateGameList();
 	}
-
-	private AbstractAction runButtonMethod() {
-		return new AbstractAction("Start a new match!") {
-			public void actionPerformed(ActionEvent evt) {
-				try {
-					String matchId = "BaseServer." + theGame.getKey() + "." + System.currentTimeMillis();
-					
-					int startClock = (Integer)startClockSpinner.getValue();
-					int playClock = (Integer)playClockSpinner.getValue();
-					Match match = new Match(matchId, -1, startClock, playClock, theGame);
-
-					List<String> hosts = new ArrayList<String>(playerFields.size());
-					List<Integer> ports = new ArrayList<Integer>(playerFields.size());
-					List<String> playerNames = new ArrayList<String>(playerFields.size());
-					for (JComboBox playerField : playerFields) {
-	                    try {
-	                    	String name = playerField.getSelectedItem().toString();
-	                    	PlayerPresence player = playerSelector.getPlayerPresence(name);
-	                        hosts.add(player.getHost());
-	                        ports.add(player.getPort());
-	                        playerNames.add(name);
-	                    } catch(Exception ex) {
-	                        ex.printStackTrace();
-	                        return;
-	                    } 					    
-					}
-
-					HistoryPanel historyPanel = new HistoryPanel();
-					ErrorPanel errorPanel = new ErrorPanel();
-					VisualizationPanel visualizationPanel = new VisualizationPanel(theGame);
-					StatesPanel statesPanel = new StatesPanel();
-
-					JTabbedPane tab = new JTabbedPane();
-					tab.addTab("History", historyPanel);
-					tab.addTab("Error", errorPanel);
-					tab.addTab("Visualization", visualizationPanel);
-					tab.addTab("States", statesPanel);
-					matchesTabbedPane.addTab(matchId, tab);
-					matchesTabbedPane.setSelectedIndex(matchesTabbedPane.getTabCount()-1);
-					
-					GameServer gameServer = new GameServer(match, hosts, ports, playerNames);
-					gameServer.addObserver(errorPanel);
-					gameServer.addObserver(historyPanel);
-					gameServer.addObserver(visualizationPanel);					
-					gameServer.addObserver(statesPanel);
-					gameServer.start();
-
-					if (shouldSave.isSelected()) {
-						File matchesDir = new File("matches");
-						if (!matchesDir.exists()) {
-							matchesDir.mkdir();
-						}
-						File matchFile = new File(matchesDir, match.getMatchId() + ".json");
-						gameServer.startSavingToFilename(matchFile.getAbsolutePath());
-					}
-					if (shouldPublish.isSelected()) {
-						if (!match.getGame().getRepositoryURL().contains("127.0.0.1")) {
-							// TODO: Do something with the ID returned here.
-							gameServer.startPublishingToSpectatorServer("http://matches.ggp.org/");
-						}
-					}
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		};
-	}
 	
-	private AbstractAction addPlayerButtonMethod() {
-		return new AbstractAction("Add") {
-			public void actionPerformed(ActionEvent evt) {
-				String hostport = JOptionPane.showInputDialog(null, "What is the new player's address?\nPlease use the format \"host:port\".", "Add a player", JOptionPane.QUESTION_MESSAGE, null, null, "127.0.0.1:9147").toString();
-				try {
-					playerSelector.addPlayer(hostport);
-				} catch (InvalidHostportException e) {
-					JOptionPane.showMessageDialog(null, "Could not parse the new player's address! Sorry.", "Error adding player", JOptionPane.ERROR_MESSAGE);
-				}
-			}
-		};
-	}
-	
-	private AbstractAction removePlayerButtonMethod() {
-		return new AbstractAction("Remove") {
-			public void actionPerformed(ActionEvent evt) {
-				playerSelector.removePlayer(playerSelectorList.getSelectedValue().toString());
-			}
-		};
-	}	
-
     @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == gameSelector.getGameList()) {
@@ -290,5 +199,107 @@ public final class ServerPanel2 extends JPanel implements ActionListener
             validate();
             runButton.setEnabled(true);
         }        
-    }
+    }	
+
+	private AbstractAction runButtonMethod() {
+		return new AbstractAction("Start a new match!") {
+			public void actionPerformed(ActionEvent evt) {
+				int startClock = (Integer)startClockSpinner.getValue();
+				int playClock = (Integer)playClockSpinner.getValue();
+
+				List<PlayerPresence> thePlayers = new ArrayList<PlayerPresence>();
+				for (JComboBox playerField : playerFields) {
+                	String name = playerField.getSelectedItem().toString();
+                	thePlayers.add(playerSelector.getPlayerPresence(name));
+				}
+				
+				startGameServer(theGame, thePlayers, "BaseServer", startClock, playClock, shouldSave.isSelected(), shouldPublish.isSelected());				
+			}
+		};
+	}
+
+	private AbstractAction testPlayerButtonMethod() {
+		return new AbstractAction("Test") {
+			public void actionPerformed(ActionEvent evt) {
+				Game testGame = GameRepository.getDefaultRepository().getGame("maze");
+				String playerName = playerSelectorList.getSelectedValue().toString();
+				List<PlayerPresence> thePlayers = Arrays.asList(new PlayerPresence[]{playerSelector.getPlayerPresence(playerName)});				
+				startGameServer(testGame, thePlayers, "BaseServerTest", 10, 5, false, false);				
+			}
+		};
+	}
+	
+	private AbstractAction addPlayerButtonMethod() {
+		return new AbstractAction("Add") {
+			public void actionPerformed(ActionEvent evt) {
+				String hostport = JOptionPane.showInputDialog(null, "What is the new player's address?\nPlease use the format \"host:port\".", "Add a player", JOptionPane.QUESTION_MESSAGE, null, null, "127.0.0.1:9147").toString();
+				try {
+					playerSelector.addPlayer(hostport);
+				} catch (InvalidHostportException e) {
+					JOptionPane.showMessageDialog(null, "Could not parse the new player's address! Sorry.", "Error adding player", JOptionPane.ERROR_MESSAGE);
+				}
+			}
+		};
+	}
+	
+	private AbstractAction removePlayerButtonMethod() {
+		return new AbstractAction("Remove") {
+			public void actionPerformed(ActionEvent evt) {
+				playerSelector.removePlayer(playerSelectorList.getSelectedValue().toString());
+			}
+		};
+	}
+
+	private void startGameServer(Game theGame, List<PlayerPresence> thePlayers, String matchIdPrefix, int startClock, int playClock, boolean shouldSave, boolean shouldPublish) {
+		try {
+			String matchId = matchIdPrefix + "." + theGame.getKey() + "." + System.currentTimeMillis();			
+			Match match = new Match(matchId, -1, startClock, playClock, theGame);
+
+			List<String> hosts = new ArrayList<String>(thePlayers.size());
+			List<Integer> ports = new ArrayList<Integer>(thePlayers.size());
+			List<String> playerNames = new ArrayList<String>(thePlayers.size());
+			for (PlayerPresence player : thePlayers) {
+                hosts.add(player.getHost());
+                ports.add(player.getPort());
+                playerNames.add(player.getName());
+			}
+
+			HistoryPanel historyPanel = new HistoryPanel();
+			ErrorPanel errorPanel = new ErrorPanel();
+			VisualizationPanel visualizationPanel = new VisualizationPanel(theGame);
+			StatesPanel statesPanel = new StatesPanel();
+
+			JTabbedPane tab = new JTabbedPane();
+			tab.addTab("History", historyPanel);
+			tab.addTab("Error", errorPanel);
+			tab.addTab("Visualization", visualizationPanel);
+			tab.addTab("States", statesPanel);
+			matchesTabbedPane.addTab(matchId, tab);
+			matchesTabbedPane.setSelectedIndex(matchesTabbedPane.getTabCount()-1);
+			
+			GameServer gameServer = new GameServer(match, hosts, ports, playerNames);
+			gameServer.addObserver(errorPanel);
+			gameServer.addObserver(historyPanel);
+			gameServer.addObserver(visualizationPanel);					
+			gameServer.addObserver(statesPanel);
+			gameServer.start();
+
+			if (shouldSave) {
+				File matchesDir = new File("matches");
+				if (!matchesDir.exists()) {
+					matchesDir.mkdir();
+				}
+				File matchFile = new File(matchesDir, match.getMatchId() + ".json");
+				gameServer.startSavingToFilename(matchFile.getAbsolutePath());
+			}
+			if (shouldPublish) {
+				if (!match.getGame().getRepositoryURL().contains("127.0.0.1")) {
+					// TODO: Do something with the ID returned here.
+					gameServer.startPublishingToSpectatorServer("http://matches.ggp.org/");
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 }
