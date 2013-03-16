@@ -42,15 +42,9 @@ public class GameStateRenderer {
         return defaultSize;
     }
 
-    public static void renderImagefromGameXML(String gameXML, String XSL, BufferedImage backimage)
+    public static synchronized void renderImagefromGameXML(String gameXML, String XSL, BufferedImage backimage)
     {
-    	Graphics2DRenderer r = null;
-    	try {
-    		r = new Graphics2DRenderer();
-    	} catch (NullPointerException npe) {
-    		System.err.println("Could not render frame due to: " + npe);
-    		return;
-    	}
+   		Graphics2DRenderer r = new Graphics2DRenderer();
 
         String xhtml = getXHTMLfromGameXML(gameXML, XSL);
         xhtml = xhtml.replace("<?xml version=\"1.0\" encoding=\"UTF-8\"?>", "");
