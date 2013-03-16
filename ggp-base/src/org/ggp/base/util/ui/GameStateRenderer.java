@@ -17,7 +17,6 @@ import org.w3c.dom.Document;
 import org.w3c.tidy.Tidy;
 import org.xhtmlrenderer.resource.XMLResource;
 import org.xhtmlrenderer.simple.Graphics2DRenderer;
-import org.xhtmlrenderer.util.Configuration;
 import org.xml.sax.InputSource;
 
 /**
@@ -45,8 +44,13 @@ public class GameStateRenderer {
 
     public static void renderImagefromGameXML(String gameXML, String XSL, BufferedImage backimage)
     {
-    	Configuration.setConfigLogger(null);    	
-        Graphics2DRenderer r = new Graphics2DRenderer();
+    	Graphics2DRenderer r = null;
+    	try {
+    		r = new Graphics2DRenderer();
+    	} catch (NullPointerException npe) {
+    		System.err.println("Could not render frame due to: " + npe);
+    		return;
+    	}
 
         String xhtml = getXHTMLfromGameXML(gameXML, XSL);
         xhtml = xhtml.replace("<?xml version=\"1.0\" encoding=\"UTF-8\"?>", "");
