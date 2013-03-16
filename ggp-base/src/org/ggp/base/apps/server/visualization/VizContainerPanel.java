@@ -14,8 +14,6 @@ import org.ggp.base.util.ui.GameStateRenderer;
 
 @SuppressWarnings("serial")
 public class VizContainerPanel extends JPanel {
-	public static final Object o = new Object();
-	
 	public VizContainerPanel(String XML, String XSL, VisualizationPanel parent) 
 	{
 		Dimension d = GameStateRenderer.getDefaultSize();
