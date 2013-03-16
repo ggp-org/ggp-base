@@ -169,14 +169,14 @@ public class PlayerPresenceManager implements Subject {
 			} finally {
 				br.close();
 			}
-			JSONObject playerListJSON = new JSONObject(pdata);
+			JSONObject playerListJSON = new JSONObject(pdata.toString());
 			if (playerListJSON.has("hostports")) {
 				JSONArray theHostports = playerListJSON.getJSONArray("hostports");
 				for (int i = 0; i < theHostports.length(); i++) {
 					try {
 						addPlayerSilently(theHostports.get(i).toString());
 					} catch (InvalidHostportException e) {
-						;
+						e.printStackTrace();
 					}
 				}
 			}
