@@ -31,6 +31,7 @@ public final class VisualizationPanel extends JPanel implements Observer
 	private final VisualizationPanel myThis;
 	private JTabbedPane tabs = new JTabbedPane();
 	private final JTimerBar timerBar;
+	private static final Object tabLock = new Object();
 
 	public VisualizationPanel(Game theGame)
 	{
@@ -45,8 +46,7 @@ public final class VisualizationPanel extends JPanel implements Observer
 	private int stepCount = 1;
 	public void observe(Event event)
 	{
-	    if (event instanceof ServerNewGameStateEvent)
-		{
+	    if (event instanceof ServerNewGameStateEvent) {
 	        MachineState s = ((ServerNewGameStateEvent)event).getState();
 	        RenderThread rt = new RenderThread(s, stepCount++);
 	        rt.start();
@@ -86,7 +86,7 @@ public final class VisualizationPanel extends JPanel implements Observer
 	        
 	        if(newPanel != null) {
 	            // Add the rendered panel as a new tab
-	            synchronized(tabs) {
+	            synchronized(tabLock) {
 	                boolean atEnd = (tabs.getSelectedIndex() == tabs.getTabCount()-1);
 	                try {
 	                    for(int i = tabs.getTabCount(); i < stepNum; i++)
@@ -111,7 +111,7 @@ public final class VisualizationPanel extends JPanel implements Observer
         JFrame frame = new JFrame("Visualization Test");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         
-        Game theGame = GameRepository.getDefaultRepository().getGame("biddingTicTacToe");
+        Game theGame = GameRepository.getDefaultRepository().getGame("nineBoardTicTacToe");
         VisualizationPanel theVisual = new VisualizationPanel(theGame);
         frame.setPreferredSize(new Dimension(1200, 900));
         frame.getContentPane().add(theVisual);
@@ -125,7 +125,7 @@ public final class VisualizationPanel extends JPanel implements Observer
             do {
                 theVisual.observe(new ServerNewGameStateEvent(theCurrentState));
                 theCurrentState = theMachine.getRandomNextState(theCurrentState);
-                Thread.sleep(2750);
+                Thread.sleep(250);
                 System.out.println("State: " + theCurrentState);
             } while(!theMachine.isTerminal(theCurrentState));
             theVisual.observe(new ServerNewGameStateEvent(theCurrentState));
