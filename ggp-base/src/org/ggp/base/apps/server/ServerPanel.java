@@ -53,9 +53,9 @@ import org.ggp.base.util.ui.PlayerSelector;
 @SuppressWarnings("serial")
 public final class ServerPanel extends JPanel implements ActionListener
 {    
-	static void createAndShowGUI(ServerPanel serverPanel)
+	static void createAndShowGUI(ServerPanel serverPanel, String title)
 	{
-		JFrame frame = new JFrame("Game Server");
+		JFrame frame = new JFrame(title);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 		frame.setPreferredSize(new Dimension(1200, 900));
@@ -76,7 +76,7 @@ public final class ServerPanel extends JPanel implements ActionListener
 
 			public void run()
 			{
-				createAndShowGUI(serverPanel);
+				createAndShowGUI(serverPanel, "Game Server");
 			}
 		});
 	}
