@@ -24,19 +24,16 @@ public final class RemoteGameRepository extends GameRepository {
     }
     
     protected Set<String> getUncachedGameKeys() {
-        try {
-            Set<String> theGameKeys = new HashSet<String>();
-            JSONArray theArray = RemoteResourceLoader.loadJSONArray(theRepoURL + "/games/");
-            
+    	Set<String> theGameKeys = new HashSet<String>();
+        try {            
+            JSONArray theArray = RemoteResourceLoader.loadJSONArray(theRepoURL + "/games/");            
             for(int i = 0; i < theArray.length(); i++) {
                 theGameKeys.add(theArray.getString(i));
             }
-            
-            return theGameKeys;
         } catch (Exception e) {
             e.printStackTrace();
-            return null;
         }
+        return theGameKeys;
     }
     
     protected Game getUncachedGame(String theKey) {
