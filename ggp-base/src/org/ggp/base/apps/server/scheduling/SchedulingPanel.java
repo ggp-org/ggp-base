@@ -1,9 +1,14 @@
 package org.ggp.base.apps.server.scheduling;
 
 import java.awt.BorderLayout;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -20,6 +25,11 @@ import org.ggp.base.util.ui.JLabelBold;
 public final class SchedulingPanel extends JPanel implements Observer
 {
 	private final JTable queueTable;
+	
+	// Track the external filenames and URLs for each match, so that they can
+	// be opened for viewing as needed.
+	public Map<String,String> matchIdToURL = new HashMap<String,String>();
+	public Map<String,String> matchIdToFilename = new HashMap<String,String>();
 	
 	public SchedulingPanel()
 	{
@@ -53,15 +63,62 @@ public final class SchedulingPanel extends JPanel implements Observer
 		queueTable.getColumnModel().getColumn(5).setPreferredWidth(40);
 		queueTable.getColumnModel().getColumn(6).setPreferredWidth(45);
 		queueTable.getColumnModel().getColumn(7).setPreferredWidth(40);
+		
+		// Add a mouse listener: when the user double clicks on a match entry
+		// in the queue, and that match entry has a URL or filename associated
+		// with it, prompt them to view it.
+		queueTable.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				if (e.getClickCount() > 1) {
+					int row = queueTable.getSelectedRow();
+					int col = queueTable.getSelectedColumn();
+					System.out.println(""+row+","+col);
+					
+					String matchId = queueTable.getModel().getValueAt(row,  0).toString();
+					if (matchIdToURL.containsKey(matchId)) {
+	                    int nChoice = JOptionPane.showConfirmDialog(null,
+	                            "Would you like to open published match " + matchId + " in a browser?",
+	                            "View Published Match",
+	                            JOptionPane.YES_NO_OPTION);         
+	                    if (nChoice == JOptionPane.YES_OPTION) {                        
+	                        try {
+	                            java.awt.Desktop.getDesktop().browse(java.net.URI.create(matchIdToURL.get(matchId)));
+	                        } catch (Exception ee) {
+	                            ee.printStackTrace();
+	                        }
+	                        return;
+	                    }
+					}
+					
+					if (matchIdToFilename.containsKey(matchId)) {
+	                    int nChoice = JOptionPane.showConfirmDialog(null,
+	                            "Would you like to view the saved transcript for match " + matchId + "?",
+	                            "View Saved Match",
+	                            JOptionPane.YES_NO_OPTION);         
+	                    if (nChoice == JOptionPane.YES_OPTION) {                        
+	                        try {
+	                            java.awt.Desktop.getDesktop().browse(java.net.URI.create("file://" + matchIdToFilename.get(matchId)));
+	                        } catch (Exception ee) {
+	                            ee.printStackTrace();
+	                        }
+	                        return;
+	                    }
+					}
+
+				}
+			}
+		});
 
 		add(new JLabelBold("Scheduling Queue"), BorderLayout.NORTH);
 		add(new JScrollPane(queueTable, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED), BorderLayout.CENTER);
 	}
 	
-	public void observe(Event event)
+	public void observe(Event genericEvent)
 	{
-		if (!(event instanceof ServerMatchUpdatedEvent)) return;		
-		Match match = ((ServerMatchUpdatedEvent) event).getMatch();
+		if (!(genericEvent instanceof ServerMatchUpdatedEvent)) return;
+		ServerMatchUpdatedEvent event = (ServerMatchUpdatedEvent)genericEvent;
+		Match match = event.getMatch();
 		
 		DefaultTableModel model = (DefaultTableModel) queueTable.getModel();
 		for (int i = 0; i < model.getRowCount(); i++) {
@@ -95,6 +152,14 @@ public final class SchedulingPanel extends JPanel implements Observer
 				}
 				model.setValueAt(getLinebreakString(errorCountStrings), i, 6);
 				model.setValueAt(match.getStateHistory().size(), i, 7);
+				
+				if (event.getExternalPublicationKey() != null) {
+					matchIdToURL.put(match.getMatchId(), "http://www.ggp.org/view/all/matches/" + event.getExternalPublicationKey() + "/");
+				}
+				if (event.getExternalFilename() != null) {
+					matchIdToFilename.put(match.getMatchId(), event.getExternalFilename());
+				}
+				
 				return;
 			}
 		}

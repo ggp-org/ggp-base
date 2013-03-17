@@ -56,7 +56,8 @@ public final class GameServer extends Thread implements Subject
     private Map<Role,String> mostRecentErrors;
     
     private String saveToFilename;
-    private String spectatorServerURL;    
+    private String spectatorServerURL;
+    private String spectatorServerKey;
     private boolean forceUsingEntireClock;
     
     public GameServer(Match match, List<String> hosts, List<Integer> ports) {
@@ -163,7 +164,7 @@ public final class GameServer extends Thread implements Subject
                 saveWhenNecessary();
                 notifyObservers(new ServerNewGameStateEvent(currentState));
                 notifyObservers(new ServerTimeEvent(match.getPlayClock() * 1000));
-                notifyObservers(new ServerMatchUpdatedEvent(match));
+                notifyObservers(new ServerMatchUpdatedEvent(match, spectatorServerKey, saveToFilename));
                 previousMoves = sendPlayRequests();
 
                 notifyObservers(new ServerNewMovesEvent(previousMoves));
@@ -178,7 +179,7 @@ public final class GameServer extends Thread implements Subject
             saveWhenNecessary();
             notifyObservers(new ServerNewGameStateEvent(currentState));
             notifyObservers(new ServerCompletedMatchEvent(getGoals()));
-            notifyObservers(new ServerMatchUpdatedEvent(match));
+            notifyObservers(new ServerMatchUpdatedEvent(match, spectatorServerKey, saveToFilename));
             sendStopRequests(previousMoves);
         } catch (InterruptedException ie) {
         	if (match.isAborted()) {
@@ -229,7 +230,8 @@ public final class GameServer extends Thread implements Subject
     	int nAttempt = 0;
     	while (true) {
             try {
-                return MatchPublisher.publishToSpectatorServer(spectatorServerURL, match);
+            	spectatorServerKey = MatchPublisher.publishToSpectatorServer(spectatorServerURL, match);
+            	return spectatorServerKey;
             } catch (IOException e) {
             	if (nAttempt > 9) {
             		e.printStackTrace();
@@ -238,6 +240,10 @@ public final class GameServer extends Thread implements Subject
             }
     		nAttempt++;
     	}
+    }
+    
+    public String getSpectatorServerKey() {
+    	return spectatorServerKey;
     }
 
     private synchronized List<Move> sendPlayRequests() throws InterruptedException, MoveDefinitionException {

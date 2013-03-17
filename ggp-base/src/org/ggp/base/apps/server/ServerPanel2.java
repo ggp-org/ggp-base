@@ -313,7 +313,6 @@ public final class ServerPanel2 extends JPanel implements ActionListener
 			}
 			if (shouldPublish) {
 				if (!match.getGame().getRepositoryURL().contains("127.0.0.1")) {
-					// TODO: Do something with the ID returned here.
 					gameServer.startPublishingToSpectatorServer("http://matches.ggp.org/");
 				}
 			}
