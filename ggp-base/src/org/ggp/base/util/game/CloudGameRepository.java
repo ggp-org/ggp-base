@@ -63,10 +63,13 @@ public final class CloudGameRepository extends GameRepository {
     	File theCachesDirectory = new File(System.getProperty("user.home"), ".ggpserver-gamecache");
     	theCachesDirectory.mkdir();
     	theCacheDirectory = new File(theCachesDirectory, "repoHash" + theCacheHash);
-        theCacheDirectory.mkdir();
-        
-        // Only force a full refresh of the game cache at most once per day
-        needsRefresh = (System.currentTimeMillis() - theCacheDirectory.lastModified()) > 86400000;
+    	if (theCacheDirectory.exists()) {
+    		// For existing caches, only force a full refresh at most once per day
+            needsRefresh = (System.currentTimeMillis() - theCacheDirectory.lastModified()) > 86400000;    		
+    	} else {    		
+    		theCacheDirectory.mkdir();
+    		needsRefresh = true;
+    	}
 
         if (needsRefresh) {
         	Thread refreshThread = new RefreshCacheThread(theRepoURL);
