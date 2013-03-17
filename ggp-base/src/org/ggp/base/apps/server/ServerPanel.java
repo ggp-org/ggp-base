@@ -50,9 +50,9 @@ import org.ggp.base.util.ui.NativeUI;
 import org.ggp.base.util.ui.PlayerSelector;
 
 @SuppressWarnings("serial")
-public final class ServerPanel2 extends JPanel implements ActionListener
+public final class ServerPanel extends JPanel implements ActionListener
 {    
-	private static void createAndShowGUI(ServerPanel2 serverPanel)
+	private static void createAndShowGUI(ServerPanel serverPanel)
 	{
 		JFrame frame = new JFrame("Game Server");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -69,7 +69,7 @@ public final class ServerPanel2 extends JPanel implements ActionListener
 	    NativeUI.setNativeUI();
 	    GdlPool.caseSensitive = false;
 	
-		final ServerPanel2 serverPanel = new ServerPanel2();
+		final ServerPanel serverPanel = new ServerPanel();
 		javax.swing.SwingUtilities.invokeLater(new Runnable()
 		{
 
@@ -104,7 +104,7 @@ public final class ServerPanel2 extends JPanel implements ActionListener
 	private final PlayerSelector playerSelector;
 	private final JList playerSelectorList;
 
-	public ServerPanel2()
+	public ServerPanel()
 	{
 		super(new GridBagLayout());
 		
