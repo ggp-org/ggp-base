@@ -141,8 +141,7 @@ public class PlayerPresenceManager implements Subject {
 		try {
 			JSONObject playerListJSON = new JSONObject();
 			playerListJSON.put("hostports", monitoredPlayers.keySet());
-			String filename = System.getProperty("user.home") + "/" + playerListFilename;
-			File file = new File(filename);
+			File file = new File(System.getProperty("user.home"), playerListFilename);
 			if (!file.exists()) {				
 				file.createNewFile();
 			}
@@ -158,9 +157,9 @@ public class PlayerPresenceManager implements Subject {
 	}
 	private void loadPlayersJSON() {
 		try {
-			String line, filename = System.getProperty("user.home") + "/" + playerListFilename;
+			String line;
 			StringBuilder pdata = new StringBuilder();
-			FileInputStream fis = new FileInputStream(filename);
+			FileInputStream fis = new FileInputStream(new File(System.getProperty("user.home"), playerListFilename));
 			BufferedReader br = new BufferedReader(new InputStreamReader(fis, Charset.forName("UTF-8")));
 			try {
 				while ((line = br.readLine()) != null) {
