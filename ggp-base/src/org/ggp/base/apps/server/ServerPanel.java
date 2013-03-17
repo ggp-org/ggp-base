@@ -34,6 +34,7 @@ import org.ggp.base.apps.server.scheduling.SchedulingPanel;
 import org.ggp.base.apps.server.states.StatesPanel;
 import org.ggp.base.apps.server.visualization.VisualizationPanel;
 import org.ggp.base.server.GameServer;
+import org.ggp.base.util.crypto.BaseCryptography.EncodedKeyPair;
 import org.ggp.base.util.game.Game;
 import org.ggp.base.util.game.GameRepository;
 import org.ggp.base.util.gdl.grammar.GdlPool;
@@ -52,7 +53,7 @@ import org.ggp.base.util.ui.PlayerSelector;
 @SuppressWarnings("serial")
 public final class ServerPanel extends JPanel implements ActionListener
 {    
-	private static void createAndShowGUI(ServerPanel serverPanel)
+	static void createAndShowGUI(ServerPanel serverPanel)
 	{
 		JFrame frame = new JFrame("Game Server");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -81,6 +82,7 @@ public final class ServerPanel extends JPanel implements ActionListener
 	}
 	
 	private Game theGame;
+	private EncodedKeyPair signingKeys;
 	
 	private final JPanel managerPanel;
 	private final JTabbedPane matchesTabbedPane;	
@@ -165,6 +167,10 @@ public final class ServerPanel extends JPanel implements ActionListener
         schedulingPanel = new SchedulingPanel();
         leaderboardPanel = new LeaderboardPanel();
 		matchesTabbedPane.addTab("Overview", new OverviewPanel());
+	}
+	
+	public void setSigningKeys(EncodedKeyPair keys) {
+		signingKeys = keys;
 	}
 	
 	class OverviewPanel extends JPanel {
@@ -292,6 +298,7 @@ public final class ServerPanel extends JPanel implements ActionListener
 			tab.addTab("States", statesPanel);
 			CloseableTabs.addClosableTab(matchesTabbedPane, tab, matchId, addTabCloseButton(tab));
 			
+			match.setCryptographicKeys(signingKeys);
 			match.setPlayerNamesFromHost(playerNames);
 			
 			GameServer gameServer = new GameServer(match, hosts, ports);
