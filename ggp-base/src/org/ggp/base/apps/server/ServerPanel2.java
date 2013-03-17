@@ -1,7 +1,7 @@
 package org.ggp.base.apps.server;
 
+import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -29,6 +29,8 @@ import javax.swing.SpinnerNumberModel;
 
 import org.ggp.base.apps.server.error.ErrorPanel;
 import org.ggp.base.apps.server.history.HistoryPanel;
+import org.ggp.base.apps.server.leaderboard.LeaderboardPanel;
+import org.ggp.base.apps.server.scheduling.SchedulingPanel;
 import org.ggp.base.apps.server.states.StatesPanel;
 import org.ggp.base.apps.server.visualization.VisualizationPanel;
 import org.ggp.base.server.GameServer;
@@ -41,7 +43,9 @@ import org.ggp.base.util.presence.PlayerPresenceManager.InvalidHostportException
 import org.ggp.base.util.statemachine.Role;
 import org.ggp.base.util.statemachine.StateMachine;
 import org.ggp.base.util.statemachine.implementation.prover.ProverStateMachine;
+import org.ggp.base.util.ui.CloseableTabs;
 import org.ggp.base.util.ui.GameSelector;
+import org.ggp.base.util.ui.JLabelBold;
 import org.ggp.base.util.ui.NativeUI;
 import org.ggp.base.util.ui.PlayerSelector;
 
@@ -82,6 +86,9 @@ public final class ServerPanel2 extends JPanel implements ActionListener
 	private final JTabbedPane matchesTabbedPane;	
 	private final JPanel gamePanel;
 	private final JPanel playersPanel;
+	
+	private final SchedulingPanel schedulingPanel;
+	private final LeaderboardPanel leaderboardPanel;
 
 	private final List<JComboBox> playerFields;
 	private final List<JLabel> roleLabels;
@@ -97,13 +104,6 @@ public final class ServerPanel2 extends JPanel implements ActionListener
 	private final PlayerSelector playerSelector;
 	private final JList playerSelectorList;
 
-	class BoldJLabel extends JLabel {
-		public BoldJLabel(String text) {			
-			super(text);
-			setFont(new Font(getFont().getFamily(), Font.BOLD, getFont().getSize()+2));
-		}
-	}
-	
 	public ServerPanel2()
 	{
 		super(new GridBagLayout());
@@ -131,7 +131,7 @@ public final class ServerPanel2 extends JPanel implements ActionListener
 		playerSelectorList = playerSelector.getPlayerSelectorList();
 		
 		int nRowCount = 0;
-		gamePanel.add(new BoldJLabel("Match Setup"), new GridBagConstraints(0, nRowCount++, 3, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(5, 25, 5, 25), 0, 0));
+		gamePanel.add(new JLabelBold("Match Setup"), new GridBagConstraints(0, nRowCount++, 3, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(5, 25, 5, 25), 0, 0));
 		gamePanel.add(new JLabel("Repository:"), new GridBagConstraints(0, nRowCount, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 1, 5), 5, 5));
 		gamePanel.add(gameSelector.getRepositoryList(), new GridBagConstraints(1, nRowCount++, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 1, 5), 5, 5));
 		gamePanel.add(new JLabel("Game:"), new GridBagConstraints(0, nRowCount, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(1, 5, 5, 5), 5, 5));
@@ -145,7 +145,7 @@ public final class ServerPanel2 extends JPanel implements ActionListener
 		gamePanel.add(runButton, new GridBagConstraints(1, nRowCount, 1, 1, 0.0, 1.0, GridBagConstraints.SOUTH, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 0, 0));
 		
 		nRowCount = 0;
-		playersPanel.add(new BoldJLabel("Player List"), new GridBagConstraints(0, nRowCount++, 3, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(5, 25, 5, 25), 0, 0));
+		playersPanel.add(new JLabelBold("Player List"), new GridBagConstraints(0, nRowCount++, 3, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(5, 25, 5, 25), 0, 0));
 		playersPanel.add(new JScrollPane(playerSelectorList), new GridBagConstraints(0, nRowCount++, 3, 1, 1.0, 1.0, GridBagConstraints.WEST, GridBagConstraints.BOTH, new Insets(5, 25, 5, 25), 0, 0));
 		playersPanel.add(new JButton(addPlayerButtonMethod()), new GridBagConstraints(0, nRowCount, 1, 1, 1.0, 1.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 0, 0));
 		playersPanel.add(new JButton(removePlayerButtonMethod()), new GridBagConstraints(1, nRowCount, 1, 1, 0.0, 1.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 0, 0));
@@ -161,6 +161,18 @@ public final class ServerPanel2 extends JPanel implements ActionListener
 		
         gameSelector.getGameList().addActionListener(this);
         gameSelector.repopulateGameList();
+        
+        schedulingPanel = new SchedulingPanel();
+        leaderboardPanel = new LeaderboardPanel();
+		matchesTabbedPane.addTab("Overview", new OverviewPanel());
+	}
+	
+	class OverviewPanel extends JPanel {
+		public OverviewPanel() {
+			super(new GridBagLayout());
+			add(schedulingPanel, new GridBagConstraints(0, 0, 1, 1, 2.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 5, 5));
+			add(leaderboardPanel, new GridBagConstraints(1, 0, 1, 1, 1.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 5, 5));					
+		}
 	}
 	
     @Override
@@ -213,7 +225,7 @@ public final class ServerPanel2 extends JPanel implements ActionListener
                 	thePlayers.add(playerSelector.getPlayerPresence(name));
 				}
 				
-				startGameServer(theGame, thePlayers, "BaseServer", startClock, playClock, shouldSave.isSelected(), shouldPublish.isSelected());				
+				startGameServer(theGame, thePlayers, "Base", startClock, playClock, shouldSave.isSelected(), shouldPublish.isSelected());				
 			}
 		};
 	}
@@ -221,10 +233,12 @@ public final class ServerPanel2 extends JPanel implements ActionListener
 	private AbstractAction testPlayerButtonMethod() {
 		return new AbstractAction("Test") {
 			public void actionPerformed(ActionEvent evt) {
-				Game testGame = GameRepository.getDefaultRepository().getGame("maze");
-				String playerName = playerSelectorList.getSelectedValue().toString();
-				List<PlayerPresence> thePlayers = Arrays.asList(new PlayerPresence[]{playerSelector.getPlayerPresence(playerName)});				
-				startGameServer(testGame, thePlayers, "BaseServerTest", 10, 5, false, false);				
+				if (playerSelectorList.getSelectedValue() != null) {
+					Game testGame = GameRepository.getDefaultRepository().getGame("maze");
+					String playerName = playerSelectorList.getSelectedValue().toString();
+					List<PlayerPresence> thePlayers = Arrays.asList(new PlayerPresence[]{playerSelector.getPlayerPresence(playerName)});				
+					startGameServer(testGame, thePlayers, "Test", 10, 5, false, false);
+				}
 			}
 		};
 	}
@@ -245,7 +259,9 @@ public final class ServerPanel2 extends JPanel implements ActionListener
 	private AbstractAction removePlayerButtonMethod() {
 		return new AbstractAction("Remove") {
 			public void actionPerformed(ActionEvent evt) {
-				playerSelector.removePlayer(playerSelectorList.getSelectedValue().toString());
+				if (playerSelectorList.getSelectedValue() != null) {
+					playerSelector.removePlayer(playerSelectorList.getSelectedValue().toString());
+				}
 			}
 		};
 	}
@@ -274,14 +290,17 @@ public final class ServerPanel2 extends JPanel implements ActionListener
 			tab.addTab("Error", errorPanel);
 			tab.addTab("Visualization", visualizationPanel);
 			tab.addTab("States", statesPanel);
-			matchesTabbedPane.addTab(matchId, tab);
-			matchesTabbedPane.setSelectedIndex(matchesTabbedPane.getTabCount()-1);
+			CloseableTabs.addClosableTab(matchesTabbedPane, tab, matchId, addTabCloseButton(tab));
 			
-			GameServer gameServer = new GameServer(match, hosts, ports, playerNames);
+			match.setPlayerNamesFromHost(playerNames);
+			
+			GameServer gameServer = new GameServer(match, hosts, ports);
 			gameServer.addObserver(errorPanel);
 			gameServer.addObserver(historyPanel);
-			gameServer.addObserver(visualizationPanel);					
+			gameServer.addObserver(visualizationPanel);
 			gameServer.addObserver(statesPanel);
+			gameServer.addObserver(schedulingPanel);
+			gameServer.addObserver(leaderboardPanel);
 			gameServer.start();
 
 			if (shouldSave) {
@@ -302,4 +321,16 @@ public final class ServerPanel2 extends JPanel implements ActionListener
 			e.printStackTrace();
 		}
 	}
+	
+	private AbstractAction addTabCloseButton(final Component tabToClose) {
+		return new AbstractAction("x") {
+		    public void actionPerformed(ActionEvent evt) {
+		    	for (int i = 0; i < matchesTabbedPane.getTabCount(); i++) {
+		    		if (tabToClose == matchesTabbedPane.getComponentAt(i)) {
+		    			matchesTabbedPane.remove(tabToClose);
+		    		}
+		    	}
+		    }
+		};
+	}	
 }

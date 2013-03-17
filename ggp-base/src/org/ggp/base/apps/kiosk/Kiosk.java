@@ -333,8 +333,10 @@ public final class Kiosk extends JPanel implements ActionListener, ItemListener,
                     playerNames.add("Human");                                   
                 }
                 
+                match.setPlayerNamesFromHost(playerNames);
+                
                 GamerLogger.startFileLogging(match, "kiosk");
-                kioskServer = new GameServer(match, hosts, ports, playerNames);
+                kioskServer = new GameServer(match, hosts, ports);
                 kioskServer.givePlayerUnlimitedTime((flipRoles.isSelected()? 1 : 0));
                 kioskServer.addObserver(theHumanGamer);
                 kioskServer.addObserver(this);

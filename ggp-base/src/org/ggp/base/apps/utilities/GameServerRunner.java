@@ -64,7 +64,7 @@ public final class GameServerRunner
 		match.setPlayerNamesFromHost(playerNames);
 		
 		// Actually run the match, using the desired configuration.
-		GameServer server = new GameServer(match, hostNames, portNumbers, playerNames);
+		GameServer server = new GameServer(match, hostNames, portNumbers);
 		server.run();
 		server.join();
 		

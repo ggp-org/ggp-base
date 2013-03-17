@@ -1,0 +1,76 @@
+package org.ggp.base.apps.server.leaderboard;
+
+import java.awt.BorderLayout;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.ScrollPaneConstants;
+import javax.swing.table.DefaultTableModel;
+
+import org.ggp.base.server.event.ServerMatchUpdatedEvent;
+import org.ggp.base.util.match.Match;
+import org.ggp.base.util.observer.Event;
+import org.ggp.base.util.observer.Observer;
+import org.ggp.base.util.ui.JLabelBold;
+
+@SuppressWarnings("serial")
+public final class LeaderboardPanel extends JPanel implements Observer
+{
+	private final JTable leaderTable;
+	
+	public LeaderboardPanel()
+	{
+		super(new BorderLayout());
+		
+        DefaultTableModel model = new DefaultTableModel();		
+        model.addColumn("Player");
+        model.addColumn("Total Score");
+        
+		leaderTable = new JTable(model)
+		{
+			@Override
+			public boolean isCellEditable(int rowIndex, int colIndex)
+			{
+				return false;
+			}
+		};
+		leaderTable.setShowHorizontalLines(true);
+		leaderTable.setShowVerticalLines(true);
+		leaderTable.getColumnModel().getColumn(1).setPreferredWidth(1);
+
+		add(new JLabelBold("Leaderboard"), BorderLayout.NORTH);
+		add(new JScrollPane(leaderTable, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED), BorderLayout.CENTER);
+	}
+
+	public void observe(Event event)
+	{
+		if (!(event instanceof ServerMatchUpdatedEvent)) return;
+		Match match = ((ServerMatchUpdatedEvent) event).getMatch();
+		
+		if (!match.isCompleted()) return;
+		if (match.getMatchId().startsWith("Test")) return;
+		
+		List<Integer> goals = match.getGoalValues();
+		List<String> players = match.getPlayerNamesFromHost();
+		for (int i = 0; i < players.size(); i++) { if (players.get(i)==null) { players.set(i, "?"); } }
+
+		Set<String> playersToAdd = new HashSet<String>(players);
+		DefaultTableModel model = (DefaultTableModel) leaderTable.getModel();
+		for (int i = 0; i < model.getRowCount(); i++) {
+			String rowPlayer = model.getValueAt(i, 0).toString();
+			int playerIndex = players.indexOf(rowPlayer);
+			if (playerIndex != -1) {
+				int oldScore = (Integer)model.getValueAt(i, 1);
+				model.setValueAt(oldScore + goals.get(playerIndex), i, 1);
+				playersToAdd.remove(rowPlayer);
+			}
+		}
+		for (String playerToAdd : playersToAdd) {
+			model.addRow(new Object[]{playerToAdd, goals.get(players.indexOf(playerToAdd))});
+		}
+	}
+}

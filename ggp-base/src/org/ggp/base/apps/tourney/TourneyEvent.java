@@ -74,8 +74,9 @@ public class TourneyEvent implements Observer, Subject {
             notifyObservers(new GamerNewMatchEvent(null, null));
 
             Match theMatch = new Match("Tourney." + gameName + "." + System.currentTimeMillis(), -1, startClock, playClock, theMatchModel.getGame());
- 
-            GameServer gameServer = new GameServer(theMatch, hosts, ports, names);
+            theMatch.setPlayerNamesFromHost(names);
+            
+            GameServer gameServer = new GameServer(theMatch, hosts, ports);
             gameServer.addObserver(this);
             gameServer.start();
 

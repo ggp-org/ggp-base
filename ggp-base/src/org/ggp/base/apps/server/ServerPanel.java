@@ -174,7 +174,9 @@ public final class ServerPanel extends JPanel implements ActionListener
 					serverPanel.matchesTabbedPane.addTab(matchId, tab);
 					serverPanel.matchesTabbedPane.setSelectedIndex(serverPanel.matchesTabbedPane.getTabCount()-1);
 					
-					GameServer gameServer = new GameServer(match, hosts, ports, playerNames);
+					match.setPlayerNamesFromHost(playerNames);
+					
+					GameServer gameServer = new GameServer(match, hosts, ports);
 					gameServer.addObserver(errorPanel);
 					gameServer.addObserver(historyPanel);
 					gameServer.addObserver(visualizationPanel);					
