@@ -14,10 +14,7 @@ import java.util.Set;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
-import org.ggp.base.util.configuration.ProjectConfiguration;
-
 import external.JSON.JSONObject;
-
 
 /**
  * Cloud game repositories provide access to game resources stored on game
@@ -63,13 +60,28 @@ public final class CloudGameRepository extends GameRepository {
             theCacheHash = null;
         }
 
-        theCacheDirectory = new File(ProjectConfiguration.gameCacheDirectory, "repoHash" + theCacheHash);
+    	File theCachesDirectory = new File(System.getProperty("user.home"), ".ggpserver-gamecache");
+    	theCachesDirectory.mkdir();
+    	theCacheDirectory = new File(theCachesDirectory, "repoHash" + theCacheHash);
         theCacheDirectory.mkdir();
+        
+        // Only force a full refresh of the game cache at most once per day
+        needsRefresh = (System.currentTimeMillis() - theCacheDirectory.lastModified()) > 86400000;
 
-        // Update the game cache asynchronously.
         if (needsRefresh) {
-            new RefreshCacheThread(theRepoURL).start();
-            needsRefresh = false;
+        	Thread refreshThread = new RefreshCacheThread(theRepoURL);
+        	refreshThread.start();        	
+        	// Update the game cache asynchronously if there are already games.
+        	// Otherwise, force a blocking update.
+        	if (theCacheDirectory.listFiles().length == 0) {
+        		try {
+        			refreshThread.join();
+        		} catch (InterruptedException e) {
+        			;
+        		}
+        	}
+        	theCacheDirectory.setLastModified(System.currentTimeMillis());
+        	needsRefresh = false;
         }
     }
     
@@ -195,7 +207,7 @@ public final class CloudGameRepository extends GameRepository {
             for (Thread t : theThreads) {
                 try {
                     t.join();
-                } catch (Exception e) {
+                } catch (InterruptedException e) {
                     ;
                 }
             }
