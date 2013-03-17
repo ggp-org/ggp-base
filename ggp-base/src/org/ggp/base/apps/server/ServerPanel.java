@@ -311,7 +311,7 @@ public final class ServerPanel extends JPanel implements ActionListener
 			gameServer.start();
 
 			if (shouldSave) {
-				File matchesDir = new File("matches");
+				File matchesDir = new File(System.getProperty("user.home"), "ggp-saved-matches");
 				if (!matchesDir.exists()) {
 					matchesDir.mkdir();
 				}
