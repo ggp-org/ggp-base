@@ -75,6 +75,7 @@ public final class SchedulingPanel extends JPanel implements Observer
 					model.setValueAt(getLinebreakString(match.getGoalValues()), i, 5);					
 				}
 				List<Integer> errorCounts = new ArrayList<Integer>();
+				List<String> errorCountStrings = new ArrayList<String>();
 				for (int j = 0; j < match.getPlayerNamesFromHost().size(); j++) {
 					errorCounts.add(0);
 				}
@@ -85,7 +86,14 @@ public final class SchedulingPanel extends JPanel implements Observer
 						}
 					}
 				}
-				model.setValueAt(getLinebreakString(errorCounts), i, 6);
+				for (int errorCount : errorCounts) {
+					if (errorCount > 0) {
+						errorCountStrings.add("<font color=red>" + errorCount + "</font>");
+					} else {
+						errorCountStrings.add("0");
+					}
+				}
+				model.setValueAt(getLinebreakString(errorCountStrings), i, 6);
 				model.setValueAt(match.getStateHistory().size(), i, 7);
 				return;
 			}
