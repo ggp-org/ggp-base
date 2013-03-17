@@ -111,8 +111,8 @@ public final class ServerPanel extends JPanel implements ActionListener
 		super(new GridBagLayout());
 		
 		runButton = new JButton(runButtonMethod());
-		startClockSpinner = new JSpinner(new SpinnerNumberModel(30,1,600,1));
-		playClockSpinner = new JSpinner(new SpinnerNumberModel(15,1,300,1));;
+		startClockSpinner = new JSpinner(new SpinnerNumberModel(30,5,600,1));
+		playClockSpinner = new JSpinner(new SpinnerNumberModel(15,5,300,1));;
 		matchesTabbedPane = new JTabbedPane();
 		
 		managerPanel = new JPanel(new GridBagLayout());
@@ -319,9 +319,10 @@ public final class ServerPanel extends JPanel implements ActionListener
 				gameServer.startSavingToFilename(matchFile.getAbsolutePath());
 			}
 			if (shouldPublish) {
-				if (!match.getGame().getRepositoryURL().contains("127.0.0.1")) {
+				if (!match.getGame().getRepositoryURL().contains("127.0.0.1")) {					
 					gameServer.startPublishingToSpectatorServer("http://matches.ggp.org/");
-				}
+					gameServer.setForceUsingEntireClock();
+				}				
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
