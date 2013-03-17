@@ -31,7 +31,7 @@ public class PublishButton extends JButton implements ActionListener {
                 if (!theServer.getMatch().getGame().getRepositoryURL().contains("127.0.0.1")) {
                     String theMatchKey = theServer.startPublishingToSpectatorServer("http://matches.ggp.org/");
                     if (theMatchKey != null) {
-                        String theURL = "http://matches.ggp.org/matches/" + theMatchKey + "/viz.html";
+                        String theURL = "http://www.ggp.org/view/all/matches/" + theMatchKey + "/";
                         System.out.println("Publishing to: " + theURL);
                         int nChoice = JOptionPane.showConfirmDialog(this,
                                 "Publishing successfully. Would you like to open the spectator view in a browser?",
