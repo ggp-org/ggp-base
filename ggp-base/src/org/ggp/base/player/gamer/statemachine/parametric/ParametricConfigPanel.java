@@ -18,6 +18,7 @@ import javax.swing.AbstractAction;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
+import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
@@ -28,6 +29,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.filechooser.FileFilter;
 
 import org.ggp.base.apps.player.config.ConfigPanel;
 
@@ -37,9 +39,14 @@ import external.JSON.JSONObject;
 class ParametricConfigPanel extends ConfigPanel implements ActionListener, DocumentListener, ChangeListener {
 	private static final long serialVersionUID = 1L;
 	
+	private File associatedFile;	
+	final JTextField associatedFileField;	
+	
 	private JSONObject params;
-	private boolean params_dirty;
+	private String savedParams;
 
+	final JButton loadButton;
+	final JButton saveAsButton;
 	final JButton saveButton;
 	final JTextField name;
 	final JComboBox strategy;
@@ -63,8 +70,17 @@ class ParametricConfigPanel extends ConfigPanel implements ActionListener, Docum
 		name.setColumns(20);
 		name.setText("Parametric");
 		
+		loadButton = new JButton(loadButtonMethod());
 		saveButton = new JButton(saveButtonMethod());
-	    saveButton.setEnabled(false);
+		saveAsButton = new JButton(saveAsButtonMethod());
+		
+		associatedFileField = new JTextField();
+		associatedFileField.setEnabled(false);
+		
+		JPanel buttons = new JPanel();		
+		buttons.add(loadButton);
+		buttons.add(saveButton);
+		buttons.add(saveAsButton);
 		
 		int nRow = 0;
 		leftPanel.add(new JLabel("Name"), new GridBagConstraints(0, nRow, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 5, 5));
@@ -73,14 +89,15 @@ class ParametricConfigPanel extends ConfigPanel implements ActionListener, Docum
 		leftPanel.add(strategy, new GridBagConstraints(1, nRow++, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 5, 5));
 		leftPanel.add(new JLabel("State Machine"), new GridBagConstraints(0, nRow, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 5, 5));
 		leftPanel.add(stateMachine, new GridBagConstraints(1, nRow++, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 5, 5));		
-		leftPanel.add(saveButton, new GridBagConstraints(1, nRow++, 1, 1, 1.0, 1.0, GridBagConstraints.SOUTHEAST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 5, 5));		
+		leftPanel.add(buttons, new GridBagConstraints(1, nRow++, 2, 1, 1.0, 1.0, GridBagConstraints.SOUTHEAST, GridBagConstraints.NONE, new Insets(5, 5, 0, 5), 0, 0));
+		leftPanel.add(associatedFileField, new GridBagConstraints(0, nRow, 2, 1, 1.0, 0.0, GridBagConstraints.SOUTHEAST, GridBagConstraints.HORIZONTAL, new Insets(0, 5, 5, 5), 0, 0));
 		layoutRightPanel();
 		
 		add(leftPanel, new GridBagConstraints(0, 0, 1, 1, 0.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 5, 5));
 		add(rightPanel, new GridBagConstraints(1, 0, 1, 1, 1.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 5, 5));		
 		
-		loadParamsJSON();
-		setUIfromJSON();
+		params = new JSONObject();
+		syncJSONtoUI();
 		
 		strategy.addActionListener(this);
 		stateMachine.addActionListener(this);
@@ -140,12 +157,9 @@ class ParametricConfigPanel extends ConfigPanel implements ActionListener, Docum
 	}
 	
 	void syncJSONtoUI() {
-		JSONObject newParams = getJSONfromUI();
-		if (!newParams.toString().equals(params.toString())) {
-			params_dirty = true;
-			params = newParams;				
-		}
-		saveButton.setEnabled(params_dirty);
+		if (settingUI) return;		
+		params = getJSONfromUI();		
+		saveButton.setEnabled(savedParams == null || !params.toString().equals(savedParams));		
 	}
 	
 	JSONObject getJSONfromUI() {
@@ -164,8 +178,10 @@ class ParametricConfigPanel extends ConfigPanel implements ActionListener, Docum
 		return newParams;
 	}
 	
+	private boolean settingUI = false;
 	void setUIfromJSON() {
-		try {
+		settingUI = true;
+		try {			
 			if (params.has("name")) {
 				name.setText(params.getString("name"));					
 			}
@@ -183,20 +199,22 @@ class ParametricConfigPanel extends ConfigPanel implements ActionListener, Docum
 			}
 		} catch (JSONException je) {
 			je.printStackTrace();
+		} finally {
+			settingUI = false;
 		}
 	}
 	
-	void loadParamsJSON() {
-		params = new JSONObject();
-		String paramsFilename = System.getProperty("user.home") + "/.ggp-gamer-params.json";
-		File paramsFile = new File(paramsFilename);
-		if (!paramsFile.exists()) {				
+	void loadParamsJSON(File fromFile) {
+		if (!fromFile.exists()) {				
 			return;
 		}
+		associatedFile = fromFile;
+		associatedFileField.setText(associatedFile.getPath());
+		params = new JSONObject();
 		try {
 			String line;
 			StringBuilder pdata = new StringBuilder();
-			FileInputStream fis = new FileInputStream(paramsFilename);
+			FileInputStream fis = new FileInputStream(associatedFile);
 			BufferedReader br = new BufferedReader(new InputStreamReader(fis, Charset.forName("UTF-8")));
 			try {
 				while ((line = br.readLine()) != null) {
@@ -206,36 +224,80 @@ class ParametricConfigPanel extends ConfigPanel implements ActionListener, Docum
 				br.close();
 			}
 			params = new JSONObject(pdata.toString());
-			params_dirty = false;
+			savedParams = params.toString();
+			setUIfromJSON();
+			syncJSONtoUI();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 	
-	void saveParamsJSON() {
+	void saveParamsJSON(boolean saveAs) {
 		try {
-			String paramsFilename = System.getProperty("user.home") + "/.ggp-gamer-params.json";
-			File paramsFile = new File(paramsFilename);
-			if (!paramsFile.exists()) {				
-				paramsFile.createNewFile();
+			if (saveAs || associatedFile == null) {
+				final JFileChooser fc = new JFileChooser();
+				fc.setFileFilter(new PlayerFilter());
+				int returnVal = fc.showSaveDialog(null);
+				if (returnVal == JFileChooser.APPROVE_OPTION && fc.getSelectedFile() != null) {
+					File toFile = fc.getSelectedFile();
+					if (toFile.getName().contains(".")) {
+						associatedFile = new File(toFile.getParentFile(), toFile.getName().substring(0,toFile.getName().lastIndexOf(".")) + ".player");
+					} else {
+						associatedFile = new File(toFile.getParentFile(), toFile.getName() + ".player");
+					}
+					associatedFileField.setText(associatedFile.getPath());
+				} else {
+					return;
+				}
 			}
-			FileWriter fw = new FileWriter(paramsFile);
+			FileWriter fw = new FileWriter(associatedFile);
 			BufferedWriter bw = new BufferedWriter(fw);
 			bw.write(params.toString());
 			bw.close();
-			params_dirty = false;
-			saveButton.setEnabled(false);
+			savedParams = params.toString();
+			syncJSONtoUI();
 		} catch (IOException ie) {
 			ie.printStackTrace();
-		}
+		}		
 	}
 	
 	AbstractAction saveButtonMethod() {
 		return new AbstractAction("Save") {
 			private static final long serialVersionUID = 1L;
 			public void actionPerformed(ActionEvent evt) {
-				saveParamsJSON();
+				saveParamsJSON(false);
 			}
 		};
 	}
+	AbstractAction saveAsButtonMethod() {
+		return new AbstractAction("Save As") {
+			private static final long serialVersionUID = 1L;
+			public void actionPerformed(ActionEvent evt) {
+				saveParamsJSON(true);
+			}
+		};
+	}	
+	AbstractAction loadButtonMethod() {
+		return new AbstractAction("Load") {
+			private static final long serialVersionUID = 1L;
+			public void actionPerformed(ActionEvent evt) {
+				final JFileChooser fc = new JFileChooser();
+				fc.setFileFilter(new PlayerFilter());
+				int returnVal = fc.showOpenDialog(null);
+				if (returnVal == JFileChooser.APPROVE_OPTION && fc.getSelectedFile() != null) {
+					loadParamsJSON(fc.getSelectedFile());
+				}
+			}
+		};
+	}
+	
+	static class PlayerFilter extends FileFilter {
+	    public boolean accept(File f) {
+	        if (f.isDirectory()) return true;
+	        return f.getName().endsWith(".player");
+	    }
+	    public String getDescription() {
+	        return "GGP Players (*.player)";
+	    }
+	}	
 }

@@ -40,7 +40,7 @@ import org.ggp.base.util.ui.NativeUI;
 public final class ParametricPlayerPanel extends JPanel
 {
 	private static void createAndShowGUI(ParametricPlayerPanel playerPanel) {
-		JFrame frame = new JFrame("Parametric Player v1");
+		JFrame frame = new JFrame("Parametric Player v3");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 		frame.setPreferredSize(new Dimension(1024, 768));
@@ -86,7 +86,7 @@ public final class ParametricPlayerPanel extends JPanel
 	public final class IntroPanel extends JPanel {
 		public IntroPanel() {
 			super(new GridBagLayout());
-			this.add(new JLabel("Click the + button in the upper-left corner to start a player instance."), new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 5, 5));
+			this.add(new JLabel("Click the + button at the top to start a player instance."), new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 5, 5));
 		}
 	}
 
