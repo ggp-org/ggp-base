@@ -1,6 +1,8 @@
 package org.ggp.base.apps.server.leaderboard;
 
 import java.awt.BorderLayout;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -8,8 +10,12 @@ import java.util.Set;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.RowSorter.SortKey;
 import javax.swing.ScrollPaneConstants;
+import javax.swing.SortOrder;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
+import javax.swing.table.TableRowSorter;
 
 import org.ggp.base.server.event.ServerMatchUpdatedEvent;
 import org.ggp.base.util.match.Match;
@@ -21,6 +27,7 @@ import org.ggp.base.util.ui.JLabelBold;
 public final class LeaderboardPanel extends JPanel implements Observer
 {
 	private final JTable leaderTable;
+	private final TableRowSorter<TableModel> sorter;
 	
 	public LeaderboardPanel()
 	{
@@ -37,10 +44,24 @@ public final class LeaderboardPanel extends JPanel implements Observer
 			{
 				return false;
 			}
+			@Override
+			public Class<?> getColumnClass(int colIndex) {
+				if (colIndex == 0) return String.class;
+				if (colIndex == 1) return Integer.class;
+				return Object.class;
+			}
 		};
 		leaderTable.setShowHorizontalLines(true);
 		leaderTable.setShowVerticalLines(true);
 		leaderTable.getColumnModel().getColumn(1).setPreferredWidth(1);
+		sorter = new TableRowSorter<TableModel>(model);
+		sorter.setComparator(1, new Comparator<Integer>() {
+			public int compare(Integer a, Integer b) {
+				return a-b;
+			}
+		});
+		sorter.setSortKeys(Arrays.asList(new SortKey[]{new SortKey(1, SortOrder.DESCENDING)}));
+		leaderTable.setRowSorter(sorter);
 
 		add(new JLabelBold("Leaderboard"), BorderLayout.NORTH);
 		add(new JScrollPane(leaderTable, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED), BorderLayout.CENTER);
@@ -72,5 +93,6 @@ public final class LeaderboardPanel extends JPanel implements Observer
 		for (String playerToAdd : playersToAdd) {
 			model.addRow(new Object[]{playerToAdd, goals.get(players.indexOf(playerToAdd))});
 		}
+		sorter.sort();
 	}
 }
