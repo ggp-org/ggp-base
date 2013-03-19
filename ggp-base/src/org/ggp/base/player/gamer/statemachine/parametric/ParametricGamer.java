@@ -6,7 +6,6 @@ import java.util.Random;
 
 import org.ggp.base.apps.player.config.ConfigPanel;
 import org.ggp.base.apps.player.detail.DetailPanel;
-import org.ggp.base.apps.player.detail.SimpleDetailPanel;
 import org.ggp.base.player.gamer.event.GamerSelectedMoveEvent;
 import org.ggp.base.player.gamer.exception.GameAnalysisException;
 import org.ggp.base.player.gamer.statemachine.StateMachineGamer;
@@ -33,7 +32,16 @@ import org.ggp.base.util.statemachine.implementation.prover.ProverStateMachine;
 public final class ParametricGamer extends StateMachineGamer
 {
 	private ParametricConfigPanel configPanel = new ParametricConfigPanel();
+	private ParametricDetailPanel detailPanel = new ParametricDetailPanel();
 	private Random theRandom = new Random();
+	
+	private ParametricDetailPanel.Counter statesExpanded;
+	
+	public ParametricGamer() {
+		configPanel = new ParametricConfigPanel();
+		detailPanel = new ParametricDetailPanel();
+		statesExpanded = detailPanel.addCounter("States Expanded");
+	}
 	
 	@Override
 	public String getName() {
@@ -50,13 +58,16 @@ public final class ParametricGamer extends StateMachineGamer
 	{
 	    StateMachine theMachine = getStateMachine();
 		long start = System.currentTimeMillis();
-		long finishBy = timeout - 3000;
+		long finishBy = timeout - 2500;
+		long finishSelectionForcedBy = finishBy - 1000;		
+		long finishSelectionBy = finishSelectionForcedBy - 1000;
+		
 		long timeToSelect = finishBy - System.currentTimeMillis();
 		
-		SelectMoveThread selectMoveThread = new SelectMoveThread(finishBy);
+		SelectMoveThread selectMoveThread = new SelectMoveThread(finishSelectionBy);
 		selectMoveThread.start();
 		try {			
-			selectMoveThread.join(timeToSelect);
+			selectMoveThread.join(finishSelectionForcedBy - System.currentTimeMillis());
 		} catch (InterruptedException e) {
 			;
 		}
@@ -117,7 +128,7 @@ public final class ParametricGamer extends StateMachineGamer
 	
 	@Override
 	public DetailPanel getDetailPanel() {
-		return new SimpleDetailPanel();
+		return detailPanel;
 	}
 	
 	class SelectMoveThread extends Thread {
@@ -184,6 +195,7 @@ public final class ParametricGamer extends StateMachineGamer
 		
 		for (Move move : moves) {
 			MachineState stateAfterMove = getStateMachine().getNextState(getCurrentState(), Arrays.asList(new Move[]{move}));
+			statesExpanded.increment(1);
 			int bestScoreAfterMove = getPuzzleBestScore(stateAfterMove);
 			if (bestScoreAfterMove > bestScoreSoFar) {
 				bestScoreSoFar = bestScoreAfterMove;
@@ -207,6 +219,7 @@ public final class ParametricGamer extends StateMachineGamer
 		List<Move> moves = getStateMachine().getLegalMoves(state, getRole());
 		for (Move move : moves) {
 			MachineState gameStateAfterMove = getStateMachine().getNextState(state, Arrays.asList(new Move[]{move}));
+			statesExpanded.increment(1);
 			int bestScoreAfterMove = getPuzzleBestScore(gameStateAfterMove);
 			bestScoreSoFar = Math.max(bestScoreSoFar, bestScoreAfterMove);
 			if (bestScoreSoFar == 100) break;
@@ -242,6 +255,7 @@ public final class ParametricGamer extends StateMachineGamer
 		for (List<Move> jointMove : getStateMachine().getLegalJointMoves(state, getRole(), myMove)) {
 			int bestScoreSoFar = -1;
 			MachineState stateAfterMove = getStateMachine().getNextState(state, jointMove);
+			statesExpanded.increment(1);
 			if (getStateMachine().isTerminal(stateAfterMove)) {
 				bestScoreSoFar = getStateMachine().getGoal(stateAfterMove, getRole());
 			} else {
@@ -287,6 +301,7 @@ public final class ParametricGamer extends StateMachineGamer
 		for (List<Move> jointMove : getStateMachine().getLegalJointMoves(state, getRole(), myMove)) {
 			int bestScoreSoFar = -1;
 			MachineState stateAfterMove = getStateMachine().getNextState(state, jointMove);
+			statesExpanded.increment(1);
 			if (getStateMachine().isTerminal(stateAfterMove)) {
 				bestScoreSoFar = getStateMachine().getGoal(stateAfterMove, getRole());
 			} else if (depth == 0) {				
@@ -378,7 +393,7 @@ public final class ParametricGamer extends StateMachineGamer
     		    if (System.currentTimeMillis() > finishBy)
     		        break;
     		    
-    		    int theScore = performMonteCarloDepthChargeFromMove(theMachine.getInitialState(), moves.get(i));
+    		    int theScore = performMonteCarloDepthChargeFromMove(getCurrentState(), moves.get(i));
     		    moveTotalPoints[i] += theScore;
     		    moveTotalAttempts[i] += 1;
     		}
@@ -386,8 +401,7 @@ public final class ParametricGamer extends StateMachineGamer
     		// Compute the expected score for each move.
     		double[] moveExpectedPoints = new double[moves.size()];
     		for (int i = 0; i < moves.size(); i++) {
-    		    moveExpectedPoints[i] = (double)moveTotalPoints[i] / moveTotalAttempts[i];
-    		    System.out.println("Move [" + moves.get(i) + "] = " + moveExpectedPoints[i] + ", with " + moveTotalAttempts[i] + " attempts.");    		    
+    		    moveExpectedPoints[i] = (double)moveTotalPoints[i] / moveTotalAttempts[i];    		    
     		}
 
     		// Find the move with the best expected score.
@@ -409,6 +423,7 @@ public final class ParametricGamer extends StateMachineGamer
 	    StateMachine theMachine = getStateMachine();
 	    try {
             MachineState finalState = theMachine.performDepthCharge(theMachine.getRandomNextState(theState, getRole(), myMove), depth);
+            statesExpanded.increment(depth[0]);
             return theMachine.getGoal(finalState, getRole());
         } catch (Exception e) {
             e.printStackTrace();
