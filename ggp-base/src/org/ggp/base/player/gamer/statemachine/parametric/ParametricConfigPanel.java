@@ -50,6 +50,7 @@ class ParametricConfigPanel extends ConfigPanel implements ActionListener, Docum
 	final JButton saveButton;
 	final JTextField name;
 	final JComboBox strategy;
+	final JComboBox metagameStrategy;
 	final JComboBox stateMachine;
 	final JCheckBox cacheStateMachine;
 	final JSpinner maxPlys;
@@ -61,7 +62,8 @@ class ParametricConfigPanel extends ConfigPanel implements ActionListener, Docum
 		rightPanel = new JPanel(new GridBagLayout());
 		rightPanel.setBorder(new TitledBorder("Minor Parameters"));
 
-		strategy = new JComboBox(new String[] { "Noop", "Legal", "Random", "Puzzle", "Minimax", "SearchLight", "Heuristic", "Monte Carlo" });
+		strategy = new JComboBox(new String[] {"Noop", "Legal", "Random", "Puzzle", "Minimax", "SearchLight", "Heuristic", "Monte Carlo"});
+		metagameStrategy = new JComboBox(new String[]{"None", "Random Exploration"});
 		stateMachine = new JComboBox(new String[] { "Prover" });
 		cacheStateMachine = new JCheckBox();
 		maxPlys = new JSpinner(new SpinnerNumberModel(5,1,100,1));
@@ -85,8 +87,10 @@ class ParametricConfigPanel extends ConfigPanel implements ActionListener, Docum
 		int nRow = 0;
 		leftPanel.add(new JLabel("Name"), new GridBagConstraints(0, nRow, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 5, 5));
 		leftPanel.add(name, new GridBagConstraints(1, nRow++, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 5, 5));		
-		leftPanel.add(new JLabel("Strategy"), new GridBagConstraints(0, nRow, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 5, 5));
+		leftPanel.add(new JLabel("Gaming Strategy"), new GridBagConstraints(0, nRow, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 5, 5));
 		leftPanel.add(strategy, new GridBagConstraints(1, nRow++, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 5, 5));
+		leftPanel.add(new JLabel("Metagame Strategy"), new GridBagConstraints(0, nRow, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 5, 5));
+		leftPanel.add(metagameStrategy, new GridBagConstraints(1, nRow++, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 5, 5));
 		leftPanel.add(new JLabel("State Machine"), new GridBagConstraints(0, nRow, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 5, 5));
 		leftPanel.add(stateMachine, new GridBagConstraints(1, nRow++, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 5, 5));		
 		leftPanel.add(buttons, new GridBagConstraints(1, nRow++, 2, 1, 1.0, 1.0, GridBagConstraints.SOUTHEAST, GridBagConstraints.NONE, new Insets(5, 5, 0, 5), 0, 0));
@@ -100,6 +104,7 @@ class ParametricConfigPanel extends ConfigPanel implements ActionListener, Docum
 		syncJSONtoUI();
 		
 		strategy.addActionListener(this);
+		metagameStrategy.addActionListener(this);
 		stateMachine.addActionListener(this);
 		cacheStateMachine.addActionListener(this);
 		maxPlys.addChangeListener(this);
@@ -169,6 +174,7 @@ class ParametricConfigPanel extends ConfigPanel implements ActionListener, Docum
 				newParams.put("name", name.getText());
 			}
 			newParams.put("strategy", strategy.getSelectedItem().toString());
+			newParams.put("metagameStrategy", metagameStrategy.getSelectedItem().toString());
 			newParams.put("stateMachine", stateMachine.getSelectedItem().toString());
 			newParams.put("cacheStateMachine", cacheStateMachine.isSelected());
 			newParams.put("maxPlys", maxPlys.getModel().getValue());
@@ -188,6 +194,9 @@ class ParametricConfigPanel extends ConfigPanel implements ActionListener, Docum
 			if (params.has("strategy")) {
 				strategy.setSelectedItem(params.getString("strategy"));
 			}
+			if (params.has("metagameStrategy")) {
+				metagameStrategy.setSelectedItem(params.getString("metagameStrategy"));
+			}			
 			if (params.has("stateMachine")) {
 				stateMachine.setSelectedItem(params.getString("stateMachine"));
 			}

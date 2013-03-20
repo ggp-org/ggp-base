@@ -93,7 +93,15 @@ public final class ParametricGamer extends StateMachineGamer
 	@Override
 	public void stateMachineMetaGame(long timeout) throws TransitionDefinitionException, MoveDefinitionException, GoalDefinitionException
 	{
-		// This gamer does no metagaming at the beginning of the match.
+		String metagameStrategy = configPanel.getParameter("metagameStrategy", "None");
+		if (metagameStrategy.equals("Random Exploration")) {
+			long finishBy = timeout - 2500;
+			int[] depth = new int[1];
+			while (finishBy > System.currentTimeMillis()) {				
+				getStateMachine().performDepthCharge(getStateMachine().getInitialState(), depth);
+				statesExpanded.increment(depth[0]);
+			}
+		}
 	}	
 	
 	@Override
