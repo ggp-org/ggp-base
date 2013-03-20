@@ -8,7 +8,6 @@ import org.ggp.base.player.request.factory.exceptions.RequestFormatException;
 import org.ggp.base.player.request.grammar.AbortRequest;
 import org.ggp.base.player.request.grammar.AnalyzeRequest;
 import org.ggp.base.player.request.grammar.InfoRequest;
-import org.ggp.base.player.request.grammar.PingRequest;
 import org.ggp.base.player.request.grammar.PlayRequest;
 import org.ggp.base.player.request.grammar.Request;
 import org.ggp.base.player.request.grammar.StartRequest;
@@ -22,7 +21,6 @@ import org.ggp.base.util.symbol.factory.SymbolFactory;
 import org.ggp.base.util.symbol.grammar.Symbol;
 import org.ggp.base.util.symbol.grammar.SymbolAtom;
 import org.ggp.base.util.symbol.grammar.SymbolList;
-
 
 public final class RequestFactory
 {
@@ -49,10 +47,6 @@ public final class RequestFactory
 			else if (type.equals("abort"))
 			{
 			    return createAbort(gamer, list);
-			}
-			else if (type.equals("ping"))
-			{
-			    return createPing(gamer, list);
 			}
 			else if (type.equals("info"))
 			{
@@ -143,16 +137,6 @@ public final class RequestFactory
 
         return new AbortRequest(gamer, matchId);
     }	
-    
-    private PingRequest createPing(Gamer gamer, SymbolList list) throws GdlFormatException
-    {
-        if (list.size() != 1)
-        {
-            throw new IllegalArgumentException("Expected no arguments!");
-        }
-
-        return new PingRequest(gamer);
-    }
     
     private InfoRequest createInfo(Gamer gamer, SymbolList list) throws GdlFormatException
     {

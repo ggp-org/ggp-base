@@ -35,12 +35,12 @@ public class PlayerPresenceManager implements Subject {
 		return !a.equals(b);
 	}	
 	
-	public static final int PING_PERIOD_IN_SECONDS = 1;
+	public static final int INFO_PING_PERIOD_IN_SECONDS = 1;
 	class PresenceMonitor extends Thread {
 		public void run() {
 			while(true) {
 				try {
-					Thread.sleep(PING_PERIOD_IN_SECONDS);
+					Thread.sleep(INFO_PING_PERIOD_IN_SECONDS);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
@@ -48,10 +48,10 @@ public class PlayerPresenceManager implements Subject {
 				for (String key : keys) {
 					PlayerPresence presence = monitoredPlayers.get(key);
 					if (presence == null) continue;					
-					if (presence.getStatusAge() > PING_PERIOD_IN_SECONDS*1000) {
+					if (presence.getStatusAge() > INFO_PING_PERIOD_IN_SECONDS*1000) {
 						String old_name = presence.getName();
 						String old_status = presence.getStatus();						
-						presence.ping();
+						presence.updateInfo();
 						String new_name = presence.getName();
 						String new_status = presence.getStatus();
 						if (isDifferent(old_status, new_status)) {

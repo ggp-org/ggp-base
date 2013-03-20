@@ -35,6 +35,6 @@ public final class InfoRequest extends Request
 	@Override
 	public String toString()
 	{
-		return "ping";
+		return "info";
 	}
 }

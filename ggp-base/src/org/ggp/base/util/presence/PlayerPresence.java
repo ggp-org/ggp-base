@@ -2,6 +2,7 @@ package org.ggp.base.util.presence;
 
 import java.io.IOException;
 
+import org.ggp.base.server.request.RequestBuilder;
 import org.ggp.base.util.http.HttpRequest;
 
 import external.JSON.JSONException;
@@ -22,11 +23,11 @@ public class PlayerPresence {
 		this.statusTime = 0;
 	}
 	
-	public void ping() {
+	public void updateInfo() {
 		JSONObject info;
 		String newName, newStatus;
 		try {
-			info = new JSONObject(HttpRequest.issueRequest(host, port, "", "( info )", 1000));
+			info = new JSONObject(HttpRequest.issueRequest(host, port, "", RequestBuilder.getInfoRequest(), 1000));
 			newName = info.getString("name");
 			newStatus = info.getString("status");
 		} catch (JSONException je) {
