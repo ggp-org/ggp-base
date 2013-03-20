@@ -14,6 +14,8 @@
     <path id="GGP_Base.classpath">
         <pathelement location="bin"/>
         <pathelement location="src/external/FlyingSaucer/core-renderer.jar"/>
+    	<pathelement location="src/external/JFreeChart/jfreechart-1.0.14.jar"/>
+    	<pathelement location="src/external/JFreeChart/jcommon-1.0.17.jar"/>
         <pathelement location="src/external/JTidy/Tidy.jar"/>
         <pathelement location="src/external/JGoodiesForms/forms-1.2.1.jar"/>
         <pathelement location="src/external/Jython/jython.jar"/>
