@@ -40,7 +40,7 @@ import org.ggp.base.util.ui.NativeUI;
 public final class ParametricPlayerPanel extends JPanel
 {
 	private static void createAndShowGUI(ParametricPlayerPanel playerPanel) {
-		JFrame frame = new JFrame("Parametric Player v4");
+		JFrame frame = new JFrame("Parametric Player [2013-03-20]");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 		frame.setPreferredSize(new Dimension(1024, 768));
