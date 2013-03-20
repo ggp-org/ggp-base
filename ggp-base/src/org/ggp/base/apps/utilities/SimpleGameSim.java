@@ -1,11 +1,15 @@
 package org.ggp.base.apps.utilities;
 
 import java.io.File;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.ggp.base.server.GameServer;
+import org.ggp.base.server.event.ServerCompletedMatchEvent;
+import org.ggp.base.server.event.ServerNewGameStateEvent;
+import org.ggp.base.server.event.ServerNewMovesEvent;
 import org.ggp.base.util.crypto.SignableJSON;
 import org.ggp.base.util.crypto.BaseCryptography.EncodedKeyPair;
 import org.ggp.base.util.files.FileUtils;
@@ -13,13 +17,10 @@ import org.ggp.base.util.game.Game;
 import org.ggp.base.util.game.GameRepository;
 import org.ggp.base.util.gdl.grammar.GdlSentence;
 import org.ggp.base.util.match.Match;
+import org.ggp.base.util.observer.Event;
+import org.ggp.base.util.observer.Observer;
 import org.ggp.base.util.statemachine.MachineState;
-import org.ggp.base.util.statemachine.Move;
 import org.ggp.base.util.statemachine.Role;
-import org.ggp.base.util.statemachine.StateMachine;
-import org.ggp.base.util.statemachine.cache.CachedStateMachine;
-import org.ggp.base.util.statemachine.implementation.prover.ProverStateMachine;
-import org.ggp.base.util.statemachine.verifier.StateMachineVerifier;
 
 import external.JSON.JSONException;
 import external.JSON.JSONObject;
@@ -41,10 +42,9 @@ public class SimpleGameSim {
     public static final boolean hideControlProposition = true;
     public static final boolean showCurrentState = false;
     
-    public static void main(String[] args) {
-        Game theGame = GameRepository.getDefaultRepository().getGame("nineBoardTicTacToe");
-        Match theMatch = new Match("simpleGameSim." + Match.getRandomString(5), -1, 0, 0, theGame);
-        theMatch.setPlayerNamesFromHost(Arrays.asList(new String[] {"SamplePlayer1", "SamplePlayer2"}));
+    public static void main(String[] args) throws InterruptedException {
+        final Game theGame = GameRepository.getDefaultRepository().getGame("nineBoardTicTacToe");
+        final Match theMatch = new Match("simpleGameSim." + Match.getRandomString(5), -1, 0, 0, theGame);
         try {
             // Load a sample set of cryptographic keys. These sample keys are not secure,
             // since they're checked into the public GGP Base SVN repository. They are provided
@@ -58,68 +58,70 @@ public class SimpleGameSim {
             System.err.println("Could not load sample cryptograhic keys: " + e);
         }
         
-        // ---------------------------------------------------------
-        // Construct the machine: change this to select which machine
-        // you're interested in using to simulate the game.
-        StateMachine theMachine = new CachedStateMachine(new ProverStateMachine());        
-        theMachine.initialize(theGame.getRules());
+        // Set up fake players to pretend to play the game
+        List<String> fakeHosts = new ArrayList<String>();
+        List<Integer> fakePorts = new ArrayList<Integer>();
+        for (int i = 0; i < Role.computeRoles(theGame.getRules()).size(); i++) {
+        	fakeHosts.add("SamplePlayer" + i);
+        	fakePorts.add(9147+i);
+        }
+
+        // Set up a game server to play through the game, with all players playing randomly.
+        final GameServer theServer = new GameServer(theMatch, fakeHosts, fakePorts);
+        for (int i = 0; i < fakeHosts.size(); i++) {
+        	theServer.makePlayerPlayRandomly(i);
+        }
         
-        // Check for consistency, before we simulate the game.
-        StateMachine theProver = new ProverStateMachine();
-        theProver.initialize(theGame.getRules());
-        if(!StateMachineVerifier.checkMachineConsistency(theProver, theMachine, 1000)) {
-            System.err.println("Inconsistency!");
-        }
-
-        // Go through and simulate one play through the game,
-        // displaying the state as we go.
-        int nState = 0;        
-        try {
-            System.out.println();
-            Set<GdlSentence> oldContents = new HashSet<GdlSentence>();
-            MachineState theCurrentState = theMachine.getInitialState();            
-            do {
-                theMatch.appendState(theCurrentState.getContents());
-                if(nState > 0) System.out.print("State[" + nState + "]: ");
-                Set<GdlSentence> newContents = theCurrentState.getContents();
-                for(GdlSentence newSentence : newContents) {
-                    if(hideStepCounter && newSentence.toString().contains("step")) continue;
-                    if(hideControlProposition && newSentence.toString().contains("control")) continue;
-                    if(!oldContents.contains(newSentence)) {
-                        System.out.print("+" + newSentence + ", ");
-                    }
-                }
-                for(GdlSentence oldSentence : oldContents) {
-                    if(hideStepCounter && oldSentence.toString().contains("step")) continue;
-                    if(hideControlProposition && oldSentence.toString().contains("control")) continue;                    
-                    if(!newContents.contains(oldSentence)) {
-                        System.out.print("-" + oldSentence + ", ");
-                    }
-                }
-                System.out.println();
-                oldContents = newContents;
-                
-                if(showCurrentState) System.out.println("State["+nState+"] Full: " + theCurrentState);
-                List<Move> theJointMove = theMachine.getRandomJointMove(theCurrentState);
-                System.out.println("Move taken: " + theJointMove);
-                theCurrentState = theMachine.getNextStateDestructively(theCurrentState, theJointMove);
-                theMatch.appendMoves2(theJointMove);
-                theMatch.appendNoErrors();
-                nState++;
-            } while(!theMachine.isTerminal(theCurrentState));
-            theMatch.appendState(theCurrentState.getContents());
-            theMatch.markCompleted(theMachine.getGoals(theCurrentState));
-
-            // Game over! Display goals.
-            System.out.println("State["+nState+"] Full (Terminal): " + theCurrentState);
-            System.out.println("Match information: " + theMatch);            
-            for(Role r : theMachine.getRoles())
-                System.out.println("Goal for " + r + ": " + theMachine.getGoal(theCurrentState, r));
-            System.out.println("Match information cryptographically signed? " + SignableJSON.isSignedJSON(new JSONObject(theMatch.toJSON())));
-            System.out.println("Match information cryptographic signature valid? " + SignableJSON.verifySignedJSON(new JSONObject(theMatch.toJSON())));
-            System.out.println("Game over.");
-        } catch(Exception e) {
-            e.printStackTrace();
-        }
+        // TODO: Allow a custom state machine to be plugged into the GameServer so that we can
+        // simulate games using this tool with custom state machines, to verify they're sane.        
+        
+        final Set<GdlSentence> oldContents = new HashSet<GdlSentence>();
+        final int[] nState = new int[1];
+        theServer.addObserver(new Observer() {
+			@Override
+			public void observe(Event event) {
+				if (event instanceof ServerNewGameStateEvent) {
+					MachineState theCurrentState = ((ServerNewGameStateEvent)event).getState();
+	                if(nState[0] > 0) System.out.print("State[" + nState[0] + "]: ");
+	                Set<GdlSentence> newContents = theCurrentState.getContents();
+	                for(GdlSentence newSentence : newContents) {
+	                    if(hideStepCounter && newSentence.toString().contains("step")) continue;
+	                    if(hideControlProposition && newSentence.toString().contains("control")) continue;
+	                    if(!oldContents.contains(newSentence)) {
+	                        System.out.print("+" + newSentence + ", ");
+	                    }
+	                }
+	                for(GdlSentence oldSentence : oldContents) {
+	                    if(hideStepCounter && oldSentence.toString().contains("step")) continue;
+	                    if(hideControlProposition && oldSentence.toString().contains("control")) continue;                    
+	                    if(!newContents.contains(oldSentence)) {
+	                        System.out.print("-" + oldSentence + ", ");
+	                    }
+	                }
+	                System.out.println();
+	                oldContents.clear();
+	                oldContents.addAll(newContents);
+	                
+	                if(showCurrentState) System.out.println("State[" + nState[0] + "] Full: " + theCurrentState);
+	                nState[0]++;
+				} else if (event instanceof ServerNewMovesEvent) {
+					System.out.println("Move taken: " + ((ServerNewMovesEvent)event).getMoves());
+				} else if (event instanceof ServerCompletedMatchEvent) {
+			        System.out.println("State[" + nState[0] + "] Full (Terminal): " + oldContents);
+			        System.out.println("Match information: " + theMatch);
+			        System.out.println("Goals: " + ((ServerCompletedMatchEvent)event).getGoals());
+			        try {
+			        	System.out.println("Match information cryptographically signed? " + SignableJSON.isSignedJSON(new JSONObject(theMatch.toJSON())));
+			        	System.out.println("Match information cryptographic signature valid? " + SignableJSON.verifySignedJSON(new JSONObject(theMatch.toJSON())));
+			        } catch (JSONException je) {
+			        	je.printStackTrace();
+			        }
+			        System.out.println("Game over.");
+				}
+			}
+		});
+        
+        theServer.start();
+        theServer.join();
     }    
 }
