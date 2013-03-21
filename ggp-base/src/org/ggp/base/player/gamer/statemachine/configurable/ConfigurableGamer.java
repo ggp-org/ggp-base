@@ -62,8 +62,6 @@ public final class ConfigurableGamer extends StateMachineGamer
 		long finishSelectionForcedBy = finishBy - 1000;		
 		long finishSelectionBy = finishSelectionForcedBy - 1000;
 		
-		long timeToSelect = finishBy - System.currentTimeMillis();
-		
 		SelectMoveThread selectMoveThread = new SelectMoveThread(finishSelectionBy);
 		selectMoveThread.start();
 		try {			
@@ -74,12 +72,15 @@ public final class ConfigurableGamer extends StateMachineGamer
 		selectMoveThread.interrupt();
 		List<Move> moves = theMachine.getLegalMoves(getCurrentState(), getRole());
 		Move selection = selectMoveThread.getSelectedMove();
+		boolean ranOutOfTime = false;
 		if (selection == null) {
-			System.err.println("Configurable gamer could not select move " + getMatch().getMoveHistory().size() + " within " + timeToSelect + " milliseconds; choosing first legal move.");
+			ranOutOfTime = true;
 			selection = moves.get(0);
 		}
 
 		long stop = System.currentTimeMillis();
+		
+		detailPanel.addObservation(getMatch().getMoveHistory().size(), selection, stop - start, ranOutOfTime); 
 
 		notifyObservers(new GamerSelectedMoveEvent(moves, selection, stop - start));
 		return selection;
@@ -352,34 +353,86 @@ public final class ConfigurableGamer extends StateMachineGamer
 	class MixtureHeuristic implements Heuristic {
 		@Override
 		public int evaluate(MachineState state) throws MoveDefinitionException {
-			return (int)(0.75 * new MobilityHeuristic().evaluate(state) +
-					      0.25 * new FactsHeuristic().evaluate(state));
-		}
-	}
-
-	/**
-	 * MobilityHeuristic is a heuristic that measures the goodness of a particular state
-	 * by how many moves you have, compared to the total number of available joint moves.
-	 * If you have many moves and your opponent has few, that's considered good.
-	 * If you have few moves and your opponent has many, that's considered bad.
-	 */
-	class MobilityHeuristic implements Heuristic {
-		@Override
-		public int evaluate(MachineState state) throws MoveDefinitionException {
-			return 100 * getStateMachine().getLegalMoves(state, getRole()).size() / getStateMachine().getLegalJointMoves(state).size();
+			double focusWeight = configPanel.getParameter("heuristicFocus", 1);
+			double mobilityWeight = configPanel.getParameter("heuristicMobility", 1);
+			double opponentFocusWeight = configPanel.getParameter("heuristicOpponentFocus", 1);
+			double opponentMobilityWeight = configPanel.getParameter("heuristicOpponentMobility", 1);
+			double totalWeight = focusWeight + mobilityWeight + opponentFocusWeight + opponentMobilityWeight;			
+			return (int)((focusWeight*new FocusHeuristic().evaluate(state) +
+					       mobilityWeight*new MobilityHeuristic().evaluate(state) +
+					       opponentFocusWeight*new OpponentFocusHeuristic().evaluate(state) +
+					       opponentMobilityWeight*new OpponentMobilityHeuristic().evaluate(state))/totalWeight);
 		}
 	}
 	
 	/**
-	 * FactsHeuristic is a heuristic that measures the goodness of a particular state
-	 * as decreasing for every new fact required to represent the state. The intuition
-	 * is that maybe it's better to aim for simpler states. This may not actually be a
-	 * good idea, but it does make a good example heuristic.
+	 * Some common methods for composing move-based heuristics: a way to get the
+	 * number of available moves for your player and your opponents, and two ways
+	 * to convert counts into scores, one where the score increases as the count
+	 * goes up, and one where the score descends as the count goes up.
 	 */
-	class FactsHeuristic implements Heuristic {
+	abstract class MoveBasedHeuristic {
+		protected int myMoveCount(MachineState state) throws MoveDefinitionException {
+			return getStateMachine().getLegalMoves(state, getRole()).size();
+		}
+		protected int theirMoveCount(MachineState state)  throws MoveDefinitionException {
+			return getStateMachine().getLegalJointMoves(state).size() / getStateMachine().getLegalMoves(state, getRole()).size();
+		}
+		protected int getDescendingScore(int forCount) {
+			return (int)(100 * Math.exp((1 - forCount)/5.0));
+		}
+		protected int getAscendingScore(int forCount) {
+			return (int)(100 * Math.exp(-1/forCount));
+		}
+	}
+	
+	/**
+	 * FocusHeuristic is a heuristic that measures the goodness of a particular state
+	 * by how few moves are available, based on the theory that states with fewer moves
+	 * are better because it's easier to search deeper when fewer moves are available.
+	 */
+	class FocusHeuristic extends MoveBasedHeuristic implements Heuristic {
 		@Override
 		public int evaluate(MachineState state) throws MoveDefinitionException {
-			return 100 / Math.max(state.getContents().size(), 1);
+			return getDescendingScore(myMoveCount(state));
+		}		
+	}
+	
+	/**
+	 * MobilityHeuristic is a heuristic that measures the goodness of a particular state
+	 * by how many moves are available, based on the theory that states with more moves
+	 * are better because they offer you more options.
+	 */
+	class MobilityHeuristic extends MoveBasedHeuristic implements Heuristic {
+		@Override
+		public int evaluate(MachineState state) throws MoveDefinitionException {
+			return getAscendingScore(myMoveCount(state));
+		}
+	}
+	
+	/**
+	 * OpponentFocusHeuristic is a heuristic that measures the goodness of a particular
+	 * state by how few moves are available to other players, based on the theory that
+	 * fewer moves for other players is better because it's easier to search deeper when
+	 * fewer moves are available, and that it's good to deny other players options.
+	 */
+	class OpponentFocusHeuristic extends MoveBasedHeuristic implements Heuristic {
+		@Override
+		public int evaluate(MachineState state) throws MoveDefinitionException {
+			return getDescendingScore(theirMoveCount(state));
+		}		
+	}
+	
+	/**
+	 * MobilityHeuristic is a heuristic that measures the goodness of a particular state
+	 * by how many moves are available to other players, based on the theory that states
+	 * with more moves are better because the options will confuse the other players and
+	 * make it more difficult for them to find the right path.
+	 */
+	class OpponentMobilityHeuristic extends MoveBasedHeuristic implements Heuristic {
+		@Override
+		public int evaluate(MachineState state) throws MoveDefinitionException {
+			return getAscendingScore(theirMoveCount(state));
 		}
 	}
 	

@@ -55,6 +55,10 @@ class ConfigurableConfigPanel extends ConfigPanel implements ActionListener, Doc
 	final JComboBox stateMachine;
 	final JCheckBox cacheStateMachine;
 	final JSpinner maxPlys;
+	final JSpinner heuristicFocus;
+	final JSpinner heuristicMobility;
+	final JSpinner heuristicOpponentFocus;
+	final JSpinner heuristicOpponentMobility;
 	final JPanel rightPanel;
 	public ConfigurableConfigPanel() {
 		super(new GridBagLayout());		
@@ -67,7 +71,11 @@ class ConfigurableConfigPanel extends ConfigPanel implements ActionListener, Doc
 		metagameStrategy = new JComboBox(new String[]{"None", "Random Exploration"});
 		stateMachine = new JComboBox(new String[] { "Prover" });
 		cacheStateMachine = new JCheckBox();
-		maxPlys = new JSpinner(new SpinnerNumberModel(5,1,100,1));
+		maxPlys = new JSpinner(new SpinnerNumberModel(1,1,100,1));		
+		heuristicFocus = new JSpinner(new SpinnerNumberModel(1, 0, 10, 1));
+		heuristicMobility = new JSpinner(new SpinnerNumberModel(1, 0, 10, 1));
+		heuristicOpponentFocus = new JSpinner(new SpinnerNumberModel(1, 0, 10, 1));
+		heuristicOpponentMobility = new JSpinner(new SpinnerNumberModel(1, 0, 10, 1));
 
 		name = new JTextField();
 		name.setColumns(20);
@@ -109,6 +117,10 @@ class ConfigurableConfigPanel extends ConfigPanel implements ActionListener, Doc
 		stateMachine.addActionListener(this);
 		cacheStateMachine.addActionListener(this);
 		maxPlys.addChangeListener(this);
+		heuristicFocus.addChangeListener(this);
+		heuristicMobility.addChangeListener(this);
+		heuristicOpponentFocus.addChangeListener(this);
+		heuristicOpponentMobility.addChangeListener(this);
 		name.getDocument().addDocumentListener(this);		
 	}
 	
@@ -119,8 +131,16 @@ class ConfigurableConfigPanel extends ConfigPanel implements ActionListener, Doc
 		rightPanel.add(cacheStateMachine, new GridBagConstraints(1, nRow++, 1, 1, 1.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 5, 5));
 		if (strategy.getSelectedItem().toString().equals("Heuristic")) {
 			rightPanel.add(new JLabel("Max plys?"), new GridBagConstraints(0, nRow, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 5, 5));
-			rightPanel.add(maxPlys, new GridBagConstraints(1, nRow++, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 5, 5));
-		}
+			rightPanel.add(maxPlys, new GridBagConstraints(1, nRow++, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 5, 5));			
+			rightPanel.add(new JLabel("Focus Heuristic Weight"), new GridBagConstraints(0, nRow, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 5, 5));
+			rightPanel.add(heuristicFocus, new GridBagConstraints(1, nRow++, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 5, 5));
+			rightPanel.add(new JLabel("Mobility Heuristic Weight"), new GridBagConstraints(0, nRow, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 5, 5));
+			rightPanel.add(heuristicMobility, new GridBagConstraints(1, nRow++, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 5, 5));			
+			rightPanel.add(new JLabel("Opponent Focus Heuristic Weight"), new GridBagConstraints(0, nRow, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 5, 5));
+			rightPanel.add(heuristicOpponentFocus, new GridBagConstraints(1, nRow++, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 5, 5));			
+			rightPanel.add(new JLabel("Opponent Mobility Heuristic Weight"), new GridBagConstraints(0, nRow, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 5, 5));
+			rightPanel.add(heuristicOpponentMobility, new GridBagConstraints(1, nRow++, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 5, 5));			
+		}		
 		rightPanel.add(new JLabel(), new GridBagConstraints(2, nRow++, 1, 1, 1.0, 1.0, GridBagConstraints.SOUTHEAST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 5, 5));
 		rightPanel.repaint();
 	}
@@ -179,6 +199,10 @@ class ConfigurableConfigPanel extends ConfigPanel implements ActionListener, Doc
 			newParams.put("stateMachine", stateMachine.getSelectedItem().toString());
 			newParams.put("cacheStateMachine", cacheStateMachine.isSelected());
 			newParams.put("maxPlys", maxPlys.getModel().getValue());
+			newParams.put("heuristicFocus", heuristicFocus.getModel().getValue());
+			newParams.put("heuristicMobility", heuristicMobility.getModel().getValue());
+			newParams.put("heuristicOpponentFocus", heuristicOpponentFocus.getModel().getValue());
+			newParams.put("heuristicOpponentMobility", heuristicOpponentMobility.getModel().getValue());
 		} catch (JSONException je) {
 			je.printStackTrace();
 		}
@@ -207,6 +231,18 @@ class ConfigurableConfigPanel extends ConfigPanel implements ActionListener, Doc
 			if (params.has("maxPlys")) {
 				maxPlys.getModel().setValue(params.getInt("maxPlys"));
 			}
+			if (params.has("heuristicFocus")) {
+				heuristicFocus.getModel().setValue(params.getDouble("heuristicFocus"));
+			}
+			if (params.has("heuristicMobility")) {
+				heuristicMobility.getModel().setValue(params.getDouble("heuristicMobility"));
+			}
+			if (params.has("heuristicOpponentFocus")) {
+				heuristicOpponentFocus.getModel().setValue(params.getDouble("heuristicOpponentFocus"));
+			}
+			if (params.has("heuristicOpponentMobility")) {
+				heuristicOpponentMobility.getModel().setValue(params.getDouble("heuristicOpponentMobility"));
+			}			
 		} catch (JSONException je) {
 			je.printStackTrace();
 		} finally {

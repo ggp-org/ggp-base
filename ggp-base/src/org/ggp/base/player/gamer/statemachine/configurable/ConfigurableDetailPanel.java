@@ -18,8 +18,8 @@ import javax.swing.table.DefaultTableModel;
 
 import org.ggp.base.apps.player.detail.DetailPanel;
 import org.ggp.base.player.gamer.event.GamerNewMatchEvent;
-import org.ggp.base.player.gamer.event.GamerSelectedMoveEvent;
 import org.ggp.base.util.observer.Event;
+import org.ggp.base.util.statemachine.Move;
 import org.ggp.base.util.ui.table.JZebraTable;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
@@ -42,9 +42,10 @@ public class ConfigurableDetailPanel extends DetailPanel {
 		super(new GridBagLayout());
 
 		DefaultTableModel model = new DefaultTableModel();
-		model.addColumn("Available Moves");
-		model.addColumn("Computation Time");
-		model.addColumn("Selected Move");
+		model.addColumn("Step");
+		model.addColumn("My Move");
+		model.addColumn("Time spent");
+		model.addColumn("Out of time?");
 
 		moveTable = new JZebraTable(model) {
 			@Override
@@ -87,8 +88,6 @@ public class ConfigurableDetailPanel extends DetailPanel {
 	public void observe(Event event) {
 		if (event instanceof GamerNewMatchEvent) {
 			observe((GamerNewMatchEvent) event);
-		} else if (event instanceof GamerSelectedMoveEvent) {
-			observe((GamerSelectedMoveEvent) event);
 		}
 	}
 
@@ -96,16 +95,12 @@ public class ConfigurableDetailPanel extends DetailPanel {
 		DefaultTableModel model = (DefaultTableModel) moveTable.getModel();
 		model.setRowCount(0);
 	}
-
-	private void observe(GamerSelectedMoveEvent event) {
-		String availableMoves = Integer.toString(event.getMoves().size());
-		String computationTime = Long.toString(event.getTime()) + " ms";
-		String move = event.getSelection().toString();
-
-		DefaultTableModel model = (DefaultTableModel) moveTable.getModel();
-		model.addRow(new String[] { availableMoves, computationTime, move });
-	}
 	
+	public void addObservation(int step, Move move, long timeSpent, boolean ranOut) {
+		DefaultTableModel model = (DefaultTableModel) moveTable.getModel();
+		model.addRow(new String[] { ""+step, move.toString(), ""+timeSpent+" ms", ranOut ? "<html><font color=red>Yes</font></html>" : "No" });
+	}
+
 	public Counter addCounter(String name) {
 		Counter c = new Counter(name);
 		counters.add(c);
