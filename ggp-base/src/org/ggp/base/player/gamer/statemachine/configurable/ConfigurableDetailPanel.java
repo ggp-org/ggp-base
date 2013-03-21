@@ -1,4 +1,4 @@
-package org.ggp.base.player.gamer.statemachine.parametric;
+package org.ggp.base.player.gamer.statemachine.configurable;
 
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
@@ -29,7 +29,7 @@ import org.jfree.data.time.TimeSeries;
 import org.jfree.data.time.TimeSeriesCollection;
 
 @SuppressWarnings("serial")
-public class ParametricDetailPanel extends DetailPanel {
+public class ConfigurableDetailPanel extends DetailPanel {
 	private final JZebraTable moveTable;
 
 	private final TimeSeries memUsage;
@@ -38,7 +38,7 @@ public class ParametricDetailPanel extends DetailPanel {
 	final Set<Counter> counters;
 	final TimeSeriesCollection countersCollection;
 	
-	public ParametricDetailPanel() {
+	public ConfigurableDetailPanel() {
 		super(new GridBagLayout());
 
 		DefaultTableModel model = new DefaultTableModel();

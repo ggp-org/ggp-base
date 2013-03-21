@@ -1,4 +1,4 @@
-package org.ggp.base.player.gamer.statemachine.parametric;
+package org.ggp.base.player.gamer.statemachine.configurable;
 
 import java.util.Arrays;
 import java.util.List;
@@ -21,7 +21,7 @@ import org.ggp.base.util.statemachine.exceptions.TransitionDefinitionException;
 import org.ggp.base.util.statemachine.implementation.prover.ProverStateMachine;
 
 /**
- * ParametricPlayer is a player that's designed to be configured via a set of
+ * ConfigurablePlayer is a player that's designed to be configured via a set of
  * parameters that can be adjusted without any code modifications. It presents
  * a nice user interface for setting these parameters, and stores them as JSON
  * when the user clicks "save" (and loads them automatically when new players
@@ -29,23 +29,23 @@ import org.ggp.base.util.statemachine.implementation.prover.ProverStateMachine;
  * 
  * @author Sam Schreiber
  */
-public final class ParametricGamer extends StateMachineGamer
+public final class ConfigurableGamer extends StateMachineGamer
 {
-	private ParametricConfigPanel configPanel = new ParametricConfigPanel();
-	private ParametricDetailPanel detailPanel = new ParametricDetailPanel();
+	private ConfigurableConfigPanel configPanel = new ConfigurableConfigPanel();
+	private ConfigurableDetailPanel detailPanel = new ConfigurableDetailPanel();
 	private Random theRandom = new Random();
 	
-	private ParametricDetailPanel.Counter statesExpanded;
+	private ConfigurableDetailPanel.Counter statesExpanded;
 	
-	public ParametricGamer() {
-		configPanel = new ParametricConfigPanel();
-		detailPanel = new ParametricDetailPanel();
+	public ConfigurableGamer() {
+		configPanel = new ConfigurableConfigPanel();
+		detailPanel = new ConfigurableDetailPanel();
 		statesExpanded = detailPanel.addCounter("States Expanded");
 	}
 	
 	@Override
 	public String getName() {
-		return configPanel.getParameter("name", "Parametric");
+		return configPanel.getParameter("name", "Player #1");
 	}
 	
 	/**
@@ -75,7 +75,7 @@ public final class ParametricGamer extends StateMachineGamer
 		List<Move> moves = theMachine.getLegalMoves(getCurrentState(), getRole());
 		Move selection = selectMoveThread.getSelectedMove();
 		if (selection == null) {
-			System.err.println("Parametric gamer could not select move " + getMatch().getMoveHistory().size() + " within " + timeToSelect + " milliseconds; choosing first legal move.");
+			System.err.println("Configurable gamer could not select move " + getMatch().getMoveHistory().size() + " within " + timeToSelect + " milliseconds; choosing first legal move.");
 			selection = moves.get(0);
 		}
 

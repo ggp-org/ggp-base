@@ -21,27 +21,27 @@ import org.ggp.base.apps.player.match.MatchPanel;
 import org.ggp.base.apps.player.network.NetworkPanel;
 import org.ggp.base.player.GamePlayer;
 import org.ggp.base.player.gamer.Gamer;
-import org.ggp.base.player.gamer.statemachine.parametric.ParametricGamer;
+import org.ggp.base.player.gamer.statemachine.configurable.ConfigurableGamer;
 import org.ggp.base.util.ui.JLabelHyperlink;
 import org.ggp.base.util.ui.NativeUI;
 
 
 /**
- * ParametricPlayerPanel is a stripped-down version of the PlayerPanel designed
- * for configuring and running "parametric" players, which are special players
+ * ConfigurablePlayerPanel is a stripped-down version of the PlayerPanel designed
+ * for configuring and running "configurable" players, which are special players
  * designed to be "programmed" via configurable parameters rather than code.
  * This is designed for students who don't yet want the full complexity of the
  * regular player hosting system, and instead want to quickly get a player up
  * and running so they can run simple experiments on it. If you're not using
- * the ParametricPlayer, you won't be interested in this class.
+ * the ConfigurablePlayer, you won't be interested in this class.
  * 
  * @author schreib
  */
 @SuppressWarnings("serial")
-public final class ParametricPlayerPanel extends JPanel
+public final class ConfigurablePlayerPanel extends JPanel
 {
-	private static void createAndShowGUI(ParametricPlayerPanel playerPanel) {
-		JFrame frame = new JFrame("Parametric Player [2013-03-20]");
+	private static void createAndShowGUI(ConfigurablePlayerPanel playerPanel) {
+		JFrame frame = new JFrame("Configurable Player [2013-03-20]");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 		frame.setPreferredSize(new Dimension(1024, 768));
@@ -53,7 +53,7 @@ public final class ParametricPlayerPanel extends JPanel
 
 	public static void main(String[] args) throws IOException {
 	    NativeUI.setNativeUI();
-	    final ParametricPlayerPanel playerPanel = new ParametricPlayerPanel();
+	    final ConfigurablePlayerPanel playerPanel = new ConfigurablePlayerPanel();
 	    javax.swing.SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
 			    createAndShowGUI(playerPanel);
@@ -66,7 +66,7 @@ public final class ParametricPlayerPanel extends JPanel
 	
 	private Integer defaultPort = 9147;
 	
-	public ParametricPlayerPanel()
+	public ConfigurablePlayerPanel()
 	{
 		super(new GridBagLayout());
 
@@ -101,7 +101,7 @@ public final class ParametricPlayerPanel extends JPanel
 					NetworkPanel networkPanel = new NetworkPanel();
 					DetailPanel detailPanel = null;
 					ConfigPanel configPanel = null;
-					Gamer gamer = new ParametricGamer();
+					Gamer gamer = new ConfigurableGamer();
 					detailPanel = gamer.getDetailPanel();
 					configPanel = gamer.getConfigPanel();
 

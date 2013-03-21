@@ -1,4 +1,4 @@
-package org.ggp.base.player.gamer.statemachine.parametric;
+package org.ggp.base.player.gamer.statemachine.configurable;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -13,6 +13,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
+import java.util.Random;
 
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
@@ -36,7 +37,7 @@ import org.ggp.base.apps.player.config.ConfigPanel;
 import external.JSON.JSONException;
 import external.JSON.JSONObject;
 
-class ParametricConfigPanel extends ConfigPanel implements ActionListener, DocumentListener, ChangeListener {
+class ConfigurableConfigPanel extends ConfigPanel implements ActionListener, DocumentListener, ChangeListener {
 	private static final long serialVersionUID = 1L;
 	
 	private File associatedFile;	
@@ -55,7 +56,7 @@ class ParametricConfigPanel extends ConfigPanel implements ActionListener, Docum
 	final JCheckBox cacheStateMachine;
 	final JSpinner maxPlys;
 	final JPanel rightPanel;
-	public ParametricConfigPanel() {
+	public ConfigurableConfigPanel() {
 		super(new GridBagLayout());		
 		JPanel leftPanel = new JPanel(new GridBagLayout());
 		leftPanel.setBorder(new TitledBorder("Major Parameters"));
@@ -70,7 +71,7 @@ class ParametricConfigPanel extends ConfigPanel implements ActionListener, Docum
 
 		name = new JTextField();
 		name.setColumns(20);
-		name.setText("Parametric");
+		name.setText("Player #" + new Random().nextInt(100000));
 		
 		loadButton = new JButton(loadButtonMethod());
 		saveButton = new JButton(saveButtonMethod());
