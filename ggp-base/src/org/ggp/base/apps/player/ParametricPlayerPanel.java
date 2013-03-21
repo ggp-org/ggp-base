@@ -22,6 +22,7 @@ import org.ggp.base.apps.player.network.NetworkPanel;
 import org.ggp.base.player.GamePlayer;
 import org.ggp.base.player.gamer.Gamer;
 import org.ggp.base.player.gamer.statemachine.parametric.ParametricGamer;
+import org.ggp.base.util.ui.JLabelHyperlink;
 import org.ggp.base.util.ui.NativeUI;
 
 
@@ -86,7 +87,8 @@ public final class ParametricPlayerPanel extends JPanel
 	public final class IntroPanel extends JPanel {
 		public IntroPanel() {
 			super(new GridBagLayout());
-			this.add(new JLabel("Click the + button at the top to start a player instance."), new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 5, 5));
+			this.add(new JLabel("<html>Click the <b>+</b> button at the top to start a new player.</html>"), new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0, GridBagConstraints.SOUTH, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 5, 5));
+			this.add(new JLabelHyperlink("<html>Or click <a href=''>here</a> to read a tutorial on configuring your players.</html>", "http://www.ggp.org/cs227b/player.html"), new GridBagConstraints(0, 1, 1, 1, 1.0, 1.0, GridBagConstraints.NORTH, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 5, 5));
 		}
 	}
 
