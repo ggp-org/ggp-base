@@ -67,7 +67,7 @@ class ConfigurableConfigPanel extends ConfigPanel implements ActionListener, Doc
 		rightPanel = new JPanel(new GridBagLayout());
 		rightPanel.setBorder(new TitledBorder("Minor Parameters"));
 
-		strategy = new JComboBox(new String[] {"Noop", "Legal", "Random", "Puzzle", "Minimax", "SearchLight", "Heuristic", "Monte Carlo"});
+		strategy = new JComboBox(new String[] {"Noop", "Legal", "Random", "Puzzle", "Minimax", "Heuristic", "Monte Carlo"});
 		metagameStrategy = new JComboBox(new String[]{"None", "Random Exploration"});
 		stateMachine = new JComboBox(new String[] { "Prover" });
 		cacheStateMachine = new JCheckBox();
