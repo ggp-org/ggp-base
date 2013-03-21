@@ -41,7 +41,7 @@ import org.ggp.base.util.ui.NativeUI;
 public final class ConfigurablePlayerPanel extends JPanel
 {
 	private static void createAndShowGUI(ConfigurablePlayerPanel playerPanel) {
-		JFrame frame = new JFrame("Configurable Player [2013-03-20]");
+		JFrame frame = new JFrame("Configurable Player [2013-03-21]");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 		frame.setPreferredSize(new Dimension(1024, 768));
