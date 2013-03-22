@@ -34,15 +34,15 @@ import org.ggp.base.util.gdl.model.SentenceModelImpl;
 import org.ggp.base.util.gdl.model.SentenceModelUtils;
 import org.ggp.base.util.gdl.transforms.CommonTransforms;
 import org.ggp.base.util.gdl.transforms.CondensationIsolator;
+import org.ggp.base.util.gdl.transforms.CondensationIsolator.CondensationIsolatorConfiguration;
 import org.ggp.base.util.gdl.transforms.ConstantFinder;
+import org.ggp.base.util.gdl.transforms.ConstantFinder.ConstantChecker;
 import org.ggp.base.util.gdl.transforms.CrudeSplitter;
 import org.ggp.base.util.gdl.transforms.DeORer;
 import org.ggp.base.util.gdl.transforms.GdlCleaner;
 import org.ggp.base.util.gdl.transforms.Relationizer;
 import org.ggp.base.util.gdl.transforms.SimpleCondensationIsolator;
 import org.ggp.base.util.gdl.transforms.VariableConstrainer;
-import org.ggp.base.util.gdl.transforms.CondensationIsolator.CondensationIsolatorConfiguration;
-import org.ggp.base.util.gdl.transforms.ConstantFinder.ConstantChecker;
 import org.ggp.base.util.propnet.architecture.Component;
 import org.ggp.base.util.propnet.architecture.PropNet;
 import org.ggp.base.util.propnet.architecture.components.And;
@@ -332,8 +332,6 @@ public class OptimizingPropNetFactory {
 					GdlRelation relation = (GdlRelation) sentence;
 					if(relation.getName().equals(NEXT)) {
 						p.setName(GdlPool.getProposition(GdlPool.getConstant("anon")));
-					} else if(relation.getName().equals(TRUE)) {
-						p.setName(relation.get(0).toSentence());
 					}
 				}
 			}

@@ -147,7 +147,7 @@ public final class PropNetConverter
 		{
 			GdlSentence sentence = (GdlSentence) literal;
 
-			Proposition proposition = (sentence.getName().getValue().equals("true")) ? getProposition(sentence.get(0).toSentence()) : getProposition(sentence);
+			Proposition proposition = getProposition(sentence);
 			components.add(proposition);
 
 			return proposition;
@@ -166,7 +166,8 @@ public final class PropNetConverter
 	{
 		if ( sentence.getName().getValue().equals("next") )
 		{
-			Proposition head = getProposition(sentence.get(0).toSentence());
+			Proposition head = getProposition(GdlPool.getRelation(GdlPool.getConstant("true"),
+			                                                      sentence.getBody()));
 			Transition transition = new Transition();
 			Proposition preTransition = new Proposition(GdlPool.getProposition(GdlPool.getConstant("anon")));
 
@@ -226,7 +227,8 @@ public final class PropNetConverter
 		{
 			Proposition init = getProposition(GdlPool.getProposition(GdlPool.getConstant("INIT")));
 			Transition transition = new Transition();
-			Proposition proposition = getProposition(sentence.get(0).toSentence());
+			Proposition proposition = getProposition(GdlPool.getRelation(GdlPool.getConstant("true"),
+			                                                             sentence.getBody()));
 
 			link(init, transition);
 			link(transition, proposition);
