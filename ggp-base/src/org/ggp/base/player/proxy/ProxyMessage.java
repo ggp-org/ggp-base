@@ -26,7 +26,7 @@ public class ProxyMessage implements Serializable {
     }
     
     public static ProxyMessage readFrom(BufferedReader theInput) throws SocketException {        
-        try {            
+        try {
             long messageCode = Long.parseLong(theInput.readLine());
             long receptionTime = Long.parseLong(theInput.readLine());
             String theMessage = theInput.readLine();
@@ -51,8 +51,10 @@ public class ProxyMessage implements Serializable {
     }
     
     public void writeTo(PrintStream theOutput) {
-        theOutput.println(messageCode);
-        theOutput.println(receptionTime);
-        theOutput.println(theMessage);
+    	synchronized (theOutput) {
+    		theOutput.println(messageCode);
+    		theOutput.println(receptionTime);
+    		theOutput.println(theMessage);
+    	}
     }
 }
