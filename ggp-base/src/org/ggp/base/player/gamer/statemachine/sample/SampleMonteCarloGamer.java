@@ -56,7 +56,6 @@ public final class SampleMonteCarloGamer extends SampleGamer
     		double[] moveExpectedPoints = new double[moves.size()];
     		for (int i = 0; i < moves.size(); i++) {
     		    moveExpectedPoints[i] = (double)moveTotalPoints[i] / moveTotalAttempts[i];
-    		    System.out.println("Move [" + moves.get(i) + "] = " + moveExpectedPoints[i] + ", with " + moveTotalAttempts[i] + " attempts.");    		    
     		}
 
     		// Find the move with the best expected score.
