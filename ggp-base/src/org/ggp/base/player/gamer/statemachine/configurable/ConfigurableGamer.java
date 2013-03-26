@@ -60,6 +60,8 @@ public final class ConfigurableGamer extends StateMachineGamer
 	@Override
 	public Move stateMachineSelectMove(long timeout) throws TransitionDefinitionException, MoveDefinitionException, GoalDefinitionException
 	{
+		detailPanel.beginAddingDataPoints();
+		
 	    StateMachine theMachine = getStateMachine();
 		long start = System.currentTimeMillis();
 		long finishBy = timeout - 2500;
@@ -454,7 +456,7 @@ public final class ConfigurableGamer extends StateMachineGamer
 		List<Move> moves = theMachine.getLegalMoves(getCurrentState(), getRole());
 		Move selection = moves.get(0);
 		if (moves.size() > 1) {		
-    		int[] moveTotalPoints = new int[moves.size()];
+    		double[] moveTotalPoints = new double[moves.size()];
     		int[] moveTotalAttempts = new int[moves.size()];
     		
     		// Perform depth charges for each candidate move, and keep track
@@ -463,7 +465,7 @@ public final class ConfigurableGamer extends StateMachineGamer
     		    if (System.currentTimeMillis() > finishBy)
     		        break;
     		    
-    		    int theScore = performMonteCarloDepthChargeFromMove(getCurrentState(), moves.get(i));
+    		    double theScore = performMonteCarloDepthChargeFromMove(getCurrentState(), moves.get(i));
     		    moveTotalPoints[i] += theScore;
     		    moveTotalAttempts[i] += 1;
     		    
@@ -500,12 +502,12 @@ public final class ConfigurableGamer extends StateMachineGamer
 	}
 	
 	private int[] depth = new int[1];
-	int performMonteCarloDepthChargeFromMove(MachineState theState, Move myMove) {	    
+	double performMonteCarloDepthChargeFromMove(MachineState theState, Move myMove) {	    
 	    StateMachine theMachine = getStateMachine();
 	    try {
             MachineState finalState = theMachine.performDepthCharge(theMachine.getRandomNextState(theState, getRole(), myMove), depth);
             statesExpanded.increment(depth[0]);
-            return theMachine.getGoal(finalState, getRole());
+            return theMachine.getGoal(finalState, getRole()) * Math.pow(1-(configPanel.getParameter("mcDecayRate", 0)/100.0), depth[0]);
         } catch (Exception e) {
             e.printStackTrace();
             return 0;

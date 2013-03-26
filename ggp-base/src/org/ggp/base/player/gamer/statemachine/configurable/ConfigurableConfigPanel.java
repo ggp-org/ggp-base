@@ -59,6 +59,7 @@ class ConfigurableConfigPanel extends ConfigPanel implements ActionListener, Doc
 	final JSpinner heuristicMobility;
 	final JSpinner heuristicOpponentFocus;
 	final JSpinner heuristicOpponentMobility;
+	final JSpinner mcDecayRate;
 	final JPanel rightPanel;
 	public ConfigurableConfigPanel() {
 		super(new GridBagLayout());		
@@ -76,6 +77,7 @@ class ConfigurableConfigPanel extends ConfigPanel implements ActionListener, Doc
 		heuristicMobility = new JSpinner(new SpinnerNumberModel(1, 0, 10, 1));
 		heuristicOpponentFocus = new JSpinner(new SpinnerNumberModel(1, 0, 10, 1));
 		heuristicOpponentMobility = new JSpinner(new SpinnerNumberModel(1, 0, 10, 1));
+		mcDecayRate = new JSpinner(new SpinnerNumberModel(0, 0, 99, 1));
 
 		name = new JTextField();
 		name.setColumns(20);
@@ -121,6 +123,7 @@ class ConfigurableConfigPanel extends ConfigPanel implements ActionListener, Doc
 		heuristicMobility.addChangeListener(this);
 		heuristicOpponentFocus.addChangeListener(this);
 		heuristicOpponentMobility.addChangeListener(this);
+		mcDecayRate.addChangeListener(this);
 		name.getDocument().addDocumentListener(this);		
 	}
 	
@@ -140,7 +143,11 @@ class ConfigurableConfigPanel extends ConfigPanel implements ActionListener, Doc
 			rightPanel.add(heuristicOpponentFocus, new GridBagConstraints(1, nRow++, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 5, 5));			
 			rightPanel.add(new JLabel("Opponent Mobility Heuristic Weight"), new GridBagConstraints(0, nRow, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 5, 5));
 			rightPanel.add(heuristicOpponentMobility, new GridBagConstraints(1, nRow++, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 5, 5));			
-		}		
+		}
+		if (strategy.getSelectedItem().toString().equals("Monte Carlo")) {
+			rightPanel.add(new JLabel("Goal Decay Rate"), new GridBagConstraints(0, nRow, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 5, 5));
+			rightPanel.add(mcDecayRate, new GridBagConstraints(1, nRow++, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 5, 5));			
+		}
 		rightPanel.add(new JLabel(), new GridBagConstraints(2, nRow++, 1, 1, 1.0, 1.0, GridBagConstraints.SOUTHEAST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 5, 5));
 		rightPanel.repaint();
 	}
@@ -203,6 +210,7 @@ class ConfigurableConfigPanel extends ConfigPanel implements ActionListener, Doc
 			newParams.put("heuristicMobility", heuristicMobility.getModel().getValue());
 			newParams.put("heuristicOpponentFocus", heuristicOpponentFocus.getModel().getValue());
 			newParams.put("heuristicOpponentMobility", heuristicOpponentMobility.getModel().getValue());
+			newParams.put("mcDecayRate", mcDecayRate.getModel().getValue());
 		} catch (JSONException je) {
 			je.printStackTrace();
 		}
@@ -232,16 +240,19 @@ class ConfigurableConfigPanel extends ConfigPanel implements ActionListener, Doc
 				maxPlys.getModel().setValue(params.getInt("maxPlys"));
 			}
 			if (params.has("heuristicFocus")) {
-				heuristicFocus.getModel().setValue(params.getDouble("heuristicFocus"));
+				heuristicFocus.getModel().setValue(params.getInt("heuristicFocus"));
 			}
 			if (params.has("heuristicMobility")) {
-				heuristicMobility.getModel().setValue(params.getDouble("heuristicMobility"));
+				heuristicMobility.getModel().setValue(params.getInt("heuristicMobility"));
 			}
 			if (params.has("heuristicOpponentFocus")) {
-				heuristicOpponentFocus.getModel().setValue(params.getDouble("heuristicOpponentFocus"));
+				heuristicOpponentFocus.getModel().setValue(params.getInt("heuristicOpponentFocus"));
 			}
 			if (params.has("heuristicOpponentMobility")) {
-				heuristicOpponentMobility.getModel().setValue(params.getDouble("heuristicOpponentMobility"));
+				heuristicOpponentMobility.getModel().setValue(params.getInt("heuristicOpponentMobility"));
+			}
+			if (params.has("mcDecayRate")) {
+				mcDecayRate.getModel().setValue(params.getInt("mcDecayRate"));
 			}			
 		} catch (JSONException je) {
 			je.printStackTrace();

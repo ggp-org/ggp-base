@@ -89,11 +89,17 @@ public class ConfigurableDetailPanel extends DetailPanel {
         scoreCounterChartPanel.setPreferredSize(new Dimension(500, 175));
         sidePanel.add(scoreCounterChartPanel);        
         
-        new AddDataPointThread().start();		
-		
 		this.add(new JScrollPane(moveTable, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED), new GridBagConstraints(0, 0, 1, 2, 1.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
 		this.add(sidePanel, new GridBagConstraints(1, 0, 1, 1, 1.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
 		this.add(new JButton(resetButtonMethod()), new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0, GridBagConstraints.SOUTHEAST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
+	}
+	
+	private boolean startedAdding = false;
+	public void beginAddingDataPoints() {
+		if (!startedAdding) {
+			new AddDataPointThread().start();
+			startedAdding = true;
+		}
 	}
 
 	public void observe(Event event) {
