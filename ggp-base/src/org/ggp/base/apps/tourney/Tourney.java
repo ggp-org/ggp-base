@@ -55,6 +55,10 @@ import org.ggp.base.util.ui.NativeUI;
  * Tiltyard also aggregates statistics and player rankings based on the matches
  * that are played on it.
  * 
+ * NOTE: Long term, this will be phased out in favor of more advanced features in
+ * the regular ServerPanel app for managing tournaments and repeatedly running
+ * matches and aggregating statistics about their outcomes.
+ * 
  * @author Sam Schreiber
  */
 @SuppressWarnings("serial")
