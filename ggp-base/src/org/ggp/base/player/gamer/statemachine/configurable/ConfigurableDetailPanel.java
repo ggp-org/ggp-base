@@ -24,6 +24,7 @@ import org.ggp.base.util.ui.table.JZebraTable;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.axis.LogarithmicAxis;
 import org.jfree.data.time.Millisecond;
 import org.jfree.data.time.TimeSeries;
 import org.jfree.data.time.TimeSeriesCollection;
@@ -37,6 +38,7 @@ public class ConfigurableDetailPanel extends DetailPanel {
 	
 	final Set<Counter> counters;
 	final TimeSeriesCollection countersCollection;
+	final TimeSeriesCollection scoreCountersCollection;
 	
 	public ConfigurableDetailPanel() {
 		super(new GridBagLayout());
@@ -66,17 +68,26 @@ public class ConfigurableDetailPanel extends DetailPanel {
         JFreeChart memChart = ChartFactory.createTimeSeriesChart(null, null, "Megabytes", memory, true, true, false);
         memChart.setBackgroundPaint(getBackground());
         ChartPanel memChartPanel = new ChartPanel(memChart);
-        memChartPanel.setPreferredSize(new Dimension(500, 250));
+        memChartPanel.setPreferredSize(new Dimension(500, 175));
         sidePanel.add(memChartPanel);
 
         counters = new HashSet<Counter>();
         countersCollection = new TimeSeriesCollection();
-        JFreeChart counterChart = ChartFactory.createTimeSeriesChart(null, null, "Count per 100ms", countersCollection, true, true, false);
+        JFreeChart counterChart = ChartFactory.createTimeSeriesChart(null, null, null, countersCollection, true, true, false);
+        counterChart.getXYPlot().setRangeAxis(new LogarithmicAxis("Count per 100ms"));
         counterChart.getXYPlot().getRangeAxis().setAutoRangeMinimumSize(1.0);
-        counterChart.setBackgroundPaint(getBackground());        
+        counterChart.setBackgroundPaint(getBackground());
         ChartPanel counterChartPanel = new ChartPanel(counterChart);
-        counterChartPanel.setPreferredSize(new Dimension(500, 250));
+        counterChartPanel.setPreferredSize(new Dimension(500, 175));
         sidePanel.add(counterChartPanel);
+        
+        scoreCountersCollection = new TimeSeriesCollection();
+        JFreeChart scoreCounterChart = ChartFactory.createTimeSeriesChart(null, null, "Score", scoreCountersCollection, true, true, false);
+        scoreCounterChart.getXYPlot().getRangeAxis().setRange(0, 100);
+        scoreCounterChart.setBackgroundPaint(getBackground());
+        ChartPanel scoreCounterChartPanel = new ChartPanel(scoreCounterChart);
+        scoreCounterChartPanel.setPreferredSize(new Dimension(500, 175));
+        sidePanel.add(scoreCounterChartPanel);        
         
         new AddDataPointThread().start();		
 		
@@ -101,32 +112,58 @@ public class ConfigurableDetailPanel extends DetailPanel {
 		model.addRow(new String[] { ""+step, move.toString(), ""+timeSpent+" ms", ranOut ? "<html><font color=red>Yes</font></html>" : "No" });
 	}
 
-	public Counter addCounter(String name) {
-		Counter c = new Counter(name);
-		counters.add(c);
-		countersCollection.addSeries(c.getTimeSeries());
-		return c;
-	}
-	
-	class Counter {
-		private double value;
+	abstract class Counter {
 		private TimeSeries series;
-		public Counter(String name) {
-			value = 0;
+		public Counter(String name, boolean forScore) {			
 			series = new TimeSeries(name);
-		}
-		public void increment(double by) {
-			value += by;
+			counters.add(this);
+			if (forScore) {
+				scoreCountersCollection.addSeries(series);
+			} else {
+				countersCollection.addSeries(series);
+			}		
 		}
 		public TimeSeries getTimeSeries() {
 			return series;
 		}
-		public void aggregate() {
-			series.add(new Millisecond(new Date()), value);
-			value = 0;
+		public void consolidate() {
+			series.add(new Millisecond(new Date()), getValue());
 		}
+		protected abstract Double getValue();
 		public void clear() {
 			series.clear();
+		}
+	}
+	
+	class AggregatingCounter extends Counter {
+		private double value;
+		public AggregatingCounter(String name, boolean forScore) {
+			super(name, forScore);
+			value = 0;
+		}
+		public void increment(double by) {
+			value += by;
+		}
+		@Override
+		protected Double getValue() {
+			double theValue = value;
+			value = 0;
+			return (theValue > 0) ? theValue : null;
+		}
+	}
+	
+	class FixedCounter extends Counter {
+		private Double value;
+		public FixedCounter(String name, boolean forScore) {
+			super(name, forScore);
+			value = null;
+		}
+		public void set(double to) {
+			value = to;
+		}
+		@Override
+		protected Double getValue() {
+			return value;
 		}
 	}
 	
@@ -136,7 +173,7 @@ public class ConfigurableDetailPanel extends DetailPanel {
 				memUsage.add(new Millisecond(new Date()), Runtime.getRuntime().totalMemory() / (1024*1024));
 				memTotal.add(new Millisecond(new Date()), Runtime.getRuntime().maxMemory() / (1024*1024));
 				for (Counter c : counters) {
-					c.aggregate();
+					c.consolidate();
 				}
 				repaint();
 				try {

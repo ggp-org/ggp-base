@@ -35,12 +35,16 @@ public final class ConfigurableGamer extends StateMachineGamer
 	private ConfigurableDetailPanel detailPanel = new ConfigurableDetailPanel();
 	private Random theRandom = new Random();
 	
-	private ConfigurableDetailPanel.Counter statesExpanded;
+	private ConfigurableDetailPanel.AggregatingCounter statesExpanded;
+	private ConfigurableDetailPanel.AggregatingCounter simulationsDone;
+	private ConfigurableDetailPanel.FixedCounter expectedScore;
 	
 	public ConfigurableGamer() {
 		configPanel = new ConfigurableConfigPanel();
 		detailPanel = new ConfigurableDetailPanel();
-		statesExpanded = detailPanel.addCounter("States Expanded");
+		statesExpanded = detailPanel.new AggregatingCounter("States Expanded", false);
+		simulationsDone = detailPanel.new AggregatingCounter("Simulations Done", false);
+		expectedScore = detailPanel.new FixedCounter("Expected Score", true);
 	}
 	
 	@Override
@@ -215,6 +219,7 @@ public final class ConfigurableGamer extends StateMachineGamer
 			}			
 		}
 
+		expectedScore.set(bestScoreSoFar);
 		return bestMoveSoFar;
 	}
 	
@@ -256,6 +261,7 @@ public final class ConfigurableGamer extends StateMachineGamer
 			}			
 		}
 		
+		expectedScore.set(bestScoreSoFar);
 		return bestMoveSoFar;
 	}
 	
@@ -299,9 +305,10 @@ public final class ConfigurableGamer extends StateMachineGamer
 				if (bestScoreSoFar == 100) {
 					break;
 				}
-			}			
+			}
 		}
 		
+		expectedScore.set(bestScoreSoFar);		
 		return bestMoveSoFar;
 	}
 	
@@ -442,6 +449,8 @@ public final class ConfigurableGamer extends StateMachineGamer
 	{
 	    StateMachine theMachine = getStateMachine();
 		
+	    long timeToExpect = System.currentTimeMillis() + 1000;
+	    
 		List<Move> moves = theMachine.getLegalMoves(getCurrentState(), getRole());
 		Move selection = moves.get(0);
 		if (moves.size() > 1) {		
@@ -457,6 +466,17 @@ public final class ConfigurableGamer extends StateMachineGamer
     		    int theScore = performMonteCarloDepthChargeFromMove(getCurrentState(), moves.get(i));
     		    moveTotalPoints[i] += theScore;
     		    moveTotalAttempts[i] += 1;
+    		    
+    		    simulationsDone.increment(1);
+    		    
+    		    if (System.currentTimeMillis() > timeToExpect) {
+    		    	double bestChildValueSoFar = -1;
+    	    		for (int j = 0; j < moves.size(); j++) {
+    	    			bestChildValueSoFar = Math.max(bestChildValueSoFar, (double)moveTotalPoints[i] / moveTotalAttempts[i]);
+    	    		}
+    			    expectedScore.set(bestChildValueSoFar);
+    		    	timeToExpect = System.currentTimeMillis() + 1000;
+    		    }
     		}
     
     		// Compute the expected score for each move.
