@@ -61,7 +61,9 @@ public class ConfigurableDetailPanel extends DetailPanel {
 		JPanel sidePanel = new JPanel();
 		
         memUsage = new TimeSeries("Used Memory");
-        memTotal = new TimeSeries("Total Memory");        
+        memTotal = new TimeSeries("Total Memory");
+        memUsage.setMaximumItemCount(36000);
+        memTotal.setMaximumItemCount(36000);
         final TimeSeriesCollection memory = new TimeSeriesCollection();
         memory.addSeries(memUsage);
         memory.addSeries(memTotal);
@@ -122,6 +124,7 @@ public class ConfigurableDetailPanel extends DetailPanel {
 		private TimeSeries series;
 		public Counter(String name, boolean forScore) {			
 			series = new TimeSeries(name);
+			series.setMaximumItemCount(36000);
 			counters.add(this);
 			if (forScore) {
 				scoreCountersCollection.addSeries(series);
