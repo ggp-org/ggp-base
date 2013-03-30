@@ -5,9 +5,6 @@ import java.io.IOException;
 import org.ggp.base.server.request.RequestBuilder;
 import org.ggp.base.util.http.HttpRequest;
 
-import external.JSON.JSONException;
-import external.JSON.JSONObject;
-
 public class PlayerPresence {
 	final private String host;
 	final private int port;
@@ -24,22 +21,18 @@ public class PlayerPresence {
 	}
 	
 	public void updateInfo() {
-		JSONObject info;
-		String newName, newStatus;
+		InfoResponse info;
 		try {
-			info = new JSONObject(HttpRequest.issueRequest(host, port, "", RequestBuilder.getInfoRequest(), 1000));
-			newName = info.getString("name");
-			newStatus = info.getString("status");
-		} catch (JSONException je) {
-			newName = null;
-			newStatus = "error";			
+			String infoFull = HttpRequest.issueRequest(host, port, "", RequestBuilder.getInfoRequest(), 1000);
+			info = InfoResponse.create(infoFull);
 		} catch (IOException e) {
-			newName = null;
-			newStatus = "error";
+			info = new InfoResponse();
+			info.setName(null);
+			info.setStatus("error");
 		}
 		synchronized(this) {
-			name = newName;
-			status = newStatus;
+			name = info.getName();
+			status = info.getStatus();
 			statusTime = System.currentTimeMillis();
 		}
 	}

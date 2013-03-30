@@ -1,9 +1,7 @@
 package org.ggp.base.player.request.grammar;
 
 import org.ggp.base.player.gamer.Gamer;
-
-import external.JSON.JSONException;
-import external.JSON.JSONObject;
+import org.ggp.base.util.presence.InfoResponse;
 
 public final class InfoRequest extends Request
 {
@@ -18,20 +16,16 @@ public final class InfoRequest extends Request
 	public String getMatchId() {
 		return null;
 	}
-
+	
 	@Override
 	public String process(long receptionTime)
 	{
-		try {
-			JSONObject info = new JSONObject();
-			info.put("name", gamer.getName());
-			info.put("status", (gamer.getMatch() == null) ? "available" : "busy");
-		    return info.toString();
-		} catch (JSONException je) {
-			throw new RuntimeException(je);
-		}
+		InfoResponse info = new InfoResponse();
+		info.setName(gamer.getName());
+		info.setStatus(gamer.getMatch() == null ? "available" : "busy");
+		return info.toSymbol().toString();
 	}
-
+	
 	@Override
 	public String toString()
 	{
