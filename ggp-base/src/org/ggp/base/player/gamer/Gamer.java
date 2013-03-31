@@ -67,6 +67,7 @@ public abstract class Gamer implements Subject
 	
 	// ==== Gamer Profile and Configuration ====
 	public abstract String getName();
+	public String getSpecies() { return null; }
 	
 	public boolean isComputerPlayer() {
 		return true;

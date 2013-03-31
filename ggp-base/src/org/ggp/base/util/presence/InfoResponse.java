@@ -24,6 +24,7 @@ import external.JSON.JSONObject;
 public class InfoResponse {
 	private String name;
 	private String status;
+	private String species;
 	
 	public InfoResponse() {
 		;
@@ -37,12 +38,20 @@ public class InfoResponse {
 		this.status = status;
 	}
 	
+	public void setSpecies(String species) {
+		this.species = species;
+	}
+	
 	public String getName() {
 		return name;
 	}
 	
 	public String getStatus() {
 		return status;
+	}
+	
+	public String getSpecies() {
+		return species;
 	}
 	
 	public InfoResponse(Symbol symbol) {
@@ -62,6 +71,8 @@ public class InfoResponse {
 						name = value;
 					} else if (key.equals("status")) {
 						status = value;
+					} else if (key.equals("species")) {
+						species = value;
 					}
 				}
 			}
@@ -102,6 +113,9 @@ public class InfoResponse {
 		}
 		if (status != null) {
 			infoList.add(getKeyValueSymbol("status", status));
+		}
+		if (species != null) {
+			infoList.add(getKeyValueSymbol("species", species));
 		}
 		return SymbolPool.getList(infoList);
 	}

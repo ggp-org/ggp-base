@@ -23,6 +23,7 @@ public final class InfoRequest extends Request
 		InfoResponse info = new InfoResponse();
 		info.setName(gamer.getName());
 		info.setStatus(gamer.getMatch() == null ? "available" : "busy");
+		info.setSpecies(gamer.getSpecies());
 		return info.toSymbol().toString();
 	}
 	
