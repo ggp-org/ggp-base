@@ -1,4 +1,4 @@
-package org.ggp.base.apps.exponent;
+package org.ggp.base.apps.logging;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -11,7 +11,7 @@ import org.ggp.base.util.logging.LogSummaryGenerator;
 import external.JSON.JSONException;
 
 /**
- * The Exponent Summarizer Server is a multi-threaded web server that generates
+ * The "Exponent" Log Summarizer Server is a multi-threaded web server that makes
  * log summaries and sends them back to remote clients. These log summaries should
  * not contain any sensitive data; the summarizer can be queried by anyone and its
  * summaries are made publicly available on the GGP.org viewer alongside the other
@@ -21,11 +21,11 @@ import external.JSON.JSONException;
  * 
  * ResourceLoader.load_raw('http://127.0.0.1:9199/matchABC');
  * 
- * Exponent Summarizer Server replies with a JSON summary of the logs for "matchABC".
+ * The Log Summarizer Server replies with a JSON summary of the logs for "matchABC".
  * 
  * @author Sam Schreiber
  */
-public class ExponentSummarizer
+public class LogSummarizer
 {
     public static LogSummaryGenerator theGenerator;
     public static final int SERVER_PORT = 9199;
