@@ -8,14 +8,11 @@ import org.ggp.base.util.observer.Event;
 import org.ggp.base.util.observer.Observer;
 import org.ggp.base.util.observer.Subject;
 import org.ggp.base.util.statemachine.MachineState;
-import org.ggp.base.util.statemachine.Role;
 import org.ggp.base.util.statemachine.StateMachine;
 import org.ggp.base.util.statemachine.implementation.prover.ProverStateMachine;
 import org.ggp.base.validator.event.ValidatorFailureEvent;
 import org.ggp.base.validator.event.ValidatorSuccessEvent;
 import org.ggp.base.validator.exception.MaxDepthException;
-import org.ggp.base.validator.exception.MonotonicityException;
-
 
 public final class GdlValidator extends Thread implements Subject
 {
@@ -61,13 +58,6 @@ public final class GdlValidator extends Thread implements Subject
 		{
 			StateMachine stateMachine = new ProverStateMachine();
 			stateMachine.initialize(description);
-			List<Role> roles = stateMachine.getRoles();
-
-			List<Integer> goals = new ArrayList<Integer>();
-			for (int i = 0; i < roles.size(); i++)
-			{
-				goals.add(-1);
-			}
 
 			MachineState state = stateMachine.getInitialState();
 			for (int depth = 0; !stateMachine.isTerminal(state); depth++)
@@ -75,16 +65,6 @@ public final class GdlValidator extends Thread implements Subject
 				if (depth == maxDepth)
 				{
 					throw new MaxDepthException(maxDepth);
-				}
-
-				for (int i = 0; i < roles.size(); i++)
-				{
-					int goal = stateMachine.getGoal(state, roles.get(i));
-					if (goal < goals.get(i))
-					{
-						throw new MonotonicityException(roles.get(i));
-					}
-					goals.set(i, goal);
 				}
 
 				state = stateMachine.getRandomNextState(state);
