@@ -1,5 +1,6 @@
 package org.ggp.base.util.statemachine;
 
+import java.util.HashSet;
 import java.util.Set;
 import org.ggp.base.util.gdl.grammar.GdlSentence;
 
@@ -28,6 +29,10 @@ public class MachineState {
 	{
         return contents;
     }
+	
+	public MachineState clone() {
+		return new MachineState(new HashSet<GdlSentence>(contents));
+	}
 
 	/* Utility methods */
     public int hashCode()
