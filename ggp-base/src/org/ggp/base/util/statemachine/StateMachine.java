@@ -227,7 +227,7 @@ public abstract class StateMachine
         return getNextState(state, random);
     }
     
-    public MachineState performDepthCharge(MachineState state, int[] theDepth) throws TransitionDefinitionException, MoveDefinitionException {  
+    public MachineState performDepthCharge(MachineState state, final int[] theDepth) throws TransitionDefinitionException, MoveDefinitionException {  
         int nDepth = 0;
         while(!isTerminal(state)) {
             nDepth++;
@@ -236,5 +236,26 @@ public abstract class StateMachine
         if(theDepth != null)
             theDepth[0] = nDepth;
         return state;
+    }
+    
+    public void getAverageDiscountedScoresFromRepeatedDepthCharges(final MachineState state, final double[] avgScores, final double[] avgDepth, final double discountFactor, final int repetitions) throws TransitionDefinitionException, MoveDefinitionException, GoalDefinitionException {    	
+    	avgDepth[0] = 0;
+    	for (int j = 0; j < avgScores.length; j++) {
+    		avgScores[j] = 0;
+    	}
+    	final int[] depth = new int[1];
+    	for (int i = 0; i < repetitions; i++) {
+    		MachineState stateForCharge = state.clone();
+    		stateForCharge = performDepthCharge(stateForCharge, depth);
+    		avgDepth[0] += depth[0];
+    		final double accumulatedDiscountFactor = Math.pow(discountFactor, depth[0]);
+    		for (int j = 0; j < avgScores.length; j++) {
+    			avgScores[j] += getGoal(stateForCharge, getRoles().get(j)) * accumulatedDiscountFactor;
+    		}
+    	}
+    	avgDepth[0] /= repetitions;
+    	for (int j = 0; j < avgScores.length; j++) {
+    		avgScores[j] /= repetitions;
+    	}
     }    
 }
