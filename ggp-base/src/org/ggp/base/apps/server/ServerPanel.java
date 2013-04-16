@@ -99,6 +99,7 @@ public final class ServerPanel extends JPanel implements ActionListener
 	private final JSpinner startClockSpinner;
 	private final JSpinner playClockSpinner;
 	
+	private final JCheckBox shouldScramble;
 	private final JCheckBox shouldPublish;
 	private final JCheckBox shouldSave;
 	
@@ -125,6 +126,7 @@ public final class ServerPanel extends JPanel implements ActionListener
 
 		shouldSave = new JCheckBox("Save match to disk?", false);
 		shouldPublish = new JCheckBox("Publish match to the web?", false);
+		shouldScramble = new JCheckBox("Scramble GDL?", true);
 		
 		runButton.setEnabled(false);
 
@@ -142,6 +144,7 @@ public final class ServerPanel extends JPanel implements ActionListener
 		gamePanel.add(startClockSpinner, new GridBagConstraints(1, nRowCount++, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 1, 5), 5, 5));
 		gamePanel.add(new JLabel("Play Clock:"), new GridBagConstraints(0, nRowCount, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(1, 5, 5, 5), 5, 5));
 		gamePanel.add(playClockSpinner, new GridBagConstraints(1, nRowCount++, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.HORIZONTAL, new Insets(1, 5, 5, 5), 5, 5));
+		gamePanel.add(shouldScramble, new GridBagConstraints(1, nRowCount++, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 1, 5), 5, 5));
 		gamePanel.add(shouldSave, new GridBagConstraints(1, nRowCount++, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 1, 5), 5, 5));
 		gamePanel.add(shouldPublish, new GridBagConstraints(1, nRowCount++, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.HORIZONTAL, new Insets(1, 5, 5, 5), 5, 5));		
 		gamePanel.add(runButton, new GridBagConstraints(1, nRowCount, 1, 1, 0.0, 1.0, GridBagConstraints.SOUTH, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 0, 0));
@@ -203,7 +206,7 @@ public final class ServerPanel extends JPanel implements ActionListener
             stateMachine.initialize(theGame.getRules());
             List<Role> roles = stateMachine.getRoles();
             
-            int newRowCount = 7;
+            int newRowCount = 8;
             for (int i = 0; i < roles.size(); i++) {
                 roleLabels.add(new JLabel(roles.get(i).getName().toString() + ":"));
                 playerFields.add(playerSelector.getPlayerSelectorBox());
@@ -231,7 +234,7 @@ public final class ServerPanel extends JPanel implements ActionListener
                 	thePlayers.add(playerSelector.getPlayerPresence(name));
 				}
 				
-				startGameServer(theGame, thePlayers, "Base", startClock, playClock, shouldSave.isSelected(), shouldPublish.isSelected());				
+				startGameServer(theGame, thePlayers, "Base", startClock, playClock, shouldScramble.isSelected(), shouldSave.isSelected(), shouldPublish.isSelected());
 			}
 		};
 	}
@@ -243,7 +246,7 @@ public final class ServerPanel extends JPanel implements ActionListener
 					Game testGame = GameRepository.getDefaultRepository().getGame("maze");
 					String playerName = playerSelectorList.getSelectedValue().toString();
 					List<PlayerPresence> thePlayers = Arrays.asList(new PlayerPresence[]{playerSelector.getPlayerPresence(playerName)});				
-					startGameServer(testGame, thePlayers, "Test", 10, 5, false, false);
+					startGameServer(testGame, thePlayers, "Test", 10, 5, false, false, false);
 				}
 			}
 		};
@@ -272,7 +275,7 @@ public final class ServerPanel extends JPanel implements ActionListener
 		};
 	}
 
-	private void startGameServer(Game theGame, List<PlayerPresence> thePlayers, String matchIdPrefix, int startClock, int playClock, boolean shouldSave, boolean shouldPublish) {
+	private void startGameServer(Game theGame, List<PlayerPresence> thePlayers, String matchIdPrefix, int startClock, int playClock, boolean shouldScramble, boolean shouldSave, boolean shouldPublish) {
 		try {
 			String matchId = matchIdPrefix + "." + theGame.getKey() + "." + System.currentTimeMillis();			
 			Match match = new Match(matchId, -1, startClock, playClock, theGame);
@@ -300,6 +303,9 @@ public final class ServerPanel extends JPanel implements ActionListener
 			
 			match.setCryptographicKeys(signingKeys);
 			match.setPlayerNamesFromHost(playerNames);
+			if (shouldScramble) {
+				match.enableScrambling();
+			}
 			
 			GameServer gameServer = new GameServer(match, hosts, ports);
 			gameServer.addObserver(errorPanel);
