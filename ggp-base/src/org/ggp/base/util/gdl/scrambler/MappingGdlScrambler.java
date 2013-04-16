@@ -92,7 +92,7 @@ public class MappingGdlScrambler implements GdlScrambler {
 		}
 		fakeWord = fakeWord.toLowerCase();
 		if (!unscrambleMapping.containsKey(fakeWord)) {
-			throw new RuntimeException("Could not find scramble mapping for: " + fakeWord);
+			return fakeWord;
 		}
 		return unscrambleMapping.get(fakeWord);
 	}
