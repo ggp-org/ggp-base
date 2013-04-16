@@ -20,7 +20,6 @@ import org.ggp.base.util.ui.table.JZebraTable;
 @SuppressWarnings("serial")
 public final class NetworkPanel extends JPanel implements Observer
 {
-
 	private final JZebraTable networkTable;
 
 	public NetworkPanel()
@@ -33,7 +32,6 @@ public final class NetworkPanel extends JPanel implements Observer
 
 		networkTable = new JZebraTable(model)
 		{
-
 			@Override
 			public boolean isCellEditable(int rowIndex, int colIndex)
 			{
@@ -73,6 +71,12 @@ public final class NetworkPanel extends JPanel implements Observer
 	{
 		DefaultTableModel model = (DefaultTableModel) networkTable.getModel();
 		model.setValueAt(event.getMessage(), model.getRowCount() - 1, 1);
+		if (model.getValueAt(model.getRowCount()-1, 0).toString().toLowerCase().equals("( info )")) {
+			// When we're observing info requests and responses, don't bother displaying them,
+			// since they happen frequently and don't convey much interesting information. This
+			// improves the signal-to-noise ratio so the player's actual moves are visible here.
+			model.removeRow(model.getRowCount() - 1);
+		}
 	}
 
 }
