@@ -7,7 +7,7 @@ import java.util.concurrent.BlockingQueue;
 
 import javax.swing.JPanel;
 
-import org.ggp.base.player.gamer.exception.GameAnalysisException;
+import org.ggp.base.player.gamer.exception.GamePreviewException;
 import org.ggp.base.player.gamer.statemachine.StateMachineGamer;
 import org.ggp.base.server.event.ServerCompletedMatchEvent;
 import org.ggp.base.server.event.ServerNewGameStateEvent;
@@ -142,7 +142,7 @@ public class KioskGamer extends StateMachineGamer implements Observer {
 	}
 	
 	@Override
-	public void analyze(Game g, long timeout) throws GameAnalysisException {
+	public void preview(Game g, long timeout) throws GamePreviewException {
 		;
 	}	
 }

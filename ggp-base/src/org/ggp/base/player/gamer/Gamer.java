@@ -8,7 +8,7 @@ import org.ggp.base.apps.player.config.EmptyConfigPanel;
 import org.ggp.base.apps.player.detail.DetailPanel;
 import org.ggp.base.apps.player.detail.EmptyDetailPanel;
 import org.ggp.base.player.gamer.exception.AbortingException;
-import org.ggp.base.player.gamer.exception.GameAnalysisException;
+import org.ggp.base.player.gamer.exception.GamePreviewException;
 import org.ggp.base.player.gamer.exception.MetaGamingException;
 import org.ggp.base.player.gamer.exception.MoveSelectionException;
 import org.ggp.base.player.gamer.exception.StoppingException;
@@ -63,7 +63,7 @@ public abstract class Gamer implements Subject
 	
 	public abstract void abort() throws AbortingException;  // Abruptly stop playing the match
 
-	public abstract void analyze(Game g, long timeout) throws GameAnalysisException;  // Analyze a game
+	public abstract void preview(Game g, long timeout) throws GamePreviewException;  // Preview a game
 	
 	// ==== Gamer Profile and Configuration ====
 	public abstract String getName();

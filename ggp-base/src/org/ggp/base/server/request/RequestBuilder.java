@@ -42,16 +42,16 @@ public final class RequestBuilder
 		return sb.toString();
 	}
 	
-	public static String getAnalyzeRequest(List<Gdl> description, int analysisClock, GdlScrambler scrambler)
+	public static String getPreviewRequest(List<Gdl> description, int previewClock, GdlScrambler scrambler)
 	{
 		StringBuilder sb = new StringBuilder();
 
-		sb.append("( ANALYZE (");
+		sb.append("( PREVIEW (");
 		for (Gdl gdl : description)
 		{
 			sb.append(scrambler.scramble(gdl) + " ");
 		}
-		sb.append(") " + analysisClock + " )");
+		sb.append(") " + previewClock + " )");
 
 		return sb.toString();
 	}	

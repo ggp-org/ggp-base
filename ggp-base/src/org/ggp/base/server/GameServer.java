@@ -21,7 +21,7 @@ import org.ggp.base.server.event.ServerNewMovesEvent;
 import org.ggp.base.server.event.ServerTimeEvent;
 import org.ggp.base.server.event.ServerTimeoutEvent;
 import org.ggp.base.server.threads.AbortRequestThread;
-import org.ggp.base.server.threads.AnalyzeRequestThread;
+import org.ggp.base.server.threads.PreviewRequestThread;
 import org.ggp.base.server.threads.PlayRequestThread;
 import org.ggp.base.server.threads.RandomPlayRequestThread;
 import org.ggp.base.server.threads.StartRequestThread;
@@ -150,8 +150,8 @@ public final class GameServer extends Thread implements Subject
     @Override
     public void run() {
         try {
-        	if (match.getAnalysisClock() >= 0) {
-        		sendAnalyzeRequests();
+        	if (match.getPreviewClock() >= 0) {
+        		sendPreviewRequests();
         	}
         	
             notifyObservers(new ServerNewMatchEvent(stateMachine.getRoles(), currentState));                        
@@ -273,20 +273,20 @@ public final class GameServer extends Thread implements Subject
         return moves;
     }
 
-    private synchronized void sendAnalyzeRequests() throws InterruptedException {
-        List<AnalyzeRequestThread> threads = new ArrayList<AnalyzeRequestThread>(hosts.size());
+    private synchronized void sendPreviewRequests() throws InterruptedException {
+        List<PreviewRequestThread> threads = new ArrayList<PreviewRequestThread>(hosts.size());
         for (int i = 0; i < hosts.size(); i++) {
         	if (!playerPlaysRandomly[i]) {
-        		threads.add(new AnalyzeRequestThread(this, match, stateMachine.getRoles().get(i), hosts.get(i), ports.get(i), getPlayerNameFromMatchForRequest(i)));
+        		threads.add(new PreviewRequestThread(this, match, stateMachine.getRoles().get(i), hosts.get(i), ports.get(i), getPlayerNameFromMatchForRequest(i)));
         	}
         }
-        for (AnalyzeRequestThread thread : threads) {
+        for (PreviewRequestThread thread : threads) {
             thread.start();
         }
         if (forceUsingEntireClock) {
             Thread.sleep(match.getStartClock() * 1000);
         }        
-        for (AnalyzeRequestThread thread : threads) {
+        for (PreviewRequestThread thread : threads) {
             thread.join();
         }
     }    

@@ -56,7 +56,7 @@ public final class Match
     private final String spectatorAuthToken;
     private final int playClock;
     private final int startClock;
-    private final int analysisClock;
+    private final int previewClock;
     private final Date startTime;
 	private final Game theGame;
 	private final List<List<GdlTerm>> moveHistory;
@@ -74,10 +74,10 @@ public final class Match
 	
 	private GdlScrambler theGdlScrambler = new NoOpGdlScrambler();
 
-	public Match(String matchId, int analysisClock, int startClock, int playClock, Game theGame)
+	public Match(String matchId, int previewClock, int startClock, int playClock, Game theGame)
 	{
 		this.matchId = matchId;
-		this.analysisClock = analysisClock;
+		this.previewClock = previewClock;
 		this.startClock = startClock;
 		this.playClock = playClock;
 		this.theGame = theGame;
@@ -113,10 +113,10 @@ public final class Match
             this.theGame = theGame;
         }
         
-        if (theMatchObject.has("analysisClock")) {
-        	this.analysisClock = theMatchObject.getInt("analysisClock");
+        if (theMatchObject.has("previewClock")) {
+        	this.previewClock = theMatchObject.getInt("previewClock");
         } else {
-        	this.analysisClock = -1;
+        	this.previewClock = -1;
         }
         
         this.startTime = new Date(theMatchObject.getLong("startTime"));
@@ -288,7 +288,7 @@ public final class Match
             if (goalValues.size() > 0) {
                 theJSON.put("goalValues", goalValues);
             }
-            theJSON.put("analysisClock", analysisClock);
+            theJSON.put("previewClock", previewClock);
             theJSON.put("startClock", startClock);
             theJSON.put("playClock", playClock);
             if (thePlayerNamesFromHost != null) {
@@ -405,8 +405,8 @@ public final class Match
         return errorHistory;
     }
     
-    public int getAnalysisClock() {
-    	return analysisClock;
+    public int getPreviewClock() {
+    	return previewClock;
     }
 
 	public int getPlayClock() {

@@ -2,7 +2,7 @@ package org.ggp.base.player.gamer.clojure;
 
 import org.ggp.base.player.gamer.Gamer;
 import org.ggp.base.player.gamer.exception.AbortingException;
-import org.ggp.base.player.gamer.exception.GameAnalysisException;
+import org.ggp.base.player.gamer.exception.GamePreviewException;
 import org.ggp.base.player.gamer.exception.MetaGamingException;
 import org.ggp.base.player.gamer.exception.MoveSelectionException;
 import org.ggp.base.player.gamer.exception.StoppingException;
@@ -67,11 +67,11 @@ public abstract class ClojureGamer extends Gamer
     // Clojure implementation.
     
     @Override
-    public final void analyze(Game game, long timeout) throws GameAnalysisException {
+    public final void preview(Game game, long timeout) throws GamePreviewException {
     	lazilyLoadGamerStub();
         try {
-            theClojureGamer.analyze(game, timeout);
-        } catch(GameAnalysisException e) {
+            theClojureGamer.preview(game, timeout);
+        } catch(GamePreviewException e) {
             GamerLogger.logError("GamePlayer", "Caught exception in Clojure stateMachineMetaGame:");
             GamerLogger.logStackTrace("GamePlayer", e);
         }

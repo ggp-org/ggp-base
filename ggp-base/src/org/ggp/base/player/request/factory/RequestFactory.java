@@ -6,7 +6,7 @@ import java.util.List;
 import org.ggp.base.player.gamer.Gamer;
 import org.ggp.base.player.request.factory.exceptions.RequestFormatException;
 import org.ggp.base.player.request.grammar.AbortRequest;
-import org.ggp.base.player.request.grammar.AnalyzeRequest;
+import org.ggp.base.player.request.grammar.PreviewRequest;
 import org.ggp.base.player.request.grammar.InfoRequest;
 import org.ggp.base.player.request.grammar.PlayRequest;
 import org.ggp.base.player.request.grammar.Request;
@@ -52,9 +52,9 @@ public final class RequestFactory
 			{
 				return createInfo(gamer, list);
 			}
-			else if (type.equals("analyze"))
+			else if (type.equals("preview"))
 			{
-				return createAnalyze(gamer, list);
+				return createPreview(gamer, list);
 			}
 			else
 			{
@@ -148,7 +148,7 @@ public final class RequestFactory
         return new InfoRequest(gamer);
     }    
     
-    private AnalyzeRequest createAnalyze(Gamer gamer, SymbolList list) throws GdlFormatException
+    private PreviewRequest createPreview(Gamer gamer, SymbolList list) throws GdlFormatException
     {
 		if (list.size() != 3)
 		{
@@ -159,10 +159,10 @@ public final class RequestFactory
 		SymbolAtom arg2 = (SymbolAtom) list.get(2);
 
 		String theRulesheet = arg1.toString();
-		int analysisClock = Integer.valueOf(arg2.getValue());
+		int previewClock = Integer.valueOf(arg2.getValue());
 		
 		Game theReceivedGame = Game.createEphemeralGame(theRulesheet);
-		return new AnalyzeRequest(gamer, theReceivedGame, analysisClock);
+		return new PreviewRequest(gamer, theReceivedGame, previewClock);
     }    
 
 	private List<GdlTerm> parseMoves(Symbol symbol) throws GdlFormatException
