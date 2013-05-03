@@ -1,6 +1,7 @@
 package org.ggp.base.apps.server.leaderboard;
 
 import java.awt.BorderLayout;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashSet;
@@ -35,7 +36,8 @@ public final class LeaderboardPanel extends JPanel implements Observer
 		
         DefaultTableModel model = new DefaultTableModel();		
         model.addColumn("Player");
-        model.addColumn("Total Score");
+        model.addColumn("Score");
+        model.addColumn("Errors");
         
 		leaderTable = new JTable(model)
 		{
@@ -48,12 +50,15 @@ public final class LeaderboardPanel extends JPanel implements Observer
 			public Class<?> getColumnClass(int colIndex) {
 				if (colIndex == 0) return String.class;
 				if (colIndex == 1) return Integer.class;
+				if (colIndex == 2) return Integer.class;
 				return Object.class;
 			}
 		};
 		leaderTable.setShowHorizontalLines(true);
 		leaderTable.setShowVerticalLines(true);
-		leaderTable.getColumnModel().getColumn(1).setPreferredWidth(1);
+		leaderTable.getColumnModel().getColumn(0).setPreferredWidth(40);
+		leaderTable.getColumnModel().getColumn(1).setPreferredWidth(10);
+		leaderTable.getColumnModel().getColumn(2).setPreferredWidth(10);
 		sorter = new TableRowSorter<TableModel>(model);
 		sorter.setComparator(1, new Comparator<Integer>() {
 			public int compare(Integer a, Integer b) {
@@ -76,6 +81,7 @@ public final class LeaderboardPanel extends JPanel implements Observer
 		if (match.getMatchId().startsWith("Test")) return;
 		
 		List<Integer> goals = match.getGoalValues();
+		List<Integer> errors = getErrorCounts(match.getErrorHistory());
 		List<String> players = match.getPlayerNamesFromHost();
 		for (int i = 0; i < players.size(); i++) { if (players.get(i)==null) { players.set(i, "?"); } }
 
@@ -86,13 +92,30 @@ public final class LeaderboardPanel extends JPanel implements Observer
 			int playerIndex = players.indexOf(rowPlayer);
 			if (playerIndex != -1) {
 				int oldScore = (Integer)model.getValueAt(i, 1);
+				int oldErrors = (Integer)model.getValueAt(i, 2);
 				model.setValueAt(oldScore + goals.get(playerIndex), i, 1);
+				model.setValueAt(oldErrors + errors.get(playerIndex), i, 2);
 				playersToAdd.remove(rowPlayer);
 			}
 		}
 		for (String playerToAdd : playersToAdd) {
-			model.addRow(new Object[]{playerToAdd, goals.get(players.indexOf(playerToAdd))});
+			model.addRow(new Object[]{playerToAdd, goals.get(players.indexOf(playerToAdd)), errors.get(players.indexOf(playerToAdd))});
 		}
 		sorter.sort();
+	}
+	
+	public static List<Integer> getErrorCounts(List<List<String>> errorHistory) {
+		List<Integer> errorCounts = new ArrayList<Integer>();
+		for (int i = 0; i < errorHistory.get(0).size(); i++) {
+			errorCounts.add(0);
+		}
+		for (List<String> errorHistoryEntry : errorHistory) {
+			for (int i = 0; i < errorHistoryEntry.size(); i++) {
+				if (!errorHistoryEntry.get(i).isEmpty()) {
+					errorCounts.set(i,1+errorCounts.get(i));
+				}
+			}
+		}
+		return errorCounts;
 	}
 }
