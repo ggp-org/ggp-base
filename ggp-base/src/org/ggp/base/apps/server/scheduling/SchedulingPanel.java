@@ -22,6 +22,7 @@ import org.ggp.base.server.event.ServerMatchUpdatedEvent;
 import org.ggp.base.util.match.Match;
 import org.ggp.base.util.observer.Event;
 import org.ggp.base.util.observer.Observer;
+import org.ggp.base.util.presence.PlayerPresence;
 import org.ggp.base.util.ui.JLabelBold;
 
 @SuppressWarnings("serial")
@@ -64,8 +65,8 @@ public final class SchedulingPanel extends JPanel implements Observer, ListSelec
 		queueTable.getColumnModel().getColumn(0).setPreferredWidth(1);
 		queueTable.getColumnModel().getColumn(1).setPreferredWidth(60);
 		queueTable.getColumnModel().getColumn(2).setPreferredWidth(40);
-		queueTable.getColumnModel().getColumn(3).setPreferredWidth(50);
-		queueTable.getColumnModel().getColumn(4).setPreferredWidth(150);
+		queueTable.getColumnModel().getColumn(3).setPreferredWidth(55);
+		queueTable.getColumnModel().getColumn(4).setPreferredWidth(145);
 		queueTable.getColumnModel().getColumn(5).setPreferredWidth(40);
 		queueTable.getColumnModel().getColumn(6).setPreferredWidth(45);
 		queueTable.getColumnModel().getColumn(7).setPreferredWidth(40);
@@ -132,6 +133,12 @@ public final class SchedulingPanel extends JPanel implements Observer, ListSelec
 		}
 	}
 	
+	public void addPendingMatch(PendingMatch spec) {
+		DefaultTableModel model = (DefaultTableModel) queueTable.getModel();
+		model.addRow(new Object[]{spec.matchID,spec.theGame.getKey(),spec.startClock + "," + spec.playClock,"pending",getLinebreakString(getNamesForPlayers(spec.thePlayers)),"","",0});
+		queueTable.setRowHeight(model.getRowCount()-1, spec.thePlayers.size()*20);
+	}
+	
 	public void observe(Event genericEvent) {
 		if (!(genericEvent instanceof ServerMatchUpdatedEvent)) return;
 		ServerMatchUpdatedEvent event = (ServerMatchUpdatedEvent)genericEvent;
@@ -182,8 +189,16 @@ public final class SchedulingPanel extends JPanel implements Observer, ListSelec
 		}
 
 		// Couldn't find the match in the existing list -- add it.
-		model.addRow(new Object[]{match.getMatchId(),match.getGame().getKey(),match.getStartClock() + "," + match.getPlayClock(),"pending",getLinebreakString(match.getPlayerNamesFromHost()),"","",0});
+		model.addRow(new Object[]{match.getMatchId(),match.getGame().getKey(),match.getStartClock() + "," + match.getPlayClock(),"starting",getLinebreakString(match.getPlayerNamesFromHost()),"","",0});
 		queueTable.setRowHeight(model.getRowCount()-1, match.getPlayerNamesFromHost().size()*20);
+	}
+	
+	private static List<String> getNamesForPlayers(List<PlayerPresence> players) {
+		List<String> playerNames = new ArrayList<String>();
+		for (PlayerPresence player : players) {
+			playerNames.add(player.getName());
+		}
+		return playerNames;
 	}
 	
 	private static String getLinebreakString(List<?> objects) {
