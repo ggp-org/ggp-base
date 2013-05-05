@@ -55,7 +55,6 @@ public final class ValidatorPanel extends JPanel implements ActionListener
 	}
 
 	private Game theGame;
-	private final JButton stepByHandButton;
 	private final JTextField maxDepthTextField;
 	private final JTabbedPane simulationsTabbedPane;
 	private final JTextField simulationsTextField;
@@ -68,7 +67,6 @@ public final class ValidatorPanel extends JPanel implements ActionListener
 	    super(new GridBagLayout());
 
 		validateButton = new JButton(validateButtonMethod(this));
-		stepByHandButton = new JButton(stepByHandButtonMethod(this));
 		maxDepthTextField = new JTextField("100");
 		simulationsTextField = new JTextField("10");
 		simulationsTabbedPane = new JTabbedPane();
@@ -95,8 +93,7 @@ public final class ValidatorPanel extends JPanel implements ActionListener
 		sourcePanel.add(maxDepthTextField, new GridBagConstraints(1, nRowCount++, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 5, 5));
 		sourcePanel.add(new JLabel("Simulations:"), new GridBagConstraints(0, nRowCount, 1, 1, 1.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 5, 5));
 		sourcePanel.add(simulationsTextField, new GridBagConstraints(1, nRowCount++, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 5, 5));
-		sourcePanel.add(stepByHandButton, new GridBagConstraints(1, nRowCount++, 1, 1, 1.0, 1.0, GridBagConstraints.SOUTH, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 0, 0));
-        sourcePanel.add(validateButton, new GridBagConstraints(1, nRowCount++, 1, 1, 0.0, 0.0, GridBagConstraints.SOUTH, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 0, 0));		
+		sourcePanel.add(validateButton, new GridBagConstraints(1, nRowCount++, 1, 1, 1.0, 1.0, GridBagConstraints.SOUTH, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 0, 0));
 
 		JPanel simulationsPanel = new JPanel(new GridBagLayout());
 		simulationsPanel.setBorder(new TitledBorder("Results"));
@@ -139,21 +136,5 @@ public final class ValidatorPanel extends JPanel implements ActionListener
 				}
 			}
 		};
-	}
-	
-	private AbstractAction stepByHandButtonMethod(final ValidatorPanel validatorPanel)
-	{
-		return new AbstractAction("Step By Hand")
-		{
-			public void actionPerformed(ActionEvent evt)
-			{
-				try {
-					QueryPanel QP = new QueryPanel();
-					validatorPanel.simulationsTabbedPane.addTab(theGame.getKey()+" Stepper", QP);
-				} catch (Exception e) {
-					// Do nothing.
-				}
-			}
-		};
-	}
+	}	
 }
