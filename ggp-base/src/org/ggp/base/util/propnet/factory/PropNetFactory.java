@@ -8,6 +8,7 @@ import org.ggp.base.util.logging.GamerLogger;
 import org.ggp.base.util.propnet.architecture.PropNet;
 import org.ggp.base.util.propnet.factory.converter.PropNetConverter;
 import org.ggp.base.util.propnet.factory.flattener.PropNetFlattener;
+import org.ggp.base.util.statemachine.Role;
 
 
 /**
@@ -32,7 +33,7 @@ public final class PropNetFactory
         try {
             List<GdlRule> flatDescription = new PropNetFlattener(description).flatten();
             GamerLogger.log("StateMachine", "Converting...");
-            return new PropNetConverter().convert(flatDescription);
+            return new PropNetConverter().convert(Role.computeRoles(description), flatDescription);
         } catch(Exception e) {
             GamerLogger.logStackTrace("StateMachine", e);
             return null;
