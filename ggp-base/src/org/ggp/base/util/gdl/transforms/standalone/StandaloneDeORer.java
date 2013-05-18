@@ -11,7 +11,7 @@ import org.ggp.base.util.game.Game;
 import org.ggp.base.util.gdl.grammar.Gdl;
 import org.ggp.base.util.gdl.transforms.DeORer;
 import org.ggp.base.validator.StaticValidator;
-import org.ggp.base.validator.exception.StaticValidatorException;
+import org.ggp.base.validator.exception.ValidatorException;
 
 
 /**
@@ -38,20 +38,19 @@ public class StandaloneDeORer {
 		
 		String filename = args[0];
 		Game theGame = Game.createEphemeralGame(Game.preprocessRulesheet(FileUtils.readFileAsString(new File(filename))));
-		List<Gdl> description = theGame.getRules();
-		if (description == null || description.size() == 0) {
+		if (theGame.getRules() == null || theGame.getRules().size() == 0) {
 			System.err.println("Problem reading the file " + filename + " or parsing the GDL.");
 			return;
 		}
 		
 		try {
-			StaticValidator.validateDescription(description);
-		} catch (StaticValidatorException e) {
+			new StaticValidator().checkValidity(theGame);
+		} catch (ValidatorException e) {
 			System.err.println("GDL validation error: " + e.toString());
 			return;
 		}
 		
-		List<Gdl> transformedDescription = DeORer.run(description);
+		List<Gdl> transformedDescription = DeORer.run(theGame.getRules());
 
 		String newFilename = filename.substring(0, filename.lastIndexOf(".kif")) + "_DEORED.kif";
 		

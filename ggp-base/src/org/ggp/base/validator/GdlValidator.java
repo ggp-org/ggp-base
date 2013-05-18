@@ -3,6 +3,8 @@ package org.ggp.base.validator;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.ggp.base.apps.validator.event.ValidatorFailureEvent;
+import org.ggp.base.apps.validator.event.ValidatorSuccessEvent;
 import org.ggp.base.util.gdl.grammar.Gdl;
 import org.ggp.base.util.observer.Event;
 import org.ggp.base.util.observer.Observer;
@@ -10,9 +12,7 @@ import org.ggp.base.util.observer.Subject;
 import org.ggp.base.util.statemachine.MachineState;
 import org.ggp.base.util.statemachine.StateMachine;
 import org.ggp.base.util.statemachine.implementation.prover.ProverStateMachine;
-import org.ggp.base.validator.event.ValidatorFailureEvent;
-import org.ggp.base.validator.event.ValidatorSuccessEvent;
-import org.ggp.base.validator.exception.MaxDepthException;
+import org.ggp.base.validator.exception.ValidatorException;
 
 public final class GdlValidator extends Thread implements Subject
 {
@@ -64,7 +64,7 @@ public final class GdlValidator extends Thread implements Subject
 			{
 				if (depth == maxDepth)
 				{
-					throw new MaxDepthException(maxDepth);
+					throw new ValidatorException("Hit max depth: " + maxDepth);
 				}
 
 				state = stateMachine.getRandomNextState(state);

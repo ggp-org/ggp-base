@@ -10,11 +10,11 @@ import javax.swing.JScrollPane;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.table.DefaultTableModel;
 
+import org.ggp.base.apps.validator.event.ValidatorFailureEvent;
+import org.ggp.base.apps.validator.event.ValidatorSuccessEvent;
 import org.ggp.base.util.observer.Event;
 import org.ggp.base.util.observer.Observer;
 import org.ggp.base.util.ui.table.JZebraTable;
-import org.ggp.base.validator.event.ValidatorFailureEvent;
-import org.ggp.base.validator.event.ValidatorSuccessEvent;
 
 
 @SuppressWarnings("serial")

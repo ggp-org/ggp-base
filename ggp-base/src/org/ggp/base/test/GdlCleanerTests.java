@@ -14,7 +14,6 @@ import org.ggp.base.util.statemachine.implementation.prover.ProverStateMachine;
 import org.ggp.base.validator.StaticValidator;
 import org.junit.Test;
 
-
 public class GdlCleanerTests {
 
     @Test

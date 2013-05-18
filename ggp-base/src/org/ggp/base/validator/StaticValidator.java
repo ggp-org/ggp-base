@@ -16,6 +16,7 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.Stack;
 
+import org.ggp.base.util.game.Game;
 import org.ggp.base.util.game.GameRepository;
 import org.ggp.base.util.game.TestGameRepository;
 import org.ggp.base.util.gdl.grammar.Gdl;
@@ -32,10 +33,9 @@ import org.ggp.base.util.gdl.grammar.GdlRule;
 import org.ggp.base.util.gdl.grammar.GdlSentence;
 import org.ggp.base.util.gdl.grammar.GdlTerm;
 import org.ggp.base.util.gdl.grammar.GdlVariable;
-import org.ggp.base.validator.exception.StaticValidatorException;
+import org.ggp.base.validator.exception.ValidatorException;
 
-
-public class StaticValidator {
+public class StaticValidator implements Validator {
 	private static final GdlConstant ROLE = GdlPool.getConstant("role");
 	private static final GdlConstant TERMINAL = GdlPool.getConstant("terminal");
 	private static final GdlConstant GOAL = GdlPool.getConstant("goal");
@@ -50,7 +50,7 @@ public class StaticValidator {
 	/**
 	 * Validates whether a GDL description follows the rules of GDL,
 	 * to the extent that it can be determined. If the description is
-	 * invalid, throws an exception of type StaticValidatorException
+	 * invalid, throws an exception of type ValidatorException
 	 * explaining the problem.
 	 * 
 	 * Features like finitism and monotonicity can't be definitively determined
@@ -58,10 +58,10 @@ public class StaticValidator {
 	 * GdlValidator and the ValidatorPanel in apps.validator.)
 	 * 
 	 * @param description A parsed GDL game description.
-	 * @throws StaticValidatorException The description did not pass validation.
+	 * @throws ValidatorException The description did not pass validation.
 	 * The error message explains the error found in the GDL description.
 	 */
-	public static void validateDescription(List<Gdl> description) throws StaticValidatorException {
+	public static void validateDescription(List<Gdl> description) throws ValidatorException {
 		/* This assumes that the description is already well-formed enough
 		 * to be made into a list of Gdl objects. We need to check those
 		 * remaining features that can be verified here.
@@ -109,7 +109,7 @@ public class StaticValidator {
 			} else if(gdl instanceof GdlRule) {
 				rules.add((GdlRule) gdl);
 			} else {
-				throw new StaticValidatorException("The rules include a GDL object of type " + gdl.getClass().getSimpleName() + ". Only GdlRelations and GdlRules are expected. The Gdl object is: " + gdl);
+				throw new ValidatorException("The rules include a GDL object of type " + gdl.getClass().getSimpleName() + ". Only GdlRelations and GdlRules are expected. The Gdl object is: " + gdl);
 			}
 		}
 		//2) Do all negations apply directly to sentences?
@@ -166,54 +166,54 @@ public class StaticValidator {
 	 * parentheses are unbalanced, gives the line number of an unmatched
 	 * parenthesis.
 	 * @param file The .kif file to test.
-	 * @throws StaticValidatorException The parentheses are unbalanced. The
+	 * @throws ValidatorException The parentheses are unbalanced. The
 	 * line number of an unmatched parenthesis is included in the error
 	 * message.
 	 */
-	public static void matchParentheses(File file) throws StaticValidatorException {
+	public static void matchParentheses(File file) throws ValidatorException {
+		List<String> lines = new ArrayList<String>();
 		try {
+			String line;			
 			BufferedReader in = new BufferedReader(new FileReader(file));
-
-			String line = in.readLine();
-			int lineNumber = 1;
-			Stack<Integer> linesStack = new Stack<Integer>();
-
-			while(line != null) {
-				for(int i = 0; i < line.length(); i++) {
-					char c = line.charAt(i);
-					if(c == '(') {
-						linesStack.add(lineNumber);
-					} else if(c == ')') {
-						if(linesStack.isEmpty()) {
-							in.close();
-							throw new StaticValidatorException("Extra close parens encountered at line " + lineNumber + "\nLine: " + line);
-						}
-						linesStack.pop();
-					} else if(c == ';') {
-						//the line is a comment; ignore its parens
-						break;
-					}
-				}
-				line = in.readLine();
-				lineNumber++;
-			}
-
-			if(!linesStack.isEmpty()) {
-				in.close();
-				throw new StaticValidatorException("Extra open parens encountered, starting at line " + linesStack.peek());
-			}
-			
-			in.close();
-
+			while((line = in.readLine()) != null) {
+				lines.add(line);
+			}			
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		matchParentheses(lines.toArray(new String[]{}));
+	}	
+	private static void matchParentheses(String[] lines) throws ValidatorException {
+		int lineNumber = 1;
+		Stack<Integer> linesStack = new Stack<Integer>();
+
+		for (String line : lines) {
+			for(int i = 0; i < line.length(); i++) {
+				char c = line.charAt(i);
+				if(c == '(') {
+					linesStack.add(lineNumber);
+				} else if(c == ')') {
+					if(linesStack.isEmpty()) {
+						throw new ValidatorException("Extra close parens encountered at line " + lineNumber + "\nLine: " + line);
+					}
+					linesStack.pop();
+				} else if(c == ';') {
+					//the line is a comment; ignore its parens
+					break;
+				}
+			}
+			lineNumber++;
+		}
+
+		if(!linesStack.isEmpty()) {
+			throw new ValidatorException("Extra open parens encountered, starting at line " + linesStack.peek());
+		}			
 	}
 	
 	private static void checkRecursionFunctionRestriction(GdlRule rule,
-			Map<GdlConstant, Set<GdlConstant>> ancestorsGraph) throws StaticValidatorException {
+			Map<GdlConstant, Set<GdlConstant>> ancestorsGraph) throws ValidatorException {
 		//TODO: This might not work 100% correctly with descriptions with
 		//"or" in them, especially if ors are nested. For best results, deOR
 		//before testing.
@@ -272,7 +272,7 @@ public class StaticValidator {
 					}
 				}
 				if(!safe)
-					throw new StaticValidatorException("Recursion-function restriction violated in rule " + rule + ", for term " + term);
+					throw new ValidatorException("Recursion-function restriction violated in rule " + rule + ", for term " + term);
 			}
 
 		}
@@ -291,27 +291,27 @@ public class StaticValidator {
 
 	private static void checkKeywordLocations(List<GdlRelation> relations,
 			List<GdlRule> rules,
-			Map<GdlConstant, Set<GdlConstant>> dependencyGraph) throws StaticValidatorException {
+			Map<GdlConstant, Set<GdlConstant>> dependencyGraph) throws ValidatorException {
 		//- Role relations must be ground sentences, not in rules
 		if(!dependencyGraph.get(ROLE).isEmpty())
-			throw new StaticValidatorException("The role relation should be defined by ground statements, not by rules");
+			throw new ValidatorException("The role relation should be defined by ground statements, not by rules");
 		//- Trues only in bodies of rules, not heads
 		if(!dependencyGraph.get(TRUE).isEmpty())
-			throw new StaticValidatorException("The true relation should never be in the head of a rule");
+			throw new ValidatorException("The true relation should never be in the head of a rule");
 		//- Does only in bodies of rules 
 		if(!dependencyGraph.get(DOES).isEmpty())
-			throw new StaticValidatorException("The does relation should never be in the head of a rule");
+			throw new ValidatorException("The does relation should never be in the head of a rule");
 		//- Inits only in heads of rules; not in same CC as true, does, next, legal, goal, terminal
 		//- Nexts only in heads of rules
 		for(Set<GdlConstant> relsInBodies : dependencyGraph.values()) {
 			if(relsInBodies.contains(INIT))
-				throw new StaticValidatorException("The init relation should never be in the body of a rule");
+				throw new ValidatorException("The init relation should never be in the body of a rule");
 			if(relsInBodies.contains(NEXT))
-				throw new StaticValidatorException("The next relation should never be in the body of a rule");
+				throw new ValidatorException("The next relation should never be in the body of a rule");
 			if(relsInBodies.contains(BASE))
-				throw new StaticValidatorException("The base relation should never be in the body of a rule");
+				throw new ValidatorException("The base relation should never be in the body of a rule");
 			if(relsInBodies.contains(INPUT))
-				throw new StaticValidatorException("The input relation should never be in the body of a rule");
+				throw new ValidatorException("The input relation should never be in the body of a rule");
 			
 		}
 
@@ -322,7 +322,7 @@ public class StaticValidator {
 
 
 	private static Map<GdlConstant, Set<GdlConstant>> getDependencyGraph(
-			Set<GdlConstant> relationNames, List<GdlRule> rules) throws StaticValidatorException {
+			Set<GdlConstant> relationNames, List<GdlRule> rules) throws ValidatorException {
 		Map<GdlConstant, Set<GdlConstant>> dependencyGraph = new HashMap<GdlConstant, Set<GdlConstant>>();
 		Map<GdlConstant, Set<GdlConstant>> negativeEdges = new HashMap<GdlConstant, Set<GdlConstant>>();
 		for(GdlConstant relationName : relationNames) {
@@ -342,7 +342,7 @@ public class StaticValidator {
 	}
 	private static void checkForNegativeCycles(
 			Map<GdlConstant, Set<GdlConstant>> dependencyGraph,
-			Map<GdlConstant, Set<GdlConstant>> negativeEdges) throws StaticValidatorException {
+			Map<GdlConstant, Set<GdlConstant>> negativeEdges) throws ValidatorException {
 		while(!negativeEdges.isEmpty()) {
 			//Look for a cycle containing this edge
 			GdlConstant tail = negativeEdges.keySet().iterator().next();
@@ -352,7 +352,7 @@ public class StaticValidator {
 				//Check for any head->tail path in dependencyGraph
 				Set<GdlConstant> ancestors = getAncestors(head, dependencyGraph);
 				if(ancestors.contains(tail))
-					throw new StaticValidatorException("There is a negative edge from " + tail + " to " + head + " in a cycle in the dependency graph");
+					throw new ValidatorException("There is a negative edge from " + tail + " to " + head + " in a cycle in the dependency graph");
 			}
 		}
 	}
@@ -392,7 +392,7 @@ public class StaticValidator {
 		}
 	}
 
-	private static void testRuleSafety(GdlRule rule) throws StaticValidatorException {
+	private static void testRuleSafety(GdlRule rule) throws ValidatorException {
 		List<GdlVariable> unsupportedVariables = new ArrayList<GdlVariable>();
 		if(rule.getHead() instanceof GdlRelation)
 			getVariablesInBody(rule.getHead().getBody(), unsupportedVariables);
@@ -406,7 +406,7 @@ public class StaticValidator {
 		}
 		for(GdlVariable var : unsupportedVariables)
 			if(!supportedVariables.contains(var))
-				throw new StaticValidatorException("Unsafe rule " + rule + ": Variable " + var + " is not defined in a positive relation in the rule's body");
+				throw new ValidatorException("Unsafe rule " + rule + ": Variable " + var + " is not defined in a positive relation in the rule's body");
 	}
 	private static void getUnsupportedVariablesInLiteral(GdlLiteral literal,
 			Collection<GdlVariable> unsupportedVariables) {
@@ -461,35 +461,35 @@ public class StaticValidator {
 
 	private static void testPredefinedArities(
 			Map<GdlConstant, Integer> sentenceArities,
-			Map<GdlConstant, Integer> functionArities) throws StaticValidatorException {
+			Map<GdlConstant, Integer> functionArities) throws ValidatorException {
 		if(!sentenceArities.containsKey(ROLE)) {
-			throw new StaticValidatorException("No role relations found in the game description");
+			throw new ValidatorException("No role relations found in the game description");
 		} else if(sentenceArities.get(ROLE) != 1) {
-			throw new StaticValidatorException("The role relation should have arity 1 (argument: the player name)");
+			throw new ValidatorException("The role relation should have arity 1 (argument: the player name)");
 		} else if(!sentenceArities.containsKey(TERMINAL)) {
-			throw new StaticValidatorException("No terminal proposition found in the game description");
+			throw new ValidatorException("No terminal proposition found in the game description");
 		} else if(sentenceArities.get(TERMINAL) != 0) {
-			throw new StaticValidatorException("'terminal' should be a proposition, not a relation");
+			throw new ValidatorException("'terminal' should be a proposition, not a relation");
 		} else if(!sentenceArities.containsKey(GOAL)) {
-			throw new StaticValidatorException("No goal relations found in the game description");
+			throw new ValidatorException("No goal relations found in the game description");
 		} else if(sentenceArities.get(GOAL) != 2) {
-			throw new StaticValidatorException("The goal relation should have arity 2 (first argument: the player, second argument: integer from 0 to 100)");
+			throw new ValidatorException("The goal relation should have arity 2 (first argument: the player, second argument: integer from 0 to 100)");
 		} else if(!sentenceArities.containsKey(LEGAL)) {
-			throw new StaticValidatorException("No legal relations found in the game description");
+			throw new ValidatorException("No legal relations found in the game description");
 		} else if(sentenceArities.get(LEGAL) != 2) {
-			throw new StaticValidatorException("The legal relation should have arity 2 (first argument: the player, second argument: the move)");
+			throw new ValidatorException("The legal relation should have arity 2 (first argument: the player, second argument: the move)");
 		} else if(sentenceArities.containsKey(DOES) && sentenceArities.get(DOES) != 2) {
-			throw new StaticValidatorException("The does relation should have arity 2 (first argument: the player, second argument: the move)");
+			throw new ValidatorException("The does relation should have arity 2 (first argument: the player, second argument: the move)");
 		} else if(sentenceArities.containsKey(INIT) && sentenceArities.get(INIT) != 1) {
-			throw new StaticValidatorException("The init relation should have arity 1 (argument: the base truth)");
+			throw new ValidatorException("The init relation should have arity 1 (argument: the base truth)");
 		} else if(sentenceArities.containsKey(TRUE) && sentenceArities.get(TRUE) != 1) {
-			throw new StaticValidatorException("The true relation should have arity 1 (argument: the base truth)");
+			throw new ValidatorException("The true relation should have arity 1 (argument: the base truth)");
 		} else if(sentenceArities.containsKey(NEXT) && sentenceArities.get(NEXT) != 1) {
-			throw new StaticValidatorException("The next relation should have arity 1 (argument: the base truth)");
+			throw new ValidatorException("The next relation should have arity 1 (argument: the base truth)");
 		} else if(sentenceArities.containsKey(BASE) && sentenceArities.get(BASE) != 1) {
-			throw new StaticValidatorException("The base relation should have arity 1 (argument: the base truth)");
+			throw new ValidatorException("The base relation should have arity 1 (argument: the base truth)");
 		} else if(sentenceArities.containsKey(INPUT) && sentenceArities.get(INPUT) != 2) {
-			throw new StaticValidatorException("The input relation should have arity 2 (first argument: the player, second argument: the move)");
+			throw new ValidatorException("The input relation should have arity 2 (first argument: the player, second argument: the move)");
 		}
 		
 		//Look for function arities with these names
@@ -503,28 +503,28 @@ public class StaticValidator {
 				|| functionArities.containsKey(NEXT)
 				|| functionArities.containsKey(BASE)
 				|| functionArities.containsKey(INPUT)) {
-			throw new StaticValidatorException("Probable error: Misuse of a keyword as a function");
+			throw new ValidatorException("Probable error: Misuse of a keyword as a function");
 		}
 	}
 
 
 	private static void addSentenceArity(GdlSentence sentence,
-			Map<GdlConstant, Integer> sentenceArities) throws StaticValidatorException {
+			Map<GdlConstant, Integer> sentenceArities) throws ValidatorException {
 		Integer curArity = sentenceArities.get(sentence.getName());
 		if(curArity == null) {
 			sentenceArities.put(sentence.getName(), sentence.arity());
 		} else if(curArity != sentence.arity()) {
-			throw new StaticValidatorException("The sentence with the name " + sentence.getName() + " appears with two different arities, " + sentence.arity() + " and " + curArity + ".");
+			throw new ValidatorException("The sentence with the name " + sentence.getName() + " appears with two different arities, " + sentence.arity() + " and " + curArity + ".");
 		}
 	}
 	private static void addFunctionArities(GdlSentence sentence,
-			Map<GdlConstant, Integer> functionArities) throws StaticValidatorException {
+			Map<GdlConstant, Integer> functionArities) throws ValidatorException {
 		for(GdlFunction function : getFunctionsInSentence(sentence)) {
 			Integer curArity = functionArities.get(function.getName());
 			if(curArity == null) {
 				functionArities.put(function.getName(), function.arity());
 			} else if(curArity != function.arity()) {
-				throw new StaticValidatorException("The function with the name " + function.getName() + " appears with two different arities, " + function.arity() + " and " + curArity);
+				throw new ValidatorException("The function with the name " + function.getName() + " appears with two different arities, " + function.arity() + " and " + curArity);
 			}
 		}
 	}
@@ -567,11 +567,11 @@ public class StaticValidator {
 	}
 
 
-	private static void testLiteralForImproperNegation(GdlLiteral literal) throws StaticValidatorException {
+	private static void testLiteralForImproperNegation(GdlLiteral literal) throws ValidatorException {
 		if(literal instanceof GdlNot) {
 			GdlNot not = (GdlNot) literal;
 			if(!(not.getBody() instanceof GdlSentence))
-				throw new StaticValidatorException("The negation " + not + " contains a literal " + not.getBody() + " that is not a sentence. Only a single sentence is allowed inside a negation.");
+				throw new ValidatorException("The negation " + not + " contains a literal " + not.getBody() + " that is not a sentence. Only a single sentence is allowed inside a negation.");
 		} else if(literal instanceof GdlOr) {
 			GdlOr or = (GdlOr) literal;
 			for(int i = 0; i < or.arity(); i++) {
@@ -579,7 +579,12 @@ public class StaticValidator {
 			}
 		}
 	}
-
+	
+	@Override
+	public void checkValidity(Game theGame) throws ValidatorException {
+		StaticValidator.matchParentheses(theGame.getRulesheet().split("[\r\n]"));
+		StaticValidator.validateDescription(theGame.getRules());
+	}
 
 	/**
 	 * Tries to test most of the rulesheets in the games directory. This should
@@ -606,18 +611,15 @@ public class StaticValidator {
 			// TODO(alex): Should this be excluded?
 			if(gameKey.equals("test_clean_not_distinct"))
 				continue;
-			
+						
 			System.out.println("Testing " + gameKey);
 			try {
-				matchParentheses(new File("games/test/" + gameKey + ".kif"));
-				List<Gdl> description = testGameRepo.getGame(gameKey).getRules();
-				StaticValidator.validateDescription(description);
-			} catch (StaticValidatorException e) {
+				new StaticValidator().checkValidity(testGameRepo.getGame(gameKey));
+			} catch (ValidatorException e) {
 				e.printStackTrace();
 				//Draw attention to the error
 				return;
 			}
 		}
 	}
-
 }

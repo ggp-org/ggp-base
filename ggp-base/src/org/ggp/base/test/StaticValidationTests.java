@@ -1,13 +1,9 @@
 package org.ggp.base.test;
 
-import java.util.List;
-
 import org.ggp.base.util.game.TestGameRepository;
-import org.ggp.base.util.gdl.grammar.Gdl;
 import org.ggp.base.validator.StaticValidator;
-import org.ggp.base.validator.exception.StaticValidatorException;
+import org.ggp.base.validator.exception.ValidatorException;
 import org.junit.Test;
-
 
 public class StaticValidationTests {
 
@@ -43,7 +39,7 @@ public class StaticValidationTests {
     public void test3AValidation() throws Exception {
         validate("test_case_3a");
     }
-    @Test(expected=StaticValidatorException.class)
+    @Test(expected=ValidatorException.class)
     public void test3BValidation() throws Exception {
         validate("test_case_3b");
     }
@@ -55,11 +51,11 @@ public class StaticValidationTests {
     public void test3DValidation() throws Exception {
         validate("test_case_3d");
     }
-    @Test(expected=StaticValidatorException.class)
+    @Test(expected=ValidatorException.class)
     public void test3EValidation() throws Exception {
         validate("test_case_3e");
     }
-    @Test(expected=StaticValidatorException.class)
+    @Test(expected=ValidatorException.class)
     public void test3FValidation() throws Exception {
             validate("test_case_3f");
     }   
@@ -79,15 +75,15 @@ public class StaticValidationTests {
     public void test5CValidation() throws Exception {
         validate("test_case_5c");
     }
-    @Test(expected=StaticValidatorException.class)
+    @Test(expected=ValidatorException.class)
     public void testCleanNotDistinctValidation() throws Exception {
         validate("test_clean_not_distinct");
     }
-    @Test(expected=StaticValidatorException.class)
+    @Test(expected=ValidatorException.class)
     public void testFunctionAritiesDiffer() throws Exception {
     	validate("test_invalid_function_arities_differ");
     }
-    @Test(expected=StaticValidatorException.class)
+    @Test(expected=ValidatorException.class)
     public void testSentenceAritiesDiffer() throws Exception {
     	validate("test_invalid_sentence_arities_differ");
     }
@@ -97,8 +93,7 @@ public class StaticValidationTests {
         validate("ticTacToe");
     }    
     
-    protected void validate(String gameName) throws Exception {    	    	
-        List<Gdl> desc = new TestGameRepository().getGame(gameName).getRules();
-        StaticValidator.validateDescription(desc);
+    protected void validate(String gameName) throws Exception {
+        new StaticValidator().checkValidity(new TestGameRepository().getGame(gameName));
     }
 }
