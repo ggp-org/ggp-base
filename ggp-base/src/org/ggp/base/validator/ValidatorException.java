@@ -1,4 +1,4 @@
-package org.ggp.base.validator.exception;
+package org.ggp.base.validator;
 
 @SuppressWarnings("serial")
 public class ValidatorException extends Exception {

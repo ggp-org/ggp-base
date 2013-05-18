@@ -33,7 +33,6 @@ import org.ggp.base.util.gdl.grammar.GdlRule;
 import org.ggp.base.util.gdl.grammar.GdlSentence;
 import org.ggp.base.util.gdl.grammar.GdlTerm;
 import org.ggp.base.util.gdl.grammar.GdlVariable;
-import org.ggp.base.validator.exception.ValidatorException;
 
 public class StaticValidator implements Validator {
 	private static final GdlConstant ROLE = GdlPool.getConstant("role");

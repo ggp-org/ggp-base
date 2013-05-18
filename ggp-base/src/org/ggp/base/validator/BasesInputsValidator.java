@@ -23,7 +23,6 @@ import org.ggp.base.util.statemachine.StateMachine;
 import org.ggp.base.util.statemachine.exceptions.MoveDefinitionException;
 import org.ggp.base.util.statemachine.exceptions.TransitionDefinitionException;
 import org.ggp.base.util.statemachine.implementation.prover.ProverStateMachine;
-import org.ggp.base.validator.exception.ValidatorException;
 
 
 public class BasesInputsValidator implements Validator {

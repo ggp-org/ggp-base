@@ -12,7 +12,6 @@ import org.ggp.base.util.observer.Subject;
 import org.ggp.base.util.statemachine.MachineState;
 import org.ggp.base.util.statemachine.StateMachine;
 import org.ggp.base.util.statemachine.implementation.prover.ProverStateMachine;
-import org.ggp.base.validator.exception.ValidatorException;
 
 public final class GdlValidator extends Thread implements Subject
 {
