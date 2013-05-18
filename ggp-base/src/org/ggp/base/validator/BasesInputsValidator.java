@@ -33,10 +33,13 @@ public class BasesInputsValidator implements Validator {
 	private static final GdlVariable X = GdlPool.getVariable("?x");
 	private static final GdlVariable Y = GdlPool.getVariable("?y");
 
+	private int millisecondsToTest;
+	public BasesInputsValidator(int millisecondsToTest) {
+		this.millisecondsToTest = millisecondsToTest;
+	}
+	
 	@Override
 	public void checkValidity(Game theGame) throws ValidatorException {
-		int millisecondsToTest = 20000;
-		
 		try {
 			StateMachine sm = new ProverStateMachine();
 			sm.initialize(theGame.getRules());
@@ -118,7 +121,7 @@ public class BasesInputsValidator implements Validator {
 			if (!gameKey.equals("amazons") //Skip games that currently result in out-of-memory errors
 					&& !gameKey.equals("alexChess")) {
 				try {
-					new BasesInputsValidator().checkValidity(gameRepo.getGame(gameKey));
+					new BasesInputsValidator(20000).checkValidity(gameRepo.getGame(gameKey));
 					System.out.println("Game " + gameKey + " has valid base/input propositions.");
 				} catch (ValidatorException ve) {
 					System.out.println("Game " + gameKey + " is invalid: " + ve.getMessage());

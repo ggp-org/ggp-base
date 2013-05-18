@@ -11,7 +11,7 @@ import org.ggp.base.util.game.Game;
 import org.ggp.base.util.gdl.grammar.Gdl;
 import org.ggp.base.util.gdl.transforms.DeORer;
 import org.ggp.base.validator.StaticValidator;
-import org.ggp.base.validator.exception.ValidatorException;
+import org.ggp.base.validator.ValidatorException;
 
 
 /**

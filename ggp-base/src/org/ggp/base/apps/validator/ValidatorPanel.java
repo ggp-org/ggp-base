@@ -22,8 +22,7 @@ import org.ggp.base.apps.validator.simulation.SimulationPanel;
 import org.ggp.base.util.game.Game;
 import org.ggp.base.util.ui.GameSelector;
 import org.ggp.base.util.ui.NativeUI;
-import org.ggp.base.validator.GdlValidator;
-
+import org.ggp.base.validator.SimulationValidator;
 
 @SuppressWarnings("serial")
 public final class ValidatorPanel extends JPanel implements ActionListener
@@ -126,7 +125,7 @@ public final class ValidatorPanel extends JPanel implements ActionListener
 
 					SimulationPanel simulationPanel = new SimulationPanel(simulations);
 
-					GdlValidator validator = new GdlValidator(theGame.getRules(), maxDepth, simulations);
+					ValidatorThread validator = new ValidatorThread(theGame, new SimulationValidator(maxDepth, simulations));
 					validator.addObserver(simulationPanel);
 
 					validatorPanel.simulationsTabbedPane.addTab(theGame.getKey(), simulationPanel);
