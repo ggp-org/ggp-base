@@ -24,7 +24,7 @@ public final class SimulationPanel extends JPanel implements Observer
 	private final JZebraTable logTable;
 	private final JProgressBar progressBar;
 
-	public SimulationPanel(int numSimulations)
+	public SimulationPanel(int numValidators)
 	{
 		super(new GridBagLayout());
 
@@ -45,7 +45,7 @@ public final class SimulationPanel extends JPanel implements Observer
 
 		logTable.setShowHorizontalLines(true);
 		logTable.setShowVerticalLines(true);
-		progressBar.setMaximum(numSimulations);
+		progressBar.setMaximum(numValidators);
 
 		this.add(new JScrollPane(logTable, ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED), new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 5, 5));
 		this.add(progressBar, new GridBagConstraints(0, 1, 1, 1, 1.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 5, 5));

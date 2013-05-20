@@ -22,7 +22,10 @@ import org.ggp.base.apps.validator.simulation.SimulationPanel;
 import org.ggp.base.util.game.Game;
 import org.ggp.base.util.ui.GameSelector;
 import org.ggp.base.util.ui.NativeUI;
+import org.ggp.base.validator.BasesInputsValidator;
 import org.ggp.base.validator.SimulationValidator;
+import org.ggp.base.validator.StaticValidator;
+import org.ggp.base.validator.Validator;
 
 @SuppressWarnings("serial")
 public final class ValidatorPanel extends JPanel implements ActionListener
@@ -54,10 +57,11 @@ public final class ValidatorPanel extends JPanel implements ActionListener
 	}
 
 	private Game theGame;
-	private final JTextField maxDepthTextField;
-	private final JTabbedPane simulationsTabbedPane;
-	private final JTextField simulationsTextField;
 	private final JButton validateButton;
+	private final JTextField maxDepthTextField;	
+	private final JTextField simulationsTextField;
+	private final JTextField millisToSimulateField;
+	private final JTabbedPane simulationsTabbedPane;	
 
     private final GameSelector gameSelector;	
 	
@@ -68,6 +72,7 @@ public final class ValidatorPanel extends JPanel implements ActionListener
 		validateButton = new JButton(validateButtonMethod(this));
 		maxDepthTextField = new JTextField("100");
 		simulationsTextField = new JTextField("10");
+		millisToSimulateField = new JTextField("5000");
 		simulationsTabbedPane = new JTabbedPane();
 
 		DefaultTableModel model = new DefaultTableModel();
@@ -92,6 +97,8 @@ public final class ValidatorPanel extends JPanel implements ActionListener
 		sourcePanel.add(maxDepthTextField, new GridBagConstraints(1, nRowCount++, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 5, 5));
 		sourcePanel.add(new JLabel("Simulations:"), new GridBagConstraints(0, nRowCount, 1, 1, 1.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 5, 5));
 		sourcePanel.add(simulationsTextField, new GridBagConstraints(1, nRowCount++, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 5, 5));
+		sourcePanel.add(new JLabel("Base Sim ms:"), new GridBagConstraints(0, nRowCount, 1, 1, 1.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 5, 5));
+		sourcePanel.add(millisToSimulateField, new GridBagConstraints(1, nRowCount++, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 5, 5));		
 		sourcePanel.add(validateButton, new GridBagConstraints(1, nRowCount++, 1, 1, 1.0, 1.0, GridBagConstraints.SOUTH, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 0, 0));
 
 		JPanel simulationsPanel = new JPanel(new GridBagLayout());
@@ -122,14 +129,21 @@ public final class ValidatorPanel extends JPanel implements ActionListener
 				try {
 					int maxDepth = Integer.valueOf(maxDepthTextField.getText());
 					int simulations = Integer.valueOf(simulationsTextField.getText());
+					int millisToSimulate = Integer.valueOf(millisToSimulateField.getText());					
 
-					SimulationPanel simulationPanel = new SimulationPanel(simulations);
+					Validator[] theValidators = new Validator[] {
+							new SimulationValidator(maxDepth, simulations),
+							new BasesInputsValidator(millisToSimulate),
+							new StaticValidator(),							
+					};
+					SimulationPanel simulationPanel = new SimulationPanel(theValidators.length);
+					for (Validator theValidator : theValidators) {
+						ValidatorThread validator = new ValidatorThread(theGame, theValidator);
+						validator.addObserver(simulationPanel);
+						validator.start();
+					}
 
-					ValidatorThread validator = new ValidatorThread(theGame, new SimulationValidator(maxDepth, simulations));
-					validator.addObserver(simulationPanel);
-
-					validatorPanel.simulationsTabbedPane.addTab(theGame.getKey(), simulationPanel);
-					validator.start();
+					validatorPanel.simulationsTabbedPane.addTab(theGame.getKey(), simulationPanel);					
 				} catch (Exception e) {
 					// Do nothing.
 				}
