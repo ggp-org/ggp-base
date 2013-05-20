@@ -142,7 +142,7 @@ public final class ValidatorPanel extends JPanel implements ActionListener
 						validator.addObserver(simulationPanel);
 						validator.start();
 					}
-
+					
 					validatorPanel.simulationsTabbedPane.addTab(theGame.getKey(), simulationPanel);					
 				} catch (Exception e) {
 					// Do nothing.

@@ -16,7 +16,6 @@ import org.ggp.base.util.observer.Event;
 import org.ggp.base.util.observer.Observer;
 import org.ggp.base.util.ui.table.JZebraTable;
 
-
 @SuppressWarnings("serial")
 public final class SimulationPanel extends JPanel implements Observer
 {
@@ -29,12 +28,11 @@ public final class SimulationPanel extends JPanel implements Observer
 		super(new GridBagLayout());
 
 		DefaultTableModel model = new DefaultTableModel();
-		model.addColumn("Simulation");
+		model.addColumn("Validator");
 		model.addColumn("Result");
 
 		logTable = new JZebraTable(model)
 		{
-
 			@Override
 			public boolean isCellEditable(int rowIndex, int colIndex)
 			{
@@ -43,10 +41,13 @@ public final class SimulationPanel extends JPanel implements Observer
 		};
 		progressBar = new JProgressBar();
 
+		logTable.setRowHeight(100);
 		logTable.setShowHorizontalLines(true);
 		logTable.setShowVerticalLines(true);
+		logTable.getColumnModel().getColumn(0).setMaxWidth(150);
+		logTable.getColumnModel().getColumn(0).setPreferredWidth(500);
 		progressBar.setMaximum(numValidators);
-
+		
 		this.add(new JScrollPane(logTable, ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED), new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 5, 5));
 		this.add(progressBar, new GridBagConstraints(0, 1, 1, 1, 1.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 5, 5));
 	}
@@ -62,13 +63,23 @@ public final class SimulationPanel extends JPanel implements Observer
 			observeValidationFailureEvent((ValidatorFailureEvent) event);
 		}
 	}
+	
+	public static final String wrapLine(String line, int width) {
+		StringBuilder wrappedLine = new StringBuilder();
+		while (line.length() > width) {
+			wrappedLine.append(line.substring(0, width) + "<br>");
+			line = line.substring(width);
+		}
+		wrappedLine.append(line);
+		return "<html>" + wrappedLine.toString() + "</html>";
+	}
 
 	private void observeValidationFailureEvent(ValidatorFailureEvent event)
 	{
 		DefaultTableModel model = (DefaultTableModel) logTable.getModel();
 		int numRows = model.getRowCount() + 1;
 
-		model.addRow(new String[] { Integer.toString(numRows), event.getException().toString() });
+		model.addRow(new String[] { event.getName(), wrapLine(event.getException().toString(), 100) });
 		progressBar.setValue(numRows);
 	}
 
@@ -77,7 +88,7 @@ public final class SimulationPanel extends JPanel implements Observer
 		DefaultTableModel model = (DefaultTableModel) logTable.getModel();
 		int numRows = model.getRowCount() + 1;
 
-		model.addRow(new String[] { Integer.toString(numRows), "Success!" });
+		model.addRow(new String[] { event.getName(), "Success!" });
 		progressBar.setValue(numRows);
 	}
 

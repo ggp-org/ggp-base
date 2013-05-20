@@ -43,9 +43,9 @@ public final class ValidatorThread extends Thread implements Subject
 	{
 		try {
 			theValidator.checkValidity(theGame);
-			notifyObservers(new ValidatorSuccessEvent());
+			notifyObservers(new ValidatorSuccessEvent(theValidator.getClass().getSimpleName()));
 		} catch (ValidatorException ve) {
-			notifyObservers(new ValidatorFailureEvent(ve));
+			notifyObservers(new ValidatorFailureEvent(theValidator.getClass().getSimpleName(), ve));
 		}
 	}
 }
