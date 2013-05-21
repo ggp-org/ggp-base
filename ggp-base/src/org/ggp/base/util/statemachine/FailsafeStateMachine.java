@@ -47,7 +47,7 @@ public class FailsafeStateMachine extends StateMachine
         if(attemptLoadingInitialMachine())
             return;
 
-        GamerLogger.logError("StateMachine", "Failsafe Machine: failed to compile propnet. Falling back...");
+        GamerLogger.logError("StateMachine", "Failsafe Machine: failed to load initial state machine. Falling back...");
         if(attemptLoadingProverMachine())
             return;
         
@@ -108,8 +108,8 @@ public class FailsafeStateMachine extends StateMachine
         
         try {
             return theBackingMachine.getGoal(state, role);
-        } catch(GoalDefinitionException g) {
-            throw g;
+        } catch(GoalDefinitionException ge) {
+            throw ge;
         } catch(Exception e) {
             failGracefully(e, null);
         } catch(ThreadDeath d) {
@@ -338,6 +338,10 @@ public class FailsafeStateMachine extends StateMachine
         
         try {
             return theBackingMachine.performDepthCharge(state, theDepth);
+        } catch (TransitionDefinitionException te) {
+        	throw te;
+        } catch (MoveDefinitionException me) {
+        	throw me;
         } catch(Exception e) {
             failGracefully(e, null);
         } catch(ThreadDeath d) {
@@ -349,6 +353,33 @@ public class FailsafeStateMachine extends StateMachine
         }
         
         return performDepthCharge(state, theDepth);
+    }
+    
+    @Override
+    public void getAverageDiscountedScoresFromRepeatedDepthCharges(MachineState state, double[] avgScores, double[] avgDepth, double discountFactor, int repetitions) throws TransitionDefinitionException, MoveDefinitionException, GoalDefinitionException {
+        if(theBackingMachine == null)
+            return;
+        
+        try {
+            theBackingMachine.getAverageDiscountedScoresFromRepeatedDepthCharges(state, avgScores, avgDepth, discountFactor, repetitions);
+            return;
+        } catch (TransitionDefinitionException te) {
+        	throw te;
+        } catch (MoveDefinitionException me) {
+        	throw me;
+        } catch (GoalDefinitionException ge) {
+        	throw ge;
+        } catch(Exception e) {
+            failGracefully(e, null);
+        } catch(ThreadDeath d) {
+            throw d;
+        } catch(OutOfMemoryError e) {
+            throw e;
+        } catch(Error e) {
+            failGracefully(null, e);            
+        }
+        
+        getAverageDiscountedScoresFromRepeatedDepthCharges(state, avgScores, avgDepth, discountFactor, repetitions);
     }
     
     @Override
