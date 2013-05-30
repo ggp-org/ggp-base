@@ -111,7 +111,7 @@ public final class ServerPanel extends JPanel implements ActionListener
 		runButton = new JButton(runButtonMethod());
 		startClockSpinner = new JSpinner(new SpinnerNumberModel(30,5,600,1));
 		playClockSpinner = new JSpinner(new SpinnerNumberModel(15,5,300,1));
-		repetitionsSpinner = new JSpinner(new SpinnerNumberModel(1,1,100,1));
+		repetitionsSpinner = new JSpinner(new SpinnerNumberModel(1,1,1000,1));
 		matchesTabbedPane = new JTabbedPane();
 		
 		managerPanel = new JPanel(new GridBagLayout());
@@ -241,12 +241,15 @@ public final class ServerPanel extends JPanel implements ActionListener
                 	thePlayers.add(playerSelector.getPlayerPresence(name));
 				}
 				
-				for (int i = 0; i < (Integer)repetitionsSpinner.getValue(); i++) {
-					scheduler.addPendingMatch(new PendingMatch("Base", theGame, thePlayers, -1, startClock, playClock, shouldScramble.isSelected(), shouldQueue.isSelected(), shouldDetail.isSelected(), shouldSave.isSelected(), shouldPublish.isSelected()));
-					try {
-						Thread.sleep(10);
-					} catch (InterruptedException ie) {
-						;
+				synchronized (scheduler) {
+					for (int i = 0; i < (Integer)repetitionsSpinner.getValue(); i++) {					
+						scheduler.addPendingMatch(new PendingMatch("Base", theGame, new ArrayList<PlayerPresence>(thePlayers), -1, startClock, playClock, shouldScramble.isSelected(), shouldQueue.isSelected(), shouldDetail.isSelected(), shouldSave.isSelected(), shouldPublish.isSelected()));
+						thePlayers.add(thePlayers.remove(0));  // rotate player roster for repeated matches
+						try {
+							Thread.sleep(10);
+						} catch (InterruptedException ie) {
+							;
+						}
 					}
 				}
 			}

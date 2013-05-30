@@ -167,11 +167,15 @@ public final class Scheduler implements Observer
 				} catch (InterruptedException ie) {
 					;
 				}
+				PendingMatch matchToSchedule = null;
 				for (PendingMatch spec : schedulingQueue) {
 					if (canSchedule(spec)) {
-						doSchedule(spec);
+						matchToSchedule = spec;
 						break;
 					}
+				}
+				if (matchToSchedule != null) {
+					doSchedule(matchToSchedule);
 				}
 			}
         }	
