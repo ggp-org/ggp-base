@@ -8,7 +8,7 @@ import org.ggp.base.util.statemachine.exceptions.MoveDefinitionException;
 import org.ggp.base.util.statemachine.exceptions.TransitionDefinitionException;
 import org.ggp.base.util.statemachine.implementation.prover.ProverStateMachine;
 
-public final class SimulationValidator implements Validator
+public final class SimulationValidator implements GameValidator
 {
 	private final int maxDepth;
 	private final int numSimulations;

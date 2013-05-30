@@ -34,7 +34,7 @@ import org.ggp.base.util.gdl.grammar.GdlSentence;
 import org.ggp.base.util.gdl.grammar.GdlTerm;
 import org.ggp.base.util.gdl.grammar.GdlVariable;
 
-public class StaticValidator implements Validator {
+public class StaticValidator implements GameValidator {
 	private static final GdlConstant ROLE = GdlPool.getConstant("role");
 	private static final GdlConstant TERMINAL = GdlPool.getConstant("terminal");
 	private static final GdlConstant GOAL = GdlPool.getConstant("goal");

@@ -25,12 +25,12 @@ import org.ggp.base.util.ui.NativeUI;
 import org.ggp.base.validator.BasesInputsValidator;
 import org.ggp.base.validator.SimulationValidator;
 import org.ggp.base.validator.StaticValidator;
-import org.ggp.base.validator.Validator;
+import org.ggp.base.validator.GameValidator;
 
 @SuppressWarnings("serial")
-public final class ValidatorPanel extends JPanel implements ActionListener
+public final class Validator extends JPanel implements ActionListener
 {
-	private static void createAndShowGUI(ValidatorPanel validatorPanel)
+	private static void createAndShowGUI(Validator validatorPanel)
 	{
 	    JFrame frame = new JFrame("Gdl Validator");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -45,7 +45,7 @@ public final class ValidatorPanel extends JPanel implements ActionListener
 	public static void main(String[] args)
 	{
 	    NativeUI.setNativeUI();
-		final ValidatorPanel validatorPanel = new ValidatorPanel();
+		final Validator validatorPanel = new Validator();
 		javax.swing.SwingUtilities.invokeLater(new Runnable()
 		{
 
@@ -65,7 +65,7 @@ public final class ValidatorPanel extends JPanel implements ActionListener
 
     private final GameSelector gameSelector;	
 	
-	public ValidatorPanel()
+	public Validator()
 	{
 	    super(new GridBagLayout());
 
@@ -120,7 +120,7 @@ public final class ValidatorPanel extends JPanel implements ActionListener
         }        
     }	
 
-	private AbstractAction validateButtonMethod(final ValidatorPanel validatorPanel)
+	private AbstractAction validateButtonMethod(final Validator validatorPanel)
 	{
 		return new AbstractAction("Validate")
 		{
@@ -131,13 +131,13 @@ public final class ValidatorPanel extends JPanel implements ActionListener
 					int simulations = Integer.valueOf(simulationsTextField.getText());
 					int millisToSimulate = Integer.valueOf(millisToSimulateField.getText());					
 
-					Validator[] theValidators = new Validator[] {
+					GameValidator[] theValidators = new GameValidator[] {
 							new SimulationValidator(maxDepth, simulations),
 							new BasesInputsValidator(millisToSimulate),
 							new StaticValidator(),							
 					};
 					SimulationPanel simulationPanel = new SimulationPanel(theValidators.length);
-					for (Validator theValidator : theValidators) {
+					for (GameValidator theValidator : theValidators) {
 						ValidatorThread validator = new ValidatorThread(theGame, theValidator);
 						validator.addObserver(simulationPanel);
 						validator.start();

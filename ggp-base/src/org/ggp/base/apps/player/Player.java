@@ -30,9 +30,9 @@ import org.ggp.base.util.ui.NativeUI;
 
 
 @SuppressWarnings("serial")
-public final class PlayerPanel extends JPanel
+public final class Player extends JPanel
 {
-	private static void createAndShowGUI(PlayerPanel playerPanel)
+	private static void createAndShowGUI(Player playerPanel)
 	{
 		JFrame frame = new JFrame("Game Player");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -48,7 +48,7 @@ public final class PlayerPanel extends JPanel
 	{
 	    NativeUI.setNativeUI();	    
 
-	    final PlayerPanel playerPanel = new PlayerPanel();
+	    final Player playerPanel = new Player();
 	    javax.swing.SwingUtilities.invokeLater(new Runnable()
 	    {
 
@@ -70,7 +70,7 @@ public final class PlayerPanel extends JPanel
 	
 	private List<Class<?>> gamers = ProjectSearcher.getAllClassesThatAre(Gamer.class);
 
-	public PlayerPanel()
+	public Player()
 	{
 		super(new GridBagLayout());
 

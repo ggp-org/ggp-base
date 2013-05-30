@@ -9,16 +9,16 @@ import org.ggp.base.util.game.Game;
 import org.ggp.base.util.observer.Event;
 import org.ggp.base.util.observer.Observer;
 import org.ggp.base.util.observer.Subject;
-import org.ggp.base.validator.Validator;
+import org.ggp.base.validator.GameValidator;
 import org.ggp.base.validator.ValidatorException;
 
 public final class ValidatorThread extends Thread implements Subject
 {
 	private final Game theGame;
-	private final Validator theValidator;
+	private final GameValidator theValidator;
 	private final List<Observer> observers;
 
-	public ValidatorThread(Game theGame, Validator theValidator)
+	public ValidatorThread(Game theGame, GameValidator theValidator)
 	{
 		this.theGame = theGame;
 		this.theValidator = theValidator;

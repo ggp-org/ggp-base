@@ -25,7 +25,7 @@ import org.ggp.base.util.statemachine.exceptions.TransitionDefinitionException;
 import org.ggp.base.util.statemachine.implementation.prover.ProverStateMachine;
 
 
-public class BasesInputsValidator implements Validator {
+public class BasesInputsValidator implements GameValidator {
 	private static final GdlConstant BASE = GdlPool.getConstant("base");
 	private static final GdlConstant INPUT = GdlPool.getConstant("input");
 	private static final GdlConstant TRUE = GdlPool.getConstant("true");
