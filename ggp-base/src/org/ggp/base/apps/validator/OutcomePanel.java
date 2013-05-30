@@ -1,4 +1,4 @@
-package org.ggp.base.apps.validator.simulation;
+package org.ggp.base.apps.validator;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -17,13 +17,13 @@ import org.ggp.base.util.observer.Observer;
 import org.ggp.base.util.ui.table.JZebraTable;
 
 @SuppressWarnings("serial")
-public final class SimulationPanel extends JPanel implements Observer
+public final class OutcomePanel extends JPanel implements Observer
 {
 
 	private final JZebraTable logTable;
 	private final JProgressBar progressBar;
 
-	public SimulationPanel(int numValidators)
+	public OutcomePanel(int numValidators)
 	{
 		super(new GridBagLayout());
 

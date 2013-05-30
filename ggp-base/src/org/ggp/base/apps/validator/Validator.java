@@ -18,7 +18,6 @@ import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
 
-import org.ggp.base.apps.validator.simulation.SimulationPanel;
 import org.ggp.base.util.game.Game;
 import org.ggp.base.util.ui.GameSelector;
 import org.ggp.base.util.ui.NativeUI;
@@ -136,7 +135,7 @@ public final class Validator extends JPanel implements ActionListener
 							new BasesInputsValidator(millisToSimulate),
 							new StaticValidator(),							
 					};
-					SimulationPanel simulationPanel = new SimulationPanel(theValidators.length);
+					OutcomePanel simulationPanel = new OutcomePanel(theValidators.length);
 					for (GameValidator theValidator : theValidators) {
 						ValidatorThread validator = new ValidatorThread(theGame, theValidator);
 						validator.addObserver(simulationPanel);
