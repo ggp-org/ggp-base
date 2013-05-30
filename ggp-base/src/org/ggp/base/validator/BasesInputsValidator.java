@@ -59,7 +59,6 @@ public class BasesInputsValidator implements GameValidator {
 			}
 			
 			if (truesFromBases.isEmpty() && legalsFromInputs.isEmpty()) {
-				System.out.println("No bases or inputs found.");
 				return;
 			}
 
