@@ -22,6 +22,7 @@ import org.ggp.base.util.game.Game;
 import org.ggp.base.util.ui.GameSelector;
 import org.ggp.base.util.ui.NativeUI;
 import org.ggp.base.validator.BasesInputsValidator;
+import org.ggp.base.validator.OPNFValidator;
 import org.ggp.base.validator.SimulationValidator;
 import org.ggp.base.validator.StaticValidator;
 import org.ggp.base.validator.GameValidator;
@@ -131,6 +132,7 @@ public final class Validator extends JPanel implements ActionListener
 					int millisToSimulate = Integer.valueOf(millisToSimulateField.getText());					
 
 					GameValidator[] theValidators = new GameValidator[] {
+							new OPNFValidator(),
 							new SimulationValidator(maxDepth, simulations),
 							new BasesInputsValidator(millisToSimulate),
 							new StaticValidator(),							
