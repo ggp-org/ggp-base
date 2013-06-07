@@ -21,6 +21,7 @@ import org.ggp.base.player.gamer.Gamer;
 import org.ggp.base.player.gamer.statemachine.random.RandomGamer;
 import org.ggp.base.player.request.factory.RequestFactory;
 import org.ggp.base.player.request.grammar.AbortRequest;
+import org.ggp.base.player.request.grammar.InfoRequest;
 import org.ggp.base.player.request.grammar.PlayRequest;
 import org.ggp.base.player.request.grammar.Request;
 import org.ggp.base.player.request.grammar.StartRequest;
@@ -317,21 +318,25 @@ public final class ProxyGamePlayer extends Thread implements Subject
 				latestProxiedResponse = legalProxiedResponse;
 				GamerLogger.log("Proxy", "[PROXY] Selected fallback move:" + latestProxiedResponse);
 				
-				// Update the move codes and prepare to send the request on to the client.
-				receivedClientMove = false;
-		        currentMoveCode = 1 + theRandomGenerator.nextLong();
-		        if(request instanceof StopRequest || request instanceof AbortRequest)
-		            theClientManager.expectStop = true;
-
-				// Send the request on to the client, along with the move code.
-				ProxyMessage theMessage = new ProxyMessage(in, currentMoveCode, receptionTime);
-				theClientManager.sendMessage(theMessage);
-                if(!(request instanceof PlayRequest))   // If we're not asked for a move, just let
-                    currentMoveCode = 0L;               // the default gamer handle it by switching move code.
-                
-                // Wait the appropriate amount of time for the request.
-				proxyProcessRequest(request, receptionTime);
-				
+				if (!(request instanceof InfoRequest)) {
+					// Update the move codes and prepare to send the request on to the client.
+					receivedClientMove = false;
+			        currentMoveCode = 1 + theRandomGenerator.nextLong();
+			        if(request instanceof StopRequest || request instanceof AbortRequest)
+			            theClientManager.expectStop = true;
+	
+					// Send the request on to the client, along with the move code.
+					ProxyMessage theMessage = new ProxyMessage(in, currentMoveCode, receptionTime);
+					theClientManager.sendMessage(theMessage);
+	                if(!(request instanceof PlayRequest))   // If we're not asked for a move, just let
+	                    currentMoveCode = 0L;               // the default gamer handle it by switching move code.
+	                
+	                // Wait the appropriate amount of time for the request.
+					proxyProcessRequest(request, receptionTime);
+				} else {
+					receivedClientMove = true;					
+				}
+					
 				// Get the latest response, and complain if it's the default response, or isn't a valid response.
 				String out = latestProxiedResponse;
 				if(!receivedClientMove && (request instanceof PlayRequest)) {
