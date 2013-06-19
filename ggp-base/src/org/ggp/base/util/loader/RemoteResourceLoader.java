@@ -8,6 +8,7 @@ import java.net.URL;
 import java.net.URLConnection;
 
 import external.JSON.JSONArray;
+import external.JSON.JSONException;
 import external.JSON.JSONObject;
 
 /**
@@ -17,35 +18,50 @@ import external.JSON.JSONObject;
  * @author Sam
  */
 public class RemoteResourceLoader {
-    public static JSONObject loadJSON(String theURL) throws IOException {
-        try {
-            return new JSONObject(loadRaw(theURL));
-        } catch (Exception e) {
-            throw new IOException(e);
-        }
+	public static JSONObject loadJSON(String theURL) throws JSONException, IOException {
+		return loadJSON(theURL, 1);
+	}
+    public static JSONObject loadJSON(String theURL, int nMaxAttempts) throws JSONException, IOException {
+		return new JSONObject(loadRaw(theURL, nMaxAttempts));
     }
     
-    public static JSONArray loadJSONArray(String theURL) throws IOException {
-        try {
-            return new JSONArray(loadRaw(theURL));
-        } catch (Exception e) {
-            throw new IOException(e);
-        }                
+    public static JSONArray loadJSONArray(String theURL) throws JSONException, IOException {
+    	return loadJSONArray(theURL, 1);
+    }
+    public static JSONArray loadJSONArray(String theURL, int nMaxAttempts) throws JSONException, IOException {
+        return new JSONArray(loadRaw(theURL, nMaxAttempts));
     }
     
     public static String loadRaw(String theURL) throws IOException {
-        URL url = new URL(theURL);
-        URLConnection urlConnection = url.openConnection();                
-        if (urlConnection.getContentLength() == 0)
-            throw new IOException("Could not load URL: " + theURL);
-        StringBuilder theJSON = new StringBuilder();
-        BufferedReader br = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
-        do {
-            String nextLine = br.readLine();
-            if (nextLine == null) break;
-            theJSON.append(nextLine + "\n");
-        } while (true);
-        return theJSON.toString();
+    	return loadRaw(theURL, 1);
+    }
+    public static String loadRaw(String theURL, int nMaxAttempts) throws IOException {
+    	int nAttempt = 0;
+    	while(true) {
+    		nAttempt++;
+	        try {    	
+		        URL url = new URL(theURL);
+		        URLConnection urlConnection = url.openConnection();
+		        urlConnection.setUseCaches(false);
+		        urlConnection.setDefaultUseCaches(false);
+		        urlConnection.addRequestProperty("Cache-Control", "no-cache,max-age=0"); 
+		        urlConnection.addRequestProperty("Pragma", "no-cache"); 
+		        if (urlConnection.getContentLength() == 0)
+		            throw new IOException("Could not load URL: " + theURL);
+		        StringBuilder theRawData = new StringBuilder();
+		        BufferedReader br = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
+		        do {
+		            String nextLine = br.readLine();
+		            if (nextLine == null) break;
+		            theRawData.append(nextLine + "\n");
+		        } while (true);
+		        return theRawData.toString();
+	        } catch (IOException ie) {
+	        	if (nAttempt >= nMaxAttempts) {
+	        		throw ie;
+	        	}
+	        }
+    	}
     }
 
     public static String postRawWithTimeout(String theURL, String toPost, int nTimeout) throws IOException {
