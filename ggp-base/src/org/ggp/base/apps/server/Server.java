@@ -176,6 +176,7 @@ public final class Server extends JPanel implements ActionListener
 		matchesTabbedPane.addTab("Overview", new OverviewPanel());
 		
 		scheduler = new Scheduler(matchesTabbedPane, schedulingPanel, leaderboardPanel);
+		schedulingPanel.setScheduler(scheduler);
 		scheduler.start();
 	}
 	

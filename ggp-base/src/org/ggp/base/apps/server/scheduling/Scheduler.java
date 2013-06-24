@@ -3,9 +3,12 @@ package org.ggp.base.apps.server.scheduling;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.io.File;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.swing.AbstractAction;
@@ -36,12 +39,15 @@ public final class Scheduler implements Observer
 	private final List<PendingMatch> schedulingQueue;
 	private final Set<String> activePlayers;
 	
+	private Map<String, WeakReference<GameServer>> gameServers;
+	
 	public Scheduler(JTabbedPane matchesTabbedPane, SchedulingPanel schedulingPanel, LeaderboardPanel leaderboardPanel) {		
 		this.schedulingPanel = schedulingPanel;
 		this.leaderboardPanel = leaderboardPanel;
 		this.matchesTabbedPane = matchesTabbedPane;
 		schedulingQueue = new ArrayList<PendingMatch>();
 		activePlayers = new HashSet<String>();
+		gameServers = new HashMap<String, WeakReference<GameServer>>();
 	}
 	
 	public void start() {
@@ -67,6 +73,15 @@ public final class Scheduler implements Observer
 			}
 		}
 		return true;
+	}
+	
+	public synchronized void abortOngoingMatch(String matchID) {
+		if (gameServers.containsKey(matchID)) {
+			GameServer server = gameServers.get(matchID).get();
+			if (server != null) {
+				server.abort();
+			}
+		}
 	}
 	
 	private synchronized void doSchedule(PendingMatch spec) {
@@ -131,6 +146,7 @@ public final class Scheduler implements Observer
 				}				
 			}
 			
+			gameServers.put(spec.matchID, new WeakReference<GameServer>(gameServer));
 			schedulingQueue.remove(spec);
 		} catch (Exception e) {
 			e.printStackTrace();

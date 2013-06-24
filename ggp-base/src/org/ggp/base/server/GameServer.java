@@ -173,6 +173,10 @@ public final class GameServer extends Thread implements Subject
                 match.appendMoves2(previousMoves);
                 match.appendState(currentState.getContents());
                 appendErrorsToMatchDescription();
+                
+                if (match.isAborted()) {
+                	return;
+                }
             }
             match.markCompleted(stateMachine.getGoals(currentState));
             publishWhenNecessary();
@@ -195,8 +199,12 @@ public final class GameServer extends Thread implements Subject
     public void abort() {
     	try {
     		match.markAborted();
+    		interrupt();
     		sendAbortRequests();
+    		saveWhenNecessary();
+    		publishWhenNecessary();    		
     		notifyObservers(new ServerAbortedMatchEvent());
+    		notifyObservers(new ServerMatchUpdatedEvent(match, spectatorServerKey, saveToFilename));
     	} catch (Exception e) {
     		e.printStackTrace();
     	}

@@ -16,6 +16,8 @@ import javax.swing.JTable;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableModel;
 
 import org.ggp.base.server.event.ServerMatchUpdatedEvent;
@@ -26,12 +28,13 @@ import org.ggp.base.util.presence.PlayerPresence;
 import org.ggp.base.util.ui.JLabelBold;
 
 @SuppressWarnings("serial")
-public final class SchedulingPanel extends JPanel implements Observer, ListSelectionListener
-{
+public final class SchedulingPanel extends JPanel implements Observer, ListSelectionListener, TableModelListener
+{	
 	private final JTable queueTable;
 	
 	private final JButton viewSaved;
 	private final JButton viewPublished;
+	private final JButton remove;
 	
 	// Track the external filenames and URLs for each match, so that they can
 	// be opened for viewing as needed.
@@ -40,7 +43,7 @@ public final class SchedulingPanel extends JPanel implements Observer, ListSelec
 	
 	public SchedulingPanel()
 	{
-		super(new BorderLayout());
+		super(new BorderLayout());		
 		
         DefaultTableModel model = new DefaultTableModel();
         model.addColumn("ID");
@@ -71,18 +74,27 @@ public final class SchedulingPanel extends JPanel implements Observer, ListSelec
 		queueTable.getColumnModel().getColumn(6).setPreferredWidth(45);
 		queueTable.getColumnModel().getColumn(7).setPreferredWidth(40);
 		queueTable.getSelectionModel().addListSelectionListener(this);
+		queueTable.getModel().addTableModelListener(this);
 		
 		JPanel buttonPanel = new JPanel();
 		viewSaved = new JButton(viewSavedMatchButtonMethod());
 		viewSaved.setEnabled(false);
 		viewPublished = new JButton(viewPublishedMatchButtonMethod());		
 		viewPublished.setEnabled(false);
+		remove = new JButton(removeMatchButtonMethod());
+		remove.setEnabled(false);
 		buttonPanel.add(viewSaved);
 		buttonPanel.add(viewPublished);
+		buttonPanel.add(remove);
 
 		add(new JLabelBold("Scheduling Queue"), BorderLayout.NORTH);
 		add(new JScrollPane(queueTable, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED), BorderLayout.CENTER);
 		add(buttonPanel, BorderLayout.SOUTH);
+	}
+	
+	private Scheduler scheduler;
+	public void setScheduler(Scheduler scheduler) {
+		this.scheduler = scheduler;
 	}
 	
 	private AbstractAction viewPublishedMatchButtonMethod() {
@@ -119,18 +131,62 @@ public final class SchedulingPanel extends JPanel implements Observer, ListSelec
 		};
 	}
 	
+	private AbstractAction removeMatchButtonMethod() {
+		return new AbstractAction("Cancel Match") {
+			public void actionPerformed(ActionEvent evt) {
+				if (queueTable.getSelectedRow() >= 0) {
+					String matchId = queueTable.getModel().getValueAt(queueTable.getSelectedRow(), 0).toString();
+					String state = queueTable.getModel().getValueAt(queueTable.getSelectedRow(), 3).toString();
+					if (state.equals("pending")) {
+						;
+					} else if (state.equals("active")) {
+						if (scheduler != null) {
+							scheduler.abortOngoingMatch(matchId);
+						}
+					} else if (state.equals("aborted")) {
+						;
+					} else if (state.equals("done")) {
+						;
+					}
+				}
+			}
+		};
+	}
+	
+	@Override
+	public void tableChanged(TableModelEvent arg0) {
+		updateButtonState();
+	}
+	
 	@Override
 	public void valueChanged(ListSelectionEvent arg0) {
-		if (arg0.getSource() == queueTable.getSelectionModel()) {
-			if (queueTable.getSelectedRow() >= 0) {
-				String matchId = queueTable.getModel().getValueAt(queueTable.getSelectedRow(), 0).toString();
-				viewSaved.setEnabled(matchIdToFilename.containsKey(matchId));
-				viewPublished.setEnabled(matchIdToURL.containsKey(matchId));
-			} else {
-				viewSaved.setEnabled(false);
-				viewPublished.setEnabled(false);
+		updateButtonState();
+	}
+	
+	private void updateButtonState() {
+		if (queueTable.getSelectedRow() >= 0) {
+			String matchId = queueTable.getModel().getValueAt(queueTable.getSelectedRow(), 0).toString();
+			String state = queueTable.getModel().getValueAt(queueTable.getSelectedRow(), 3).toString();
+			viewSaved.setEnabled(matchIdToFilename.containsKey(matchId));
+			viewPublished.setEnabled(matchIdToURL.containsKey(matchId));			
+			if (state.equals("pending")) {
+				remove.setEnabled(false);
+				// TODO: Add support for canceling pending matches.				
+			} else if (state.equals("active")) {
+				remove.setName("Cancel Match");
+				remove.setEnabled(true);				
+			} else if (state.equals("aborted")) {
+				remove.setEnabled(false);
+				// TODO: Add support for hiding finished matches.
+			} else if (state.equals("done")) {
+				remove.setEnabled(false);
+				// TODO: Add support for hiding finished matches.				
 			}
-		}
+		} else {
+			viewSaved.setEnabled(false);
+			viewPublished.setEnabled(false);
+			remove.setEnabled(false);
+		}		
 	}
 	
 	public void addPendingMatch(PendingMatch spec) {
