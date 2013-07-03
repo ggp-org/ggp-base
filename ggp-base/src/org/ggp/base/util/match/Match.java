@@ -129,7 +129,7 @@ public final class Match
         	this.isAborted = false;
         }
 
-        this.numRoles = Role.computeRoles(theGame.getRules()).size();
+        this.numRoles = Role.computeRoles(this.theGame.getRules()).size();
         
         this.moveHistory = new ArrayList<List<GdlTerm>>();
         this.stateHistory = new ArrayList<Set<GdlSentence>>();
