@@ -10,9 +10,6 @@ import org.ggp.base.util.symbol.grammar.SymbolAtom;
 import org.ggp.base.util.symbol.grammar.SymbolList;
 import org.ggp.base.util.symbol.grammar.SymbolPool;
 
-import external.JSON.JSONException;
-import external.JSON.JSONObject;
-
 /**
  * Wherein we poorly reinvent JSON, so that we can keep INFO responses
  * consistent with the Symbol-based KIF format that the other GGP protocol
@@ -82,17 +79,6 @@ public class InfoResponse {
 	}
 	
 	public static InfoResponse create(String original) {
-		try {
-			// TODO(schreib): Phase this out once everybody has upgraded to the
-			// new symbol-based info responses.
-			JSONObject infoJSON = new JSONObject(original);
-			InfoResponse info = new InfoResponse();
-			info.setName(infoJSON.getString("name"));
-			info.setStatus(infoJSON.getString("status"));
-			return info;
-		} catch (JSONException je) {
-			;
-		}			
 		try {
 			return new InfoResponse(SymbolFactory.create(original));
 		} catch (SymbolFormatException e) {

@@ -64,7 +64,7 @@ public class Test_InfoResponse extends TestCase {
     public void testParsingInfoResponseLegacyJSON() {
     	String input = "{\"name\":\"PlayerName\",\"status\":\"available\"}";
     	InfoResponse response = InfoResponse.create(input);
-    	assertEquals(response.getName(), "PlayerName");
-    	assertEquals(response.getStatus(), "available");
+    	assertEquals(response.getName(), null);
+    	assertEquals(response.getStatus(), input);
     }
 }
