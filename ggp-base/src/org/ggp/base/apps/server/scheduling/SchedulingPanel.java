@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -143,10 +144,13 @@ public final class SchedulingPanel extends JPanel implements Observer, ListSelec
 						if (scheduler != null) {
 							scheduler.abortOngoingMatch(matchId);
 						}
-					} else if (state.equals("aborted")) {
-						;
-					} else if (state.equals("done")) {
-						;
+					} else if (state.equals("aborted") || state.equals("done")) {
+						int[] nRows = queueTable.getSelectedRows();						
+						queueTable.clearSelection();
+						Arrays.sort(nRows);
+						for (int i = nRows.length-1; i >= 0; i--) {
+							((DefaultTableModel)queueTable.getModel()).removeRow(nRows[i]);
+						}
 					}
 				}
 			}
@@ -173,14 +177,11 @@ public final class SchedulingPanel extends JPanel implements Observer, ListSelec
 				remove.setEnabled(false);
 				// TODO: Add support for canceling pending matches.				
 			} else if (state.equals("active")) {
-				remove.setName("Cancel Match");
+				remove.setText("Cancel Match");
 				remove.setEnabled(true);				
-			} else if (state.equals("aborted")) {
-				remove.setEnabled(false);
-				// TODO: Add support for hiding finished matches.
-			} else if (state.equals("done")) {
-				remove.setEnabled(false);
-				// TODO: Add support for hiding finished matches.				
+			} else if (state.equals("aborted") || state.equals("done")) {
+				remove.setText("Hide Match");
+				remove.setEnabled(true);
 			}
 		} else {
 			viewSaved.setEnabled(false);
