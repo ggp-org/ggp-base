@@ -1,0 +1,21 @@
+; This tests the appearance of distinct at the beginning of a rule.
+; There should be 2 legal moves, not 4.
+(role you)
+
+(<= (foo ?a ?b)
+    (distinct ?a ?b)
+    (p ?a)
+    (q ?b))
+    
+(p a)
+(p b)
+(q a)
+(q b)
+    
+(<= (legal you (do ?a ?b))
+    (foo ?a ?b))
+
+(next win)
+(<= terminal
+    (true win))
+(goal you 100)

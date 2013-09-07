@@ -33,12 +33,13 @@ public class ProverStateMachine extends StateMachine
 	 */
 	public ProverStateMachine()
 	{
-		
+
 	}
-	
+
+	@Override
 	public void initialize(List<Gdl> description)
 	{
-		prover = new AimaProver(new HashSet<Gdl>(description));
+		prover = new AimaProver(description);
 		roles = Role.computeRoles(description);
 		initialState = computeInitialState();
 	}
@@ -78,7 +79,7 @@ public class ProverStateMachine extends StateMachine
 	{
 		return initialState;
 	}
-	
+
 	@Override
 	public List<Move> getLegalMoves(MachineState state, Role role) throws MoveDefinitionException
 	{
@@ -106,7 +107,7 @@ public class ProverStateMachine extends StateMachine
 		}
 
 		return new ProverResultParser().toState(results);
-	}	
+	}
 
 	@Override
 	public List<Role> getRoles()

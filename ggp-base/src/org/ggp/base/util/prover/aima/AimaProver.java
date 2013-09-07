@@ -13,6 +13,7 @@ import org.ggp.base.util.gdl.grammar.GdlNot;
 import org.ggp.base.util.gdl.grammar.GdlOr;
 import org.ggp.base.util.gdl.grammar.GdlRule;
 import org.ggp.base.util.gdl.grammar.GdlSentence;
+import org.ggp.base.util.gdl.transforms.DistinctAndNotMover;
 import org.ggp.base.util.prover.Prover;
 import org.ggp.base.util.prover.aima.cache.ProverCache;
 import org.ggp.base.util.prover.aima.knowledge.KnowledgeBase;
@@ -21,15 +22,18 @@ import org.ggp.base.util.prover.aima.substituter.Substituter;
 import org.ggp.base.util.prover.aima.substitution.Substitution;
 import org.ggp.base.util.prover.aima.unifier.Unifier;
 
+import com.google.common.collect.Sets;
+
 
 public final class AimaProver extends Prover
 {
 
 	private final KnowledgeBase knowledgeBase;
 
-	public AimaProver(Set<Gdl> description)
+	public AimaProver(List<Gdl> description)
 	{
-		knowledgeBase = new KnowledgeBase(description);
+		description = DistinctAndNotMover.run(description);
+		knowledgeBase = new KnowledgeBase(Sets.newHashSet(description));
 	}
 
 	private Set<GdlSentence> ask(GdlSentence query, Set<GdlSentence> context, boolean askOne)

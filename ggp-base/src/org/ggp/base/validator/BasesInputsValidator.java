@@ -9,7 +9,6 @@ import java.util.Set;
 import org.ggp.base.util.game.CloudGameRepository;
 import org.ggp.base.util.game.Game;
 import org.ggp.base.util.game.GameRepository;
-import org.ggp.base.util.gdl.grammar.Gdl;
 import org.ggp.base.util.gdl.grammar.GdlConstant;
 import org.ggp.base.util.gdl.grammar.GdlPool;
 import org.ggp.base.util.gdl.grammar.GdlSentence;
@@ -37,14 +36,14 @@ public class BasesInputsValidator implements GameValidator {
 	public BasesInputsValidator(int millisecondsToTest) {
 		this.millisecondsToTest = millisecondsToTest;
 	}
-	
+
 	@Override
 	public void checkValidity(Game theGame) throws ValidatorException {
 		try {
 			StateMachine sm = new ProverStateMachine();
 			sm.initialize(theGame.getRules());
 
-			AimaProver prover = new AimaProver(new HashSet<Gdl>(theGame.getRules()));
+			AimaProver prover = new AimaProver(theGame.getRules());
 			GdlSentence basesQuery = GdlPool.getRelation(BASE, new GdlTerm[] {X});
 			Set<GdlSentence> bases = prover.askAll(basesQuery, Collections.<GdlSentence>emptySet());
 			GdlSentence inputsQuery = GdlPool.getRelation(INPUT, new GdlTerm[] {X, Y});
@@ -57,7 +56,7 @@ public class BasesInputsValidator implements GameValidator {
 			for (GdlSentence input : inputs) {
 				legalsFromInputs.add(GdlPool.getRelation(LEGAL, input.getBody()));
 			}
-			
+
 			if (truesFromBases.isEmpty() && legalsFromInputs.isEmpty()) {
 				return;
 			}
@@ -75,7 +74,7 @@ public class BasesInputsValidator implements GameValidator {
 						throw new ValidatorException("Found missing bases: " + missingBases);
 					}
 				}
-				
+
 				if (!legalsFromInputs.isEmpty()) {
 					List<GdlSentence> legalSentences = new ArrayList<GdlSentence>();
 					for (Role role : sm.getRoles()) {
@@ -91,7 +90,7 @@ public class BasesInputsValidator implements GameValidator {
 						throw new ValidatorException("Found missing inputs: " + missingInputs);
 					}
 				}
-				
+
 				state = sm.getRandomNextState(state);
 				if (sm.isTerminal(state)) {
 					state = initialState;
