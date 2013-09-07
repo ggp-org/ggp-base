@@ -20,6 +20,7 @@
         <pathelement location="src/external/JGoodiesForms/forms-1.2.1.jar"/>
         <pathelement location="src/external/Jython/jython.jar"/>
         <pathelement location="src/external/Clojure/clojure.jar"/>
+        <pathelement location="src/external/Guava/guava-14.0.1.jar"/>
     	<pathelement location="/usr/share/java/junit4.jar"/>
     </path>
     <target name="init">
