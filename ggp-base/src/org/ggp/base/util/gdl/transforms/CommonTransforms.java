@@ -19,6 +19,8 @@ import org.ggp.base.util.gdl.grammar.GdlSentence;
 import org.ggp.base.util.gdl.grammar.GdlTerm;
 import org.ggp.base.util.gdl.grammar.GdlVariable;
 
+import com.google.common.collect.Lists;
+
 
 /**
  * @author Sam Schreiber
@@ -34,24 +36,7 @@ public class CommonTransforms {
 	public static GdlSentence replaceVariable(GdlSentence sentence, GdlVariable toSubstitute, GdlTerm theReplacement) {
 		return (GdlSentence) replaceVariableInternal(sentence, toSubstitute, theReplacement);
 	}
-	/*public static GdlFunction replaceVariable(GdlFunction function, GdlVariable toSubstitute, GdlTerm theReplacement) {
-		return (GdlFunction) replaceVariableInternal(function, toSubstitute, theReplacement);
-	}
-	public static GdlNot replaceVariable(GdlNot not, GdlVariable toSubstitute, GdlTerm theReplacement) {
-		return (GdlNot) replaceVariableInternal(not, toSubstitute, theReplacement);
-	}
-	public static GdlOr replaceVariable(GdlOr or, GdlVariable toSubstitute, GdlTerm theReplacement) {
-		return (GdlOr) replaceVariableInternal(or, toSubstitute, theReplacement);
-	}
-	public static GdlDistinct replaceVariable(GdlDistinct distinct, GdlVariable toSubstitute, GdlTerm theReplacement) {
-		return (GdlDistinct) replaceVariableInternal(distinct, toSubstitute, theReplacement);
-	}
-	public static GdlRelation replaceVariable(GdlRelation relation, GdlVariable toSubstitute, GdlTerm theReplacement) {
-		return (GdlRelation) replaceVariableInternal(relation, toSubstitute, theReplacement);
-	}
-	public static GdlTerm replaceVariable(GdlTerm term, GdlVariable toSubstitute, GdlTerm theReplacement) {
-		return (GdlTerm) replaceVariableInternal(term, toSubstitute, theReplacement);
-	}*/
+
     private static Gdl replaceVariableInternal(Gdl gdl, GdlVariable toSubstitute, GdlTerm theReplacement) {
         if(gdl instanceof GdlDistinct) {
             return GdlPool.getDistinct((GdlTerm) replaceVariableInternal(((GdlDistinct) gdl).getArg1(), toSubstitute, theReplacement), (GdlTerm) replaceVariableInternal(((GdlDistinct) gdl).getArg2(), toSubstitute, theReplacement));
@@ -62,7 +47,7 @@ public class CommonTransforms {
             List<GdlLiteral> rval = new ArrayList<GdlLiteral>();
             for(int i=0; i<or.arity(); i++)
             {
-                rval.add((GdlLiteral) replaceVariableInternal(or.get(i), toSubstitute, theReplacement));                
+                rval.add((GdlLiteral) replaceVariableInternal(or.get(i), toSubstitute, theReplacement));
             }
             return GdlPool.getOr(rval);
         } else if(gdl instanceof GdlProposition) {
@@ -72,17 +57,17 @@ public class CommonTransforms {
             List<GdlTerm> rval = new ArrayList<GdlTerm>();
             for(int i=0; i<rel.arity(); i++)
             {
-                rval.add((GdlTerm) replaceVariableInternal(rel.get(i), toSubstitute, theReplacement));                
-            }   
+                rval.add((GdlTerm) replaceVariableInternal(rel.get(i), toSubstitute, theReplacement));
+            }
             return GdlPool.getRelation(rel.getName(), rval);
         } else if(gdl instanceof GdlRule) {
             GdlRule rule = (GdlRule)gdl;
             List<GdlLiteral> rval = new ArrayList<GdlLiteral>();
             for(int i=0; i<rule.arity(); i++)
             {
-                rval.add((GdlLiteral) replaceVariableInternal(rule.get(i), toSubstitute, theReplacement));                
+                rval.add((GdlLiteral) replaceVariableInternal(rule.get(i), toSubstitute, theReplacement));
             }
-            return GdlPool.getRule((GdlSentence) replaceVariableInternal(rule.getHead(), toSubstitute, theReplacement), rval);            
+            return GdlPool.getRule((GdlSentence) replaceVariableInternal(rule.getHead(), toSubstitute, theReplacement), rval);
         } else if(gdl instanceof GdlConstant) {
             return gdl;
         } else if(gdl instanceof GdlFunction) {
@@ -90,8 +75,8 @@ public class CommonTransforms {
             List<GdlTerm> rval = new ArrayList<GdlTerm>();
             for(int i=0; i<func.arity(); i++)
             {
-                rval.add((GdlTerm) replaceVariableInternal(func.get(i), toSubstitute, theReplacement));                
-            }   
+                rval.add((GdlTerm) replaceVariableInternal(func.get(i), toSubstitute, theReplacement));
+            }
             return GdlPool.getFunction(func.getName(), rval);
         } else if(gdl instanceof GdlVariable) {
             if(gdl == toSubstitute) {
@@ -103,7 +88,7 @@ public class CommonTransforms {
             throw new RuntimeException("Uh oh, gdl hierarchy must have been extended without updating this code.");
         }
     }
-    
+
     //Apply a variable assignment to a Gdl object
 	public static GdlSentence replaceVariables(GdlSentence sentence,
 			Map<GdlVariable, ? extends GdlTerm> assignment) {
@@ -117,11 +102,19 @@ public class CommonTransforms {
 			Map<GdlVariable, ? extends GdlTerm> assignment) {
 		return (GdlLiteral) replaceVariablesInternal(literal, assignment);
 	}
+	public static GdlDistinct replaceVariables(GdlDistinct distinct,
+			Map<GdlVariable, ? extends GdlTerm> assignment) {
+		return (GdlDistinct) replaceVariablesInternal(distinct, assignment);
+	}
+	public static GdlRule replaceVariables(GdlRule rule,
+			Map<GdlVariable, ? extends GdlTerm> assignment) {
+		return (GdlRule) replaceVariablesInternal(rule, assignment);
+	}
 	private static Gdl replaceVariablesInternal(Gdl gdl,
 			Map<GdlVariable, ? extends GdlTerm> assignment) {
-		if(gdl instanceof GdlProposition) {
+		if (gdl instanceof GdlProposition) {
 			return gdl;
-		} else if(gdl instanceof GdlRelation) {
+		} else if (gdl instanceof GdlRelation) {
 			GdlRelation relation = (GdlRelation) gdl;
 			GdlConstant name = relation.getName();
 			List<GdlTerm> newBody = new ArrayList<GdlTerm>(relation.arity());
@@ -129,41 +122,49 @@ public class CommonTransforms {
 				newBody.add(replaceVariables(term, assignment));
 			}
 			return GdlPool.getRelation(name, newBody);
-		} else if(gdl instanceof GdlConstant) {
+		} else if (gdl instanceof GdlConstant) {
 			return gdl;
-		} else if(gdl instanceof GdlVariable) {
+		} else if (gdl instanceof GdlVariable) {
 			if(assignment.containsKey(gdl))
 				return assignment.get(gdl);
 			else
 				return gdl;
-		} else if(gdl instanceof GdlFunction) {
+		} else if (gdl instanceof GdlFunction) {
 			GdlFunction function = (GdlFunction) gdl;
 			GdlConstant name = function.getName();
 			List<GdlTerm> newBody = new ArrayList<GdlTerm>(function.arity());
-			for(GdlTerm term : function.getBody()) {
+			for (GdlTerm term : function.getBody()) {
 				newBody.add(replaceVariables(term, assignment));
 			}
 			return GdlPool.getFunction(name, newBody);
-		} else if(gdl instanceof GdlDistinct) {
+		} else if (gdl instanceof GdlDistinct) {
 			GdlDistinct distinct = (GdlDistinct) gdl;
 			GdlTerm arg1 = replaceVariables(distinct.getArg1(), assignment);
 			GdlTerm arg2 = replaceVariables(distinct.getArg2(), assignment);
 			return GdlPool.getDistinct(arg1, arg2);
-		} else if(gdl instanceof GdlNot) {
+		} else if (gdl instanceof GdlNot) {
 			GdlLiteral internal = ((GdlNot) gdl).getBody();
 			return GdlPool.getNot(replaceVariables(internal, assignment));
-		} else if(gdl instanceof GdlOr) {
+		} else if (gdl instanceof GdlOr) {
 			GdlOr or = (GdlOr) gdl;
 			List<GdlLiteral> newInternals = new ArrayList<GdlLiteral>(or.arity());
-			for(int i = 0; i < or.arity(); i++) {
+			for (int i = 0; i < or.arity(); i++) {
 				newInternals.add(replaceVariables(or.get(i), assignment));
 			}
 			return GdlPool.getOr(newInternals);
+		} else if (gdl instanceof GdlRule) {
+			GdlRule rule = (GdlRule) gdl;
+			GdlSentence newHead = replaceVariables(rule.getHead(), assignment);
+			List<GdlLiteral> newBody = Lists.newArrayList();
+			for (GdlLiteral conjunct : rule.getBody()) {
+				newBody.add(replaceVariables(conjunct, assignment));
+			}
+			return GdlPool.getRule(newHead, newBody);
 		} else {
-			throw new RuntimeException("Unforeseen Gdl subtype");
+			throw new RuntimeException("Unforeseen Gdl subtype " + gdl.getClass().getSimpleName());
 		}
 	}
-	
+
 	public static GdlRelation replaceHead(GdlRelation sentence, GdlConstant newHead) {
 		return GdlPool.getRelation(newHead, sentence.getBody());
 	}
