@@ -1,5 +1,6 @@
 package org.ggp.base.util.gdl.grammar;
 
+import java.util.Collections;
 import java.util.List;
 
 @SuppressWarnings("serial")
@@ -51,7 +52,7 @@ public final class GdlProposition extends GdlSentence
 
 	@Override
 	public List<GdlTerm> getBody() {
-		throw new RuntimeException("GdlPropositions have no body!");
+		return Collections.emptyList();
 	}
 
 }
