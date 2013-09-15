@@ -11,7 +11,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Queue;
 import java.util.Set;
-import java.util.Stack;
 
 import org.ggp.base.util.concurrency.ConcurrencyUtils;
 import org.ggp.base.util.gdl.GdlUtils;
@@ -948,7 +947,7 @@ public class SentenceModelImpl implements RuleSplittableSentenceModel {
 					changing.add(candidate);
 					unfollowed.add(candidate);
 					if(candidate.getName().getValue().equals("next")) {
-						SentenceForm trueForm = candidate.getCopyWithName(GdlPool.getConstant("true"));
+						SentenceForm trueForm = candidate.withName(GdlPool.getConstant("true"));
 						changing.add(trueForm);
 						unfollowed.add(trueForm);
 					}
@@ -969,7 +968,7 @@ public class SentenceModelImpl implements RuleSplittableSentenceModel {
 		return forms;
 	}
 
-	public class SentenceFormImpl implements SentenceForm {
+	public class SentenceFormImpl extends AbstractSentenceForm {
 		public SentenceFormImpl(GdlSentence sentence) {
 			sentenceName = sentence.getName();
 			functionalElements = new ArrayList<GdlConstant>();
@@ -1015,79 +1014,11 @@ public class SentenceModelImpl implements RuleSplittableSentenceModel {
 		private int tupleSize = 0;
 
 		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			//result = prime * result + getOuterType().hashCode();
-			result = prime * result
-					+ ((arities == null) ? 0 : arities.hashCode());
-			result = prime
-					* result
-					+ ((functionalElements == null) ? 0 : functionalElements
-							.hashCode());
-			result = prime * result
-					+ ((sentenceName == null) ? 0 : sentenceName.hashCode());
-			return result;
-		}
-		@Override
-		public boolean equals(Object obj) {
-			if (this == obj)
-				return true;
-			if (obj == null)
-				return false;
-			if (getClass() != obj.getClass())
-				return false;
-			SentenceFormImpl other = (SentenceFormImpl) obj;
-			if (arities == null) {
-				if (other.arities != null)
-					return false;
-			} else if (!arities.equals(other.arities))
-				return false;
-			if (functionalElements == null) {
-				if (other.functionalElements != null)
-					return false;
-			} else if (!functionalElements.equals(other.functionalElements))
-				return false;
-			if (sentenceName == null) {
-				if (other.sentenceName != null)
-					return false;
-			} else if (!sentenceName.equals(other.sentenceName))
-				return false;
-			return true;
-		}
-
-		@Override
-		public String toString() {
-			StringBuilder b = new StringBuilder();
-			b.append("(").append(sentenceName);
-			Stack<Integer> arityStack = new Stack<Integer>();
-			for(int i = 0; i < functionalElements.size(); i++) {
-				GdlConstant functionName = functionalElements.get(i);
-				int arity = arities.get(i);
-				if(functionName == null) {
-					b.append(" _");
-					if(!arityStack.isEmpty()) {
-						int curArity = arityStack.pop();
-						if(curArity == 1)
-							b.append(")");
-						else
-							arityStack.push(curArity - 1);
-					}
-				} else { //functionName != null
-					b.append(" (").append(functionName);
-					arityStack.push(arity);
-				}
-			}
-			b.append(")");
-			return b.toString();
-		}
-
-		@Override
 		public GdlConstant getName() {
 			return sentenceName;
 		}
 		@Override
-		public SentenceForm getCopyWithName(GdlConstant name) {
+		public SentenceForm withName(GdlConstant name) {
 			return new SentenceFormImpl(this, name);
 		}
 		@Override
@@ -1219,7 +1150,8 @@ public class SentenceModelImpl implements RuleSplittableSentenceModel {
 				//Not applicable
 			}
 		}
-		public GdlSentence getSentenceFromTuple(List<GdlConstant> tuple) {
+		@Override
+		public GdlSentence getSentenceFromTuple(List<? extends GdlTerm> tuple) {
 			/*if(tuple.size() != functionalElements.size())
 				throw new RuntimeException("Tried to get sentence from tuple of size "+tuple.size()
 						+"; need size " + functionalElements.size());*/
@@ -1228,7 +1160,7 @@ public class SentenceModelImpl implements RuleSplittableSentenceModel {
 			//Make the GdlRelation corresponding to this as a tuple
 			Iterator<GdlConstant> elementItr = functionalElements.iterator();
 			Iterator<Integer> arityItr = arities.iterator();
-			Iterator<GdlConstant> tupleItr = tuple.iterator();
+			Iterator<? extends GdlTerm> tupleItr = tuple.iterator();
 			List<GdlTerm> body = new ArrayList<GdlTerm>();
 			//we could bootstrap the arity...
 			int arity = arities.size();
@@ -1238,7 +1170,7 @@ public class SentenceModelImpl implements RuleSplittableSentenceModel {
 			return GdlPool.getRelation(sentenceName, body);
 		}
 		private void fillBody(List<GdlTerm> body, Iterator<GdlConstant> elementItr,
-				Iterator<Integer> arityItr, Iterator<GdlConstant> tupleItr, int arity) {
+				Iterator<Integer> arityItr, Iterator<? extends GdlTerm> tupleItr, int arity) {
 			for(int i = 0; i < arity; i++) {
 				//fill in the ith element of the body
 				//starting with the index1th element of functionalElements
@@ -1324,11 +1256,11 @@ public class SentenceModelImpl implements RuleSplittableSentenceModel {
 		Set<SentenceForm> formsToAdd = new HashSet<SentenceForm>();
 		for(SentenceForm form : forms) {
 			if(form.getName().getValue().equals("next"))
-				formsToAdd.add(form.getCopyWithName(GdlPool.getConstant("true")));
+				formsToAdd.add(form.withName(GdlPool.getConstant("true")));
 			else if(form.getName().getValue().equals("init"))
-				formsToAdd.add(form.getCopyWithName(GdlPool.getConstant("true")));
+				formsToAdd.add(form.withName(GdlPool.getConstant("true")));
 			else if(form.getName().getValue().equals("legal"))
-				formsToAdd.add(form.getCopyWithName(GdlPool.getConstant("does")));
+				formsToAdd.add(form.withName(GdlPool.getConstant("does")));
 		}
 		forms.addAll(formsToAdd);
 	}

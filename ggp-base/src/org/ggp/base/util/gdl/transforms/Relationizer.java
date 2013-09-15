@@ -53,7 +53,7 @@ public class Relationizer {
 						GdlLiteral literal = rule.get(0);
 						if(literal instanceof GdlRelation) {
 							//Check that it really is the true form
-							SentenceForm trueForm = nextForm.getCopyWithName(GdlPool.getConstant("true"));
+							SentenceForm trueForm = nextForm.withName(GdlPool.getConstant("true"));
 							if(trueForm.matches((GdlRelation) literal)) {
 								GdlSentence head = rule.getHead();
 								GdlSentence body = (GdlSentence) literal;
@@ -78,8 +78,8 @@ public class Relationizer {
 		List<Gdl> newDescription = new ArrayList<Gdl>(description);
 		//Now, replace the next forms
 		for(SentenceForm nextForm : nextFormsToReplace) {
-			SentenceForm initForm = nextForm.getCopyWithName(GdlPool.getConstant("init"));
-			SentenceForm trueForm = nextForm.getCopyWithName(GdlPool.getConstant("true"));
+			SentenceForm initForm = nextForm.withName(GdlPool.getConstant("init"));
+			SentenceForm trueForm = nextForm.withName(GdlPool.getConstant("true"));
 
 			//Go through the rules and relations, making replacements as needed
 			for(int i = 0; i < newDescription.size(); i++) {

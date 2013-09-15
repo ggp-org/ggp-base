@@ -36,9 +36,14 @@ public final class GdlPool
     // game-specific constants are case-sensitive or not. These special keywords are never
     // sent over the network in PLAY requests and responses, so this should be safe.
     public static final HashSet<String> keywords = new HashSet<String>(Arrays.asList(
-    		new String[] {"init","true","next","role","does","goal","legal","terminal","base","input"}));
-    
-	/**
+    		new String[] {"init","true","next","role","does","goal","legal","terminal","base","input","_"}));
+    /**
+     * Represents a single underscore ("_"). The underscore is not a GDL keyword, but
+     * it's used by SentenceForms and is generally convenient for utility methods.
+     */
+    public static final GdlConstant UNDERSCORE = getConstant("_");
+
+    /**
 	 * Drains the contents of the GdlPool. Useful to control memory usage
 	 * once you have finished playing a large game.
 	 * 

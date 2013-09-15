@@ -835,13 +835,13 @@ public class OptimizingPropNetFactory {
 			//Don't add if it's true/next/legal/does and we're waiting for base/input
 			if(usingBase && (curForm.getName().equals(TRUE) || curForm.getName().equals(NEXT) || curForm.getName().equals(INIT))) {
 				//Have we added the corresponding base sf yet?
-				SentenceForm baseForm = curForm.getCopyWithName(BASE);
+				SentenceForm baseForm = curForm.withName(BASE);
 				if(!alreadyOrdered.contains(baseForm)) {
 					readyToAdd = false;
 				}
 			}
 			if(usingInput && (curForm.getName().equals(DOES) || curForm.getName().equals(LEGAL))) {
-				SentenceForm inputForm = curForm.getCopyWithName(INPUT);
+				SentenceForm inputForm = curForm.withName(INPUT);
 				if(!alreadyOrdered.contains(inputForm)) {
 					readyToAdd = false;
 				}
@@ -900,7 +900,7 @@ public class OptimizingPropNetFactory {
 		//For does/true, make nodes based on input/base, if available
 		if(usingInput && form.getName().equals(DOES)) {
 			//Add only those propositions for which there is a corresponding INPUT
-			SentenceForm inputForm = form.getCopyWithName(INPUT);
+			SentenceForm inputForm = form.withName(INPUT);
 			Iterator<GdlSentence> itr = constantChecker.getTrueSentences(inputForm);
 			while(itr.hasNext()) {
 				GdlSentence inputSentence = itr.next();
@@ -911,7 +911,7 @@ public class OptimizingPropNetFactory {
 			return;
 		}
 		if(usingBase && form.getName().equals(TRUE)) {
-			SentenceForm baseForm = form.getCopyWithName(BASE);
+			SentenceForm baseForm = form.withName(BASE);
 			Iterator<GdlSentence> itr = constantChecker.getTrueSentences(baseForm);
 			while(itr.hasNext()) {
 				GdlSentence baseSentence = itr.next();

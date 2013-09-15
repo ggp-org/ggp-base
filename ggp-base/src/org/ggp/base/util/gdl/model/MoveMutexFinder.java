@@ -122,7 +122,7 @@ public class MoveMutexFinder {
 			
 			if(allDisjoint) {
 				//Make the mutex
-				Mutex mutex = new Mutex(form.getCopyWithName(DOES)); //all variables
+				Mutex mutex = new Mutex(form.withName(DOES)); //all variables
 				mutexes.add(mutex);
 			}
 		}

@@ -1,103 +1,80 @@
 package org.ggp.base.util.gdl.model;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.ggp.base.util.gdl.grammar.GdlConstant;
 import org.ggp.base.util.gdl.grammar.GdlFunction;
+import org.ggp.base.util.gdl.grammar.GdlPool;
 import org.ggp.base.util.gdl.grammar.GdlSentence;
 import org.ggp.base.util.gdl.grammar.GdlTerm;
-import org.w3c.tidy.MutableInteger;
 
+import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
-public class SimpleSentenceForm implements SentenceForm {
+public class SimpleSentenceForm extends AbstractSentenceForm {
 	private final GdlConstant name;
-	private final List<GdlConstant> functionNames;
-	private final List<Integer> functionIndices; // Tuple index
-	private final List<Integer> functionArities;
+	//The arity is the same as the arity of the GdlSentence object, i.e.
+	//how many terms there are at the first level (including functions).
+	private final int arity;
+	//We cheat a little by reusing sentence forms as function forms.
+	//Map from the index (< arity) to the function definition.
+	private final ImmutableMap<Integer, SimpleSentenceForm> functions;
+	//The tuple size is the total number of constants and/or variables
+	//within the entire sentence, including inside functions.
 	private final int tupleSize;
 
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result
-				+ ((functionArities == null) ? 0 : functionArities.hashCode());
-		result = prime * result
-				+ ((functionIndices == null) ? 0 : functionIndices.hashCode());
-		result = prime * result
-				+ ((functionNames == null) ? 0 : functionNames.hashCode());
-		result = prime * result + ((name == null) ? 0 : name.hashCode());
-		result = prime * result + tupleSize;
-		return result;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		SimpleSentenceForm other = (SimpleSentenceForm) obj;
-		if (functionArities == null) {
-			if (other.functionArities != null)
-				return false;
-		} else if (!functionArities.equals(other.functionArities))
-			return false;
-		if (functionIndices == null) {
-			if (other.functionIndices != null)
-				return false;
-		} else if (!functionIndices.equals(other.functionIndices))
-			return false;
-		if (functionNames == null) {
-			if (other.functionNames != null)
-				return false;
-		} else if (!functionNames.equals(other.functionNames))
-			return false;
-		if (name == null) {
-			if (other.name != null)
-				return false;
-		} else if (!name.equals(other.name))
-			return false;
-		if (tupleSize != other.tupleSize)
-			return false;
-		return true;
-	}
-
-	public SimpleSentenceForm(GdlSentence sentence) {
-		name = sentence.getName();
-		functionNames = new ArrayList<GdlConstant>();
-		functionIndices = new ArrayList<Integer>();
-		functionArities = new ArrayList<Integer>();
-		
-		MutableInteger indexRef = new MutableInteger();
-		indexRef.value = 0;
-		crawlBody(sentence.getBody(), indexRef);
-		tupleSize = indexRef.value;
-	}
-
-	public SimpleSentenceForm(GdlConstant newName,
-			SimpleSentenceForm other) {
-		name = newName;
-		functionNames = other.functionNames;
-		functionIndices = other.functionIndices;
-		functionArities = other.functionArities;
-		tupleSize = other.tupleSize;
-	}
-
-	private void crawlBody(List<GdlTerm> body, MutableInteger indexRef) {
-		for (GdlTerm term : body) {
+	public static SimpleSentenceForm create(GdlSentence sentence) {
+		GdlConstant name = sentence.getName();
+		int arity = sentence.arity();
+		int tupleSize = 0;
+		Map<Integer, SimpleSentenceForm> functions = Maps.newHashMap();
+		for (int i = 0; i < arity; i++) {
+			GdlTerm term = sentence.get(i);
 			if (term instanceof GdlFunction) {
-				GdlFunction function = (GdlFunction) term;
-				functionNames.add(function.getName());
-				functionIndices.add(indexRef.value);
-				functionArities.add(function.arity());
-				crawlBody(function.getBody(), indexRef);
+				SimpleSentenceForm functionForm = create((GdlFunction) term);
+				functions.put(i, functionForm);
+				tupleSize += functionForm.getTupleSize();
+			} else {
+				tupleSize++;
 			}
-			++indexRef.value;
 		}
+		return new SimpleSentenceForm(name,
+				arity,
+				ImmutableMap.copyOf(functions),
+				tupleSize);
+	}
+
+	private static SimpleSentenceForm create(GdlFunction function) {
+		GdlConstant name = function.getName();
+		int arity = function.arity();
+		int tupleSize = 0;
+		Map<Integer, SimpleSentenceForm> functions = Maps.newHashMap();
+		for (int i = 0; i < arity; i++) {
+			GdlTerm term = function.get(i);
+			if (term instanceof GdlFunction) {
+				SimpleSentenceForm functionForm = create((GdlFunction) term);
+				functions.put(i, functionForm);
+			} else {
+				tupleSize++;
+			}
+		}
+		return new SimpleSentenceForm(name,
+				arity,
+				ImmutableMap.copyOf(functions),
+				tupleSize);
+	}
+
+	public SimpleSentenceForm(GdlConstant name,
+			int arity,
+			ImmutableMap<Integer, SimpleSentenceForm> functions,
+			int tupleSize) {
+		this.name = name;
+		this.arity = arity;
+		this.functions = functions;
+		this.tupleSize = tupleSize;
 	}
 
 	@Override
@@ -106,8 +83,12 @@ public class SimpleSentenceForm implements SentenceForm {
 	}
 
 	@Override
-	public SentenceForm getCopyWithName(GdlConstant name) {
-		return new SimpleSentenceForm(name, this);
+	public SentenceForm withName(GdlConstant newName) {
+		return new SimpleSentenceForm(
+				newName,
+				arity,
+				functions,
+				tupleSize);
 	}
 
 	@Override
@@ -115,36 +96,48 @@ public class SimpleSentenceForm implements SentenceForm {
 		if (!sentence.getName().equals(name)) {
 			return false;
 		}
-		MutableInteger indexRef = new MutableInteger();
-		indexRef.value = 0;
-		MutableInteger functionIndexRef = new MutableInteger();
-		functionIndexRef.value = 0;
-		
-		return bodyMatches(sentence.getBody(), indexRef, functionIndexRef);
-	}
-
-	private boolean bodyMatches(List<GdlTerm> body,
-			MutableInteger indexRef, MutableInteger functionIndexRef) {
-		for(GdlTerm term : body) {
-			if (term instanceof GdlFunction) {
-				//If this isn't the right function, return false
+		if (sentence.arity() != arity) {
+			return false;
+		}
+		for (int i = 0; i < sentence.arity(); i++) {
+			GdlTerm term = sentence.get(i);
+			if (functions.containsKey(i) && !(term instanceof GdlFunction)) {
+				return false;
+			} else if (term instanceof GdlFunction) {
+				if (!functions.containsKey(i)) {
+					return false;
+				}
 				GdlFunction function = (GdlFunction) term;
-				if (functionIndices.get(functionIndexRef.value) != indexRef.value
-						|| !functionNames.get(functionIndexRef.value).equals(function.getName())
-						|| functionArities.get(functionIndexRef.value) != function.arity()) {
-					return false;
-				}
-				++functionIndexRef.value;
-				if (!bodyMatches(function.getBody(), indexRef, functionIndexRef)) {
-					return false;
-				}
-			} else {
-				//If we expect a function here, return false
-				if (functionIndices.get(functionIndexRef.value) == indexRef.value) {
+				SimpleSentenceForm functionForm = functions.get(i);
+				if (!functionForm.matches(function)) {
 					return false;
 				}
 			}
-			++indexRef.value;
+		}
+		return true;
+	}
+
+	private boolean matches(GdlFunction function) {
+		if (!function.getName().equals(name)) {
+			return false;
+		}
+		if (function.arity() != arity) {
+			return false;
+		}
+		for (int i = 0; i < function.arity(); i++) {
+			GdlTerm term = function.get(i);
+			if (functions.containsKey(i) && !(term instanceof GdlFunction)) {
+				return false;
+			} else if (term instanceof GdlFunction) {
+				if (!functions.containsKey(i)) {
+					return false;
+				}
+				GdlFunction innerFunction = (GdlFunction) term;
+				SimpleSentenceForm functionForm = functions.get(i);
+				if (!functionForm.matches(innerFunction)) {
+					return false;
+				}
+			}
 		}
 		return true;
 	}
@@ -152,5 +145,53 @@ public class SimpleSentenceForm implements SentenceForm {
 	@Override
 	public int getTupleSize() {
 		return tupleSize;
+	}
+
+	@Override
+	public GdlSentence getSentenceFromTuple(List<? extends GdlTerm> tuple) {
+		if (tuple.size() != tupleSize) {
+			throw new IllegalArgumentException("Passed tuple of the wrong size to a sentence form: " +
+					"tuple was " + tuple + ", sentence form is " + this);
+		}
+		if (tuple.size() < arity) {
+			throw new IllegalStateException ("Something is very wrong, probably fixable by the GdlCleaner; name: " + name + "; arity: " + arity + "; tupleSize: " + tupleSize);
+		}
+		List<GdlTerm> sentenceBody = Lists.newArrayList();
+		int curIndex = 0;
+		for (int i = 0; i < arity; i++) {
+			GdlTerm term = tuple.get(curIndex);
+			Preconditions.checkArgument(!(term instanceof GdlFunction));
+			if (functions.containsKey(i)) {
+				SimpleSentenceForm functionForm = functions.get(i);
+				sentenceBody.add(functionForm.getFunctionFromTuple(tuple, curIndex));
+				curIndex += functionForm.getTupleSize();
+			} else {
+				sentenceBody.add(term);
+				curIndex++;
+			}
+		}
+		if (arity == 0) {
+			return GdlPool.getProposition(name);
+		} else {
+			return GdlPool.getRelation(name, sentenceBody);
+		}
+	}
+
+	private GdlFunction getFunctionFromTuple(List<? extends GdlTerm> tuple,
+			int curIndex) {
+		List<GdlTerm> functionBody = Lists.newArrayList();
+		for (int i = 0; i < arity; i++) {
+			GdlTerm term = tuple.get(curIndex);
+			Preconditions.checkArgument(!(term instanceof GdlFunction));
+			if (functions.containsKey(i)) {
+				SimpleSentenceForm functionForm = functions.get(i);
+				functionBody.add(getFunctionFromTuple(tuple, curIndex));
+				curIndex += functionForm.getTupleSize();
+			} else {
+				functionBody.add(term);
+				curIndex++;
+			}
+		}
+		return GdlPool.getFunction(name, functionBody);
 	}
 }
