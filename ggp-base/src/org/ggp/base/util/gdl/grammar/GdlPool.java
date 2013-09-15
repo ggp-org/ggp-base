@@ -37,6 +37,11 @@ public final class GdlPool
     // sent over the network in PLAY requests and responses, so this should be safe.
     public static final HashSet<String> keywords = new HashSet<String>(Arrays.asList(
     		new String[] {"init","true","next","role","does","goal","legal","terminal","base","input","_"}));
+    public static final GdlConstant DOES = getConstant("does");
+    public static final GdlConstant INIT = getConstant("init");
+    public static final GdlConstant LEGAL = getConstant("legal");
+    public static final GdlConstant NEXT = getConstant("next");
+    public static final GdlConstant TRUE = getConstant("true");
     /**
      * Represents a single underscore ("_"). The underscore is not a GDL keyword, but
      * it's used by SentenceForms and is generally convenient for utility methods.
