@@ -21,6 +21,7 @@ import org.ggp.base.util.gdl.grammar.GdlVariable;
 
 //Cleans up various issues with games to make them more standardized.
 public class GdlCleaner {
+    private final static GdlConstant BASE = GdlPool.getConstant("base");
 
 	public static List<Gdl> run(List<Gdl> description) {
 		List<Gdl> newDescription = new ArrayList<Gdl>();
@@ -69,7 +70,36 @@ public class GdlCleaner {
 		        newDescription.add(gdl);
 		    }
 		}
-		
+
+		//Get rid of the old style of "base" sentences (with arity more than 1, not in rules)
+		//See e.g. current version of Qyshinsu on the Dresden server
+		description = newDescription;
+		newDescription = new ArrayList<Gdl>();
+		boolean removeBaseSentences = false;
+		for (Gdl gdl : description) {
+			if (gdl instanceof GdlRelation) {
+				GdlRelation relation = (GdlRelation) gdl;
+				if (relation.getName() == BASE && relation.arity() != 1) {
+					removeBaseSentences = true;
+					break;
+				}
+			}
+		}
+		//Note that in this case, we have to remove ALL of them or we might
+		//misinterpret this as being the new kind of "base" relation
+		for (Gdl gdl : description) {
+			if (gdl instanceof GdlRelation) {
+				GdlRelation relation = (GdlRelation) gdl;
+				if (removeBaseSentences && relation.getName() == BASE) {
+					//Leave out the relation
+				} else {
+					newDescription.add(gdl);
+				}
+			} else {
+				newDescription.add(gdl);
+			}
+		}
+
 		return newDescription;
 	}
 
@@ -168,7 +198,11 @@ public class GdlCleaner {
 		List<GdlTerm> cleanedBody = new ArrayList<GdlTerm>();
 		for(GdlTerm term : sentence.getBody())
 			cleanedBody.add(cleanParentheses(term));
-		return GdlPool.getRelation(sentence.getName(), cleanedBody);
+		if (cleanedBody.size() == 0) {
+			return GdlPool.getProposition(sentence.getName());
+		} else {
+			return GdlPool.getRelation(sentence.getName(), cleanedBody);
+		}
 	}
 
 	private static GdlTerm cleanParentheses(GdlTerm term) {
