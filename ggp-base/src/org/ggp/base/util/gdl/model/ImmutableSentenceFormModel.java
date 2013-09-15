@@ -50,7 +50,9 @@ public class ImmutableSentenceFormModel implements SentenceFormModel {
 	 * May not actually create a copy if the input is immutable.
 	 */
 	public static ImmutableSentenceFormModel copyOf(SentenceFormModel other) {
-		if (other instanceof ImmutableSentenceFormModel) {
+		if (other instanceof ImmutableSentenceDomainModel) {
+			return copyOf(((ImmutableSentenceDomainModel) other).getFormModel());
+		} else if (other instanceof ImmutableSentenceFormModel) {
 			return (ImmutableSentenceFormModel) other;
 		}
 

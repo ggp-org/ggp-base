@@ -41,12 +41,72 @@ public class SentenceFormsFinder {
 		return ImmutableSet.copyOf(getSentenceFormsFromModel());
 	}
 
+	public Map<SentenceForm, SentenceFormDomain> findCartesianDomains() throws InterruptedException {
+		createModel();
+
+		return getCartesianDomainsFromModel();
+	}
+
 	private void createModel() throws InterruptedException {
 		synchronized (this) {
 			if (!haveCreatedModel) {
 				addTrueSentencesToModel();
 				applyRulesToModel();
 				haveCreatedModel = true;
+			}
+		}
+	}
+
+	private Map<SentenceForm, SentenceFormDomain> getCartesianDomainsFromModel() throws InterruptedException {
+		Map<SentenceForm, SentenceFormDomain> results = Maps.newHashMap();
+		for (Entry<NameAndArity, List<TermModel>> sentenceEntry : sentencesModel.entrySet()) {
+			ConcurrencyUtils.checkForInterruption();
+			NameAndArity nameAndArity = sentenceEntry.getKey();
+			GdlConstant name = nameAndArity.getName();
+			List<TermModel> bodyModels = sentenceEntry.getValue();
+			// We'll end up taking the Cartesian product of the different
+			// types of terms we have available
+			if (nameAndArity.getArity() == 0) {
+				GdlSentence sentence = GdlPool.getProposition(name);
+				SimpleSentenceForm form = SimpleSentenceForm.create(sentence);
+				results.put(form, CartesianSentenceFormDomain.create(form, ImmutableList.<Set<GdlConstant>>of()));
+			} else {
+				List<Set<GdlTerm>> sampleTerms = toSampleTerms(bodyModels);
+				for (List<GdlTerm> terms : Sets.cartesianProduct(sampleTerms)) {
+					ConcurrencyUtils.checkForInterruption();
+					GdlRelation sentence = GdlPool.getRelation(name, terms);
+					SimpleSentenceForm form = SimpleSentenceForm.create(sentence);
+					SentenceFormDomain domain = getDomain(form, sentence);
+					results.put(form, domain);
+				}
+			}
+		}
+		return results;
+	}
+
+	private SentenceFormDomain getDomain(SentenceForm form, GdlRelation sentence) {
+		List<Set<GdlConstant>> domainContents = Lists.newArrayList();
+		getDomainInternal(sentence.getBody(), sentencesModel.get(new NameAndArity(sentence)), domainContents);
+		return CartesianSentenceFormDomain.create(form, domainContents);
+	}
+
+	//Appends to domainContents
+	private void getDomainInternal(List<GdlTerm> body, List<TermModel> bodyModel,
+			List<Set<GdlConstant>> domainContents) {
+		if (body.size() != bodyModel.size()) {
+			throw new IllegalStateException("Should have same arity in example as in model");
+		}
+		for (int i = 0; i < body.size(); i++) {
+			GdlTerm term = body.get(i);
+			TermModel termModel = bodyModel.get(i);
+			if (term instanceof GdlConstant) {
+				domainContents.add(termModel.getPossibleConstants());
+			} else if (term instanceof GdlFunction) {
+				GdlFunction function = (GdlFunction) term;
+				List<TermModel> functionBodyModel = termModel.getFunctionBodyModel(function);
+				getDomainInternal(function.getBody(), functionBodyModel, domainContents);
+			} else {
+				throw new IllegalStateException();
 			}
 		}
 	}
