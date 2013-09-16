@@ -9,7 +9,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSetMultimap;
-import com.google.common.collect.Sets;
 
 public class ImmutableSentenceFormModel implements SentenceFormModel {
 	private final ImmutableList<Gdl> gameDescription;
@@ -33,7 +32,6 @@ public class ImmutableSentenceFormModel implements SentenceFormModel {
 		Preconditions.checkArgument(sentenceForms.containsAll(dependencyGraph.values()));
 		Preconditions.checkArgument(sentenceForms.containsAll(rulesByForm.keySet()));
 		Preconditions.checkArgument(sentenceForms.containsAll(trueSentencesByForm.keySet()));
-		Preconditions.checkArgument(Sets.newHashSet(gameDescription).size() == rulesByForm.size() + trueSentencesByForm.size());
 		this.gameDescription = gameDescription;
 		this.sentenceForms = sentenceForms;
 		this.constantSentenceForms = constantSentenceForms;
