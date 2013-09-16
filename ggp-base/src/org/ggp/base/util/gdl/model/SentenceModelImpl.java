@@ -30,7 +30,11 @@ import org.ggp.base.util.gdl.grammar.GdlRule;
 import org.ggp.base.util.gdl.grammar.GdlSentence;
 import org.ggp.base.util.gdl.grammar.GdlTerm;
 import org.ggp.base.util.gdl.grammar.GdlVariable;
-import org.ggp.base.util.gdl.transforms.ConstantFinder.ConstantChecker;
+import org.ggp.base.util.gdl.transforms.ConstantFinder.ConstantCheckerImpl;
+
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Multimap;
 
 
 /**
@@ -132,7 +136,7 @@ public class SentenceModelImpl implements RuleSplittableSentenceModel {
 		ignoreLanguageRules = other.ignoreLanguageRules;
 
 		if(other.dependencyGraph != null)
-			dependencyGraph = new HashMap<SentenceForm, Set<SentenceForm>>(other.dependencyGraph);
+			dependencyGraph = HashMultimap.create(other.dependencyGraph);
 		//SentenceForms are immutable.
 		if(other.constantSentenceForms != null)
 			constantSentenceForms = new HashSet<SentenceForm>(other.constantSentenceForms);
@@ -326,7 +330,7 @@ public class SentenceModelImpl implements RuleSplittableSentenceModel {
 	//Don't use this if you have function-valued variables.
 	//To make this simpler, let's also say no "ors" allowed.
 	@Override
-	public void restrictDomainsToUsefulValues(ConstantChecker constantChecker) throws InterruptedException {
+	public void restrictDomainsToUsefulValues(ConstantCheckerImpl constantChecker) throws InterruptedException {
 		//We want to restrict the domains of sentence forms to those that will be
 		//useful looking forward; that is, they must eventually be passed into
 		//some statement with a next/legal/goal/init __, or else be __, or
@@ -410,7 +414,7 @@ public class SentenceModelImpl implements RuleSplittableSentenceModel {
 	}
 
 	private boolean applyPossibilityDomainRestriction(
-			ConstantChecker constantChecker) throws InterruptedException {
+			ConstantCheckerImpl constantChecker) throws InterruptedException {
 		//Find the still-possible values for each TermModel.
 		Map<TermModel, Set<GdlConstant>> possibleValues = new HashMap<TermModel, Set<GdlConstant>>();
 		for(TermModel termModel : getAllTermModels())
@@ -476,7 +480,7 @@ public class SentenceModelImpl implements RuleSplittableSentenceModel {
 
 	private void addPossibilitiesGivenByRule(GdlRule rule,
 			Map<TermModel, Set<GdlConstant>> possibleValues,
-			ConstantChecker constantChecker) {
+			ConstantCheckerImpl constantChecker) {
 		//We add to the possibilities for terms in the head by:
 		//1) Adding any constants we find in the head.
 		//2) Adding the domains of any variables we find, with the domain
@@ -529,7 +533,7 @@ public class SentenceModelImpl implements RuleSplittableSentenceModel {
 		}
 	}
 
-	private boolean applyNeedDomainRestriction(ConstantChecker constantChecker) throws InterruptedException {
+	private boolean applyNeedDomainRestriction(ConstantCheckerImpl constantChecker) throws InterruptedException {
 		Map<TermModel, Set<GdlConstant>> neededValues = new HashMap<TermModel, Set<GdlConstant>>();
 		//Grab the initially needed values
 		addNeededValues(neededValues);
@@ -613,7 +617,7 @@ public class SentenceModelImpl implements RuleSplittableSentenceModel {
 
 	private void propagateNeededValues(
 			Map<TermModel, Set<GdlConstant>> neededValues,
-			ConstantChecker constantChecker) throws InterruptedException {
+			ConstantCheckerImpl constantChecker) throws InterruptedException {
 		//We propagate need as follows:
 		//If a term that is a variable in the head of a rule needs a
 		//particular value, AND that variable is possible (i.e. in the
@@ -649,7 +653,7 @@ public class SentenceModelImpl implements RuleSplittableSentenceModel {
 
 	private void propagateNeededValuesInRule(GdlRule rule, GdlVariable var,
 			Map<TermModel, Set<GdlConstant>> neededValues,
-			ConstantChecker constantChecker) throws InterruptedException {
+			ConstantCheckerImpl constantChecker) throws InterruptedException {
 		//TODO: Implement
 		//1) Compute the shared domain of the variable (the intersection of the
 		//   domains of the term models where the variable appears)
@@ -838,23 +842,21 @@ public class SentenceModelImpl implements RuleSplittableSentenceModel {
 		}
 	}
 
-	private Map<SentenceForm, Set<SentenceForm>> dependencyGraph = null;
+	private Multimap<SentenceForm, SentenceForm> dependencyGraph = null;
 	/**
 	 * Each key in the graph depends on those sentence forms in the associated set.
 	 */
 	@Override
-	public Map<SentenceForm, Set<SentenceForm>> getDependencyGraph() {
+	public Multimap<SentenceForm, SentenceForm> getDependencyGraph() {
 		if(dependencyGraph == null) {
 			//Build graph from rules
-			dependencyGraph = new HashMap<SentenceForm, Set<SentenceForm>>();
+			dependencyGraph = HashMultimap.create();
 			for(Gdl gdl : description) {
 				if(gdl instanceof GdlRule) {
 					GdlRule rule = (GdlRule) gdl;
 					SentenceForm head = new SentenceFormImpl(rule.getHead());
-					if(!dependencyGraph.containsKey(head))
-						dependencyGraph.put(head, new HashSet<SentenceForm>());
 					for(GdlLiteral bodyLiteral : rule.getBody()) {
-						dependencyGraph.get(head).addAll(extractSentenceForms(bodyLiteral));
+						dependencyGraph.putAll(head, extractSentenceForms(bodyLiteral));
 					}
 				}
 			}
@@ -916,7 +918,7 @@ public class SentenceModelImpl implements RuleSplittableSentenceModel {
 
 	private Set<SentenceForm> getChangingSentences(boolean includeIndependents) {
 		Set<SentenceForm> allForms = getSentenceForms();
-		Map<SentenceForm, Set<SentenceForm>> dependencies = getDependencyGraph();
+		Multimap<SentenceForm, SentenceForm> dependencies = getDependencyGraph();
 		Queue<SentenceForm> unfollowed = new LinkedList<SentenceForm>();
 		Set<SentenceForm> changing = new HashSet<SentenceForm>();
 		for(SentenceForm form : allForms) {
@@ -941,8 +943,7 @@ public class SentenceModelImpl implements RuleSplittableSentenceModel {
 			for(SentenceForm candidate : allForms) {
 				if(changing.contains(candidate))
 					continue;
-				if(dependencies.get(candidate) != null
-						&& dependencies.get(candidate).contains(toFollow)) {
+				if(dependencies.get(candidate).contains(toFollow)) {
 					//The candidate is dependent on a changing form
 					changing.add(candidate);
 					unfollowed.add(candidate);
@@ -968,7 +969,8 @@ public class SentenceModelImpl implements RuleSplittableSentenceModel {
 		return forms;
 	}
 
-	public class SentenceFormImpl extends AbstractSentenceForm {
+	public class SentenceFormImpl extends AbstractSentenceForm
+	                              implements SentenceFormDomain {
 		public SentenceFormImpl(GdlSentence sentence) {
 			sentenceName = sentence.getName();
 			functionalElements = new ArrayList<GdlConstant>();
@@ -1203,15 +1205,36 @@ public class SentenceModelImpl implements RuleSplittableSentenceModel {
 			}
 			return sampleSentence;
 		}
-
+		@Override
+		public Set<GdlConstant> getDomainForSlot(int slotIndex) {
+			GdlVariable var = GdlPool.getVariable("?a");
+			List<GdlTerm> tuple = Lists.newArrayList();
+			for (int i = 0; i < tupleSize; i++) {
+				if (i == slotIndex) {
+					tuple.add(var);
+				} else {
+					tuple.add(GdlPool.UNDERSCORE);
+				}
+			}
+			GdlSentence sentence = getSentenceFromTuple(tuple);
+			if (sentence instanceof GdlRelation) {
+				return getDomainOfVarInRelation(var, (GdlRelation) sentence);
+			} else {
+				throw new IllegalArgumentException("Can't get domains for slots in a GdlProposition");
+			}
+		}
+		@Override
+		public SentenceForm getForm() {
+			return this;
+		}
 	}
 
 	@Override
 	public Set<String> getSentenceNames() {
 		//return sentences.keySet();
 		Set<String> sentenceNames = new HashSet<String>();
-		for(String taggedName : sentences.keySet()) {
-			sentenceNames.add(taggedName);
+		for (SentenceForm form : getSentenceForms()) {
+			sentenceNames.add(form.getName().getValue());
 		}
 		return sentenceNames;
 	}
@@ -1265,22 +1288,22 @@ public class SentenceModelImpl implements RuleSplittableSentenceModel {
 		forms.addAll(formsToAdd);
 	}
 
-	private Map<SentenceForm, Set<GdlRelation>> relationsByForm = new HashMap<SentenceForm, Set<GdlRelation>>();
+	private Map<SentenceForm, Set<GdlSentence>> relationsByForm = new HashMap<SentenceForm, Set<GdlSentence>>();
 	@Override
-	public Set<GdlRelation> getRelations(SentenceForm form) {
+	public Set<GdlSentence> getSentencesListedAsTrue(SentenceForm form) {
 		if(relationsByForm.get(form) == null) {
-			Set<GdlRelation> relations = new HashSet<GdlRelation>();
+			Set<GdlSentence> sentences = new HashSet<GdlSentence>();
 
 			//build it...
 			for(Gdl gdl : description) {
-				if(gdl instanceof GdlRelation) {
-					GdlRelation relation = (GdlRelation) gdl;
-					if(form.matches(relation))
-						relations.add(relation);
+				if(gdl instanceof GdlSentence) {
+				    GdlSentence sentence = (GdlSentence) gdl;
+					if(form.matches(sentence))
+						sentences.add(sentence);
 				}
 			}
 
-			relationsByForm.put(form, relations);
+			relationsByForm.put(form, sentences);
 		}
 		return relationsByForm.get(form);
 	}
@@ -1493,7 +1516,7 @@ public class SentenceModelImpl implements RuleSplittableSentenceModel {
 	public Map<GdlVariable, Set<GdlConstant>> getVarDomains(GdlRule rule) {
 		return getVarDomains(rule, null);
 	}
-	public Map<GdlVariable, Set<GdlConstant>> getVarDomains(GdlRule rule, ConstantChecker checker) {
+	public Map<GdlVariable, Set<GdlConstant>> getVarDomains(GdlRule rule, ConstantCheckerImpl checker) {
 		Set<GdlVariable> vars = new HashSet<GdlVariable>(GdlUtils.getVariables(rule));
 		Map<GdlVariable, Set<GdlConstant>> varDomains = new HashMap<GdlVariable, Set<GdlConstant>>();
 		for(GdlLiteral conjunct : rule.getBody()) {
@@ -1583,6 +1606,14 @@ public class SentenceModelImpl implements RuleSplittableSentenceModel {
 			}
 		}
 		return found;
+	}
+
+	@Override
+	public SentenceFormDomain getDomain(SentenceForm form) {
+	    if (!(form instanceof SentenceFormImpl)) {
+	        throw new RuntimeException("SentenceModelImpl currently needs its own SentenceForms to work right");
+	    }
+	    return (SentenceFormDomain) form;
 	}
 
 	@Override

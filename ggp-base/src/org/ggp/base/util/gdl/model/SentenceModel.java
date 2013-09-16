@@ -7,28 +7,29 @@ import java.util.Set;
 
 import org.ggp.base.util.gdl.grammar.Gdl;
 import org.ggp.base.util.gdl.grammar.GdlConstant;
-import org.ggp.base.util.gdl.grammar.GdlRelation;
 import org.ggp.base.util.gdl.grammar.GdlRule;
 import org.ggp.base.util.gdl.grammar.GdlSentence;
 import org.ggp.base.util.gdl.grammar.GdlVariable;
-import org.ggp.base.util.gdl.transforms.ConstantFinder.ConstantChecker;
+import org.ggp.base.util.gdl.transforms.ConstantFinder.ConstantCheckerImpl;
+
+import com.google.common.collect.Multimap;
 
 
-public interface SentenceModel extends SentenceFormSource {
+public interface SentenceModel extends SentenceFormSource, SentenceDomainModel {
 
 	Set<SentenceForm> getIndependentSentenceForms();
 
 	Set<SentenceForm> getConstantSentenceForms();
 
-	Map<SentenceForm, Set<SentenceForm>> getDependencyGraph();
+	Multimap<SentenceForm, SentenceForm> getDependencyGraph();
 
-	Set<GdlRelation> getRelations(SentenceForm form);
+	Set<GdlSentence> getSentencesListedAsTrue(SentenceForm form);
 
 	Set<GdlRule> getRules(SentenceForm form);
 
 	Set<SentenceForm> getSentenceForms();
 
-	void restrictDomainsToUsefulValues(ConstantChecker checker) throws InterruptedException;
+	void restrictDomainsToUsefulValues(ConstantCheckerImpl checker) throws InterruptedException;
 
 	Set<String> getSentenceNames();
 

@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -17,20 +16,22 @@ import org.ggp.base.util.gdl.grammar.GdlConstant;
 import org.ggp.base.util.gdl.grammar.GdlLiteral;
 import org.ggp.base.util.gdl.grammar.GdlNot;
 import org.ggp.base.util.gdl.grammar.GdlPool;
-import org.ggp.base.util.gdl.grammar.GdlRelation;
 import org.ggp.base.util.gdl.grammar.GdlRule;
 import org.ggp.base.util.gdl.grammar.GdlSentence;
 import org.ggp.base.util.gdl.grammar.GdlVariable;
 import org.ggp.base.util.gdl.model.assignments.AssignmentIterator;
 import org.ggp.base.util.gdl.model.assignments.Assignments;
 import org.ggp.base.util.gdl.model.assignments.AssignmentsFactory;
-import org.ggp.base.util.gdl.model.assignments.AssignmentsImpl.ConstantForm;
+import org.ggp.base.util.gdl.model.assignments.FunctionInfo;
+import org.ggp.base.util.gdl.model.assignments.FunctionInfoImpl;
 import org.ggp.base.util.gdl.transforms.CommonTransforms;
+import org.ggp.base.util.gdl.transforms.ConstantChecker;
 import org.ggp.base.util.gdl.transforms.ConstantFinder;
 import org.ggp.base.util.gdl.transforms.DeORer;
 import org.ggp.base.util.gdl.transforms.GdlCleaner;
 import org.ggp.base.util.gdl.transforms.VariableConstrainer;
-import org.ggp.base.util.gdl.transforms.ConstantFinder.ConstantChecker;
+
+import com.google.common.collect.Multimap;
 
 
 /**
@@ -58,7 +59,7 @@ public class GameFlow {
 		description = VariableConstrainer.replaceFunctionValuedVariables(description);
 		
 		//First we use a sentence model to get the relevant sentence forms
-		SentenceModel model = new SentenceModelImpl(description);
+		SentenceDomainModel model = SentenceDomainModelFactory.createWithCartesianDomains(description);
 		formsControlledByFlow = new HashSet<SentenceForm>();
 		formsControlledByFlow.addAll(model.getIndependentSentenceForms());
 		formsControlledByFlow.removeAll(model.getConstantSentenceForms());
@@ -72,15 +73,15 @@ public class GameFlow {
 		solveTurns(model);
 	}
 
-	private void solveTurns(SentenceModel model) throws InterruptedException {
+	private void solveTurns(SentenceDomainModel model) throws InterruptedException {
 		//Before we can do anything else, we need a topological ordering on our forms
 		List<SentenceForm> ordering = getTopologicalOrdering(model.getIndependentSentenceForms(), model.getDependencyGraph());
 		ordering.retainAll(formsControlledByFlow);
-		
-		//Let's add constant forms ("constForms") to the consideration...
-		Map<SentenceForm, ConstantForm> constForms = new HashMap<SentenceForm, ConstantForm>();
+
+		//Let's add function info to the consideration...
+		Map<SentenceForm, FunctionInfo> functionInfoMap = new HashMap<SentenceForm, FunctionInfo>();
 		for(SentenceForm form : constantForms) {
-			constForms.put(form, new ConstantForm(form, constantChecker));
+			functionInfoMap.put(form, FunctionInfoImpl.create(form, constantChecker));
 		}
 		
 		//First we set the "true" values, then we get the forms controlled by the flow...
@@ -88,16 +89,14 @@ public class GameFlow {
 		Set<GdlSentence> trueFlowSentences = new HashSet<GdlSentence>();
 		for(SentenceForm form : constantForms) {
 			if(form.getName().equals(INIT)) {
-				Iterator<GdlSentence> itr = constantChecker.getTrueSentences(form);
-				while(itr.hasNext()) {
-					GdlSentence initSentence = itr.next();
+			    for (GdlSentence initSentence : constantChecker.getTrueSentences(form)) {
 					GdlSentence trueSentence = GdlPool.getRelation(TRUE, initSentence.getBody());
 					trueFlowSentences.add(trueSentence);
 				}
 			}
 		}
 		//Go through ordering, adding to trueFlowSentences
-		addSentenceForms(ordering, trueFlowSentences, model, constForms);
+		addSentenceForms(ordering, trueFlowSentences, model, functionInfoMap);
 		sentencesTrueByTurn.add(trueFlowSentences);
 		
 		outer : while(true) {
@@ -110,9 +109,9 @@ public class GameFlow {
 					trueFlowSentences.add(trueSentence);
 				}
 			}
-			
-			addSentenceForms(ordering, trueFlowSentences, model, constForms);
-			
+
+			addSentenceForms(ordering, trueFlowSentences, model, functionInfoMap);
+
 			//Test if this turn's flow is the same as an earlier one
 			for(int i = 0; i < sentencesTrueByTurn.size(); i++) {
 				Set<GdlSentence> prevSet = sentencesTrueByTurn.get(i);
@@ -130,19 +129,20 @@ public class GameFlow {
 	
 	@SuppressWarnings("unchecked")
 	private void addSentenceForms(List<SentenceForm> ordering,
-			Set<GdlSentence> trueFlowSentences, SentenceModel model,
-			Map<SentenceForm, ConstantForm> constForms) {
+			Set<GdlSentence> trueFlowSentences,
+			SentenceDomainModel model,
+			Map<SentenceForm, FunctionInfo> functionInfoMap) {
 		for(SentenceForm curForm : ordering) {
 			//Check against trueFlowSentences, add to trueFlowSentences
 			//or check against constantForms if necessary
 			//Use basic Assignments class, of course
-			
-			for(GdlRelation relation : model.getRelations(curForm))
-				trueFlowSentences.add(relation);
+
+			for(GdlSentence alwaysTrueSentences : model.getSentencesListedAsTrue(curForm))
+				trueFlowSentences.add(alwaysTrueSentences);
 			for(GdlRule rule : model.getRules(curForm)) {
 				GdlSentence head = rule.getHead();
 				List<GdlVariable> varsInHead = GdlUtils.getVariables(head);
-				Assignments assignments = AssignmentsFactory.getAssignmentsForRule(rule, model, constForms, Collections.EMPTY_MAP);
+				Assignments assignments = AssignmentsFactory.getAssignmentsForRule(rule, model, functionInfoMap, Collections.EMPTY_MAP);
 
 				AssignmentIterator asnItr = assignments.getIterator();
 				while(asnItr.hasNext()) {
@@ -215,7 +215,7 @@ public class GameFlow {
 
 	private static List<SentenceForm> getTopologicalOrdering(
 			Set<SentenceForm> forms,
-			Map<SentenceForm, Set<SentenceForm>> dependencyGraph) {
+			Multimap<SentenceForm, SentenceForm> dependencyGraph) {
 		//We want each form as a key of the dependency graph to
 		//follow all the forms in the dependency graph, except maybe itself
 		Queue<SentenceForm> queue = new LinkedList<SentenceForm>(forms);
@@ -225,12 +225,10 @@ public class GameFlow {
 			SentenceForm curForm = queue.remove();
 			boolean readyToAdd = true;
 			//Don't add if there are dependencies
-			if(dependencyGraph.get(curForm) != null) {
-				for(SentenceForm dependency : dependencyGraph.get(curForm)) {
-					if(!dependency.equals(curForm) && !alreadyOrdered.contains(dependency)) {
-						readyToAdd = false;
-						break;
-					}
+			for(SentenceForm dependency : dependencyGraph.get(curForm)) {
+				if(!dependency.equals(curForm) && !alreadyOrdered.contains(dependency)) {
+					readyToAdd = false;
+					break;
 				}
 			}
 			//Add it

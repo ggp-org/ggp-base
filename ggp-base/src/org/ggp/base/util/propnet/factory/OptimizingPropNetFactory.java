@@ -35,12 +35,14 @@ import org.ggp.base.util.gdl.model.SentenceModelUtils;
 import org.ggp.base.util.gdl.model.assignments.AssignmentIterator;
 import org.ggp.base.util.gdl.model.assignments.Assignments;
 import org.ggp.base.util.gdl.model.assignments.AssignmentsFactory;
-import org.ggp.base.util.gdl.model.assignments.AssignmentsImpl.ConstantForm;
+import org.ggp.base.util.gdl.model.assignments.FunctionInfo;
+import org.ggp.base.util.gdl.model.assignments.FunctionInfoImpl;
 import org.ggp.base.util.gdl.transforms.CommonTransforms;
 import org.ggp.base.util.gdl.transforms.CondensationIsolator;
 import org.ggp.base.util.gdl.transforms.CondensationIsolator.CondensationIsolatorConfiguration;
+import org.ggp.base.util.gdl.transforms.ConstantChecker;
 import org.ggp.base.util.gdl.transforms.ConstantFinder;
-import org.ggp.base.util.gdl.transforms.ConstantFinder.ConstantChecker;
+import org.ggp.base.util.gdl.transforms.ConstantFinder.ConstantCheckerImpl;
 import org.ggp.base.util.gdl.transforms.CrudeSplitter;
 import org.ggp.base.util.gdl.transforms.DeORer;
 import org.ggp.base.util.gdl.transforms.GdlCleaner;
@@ -56,6 +58,8 @@ import org.ggp.base.util.propnet.architecture.components.Or;
 import org.ggp.base.util.propnet.architecture.components.Proposition;
 import org.ggp.base.util.propnet.architecture.components.Transition;
 import org.ggp.base.util.statemachine.Role;
+
+import com.google.common.collect.Multimap;
 
 
 /*
@@ -175,7 +179,7 @@ public class OptimizingPropNetFactory {
 		//Is this a good place to get the constants?
 		if(verbose)
 			System.out.println("Setting constants...");
-		ConstantChecker constantChecker = ConstantFinder.getConstants(description);
+		ConstantCheckerImpl constantChecker = ConstantFinder.getConstants(description);
 		if(verbose)
 			System.out.println("Done setting constants");
 
@@ -195,7 +199,7 @@ public class OptimizingPropNetFactory {
 		//particular restriction on the dependency graph:
 		//Recursive loops may only contain one sentence form.
 		//This describes most games, but not all legal games.
-		Map<SentenceForm, Set<SentenceForm>> dependencyGraph = model.getDependencyGraph();
+		Multimap<SentenceForm, SentenceForm> dependencyGraph = model.getDependencyGraph();
 		if(verbose) {
 			System.out.print("Computing topological ordering... ");
 			System.out.flush();
@@ -211,7 +215,7 @@ public class OptimizingPropNetFactory {
 		Map<GdlSentence, Component> negations = new HashMap<GdlSentence, Component>();
 		Constant trueComponent = new Constant(true);
 		Constant falseComponent = new Constant(false);
-		Map<SentenceForm, ConstantForm> constantForms = new HashMap<SentenceForm, ConstantForm>();
+		Map<SentenceForm, FunctionInfo> constantForms = new HashMap<SentenceForm, FunctionInfo>();
 		Map<SentenceForm, Collection<GdlSentence>> completedSentenceFormValues = new HashMap<SentenceForm, Collection<GdlSentence>>();
 		for(SentenceForm form : topologicalOrdering) {
 			ConcurrencyUtils.checkForInterruption();
@@ -228,16 +232,10 @@ public class OptimizingPropNetFactory {
 						|| form.getName().equals(GOAL)
 						|| form.getName().equals(INIT)) {
 					//Add it
-					Iterator<GdlSentence> sentenceItr = constantChecker.getTrueSentences(form);
-					if(!sentenceItr.hasNext())
-						System.out.println("Empty sentence iterator");
-					while(sentenceItr.hasNext()) {
-						GdlSentence trueSentence = sentenceItr.next();
-						//System.out.println("Adding prop for sentence " + trueSentence);
+					for (GdlSentence trueSentence : constantChecker.getTrueSentences(form)) {
 						Proposition trueProp = new Proposition(trueSentence);
 						trueProp.addInput(trueComponent);
 						trueComponent.addOutput(trueProp);
-						//components.put(trueSentence, trueProp);
 						components.put(trueSentence, trueComponent);
 					}
 				}
@@ -347,9 +345,7 @@ public class OptimizingPropNetFactory {
 			ConstantChecker constantChecker) {
 		constantChecker.getTrueSentences(form);
 		List<GdlSentence> sentences = new ArrayList<GdlSentence>();
-		Iterator<GdlSentence> itr = constantChecker.getTrueSentences(form);
-		while(itr.hasNext())
-			sentences.add(itr.next());
+		sentences.addAll(constantChecker.getTrueSentences(form));
 
 		completedSentenceFormValues.put(form, sentences);
 	}
@@ -375,8 +371,8 @@ public class OptimizingPropNetFactory {
 
 
 	private static void addToConstants(SentenceForm form,
-			ConstantChecker constantChecker, Map<SentenceForm, ConstantForm> constantForms) throws InterruptedException {
-		constantForms.put(form, new ConstantForm(form, constantChecker));
+			ConstantChecker constantChecker, Map<SentenceForm, FunctionInfo> constantForms) throws InterruptedException {
+		constantForms.put(form, FunctionInfoImpl.create(form, constantChecker));
 	}
 
 
@@ -817,7 +813,7 @@ public class OptimizingPropNetFactory {
 	//factored out into the SentenceModel.
 	private static List<SentenceForm> getTopologicalOrdering(
 			Set<SentenceForm> forms,
-			Map<SentenceForm, Set<SentenceForm>> dependencyGraph, boolean usingBase, boolean usingInput) throws InterruptedException {
+			Multimap<SentenceForm, SentenceForm> dependencyGraph, boolean usingBase, boolean usingInput) throws InterruptedException {
 		//We want each form as a key of the dependency graph to
 		//follow all the forms in the dependency graph, except maybe itself
 		Queue<SentenceForm> queue = new LinkedList<SentenceForm>(forms);
@@ -827,12 +823,10 @@ public class OptimizingPropNetFactory {
 			SentenceForm curForm = queue.remove();
 			boolean readyToAdd = true;
 			//Don't add if there are dependencies
-			if(dependencyGraph.get(curForm) != null) {
-				for(SentenceForm dependency : dependencyGraph.get(curForm)) {
-					if(!dependency.equals(curForm) && !alreadyOrdered.contains(dependency)) {
-						readyToAdd = false;
-						break;
-					}
+			for(SentenceForm dependency : dependencyGraph.get(curForm)) {
+				if(!dependency.equals(curForm) && !alreadyOrdered.contains(dependency)) {
+					readyToAdd = false;
+					break;
 				}
 			}
 			//Don't add if it's true/next/legal/does and we're waiting for base/input
@@ -870,7 +864,7 @@ public class OptimizingPropNetFactory {
 			boolean usingBase, boolean usingInput,
 			Set<SentenceForm> recursionForms,
 			Map<GdlSentence, Component> temporaryComponents, Map<GdlSentence, Component> temporaryNegations,
-			Map<SentenceForm, ConstantForm> constantForms, ConstantChecker constantChecker,
+			Map<SentenceForm, FunctionInfo> constantForms, ConstantChecker constantChecker,
 			Map<SentenceForm, Collection<GdlSentence>> completedSentenceFormValues) throws InterruptedException {
 		//This is the meat of it (along with the entire Assignments class).
 		//We need to enumerate the possible propositions in the sentence form...
@@ -879,15 +873,15 @@ public class OptimizingPropNetFactory {
 		//proposition if it isn't actually possible, or replacing it with
 		//true/false if it's a constant.
 
-		Set<GdlRelation> relations = model.getRelations(form);
+		Set<GdlSentence> trueSentences = model.getSentencesListedAsTrue(form);
 		Set<GdlRule> rules = model.getRules(form);
 
-		for(GdlRelation relation : relations) {
+		for(GdlSentence trueSentence : trueSentences) {
 			//We add the sentence as a constant
-			if(relation.getName().equals(LEGAL)
-					|| relation.getName().equals(NEXT)
-					|| relation.getName().equals(GOAL)) {
-				Proposition prop = new Proposition(relation);
+			if(trueSentence.getName().equals(LEGAL)
+					|| trueSentence.getName().equals(NEXT)
+					|| trueSentence.getName().equals(GOAL)) {
+				Proposition prop = new Proposition(trueSentence);
 				//Attach to true
 				trueComponent.addOutput(prop);
 				prop.addInput(trueComponent);
@@ -895,8 +889,8 @@ public class OptimizingPropNetFactory {
 				//we just don't want this to be anonymized
 			}
 			//Assign as true
-			components.put(relation, trueComponent);
-			negations.put(relation, falseComponent);
+			components.put(trueSentence, trueComponent);
+			negations.put(trueSentence, falseComponent);
 			continue;
 		}
 
@@ -904,9 +898,7 @@ public class OptimizingPropNetFactory {
 		if(usingInput && form.getName().equals(DOES)) {
 			//Add only those propositions for which there is a corresponding INPUT
 			SentenceForm inputForm = form.withName(INPUT);
-			Iterator<GdlSentence> itr = constantChecker.getTrueSentences(inputForm);
-			while(itr.hasNext()) {
-				GdlSentence inputSentence = itr.next();
+			for (GdlSentence inputSentence : constantChecker.getTrueSentences(inputForm)) {
 				GdlSentence doesSentence = GdlPool.getRelation(DOES, inputSentence.getBody());
 				Proposition prop = new Proposition(doesSentence);
 				components.put(doesSentence, prop);
@@ -915,9 +907,7 @@ public class OptimizingPropNetFactory {
 		}
 		if(usingBase && form.getName().equals(TRUE)) {
 			SentenceForm baseForm = form.withName(BASE);
-			Iterator<GdlSentence> itr = constantChecker.getTrueSentences(baseForm);
-			while(itr.hasNext()) {
-				GdlSentence baseSentence = itr.next();
+			for (GdlSentence baseSentence : constantChecker.getTrueSentences(baseForm)) {
 				GdlSentence trueSentence = GdlPool.getRelation(TRUE, baseSentence.getBody());
 				Proposition prop = new Proposition(trueSentence);
 				components.put(trueSentence, prop);
@@ -930,7 +920,7 @@ public class OptimizingPropNetFactory {
 			Assignments assignments = AssignmentsFactory.getAssignmentsForRule(rule, model, constantForms, completedSentenceFormValues);
 
 			//Calculate vars in live (non-constant, non-distinct) conjuncts
-			Set<GdlVariable> varsInLiveConjuncts = getVarsInLiveConjuncts(rule, constantChecker.getSentenceForms());
+			Set<GdlVariable> varsInLiveConjuncts = getVarsInLiveConjuncts(rule, constantChecker.getConstantSentenceForms());
 			varsInLiveConjuncts.addAll(GdlUtils.getVariables(rule.getHead()));
 			Set<GdlVariable> varsInRule = new HashSet<GdlVariable>(GdlUtils.getVariables(rule));
 			boolean preventDuplicatesFromConstants =

@@ -30,7 +30,7 @@ import org.ggp.base.util.gdl.model.SentenceForm;
 import org.ggp.base.util.gdl.model.SentenceModelImpl;
 import org.ggp.base.util.gdl.model.SentenceModelUtils;
 import org.ggp.base.util.gdl.model.assignments.AssignmentsImpl;
-import org.ggp.base.util.gdl.transforms.ConstantFinder.ConstantChecker;
+import org.ggp.base.util.gdl.transforms.ConstantFinder.ConstantCheckerImpl;
 
 
 /**
@@ -247,7 +247,7 @@ public class CondensationIsolator {
 		//Don't use the model indiscriminately; it reflects the old description,
 		//not necessarily the new one
 		RuleSplittableSentenceModel model = new SentenceModelImpl(description);
-		ConstantChecker checker = ConstantFinder.getConstants(description);
+		ConstantCheckerImpl checker = ConstantFinder.getConstants(description);
 		model.restrictDomainsToUsefulValues(checker); //Helps our heuristics
 		Set<String> sentenceNames = new HashSet<String>(model.getSentenceNames());
 		Set<SentenceForm> constantForms = model.getConstantSentenceForms();
@@ -385,7 +385,7 @@ public class CondensationIsolator {
 
 	private static Set<GdlLiteral> getCondensationSet(GdlRule rule,
 			RuleSplittableSentenceModel model,
-			ConstantChecker checker,
+			ConstantCheckerImpl checker,
 			Set<SentenceForm> constantForms,
 			CondensationIsolatorConfiguration config) throws InterruptedException {
 		//We use each variable as a starting point
@@ -448,7 +448,7 @@ public class CondensationIsolator {
 
 	private static boolean goodCondensationSetByHeuristic(
 			Set<GdlLiteral> minSet, GdlRule rule, RuleSplittableSentenceModel model,
-			ConstantChecker checker, CondensationIsolatorConfiguration config) throws InterruptedException {
+			ConstantCheckerImpl checker, CondensationIsolatorConfiguration config) throws InterruptedException {
 		//We actually want the sentence model here so we can see the domains
 		//also, if it's a constant, ...
 		//Anyway... we want to compare the heuristic for the number of assignments
@@ -468,7 +468,7 @@ public class CondensationIsolator {
 
 		//Heuristic for the rule as-is:
 
-		long assignments = AssignmentsImpl.getNumAssignmentsEstimate(rule, model.getVarDomains(rule), checker, config.useAnalyticFunctionOrdering(), model);
+		long assignments = AssignmentsImpl.getNumAssignmentsEstimate(rule, model.getVarDomains(rule), checker, config.useAnalyticFunctionOrdering());
 		int literals = rule.arity();
 		if(literals > 1)
 			literals++; //We have to "and" the literals together
@@ -487,10 +487,10 @@ public class CondensationIsolator {
 		RuleSplittableSentenceModel newModel = new SentenceModelImpl((SentenceModelImpl) model);
 		newModel.replaceRules(Collections.singletonList(rule), newRules);
 
-		ConstantChecker newChecker = new ConstantChecker(checker);
+		ConstantCheckerImpl newChecker = new ConstantCheckerImpl(checker);
 		newChecker.replaceRules(oldRules, newRules);
-		long a1 = AssignmentsImpl.getNumAssignmentsEstimate(r1, newModel.getVarDomains(r1), newChecker, config.useAnalyticFunctionOrdering(), newModel);
-		long a2 = AssignmentsImpl.getNumAssignmentsEstimate(r2, newModel.getVarDomains(r2), newChecker, config.useAnalyticFunctionOrdering(), newModel);
+		long a1 = AssignmentsImpl.getNumAssignmentsEstimate(r1, newModel.getVarDomains(r1), newChecker, config.useAnalyticFunctionOrdering());
+		long a2 = AssignmentsImpl.getNumAssignmentsEstimate(r2, newModel.getVarDomains(r2), newChecker, config.useAnalyticFunctionOrdering());
 		int l1 = r1.arity(); if(l1 > 1) l1++;
 		int l2 = r2.arity(); if(l2 > 1) l2++;
 

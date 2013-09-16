@@ -12,39 +12,36 @@ import org.ggp.base.util.gdl.grammar.GdlLiteral;
 import org.ggp.base.util.gdl.grammar.GdlRule;
 import org.ggp.base.util.gdl.grammar.GdlSentence;
 import org.ggp.base.util.gdl.grammar.GdlVariable;
+import org.ggp.base.util.gdl.model.SentenceDomainModel;
+import org.ggp.base.util.gdl.model.SentenceDomainModels;
+import org.ggp.base.util.gdl.model.SentenceDomainModels.VarDomainOpts;
 import org.ggp.base.util.gdl.model.SentenceForm;
-import org.ggp.base.util.gdl.model.SentenceFormSource;
-import org.ggp.base.util.gdl.model.SentenceModel;
-import org.ggp.base.util.gdl.model.assignments.AssignmentsImpl.ConstantForm;
 
 
 public class AssignmentsFactory {
 
 	public static Assignments getAssignmentsForRule(GdlRule rule,
-			SentenceModel model, Map<SentenceForm, ConstantForm> constantForms,
+			SentenceDomainModel model, Map<SentenceForm, FunctionInfo> functionInfoMap,
 			Map<SentenceForm, ? extends Collection<GdlSentence>> completedSentenceFormValues) {
 		return new AssignmentsImpl(rule,
-				model.getVarDomains(rule),
-				constantForms,
-				completedSentenceFormValues,
-				model);
+				SentenceDomainModels.getVarDomains(rule, model, VarDomainOpts.INCLUDE_HEAD),
+				functionInfoMap,
+				completedSentenceFormValues);
 	}
-	
+
 	public static Assignments getAssignmentsForRule(GdlRule rule,
 			Map<GdlVariable, Set<GdlConstant>> varDomains,
-			Map<SentenceForm, ConstantForm> constantForms,
-			Map<SentenceForm, ? extends Collection<GdlSentence>> completedSentenceFormValues,
-			SentenceFormSource sentenceFormSource) {
+			Map<SentenceForm, FunctionInfo> functionInfoMap,
+			Map<SentenceForm, ? extends Collection<GdlSentence>> completedSentenceFormValues) {
 		return new AssignmentsImpl(rule,
 				varDomains,
-				constantForms,
-				completedSentenceFormValues,
-				sentenceFormSource);
+				functionInfoMap,
+				completedSentenceFormValues);
 	}
-	
+
 	public static Assignments getAssignmentsWithRecursiveInput(GdlRule rule,
-			SentenceModel model, SentenceForm form, GdlSentence input,
-			Map<SentenceForm, ConstantForm> constantForms, boolean useConstForms,
+			SentenceDomainModel model, SentenceForm form, GdlSentence input,
+			Map<SentenceForm, FunctionInfo> functionInfoMap,
 			Map<SentenceForm, ? extends Collection<GdlSentence>> completedSentenceFormValues) {
 		//Look for the literal(s) in the rule with the sentence form of the
 		//recursive input. This can be tricky if there are multiple matching
@@ -63,10 +60,12 @@ public class AssignmentsFactory {
 				Assignments assignments = new AssignmentsImpl(
 						preassignment,
 						rule,
-						model.getVarDomains(rule),
-						constantForms,
-						completedSentenceFormValues,
-						model);
+						//TODO: This one getVarDomains call is why a lot of
+						//SentenceModel/DomainModel stuff is required. Can
+						//this be better factored somehow?
+						SentenceDomainModels.getVarDomains(rule, model, VarDomainOpts.INCLUDE_HEAD),
+						functionInfoMap,
+						completedSentenceFormValues);
 				assignmentsList.add(assignments);
 			}
 		}
@@ -79,8 +78,8 @@ public class AssignmentsFactory {
 		//TODO: Plan to implement by subclassing Assignments into something
 		//that contains and iterates over multiple Assignments
 	}
-	
+
 	//TODO: Put the constructor that uses the SentenceModel here
-	
+
 
 }

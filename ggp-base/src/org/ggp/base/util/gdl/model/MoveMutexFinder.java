@@ -11,8 +11,8 @@ import java.util.Set;
 import org.ggp.base.util.gdl.grammar.Gdl;
 import org.ggp.base.util.gdl.grammar.GdlConstant;
 import org.ggp.base.util.gdl.grammar.GdlPool;
-import org.ggp.base.util.gdl.grammar.GdlRelation;
 import org.ggp.base.util.gdl.grammar.GdlRule;
+import org.ggp.base.util.gdl.grammar.GdlSentence;
 import org.ggp.base.util.gdl.grammar.GdlTerm;
 import org.ggp.base.util.gdl.transforms.DeORer;
 import org.ggp.base.util.gdl.transforms.LegalSplitter;
@@ -84,8 +84,8 @@ public class MoveMutexFinder {
 				}
 				
 				//Handle relations
-				Set<GdlRelation> legalRelations = model.getRelations(form);
-				for(GdlRelation relation : legalRelations) {
+				Set<GdlSentence> legalRelations = model.getSentencesListedAsTrue(form);
+				for(GdlSentence relation : legalRelations) {
 					GdlTerm playerName = relation.get(0);
 					Role role = new Role((GdlConstant) playerName);
 					
