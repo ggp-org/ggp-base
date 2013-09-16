@@ -1,7 +1,7 @@
 /**
  *
  */
-package org.ggp.base.util.propnet.factory;
+package org.ggp.base.util.gdl.model.assignments;
 
 import java.util.ArrayList;
 import java.util.Collection;

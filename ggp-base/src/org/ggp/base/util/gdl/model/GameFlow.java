@@ -21,16 +21,16 @@ import org.ggp.base.util.gdl.grammar.GdlRelation;
 import org.ggp.base.util.gdl.grammar.GdlRule;
 import org.ggp.base.util.gdl.grammar.GdlSentence;
 import org.ggp.base.util.gdl.grammar.GdlVariable;
+import org.ggp.base.util.gdl.model.assignments.AssignmentIterator;
+import org.ggp.base.util.gdl.model.assignments.Assignments;
+import org.ggp.base.util.gdl.model.assignments.AssignmentsFactory;
+import org.ggp.base.util.gdl.model.assignments.AssignmentsImpl.ConstantForm;
 import org.ggp.base.util.gdl.transforms.CommonTransforms;
 import org.ggp.base.util.gdl.transforms.ConstantFinder;
 import org.ggp.base.util.gdl.transforms.DeORer;
 import org.ggp.base.util.gdl.transforms.GdlCleaner;
 import org.ggp.base.util.gdl.transforms.VariableConstrainer;
 import org.ggp.base.util.gdl.transforms.ConstantFinder.ConstantChecker;
-import org.ggp.base.util.propnet.factory.AssignmentIterator;
-import org.ggp.base.util.propnet.factory.Assignments;
-import org.ggp.base.util.propnet.factory.AssignmentsFactory;
-import org.ggp.base.util.propnet.factory.AssignmentsImpl.ConstantForm;
 
 
 /**

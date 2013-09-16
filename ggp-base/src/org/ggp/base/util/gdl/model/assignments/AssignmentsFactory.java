@@ -1,4 +1,4 @@
-package org.ggp.base.util.propnet.factory;
+package org.ggp.base.util.gdl.model.assignments;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -15,7 +15,7 @@ import org.ggp.base.util.gdl.grammar.GdlVariable;
 import org.ggp.base.util.gdl.model.SentenceForm;
 import org.ggp.base.util.gdl.model.SentenceFormSource;
 import org.ggp.base.util.gdl.model.SentenceModel;
-import org.ggp.base.util.propnet.factory.AssignmentsImpl.ConstantForm;
+import org.ggp.base.util.gdl.model.assignments.AssignmentsImpl.ConstantForm;
 
 
 public class AssignmentsFactory {

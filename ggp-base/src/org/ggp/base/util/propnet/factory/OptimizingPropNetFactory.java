@@ -32,6 +32,10 @@ import org.ggp.base.util.gdl.model.SentenceForm;
 import org.ggp.base.util.gdl.model.SentenceModel;
 import org.ggp.base.util.gdl.model.SentenceModelImpl;
 import org.ggp.base.util.gdl.model.SentenceModelUtils;
+import org.ggp.base.util.gdl.model.assignments.AssignmentIterator;
+import org.ggp.base.util.gdl.model.assignments.Assignments;
+import org.ggp.base.util.gdl.model.assignments.AssignmentsFactory;
+import org.ggp.base.util.gdl.model.assignments.AssignmentsImpl.ConstantForm;
 import org.ggp.base.util.gdl.transforms.CommonTransforms;
 import org.ggp.base.util.gdl.transforms.CondensationIsolator;
 import org.ggp.base.util.gdl.transforms.CondensationIsolator.CondensationIsolatorConfiguration;
@@ -51,7 +55,6 @@ import org.ggp.base.util.propnet.architecture.components.Not;
 import org.ggp.base.util.propnet.architecture.components.Or;
 import org.ggp.base.util.propnet.architecture.components.Proposition;
 import org.ggp.base.util.propnet.architecture.components.Transition;
-import org.ggp.base.util.propnet.factory.AssignmentsImpl.ConstantForm;
 import org.ggp.base.util.statemachine.Role;
 
 

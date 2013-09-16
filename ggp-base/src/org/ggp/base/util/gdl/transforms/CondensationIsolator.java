@@ -29,8 +29,8 @@ import org.ggp.base.util.gdl.model.RuleSplittableSentenceModel;
 import org.ggp.base.util.gdl.model.SentenceForm;
 import org.ggp.base.util.gdl.model.SentenceModelImpl;
 import org.ggp.base.util.gdl.model.SentenceModelUtils;
+import org.ggp.base.util.gdl.model.assignments.AssignmentsImpl;
 import org.ggp.base.util.gdl.transforms.ConstantFinder.ConstantChecker;
-import org.ggp.base.util.propnet.factory.AssignmentsImpl;
 
 
 /**

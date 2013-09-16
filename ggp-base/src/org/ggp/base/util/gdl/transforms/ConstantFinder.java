@@ -28,10 +28,10 @@ import org.ggp.base.util.gdl.model.SentenceForm;
 import org.ggp.base.util.gdl.model.SentenceModel;
 import org.ggp.base.util.gdl.model.SentenceModelImpl;
 import org.ggp.base.util.gdl.model.SentenceModelUtils;
-import org.ggp.base.util.propnet.factory.AssignmentIterator;
-import org.ggp.base.util.propnet.factory.Assignments;
-import org.ggp.base.util.propnet.factory.AssignmentsFactory;
-import org.ggp.base.util.propnet.factory.AssignmentsImpl.ConstantForm;
+import org.ggp.base.util.gdl.model.assignments.AssignmentIterator;
+import org.ggp.base.util.gdl.model.assignments.Assignments;
+import org.ggp.base.util.gdl.model.assignments.AssignmentsFactory;
+import org.ggp.base.util.gdl.model.assignments.AssignmentsImpl.ConstantForm;
 import org.ggp.base.util.statemachine.Role;
 
 
