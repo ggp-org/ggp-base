@@ -6,6 +6,14 @@ import org.ggp.base.util.gdl.grammar.GdlSentence;
 import org.ggp.base.util.gdl.model.SentenceForm;
 import org.ggp.base.util.gdl.model.SentenceFormModel;
 
+/**
+ * A ConstantChecker provides information about which sentences are true
+ * for the constant sentence forms in a game. These can be computed once
+ * at the beginning of a match, to avoid redundant computations.
+ *
+ * The preferred way to create a ConstantChecker is with
+ * {@link ConstantCheckerFactory#createWithForwardChaining(org.ggp.base.util.gdl.model.SentenceDomainModel)}.
+ */
 public interface ConstantChecker {
 	/**
 	 * Returns true iff the sentence is of a constant form included in
