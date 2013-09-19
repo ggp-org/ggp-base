@@ -5,10 +5,12 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 
@@ -25,39 +27,50 @@ import org.ggp.base.util.gdl.grammar.GdlRule;
 import org.ggp.base.util.gdl.grammar.GdlSentence;
 import org.ggp.base.util.gdl.grammar.GdlTerm;
 import org.ggp.base.util.gdl.grammar.GdlVariable;
-import org.ggp.base.util.gdl.model.RuleSplittableSentenceModel;
+import org.ggp.base.util.gdl.model.CartesianSentenceFormDomain;
+import org.ggp.base.util.gdl.model.SentenceDomainModel;
+import org.ggp.base.util.gdl.model.SentenceDomainModelFactory;
+import org.ggp.base.util.gdl.model.SentenceDomainModelOptimizer;
+import org.ggp.base.util.gdl.model.SentenceDomainModels;
+import org.ggp.base.util.gdl.model.SentenceDomainModels.VarDomainOpts;
 import org.ggp.base.util.gdl.model.SentenceForm;
-import org.ggp.base.util.gdl.model.SentenceModelImpl;
+import org.ggp.base.util.gdl.model.SentenceFormDomain;
+import org.ggp.base.util.gdl.model.SentenceFormModel;
+import org.ggp.base.util.gdl.model.SentenceForms;
 import org.ggp.base.util.gdl.model.SentenceModelUtils;
+import org.ggp.base.util.gdl.model.SimpleSentenceForm;
 import org.ggp.base.util.gdl.model.assignments.AssignmentsImpl;
-import org.ggp.base.util.gdl.transforms.ConstantFinder.ConstantCheckerImpl;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Multimap;
+import com.google.common.collect.Sets;
 
 
 /**
  * The CondensationIsolator is a GDL transformation designed to split up
  * rules in a way that results in smaller propnets. For example, we may
  * have a rule as follows:
- * 
+ *
  * (<= (foo ?x ?y)
  *     (bar ?x ?y)
  *     (baz ?y ?z))
- *     
+ *
  * In the propnet, this will result in one AND node for each combination
  * of ?x, ?y, and ?z. The CondensationIsolator would split it up as follows:
- * 
+ *
  * (<= (foo ?x ?y)
  *     (bar ?x ?y)
  *     (baz_tmp0 ?y))
  * (<= (baz_tmp0 ?y)
  *     (baz ?y ?z))
- * 
+ *
  * In the propnet, there will now be one AND node for each combination of
  * ?x and ?y and one new link for each combination of ?y and ?z, but there
  * will not be a cross-product of the domains of all three.
- * 
+ *
  * "Condensation" refers to the type of rule generated, in which we simply
  * ignore certain variables.
- *  
+ *
  * @author Alex Landau
  *
  */
@@ -68,38 +81,30 @@ public class CondensationIsolator {
         DEFAULT_RESTRAINT,
         MORE_RESTRAINT,
     }
-    
+
     //TODO: Eliminate redundancy of constConstraint/useHeuristic somehow
     //Not thread-safe
     public static class CondensationIsolatorConfiguration {
         private RestraintOption restraintOption;
-        private boolean ignoreConstants;
         private boolean constConstraint;
         private boolean useHeuristic;
         private boolean analyticFunctionOrdering;
 
         public CondensationIsolatorConfiguration(
-                RestraintOption restraintOption, boolean ignoreConstants,
+                RestraintOption restraintOption,
                 boolean constConstraint, boolean useHeuristic,
                 boolean analyticFunctionOrdering) {
             this.restraintOption = restraintOption;
-            this.ignoreConstants = ignoreConstants;
             this.constConstraint = constConstraint;
             this.useHeuristic = useHeuristic;
             this.analyticFunctionOrdering = analyticFunctionOrdering;
         }
-        
+
         public RestraintOption getRestraintOption() {
             return restraintOption;
         }
         public void setRestraintOption(RestraintOption restraintOption) {
             this.restraintOption = restraintOption;
-        }
-        public boolean ignoreConstants() {
-            return ignoreConstants;
-        }
-        public void setIgnoreConstants(boolean ignoreConstants) {
-            this.ignoreConstants = ignoreConstants;
         }
         public boolean useConstConstraint() {
             return constConstraint;
@@ -128,14 +133,14 @@ public class CondensationIsolator {
             this.analyticFunctionOrdering = analyticFunctionOrdering;
         }
     }
-    
+
     public static CondensationIsolatorConfiguration getDefaultConfiguration() {
         return getHeuristicConfiguration();
     }
+
     public static CondensationIsolatorConfiguration getHeuristicConfiguration() {
         return new CondensationIsolatorConfiguration(
                 RestraintOption.DEFAULT_RESTRAINT,
-                true,
                 false,
                 true,
                 true);
@@ -143,35 +148,34 @@ public class CondensationIsolator {
     public static CondensationIsolatorConfiguration getNonHeuristicConfiguration() {
         return new CondensationIsolatorConfiguration(
                 RestraintOption.DEFAULT_RESTRAINT,
-                true,
                 false,
                 false,
                 false);
     }
-    
+
     public static List<Gdl> run(List<Gdl> description) throws InterruptedException {
         return run(description,
                 getDefaultConfiguration());
     }
-    
+
 	public static List<Gdl> run(List<Gdl> description,
 	        CondensationIsolatorConfiguration config) throws InterruptedException {
 		//This class is not put together in any "optimal" way, so it's left in
 		//an unpolished state for now. A better version would use estimates of
 		//the impact of breaking apart rules. (It also needs to stop itself from
 		//making multiple new relations with the same meaning.)
-		
+
 		//This version will be rather advanced.
 		//In particular, it will try to incorporate
 		//1) More thorough scanning for condensations;
 		//2) Condensations that are only safe to perform because of mutexes.
-		
+
 		//TODO: Don't perform condensations on stuff like (add _ _ _)...
 		//In general, don't perform condensations where the headroom is huge?
 		//Better yet... DON'T perform condensations on recursive functions!
 		//As for headroom... maybe make sure that # of vars eliminated > # "kept"
 		//Or make sure none are kept? Use directional connected components?
-		
+
 		description = GdlCleaner.run(description);
 		description = DeORer.run(description);
 		description = VariableConstrainer.replaceFunctionValuedVariables(description);
@@ -188,7 +192,7 @@ public class CondensationIsolator {
 		//   variable. This does apply to variables found in the head.
 		//3) There must be at least one non-distinct literal outside the
 		//   condensation set.
-		
+
 		//How mutexes work:
 		//Say we have a rule
 		//  (<= (r1 ?b)
@@ -231,30 +235,31 @@ public class CondensationIsolator {
 		 *    argument passed back to the original rule, which is undesirable.
 		 *    Instead, as it's a mutex, we leave a copy in the original rule
 		 *    and don't include the ?c.
-		 *    
+		 *
 		 * So, what kind of algorithm can we find to solve this task?
 		 */
 		List<Gdl> newDescription = new ArrayList<Gdl>();
 		Queue<GdlRule> rulesToAdd = new LinkedList<GdlRule>();
-		
+
 		for(Gdl gdl : description) {
 			if(gdl instanceof GdlRule)
 				rulesToAdd.add((GdlRule) gdl);
 			else
 				newDescription.add(gdl);
 		}
-		
+
 		//Don't use the model indiscriminately; it reflects the old description,
 		//not necessarily the new one
-		RuleSplittableSentenceModel model = new SentenceModelImpl(description);
-		ConstantCheckerImpl checker = ConstantFinder.getConstants(description);
-		model.restrictDomainsToUsefulValues(checker); //Helps our heuristics
-		Set<String> sentenceNames = new HashSet<String>(model.getSentenceNames());
+		SentenceDomainModel model = SentenceDomainModelFactory.createWithCartesianDomains(description);
+		model = SentenceDomainModelOptimizer.restrictDomainsToUsefulValues(model);
+		UnusedSentenceNameSource sentenceNameSource = UnusedSentenceNameSource.create(model);
+		ConstantChecker constantChecker = ConstantCheckerFactory.createWithForwardChaining(model);
+
 		Set<SentenceForm> constantForms = model.getConstantSentenceForms();
-		
+
 		ConcurrencyUtils.checkForInterruption();
-		
-		//Collection<SentenceForm> constantForms = model;
+
+		List<Gdl> curDescription = Lists.newArrayList(description);
 		while(!rulesToAdd.isEmpty()) {
 			GdlRule curRule = rulesToAdd.remove();
 			if(isRecursive(curRule)) {
@@ -263,20 +268,23 @@ public class CondensationIsolator {
 				continue;
 			}
 			GdlSentence curRuleHead = curRule.getHead();
-			if(config.ignoreConstants() && SentenceModelUtils.inSentenceFormGroup(curRuleHead, constantForms)) {
+			if(SentenceModelUtils.inSentenceFormGroup(curRuleHead, constantForms)) {
 				newDescription.add(curRule);
 				continue;
 			}
-			Set<GdlLiteral> condensationSet = getCondensationSet(curRule, model, checker, constantForms, config);
+			Set<GdlLiteral> condensationSet = getCondensationSet(curRule, model, constantChecker, constantForms, config, sentenceNameSource);
 			ConcurrencyUtils.checkForInterruption();
 			if(condensationSet != null) {
-				List<GdlRule> newRules = applyCondensation(condensationSet, curRule, sentenceNames); 
+				List<GdlRule> newRules = applyCondensation(condensationSet, curRule, sentenceNameSource);
 				rulesToAdd.addAll(newRules);
 				//Since we're making only small changes, we can readjust
 				//the model as we go, instead of recomputing it
 				List<GdlRule> oldRules = Collections.singletonList(curRule);
-				model.replaceRules(oldRules, newRules);
-				checker.replaceRules(oldRules, newRules);
+				List<Gdl> replacementDescription = Lists.newArrayList(curDescription);
+				replacementDescription.removeAll(oldRules);
+				replacementDescription.addAll(newRules);
+				curDescription = replacementDescription;
+				model = augmentModelWithNewForm(model, newRules);
 			} else {
 				newDescription.add(curRule);
 			}
@@ -324,9 +332,32 @@ public class CondensationIsolator {
 		return false;
 	}
 
+	private static class UnusedSentenceNameSource {
+		private final Set<String> allNamesSoFar;
+
+		public UnusedSentenceNameSource(Collection<String> initialNames) {
+			allNamesSoFar = Sets.newHashSet(initialNames);
+		}
+
+		public static UnusedSentenceNameSource create(SentenceFormModel model) {
+			Set<String> sentenceFormNames = SentenceForms.getNames(model.getSentenceForms());
+			return new UnusedSentenceNameSource(sentenceFormNames);
+		}
+
+		public GdlConstant getNameWithPrefix(GdlConstant prefix) {
+			for(int i = 0; ; i++) {
+				String candidateName = prefix + "_tmp" + i;
+				if(!allNamesSoFar.contains(candidateName)) {
+					allNamesSoFar.add(candidateName);
+					return GdlPool.getConstant(candidateName);
+				}
+			}
+		}
+	}
+
 	private static List<GdlRule> applyCondensation(
 			Set<GdlLiteral> condensationSet, GdlRule rule,
-			Set<String> sentenceNames) {
+			UnusedSentenceNameSource sentenceNameSource) {
 
 		Set<GdlVariable> varsInCondensationSet = new HashSet<GdlVariable>();
 		for(GdlLiteral literal : condensationSet)
@@ -344,20 +375,11 @@ public class CondensationIsolator {
 			if(!condensationSet.contains(literal))
 				varsToKeep2.addAll(GdlUtils.getVariables(literal));
 		varsToKeep.retainAll(varsToKeep2);
-		
+
 		//Now we're ready to split it apart
 		//Let's make the new rule
 		List<GdlTerm> orderedVars = new ArrayList<GdlTerm>(varsToKeep);
-		GdlConstant condenserName;
-		for(int i = 0; ; i++) {
-			String candidateName = rule.getHead().getName().getValue() + "_tmp" + i;
-			if(!sentenceNames.contains(candidateName)) {
-				condenserName = GdlPool.getConstant(candidateName);
-				sentenceNames.add(candidateName);
-				//Success!
-				break;
-			}
-		}
+		GdlConstant condenserName = sentenceNameSource.getNameWithPrefix(rule.getHead().getName());
 		//Make the rule head
 		GdlSentence condenserHead;
 		if(orderedVars.isEmpty()) {
@@ -368,7 +390,7 @@ public class CondensationIsolator {
 		List<GdlLiteral> condenserBody = new ArrayList<GdlLiteral>(condensationSet);
 		GdlRule condenserRule = GdlPool.getRule(condenserHead, condenserBody);
 		//TODO: Look for existing rules matching the new one
-		
+
 		List<GdlLiteral> remainingLiterals = new ArrayList<GdlLiteral>();
 		for(GdlLiteral literal : rule.getBody())
 			if(!condensationSet.contains(literal))
@@ -376,7 +398,7 @@ public class CondensationIsolator {
 
 		remainingLiterals.add(condenserHead);
 		GdlRule modifiedRule = GdlPool.getRule(rule.getHead(), remainingLiterals);
-		
+
 		List<GdlRule> newRules = new ArrayList<GdlRule>(2);
 		newRules.add(condenserRule);
 		newRules.add(modifiedRule);
@@ -384,10 +406,11 @@ public class CondensationIsolator {
 	}
 
 	private static Set<GdlLiteral> getCondensationSet(GdlRule rule,
-			RuleSplittableSentenceModel model,
-			ConstantCheckerImpl checker,
+			SentenceDomainModel model,
+			ConstantChecker checker,
 			Set<SentenceForm> constantForms,
-			CondensationIsolatorConfiguration config) throws InterruptedException {
+			CondensationIsolatorConfiguration config,
+			UnusedSentenceNameSource sentenceNameSource) throws InterruptedException {
 		//We use each variable as a starting point
 		List<GdlVariable> varsInRule = GdlUtils.getVariables(rule);
 		List<GdlVariable> varsInHead = GdlUtils.getVariables(rule.getHead());
@@ -401,7 +424,7 @@ public class CondensationIsolator {
 			for(GdlLiteral literal : rule.getBody())
 				if(GdlUtils.getVariables(literal).contains(var))
 					minSet.add(literal);
-			
+
 			//#1 is already done
 			//Now we try #2
 			Set<GdlVariable> varsNeeded = new HashSet<GdlVariable>();
@@ -439,16 +462,17 @@ public class CondensationIsolator {
 			if(!config.useHeuristic() && goodCondensationSet(minSet, rule, config, constantForms))
 				return minSet;
 
-			if(config.useHeuristic() && goodCondensationSetByHeuristic(minSet, rule, model, checker, config))
+			if(config.useHeuristic() && goodCondensationSetByHeuristic(minSet, rule, model, checker, config, sentenceNameSource))
 				return minSet;
-			
+
 		}
 		return null;
 	}
 
 	private static boolean goodCondensationSetByHeuristic(
-			Set<GdlLiteral> minSet, GdlRule rule, RuleSplittableSentenceModel model,
-			ConstantCheckerImpl checker, CondensationIsolatorConfiguration config) throws InterruptedException {
+			Set<GdlLiteral> minSet, GdlRule rule, SentenceDomainModel model,
+			ConstantChecker checker, CondensationIsolatorConfiguration config,
+			UnusedSentenceNameSource sentenceNameSource) throws InterruptedException {
 		//We actually want the sentence model here so we can see the domains
 		//also, if it's a constant, ...
 		//Anyway... we want to compare the heuristic for the number of assignments
@@ -468,7 +492,10 @@ public class CondensationIsolator {
 
 		//Heuristic for the rule as-is:
 
-		long assignments = AssignmentsImpl.getNumAssignmentsEstimate(rule, model.getVarDomains(rule), checker, config.useAnalyticFunctionOrdering());
+		long assignments = AssignmentsImpl.getNumAssignmentsEstimate(rule,
+				SentenceDomainModels.getVarDomains(rule, model, VarDomainOpts.INCLUDE_HEAD),
+				checker,
+				config.useAnalyticFunctionOrdering());
 		int literals = rule.arity();
 		if(literals > 1)
 			literals++; //We have to "and" the literals together
@@ -477,26 +504,89 @@ public class CondensationIsolator {
 		//count them. TODO: Not sure if they should be counted in L, though...
 		long curRuleHeuristic = assignments * literals;
 		//And if we split them up...
-		//We actually need the sentence names here
-		Set<String> sentenceNames = model.getSentenceNames();
-		List<GdlRule> newRules = applyCondensation(minSet, rule, sentenceNames);
+		List<GdlRule> newRules = applyCondensation(minSet, rule, sentenceNameSource);
 		GdlRule r1 = newRules.get(0), r2 = newRules.get(1);
 
-		//Copy and modify the model
-		List<GdlRule> oldRules = Collections.singletonList(rule);
-		RuleSplittableSentenceModel newModel = new SentenceModelImpl((SentenceModelImpl) model);
-		newModel.replaceRules(Collections.singletonList(rule), newRules);
+		//Augment the model
+		SentenceDomainModel newModel = augmentModelWithNewForm(model, newRules);
 
-		ConstantCheckerImpl newChecker = new ConstantCheckerImpl(checker);
-		newChecker.replaceRules(oldRules, newRules);
-		long a1 = AssignmentsImpl.getNumAssignmentsEstimate(r1, newModel.getVarDomains(r1), newChecker, config.useAnalyticFunctionOrdering());
-		long a2 = AssignmentsImpl.getNumAssignmentsEstimate(r2, newModel.getVarDomains(r2), newChecker, config.useAnalyticFunctionOrdering());
+		long a1 = AssignmentsImpl.getNumAssignmentsEstimate(r1,
+				SentenceDomainModels.getVarDomains(r1, newModel, VarDomainOpts.INCLUDE_HEAD),
+				checker,
+				config.useAnalyticFunctionOrdering());
+		long a2 = AssignmentsImpl.getNumAssignmentsEstimate(r2,
+				SentenceDomainModels.getVarDomains(r2, newModel, VarDomainOpts.INCLUDE_HEAD),
+				checker,
+				config.useAnalyticFunctionOrdering());
 		int l1 = r1.arity(); if(l1 > 1) l1++;
 		int l2 = r2.arity(); if(l2 > 1) l2++;
 
 		//Whether we split or not depends on what the two heuristics say
 		long newRulesHeuristic = a1 * l1 + a2 * l2;
 		return newRulesHeuristic < curRuleHeuristic;
+	}
+
+	private static SentenceDomainModel augmentModelWithNewForm(
+			final SentenceDomainModel oldModel, List<GdlRule> newRules) {
+		final SentenceForm newForm = SimpleSentenceForm.create(newRules.get(0).getHead());
+		final SentenceFormDomain newFormDomain = getNewFormDomain(newRules.get(0), oldModel, newForm);
+		return new SentenceDomainModel() {
+			@Override
+			public SentenceFormDomain getDomain(SentenceForm form) {
+				if (form.equals(newForm)) {
+					return newFormDomain;
+				}
+				return oldModel.getDomain(form);
+			}
+
+			@Override
+			public Set<SentenceForm> getIndependentSentenceForms() {
+				throw new UnsupportedOperationException();
+			}
+			@Override
+			public Set<SentenceForm> getConstantSentenceForms() {
+				throw new UnsupportedOperationException();
+			}
+			@Override
+			public Multimap<SentenceForm, SentenceForm> getDependencyGraph() {
+				throw new UnsupportedOperationException();
+			}
+			@Override
+			public Set<GdlSentence> getSentencesListedAsTrue(SentenceForm form) {
+				throw new UnsupportedOperationException();
+			}
+			@Override
+			public Set<GdlRule> getRules(SentenceForm form) {
+				throw new UnsupportedOperationException();
+			}
+			@Override
+			public Set<SentenceForm> getSentenceForms() {
+				throw new UnsupportedOperationException();
+			}
+			@Override
+			public List<Gdl> getDescription() {
+				throw new UnsupportedOperationException();
+			}
+			@Override
+			public SentenceForm getSentenceForm(GdlSentence sentence) {
+				throw new UnsupportedOperationException();
+			}
+		};
+	}
+
+	private static SentenceFormDomain getNewFormDomain(GdlRule condensingRule,
+			SentenceDomainModel oldModel, SentenceForm newForm) {
+		Map<GdlVariable, Set<GdlConstant>> varDomains = SentenceDomainModels.getVarDomains(
+				condensingRule, oldModel, VarDomainOpts.BODY_ONLY);
+
+		List<Set<GdlConstant>> domainsForSlots = Lists.newArrayList();
+		for (GdlTerm term : GdlUtils.getTupleFromSentence(condensingRule.getHead())) {
+			if (!(term instanceof GdlVariable)) {
+				throw new RuntimeException("Expected all slots in the head of a condensing rule to be variables, but the rule was: " + condensingRule);
+			}
+			domainsForSlots.add(varDomains.get(term));
+		}
+		return CartesianSentenceFormDomain.create(newForm, domainsForSlots);
 	}
 
 	private static boolean goodCondensationSet(Set<GdlLiteral> condensationSet, GdlRule rule,
@@ -529,7 +619,7 @@ public class CondensationIsolator {
 			//because otherwise we can't iterate over all the possibilities in time
 			//What is the relevant exception here that makes this case different?
 			//Maybe that we aren't adding any variables?
-			
+
 			//Check to see that we have a non-constant literal on each
 			//side of the proposed division
 			//Does each set contain a "live" non-constant sentence?
@@ -556,7 +646,7 @@ public class CondensationIsolator {
 				return false;
 			}
 		}
-		
+
 		//Finally, check #3
 		for(GdlLiteral literal : rule.getBody()) {
 			if(literal instanceof GdlRelation || literal instanceof GdlNot)
@@ -565,5 +655,4 @@ public class CondensationIsolator {
 		}
 		return false;
 	}
-
 }
