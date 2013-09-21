@@ -28,7 +28,7 @@ public abstract class GdlVisitor {
 	public void visitGdl(Gdl gdl) {
 		// Do nothing; override in a subclass to do something.
 	}
-	public void visitTerm(GdlTerm term) {
+    public void visitTerm(GdlTerm term) {
 		// Do nothing; override in a subclass to do something.
 	}
 	public void visitConstant(GdlConstant constant) {

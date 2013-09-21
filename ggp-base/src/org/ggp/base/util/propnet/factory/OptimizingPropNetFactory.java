@@ -41,10 +41,8 @@ import org.ggp.base.util.gdl.model.assignments.FunctionInfo;
 import org.ggp.base.util.gdl.model.assignments.FunctionInfoImpl;
 import org.ggp.base.util.gdl.transforms.CommonTransforms;
 import org.ggp.base.util.gdl.transforms.CondensationIsolator;
-import org.ggp.base.util.gdl.transforms.CondensationIsolator.CondensationIsolatorConfiguration;
 import org.ggp.base.util.gdl.transforms.ConstantChecker;
 import org.ggp.base.util.gdl.transforms.ConstantCheckerFactory;
-import org.ggp.base.util.gdl.transforms.CrudeSplitter;
 import org.ggp.base.util.gdl.transforms.DeORer;
 import org.ggp.base.util.gdl.transforms.GdlCleaner;
 import org.ggp.base.util.gdl.transforms.Relationizer;
@@ -117,31 +115,7 @@ public class OptimizingPropNetFactory {
 		return create(description, false);
 	}
 
-	//These heuristic methods work best on the vast majority of games.
-	//Still problems with conn4, mummyMaze2p_2007, sudoku2;
-	// possibly others?
 	public static PropNet create(List<Gdl> description, boolean verbose) throws InterruptedException {
-		return create(description, verbose, CondensationOption.DEFAULT_CONDENSERS,
-		        CondensationIsolator.getDefaultConfiguration(),
-		        SplitterOption.NO_SPLITTER);
-	}
-	
-	public enum CondensationOption {
-	    DEFAULT_CONDENSERS,
-	    NO_CONDENSERS,
-	}
-
-	public enum SplitterOption {
-	    NO_SPLITTER,
-	    CRUDE_SPLITTER,
-	}
-
-	public static PropNet create(List<Gdl> description,
-			boolean verbose,
-			CondensationOption condensationOption,
-			CondensationIsolatorConfiguration ciConfig,
-			SplitterOption splitterOption) throws InterruptedException
-	{
 		System.out.println("Building propnet...");
 
 		long startTime = System.currentTimeMillis();
@@ -151,18 +125,7 @@ public class OptimizingPropNetFactory {
 		description = VariableConstrainer.replaceFunctionValuedVariables(description);
 		description = Relationizer.run(description);
 
-		if(splitterOption == SplitterOption.CRUDE_SPLITTER
-		        && condensationOption != CondensationOption.DEFAULT_CONDENSERS) {
-		    System.err.println("Warning: using crude splitter with simple or no condensation is usually pointless");
-		}
-
-		if(splitterOption == SplitterOption.CRUDE_SPLITTER) {
-			description = CrudeSplitter.run(description);
-		}
-		
-		if(condensationOption == CondensationOption.DEFAULT_CONDENSERS) {
-            description = CondensationIsolator.run(description, ciConfig);		    
-		}
+		description = CondensationIsolator.run(description, CondensationIsolator.getDefaultConfiguration());		    
 		
 		
 		if(verbose)
@@ -246,7 +209,7 @@ public class OptimizingPropNetFactory {
 			//Add a temporary sentence form thingy? ...
 			Map<GdlSentence, Component> temporaryComponents = new HashMap<GdlSentence, Component>();
 			Map<GdlSentence, Component> temporaryNegations = new HashMap<GdlSentence, Component>();
-			addSentenceForm(form, model, description, components, negations, trueComponent, falseComponent, usingBase, usingInput, Collections.singleton(form), temporaryComponents, temporaryNegations, functionInfoMap, constantChecker, completedSentenceFormValues);
+			addSentenceForm(form, model, components, negations, trueComponent, falseComponent, usingBase, usingInput, Collections.singleton(form), temporaryComponents, temporaryNegations, functionInfoMap, constantChecker, completedSentenceFormValues);
 			//TODO: Pass these over groups of multiple sentence forms
 			if(verbose && !temporaryComponents.isEmpty())
 				System.out.println("Processing temporary components...");
@@ -263,7 +226,7 @@ public class OptimizingPropNetFactory {
 		//Set up "init" proposition
 		if(verbose)
 			System.out.println("Setting up 'init' proposition...");
-		setUpInit(components, trueComponent, falseComponent, constantChecker);
+		setUpInit(components, trueComponent, falseComponent);
 		//Now we can safely...
 		removeUselessBasePropositions(components, negations, trueComponent, falseComponent);
 		if(verbose)
@@ -715,8 +678,7 @@ public class OptimizingPropNetFactory {
 	//TODO: This can give problematic results if interpreted in
 	//the standard way (see test_case_3d)
 	private static void setUpInit(Map<GdlSentence, Component> components,
-			Constant trueComponent, Constant falseComponent,
-			ConstantChecker constantChecker) {
+			Constant trueComponent, Constant falseComponent) {
 		Proposition initProposition = new Proposition(GdlPool.getProposition(INIT_CAPS));
 		for(Entry<GdlSentence, Component> entry : components.entrySet()) {
 			//Is this something that will be true?
@@ -855,7 +817,7 @@ public class OptimizingPropNetFactory {
 	}
 
 	private static void addSentenceForm(SentenceForm form, SentenceDomainModel model,
-			List<Gdl> description, Map<GdlSentence, Component> components,
+			Map<GdlSentence, Component> components,
 			Map<GdlSentence, Component> negations,
 			Constant trueComponent, Constant falseComponent,
 			boolean usingBase, boolean usingInput,
