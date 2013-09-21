@@ -548,7 +548,7 @@ public class AssignmentsImpl implements Assignments {
 		return varDomainSizes;
 	}
 
-	public static long getNumAssignmentsEstimate(GdlRule rule, Map<GdlVariable, Set<GdlConstant>> varDomains, ConstantChecker checker, boolean analyticFunctionOrdering) throws InterruptedException {
+	public static long getNumAssignmentsEstimate(GdlRule rule, Map<GdlVariable, Set<GdlConstant>> varDomains, ConstantChecker checker) throws InterruptedException {
 		//First we need the best iteration order
 		//Arguments we'll need to pass in:
 		//- A SentenceModel
@@ -570,7 +570,7 @@ public class AssignmentsImpl implements Assignments {
 		//Look for literals in the body of the rule and their ancestors?
 		//Could we possibly do this elsewhere?
 
-		IterationOrderCandidate ordering = getBestIterationOrderCandidate(rule, /*model,*/varDomains, functionInfoMap, null, null, analyticFunctionOrdering);
+		IterationOrderCandidate ordering = getBestIterationOrderCandidate(rule, /*model,*/varDomains, functionInfoMap, null, null, true);
 		return ordering.getHeuristicValue();
 	}
 }

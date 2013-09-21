@@ -125,7 +125,7 @@ public class OptimizingPropNetFactory {
 		description = VariableConstrainer.replaceFunctionValuedVariables(description);
 		description = Relationizer.run(description);
 
-		description = CondensationIsolator.run(description, CondensationIsolator.getDefaultConfiguration());		    
+		description = CondensationIsolator.run(description);		    
 		
 		
 		if(verbose)
