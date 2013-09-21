@@ -46,14 +46,13 @@ public class GameFlow {
 	private static final GdlConstant TRUE = GdlPool.getConstant("true");
 	private static final GdlConstant NEXT = GdlPool.getConstant("next");
 	
-	int turnAfterLast; //We end with a loop
-	List<Set<GdlSentence>> sentencesTrueByTurn = new ArrayList<Set<GdlSentence>>(); //The non-constant ones
-	Set<SentenceForm> formsControlledByFlow;
-	Set<SentenceForm> constantForms;
-	ConstantChecker constantChecker;
+	private int turnAfterLast; //We end with a loop
+	private List<Set<GdlSentence>> sentencesTrueByTurn = new ArrayList<Set<GdlSentence>>(); //The non-constant ones
+	private Set<SentenceForm> formsControlledByFlow;
+	private Set<SentenceForm> constantForms;
+	private ConstantChecker constantChecker;
 
 	public GameFlow(List<Gdl> description) throws InterruptedException {
-		
 		description = GdlCleaner.run(description);
 		description = DeORer.run(description);
 		description = VariableConstrainer.replaceFunctionValuedVariables(description);
@@ -121,8 +120,6 @@ public class GameFlow {
 			}
 			sentencesTrueByTurn.add(trueFlowSentences);
 		}
-		
-		//System.out.println("Found a " + getNumTurns() + "-turn flow");
 	}
 	
 	@SuppressWarnings("unchecked")
