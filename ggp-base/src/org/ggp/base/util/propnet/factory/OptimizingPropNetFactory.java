@@ -47,7 +47,6 @@ import org.ggp.base.util.gdl.transforms.CrudeSplitter;
 import org.ggp.base.util.gdl.transforms.DeORer;
 import org.ggp.base.util.gdl.transforms.GdlCleaner;
 import org.ggp.base.util.gdl.transforms.Relationizer;
-import org.ggp.base.util.gdl.transforms.SimpleCondensationIsolator;
 import org.ggp.base.util.gdl.transforms.VariableConstrainer;
 import org.ggp.base.util.propnet.architecture.Component;
 import org.ggp.base.util.propnet.architecture.PropNet;
@@ -129,7 +128,6 @@ public class OptimizingPropNetFactory {
 	public enum CondensationOption {
 	    DEFAULT_CONDENSERS,
 	    NO_CONDENSERS,
-	    SIMPLE_CONDENSERS,
 	}
 	
 	public enum SplitterOption {
@@ -163,8 +161,6 @@ public class OptimizingPropNetFactory {
 		
 		if(condensationOption == CondensationOption.DEFAULT_CONDENSERS) {
             description = CondensationIsolator.run(description, ciConfig);		    
-		} else if(condensationOption == CondensationOption.SIMPLE_CONDENSERS) {
-		    description = SimpleCondensationIsolator.run(description, false);
 		}
 		
 		

@@ -51,7 +51,7 @@ public class MoveMutexFinder {
 		description = VariableConstrainer.replaceFunctionValuedVariables(description);
 		description = LegalSplitter.run(description);
 		
-		SentenceModel model = new SentenceModelImpl(description);
+		SentenceFormModel model = SentenceFormModelFactory.create(description);
 		
 		GameFlow flow = new GameFlow(description);
 		

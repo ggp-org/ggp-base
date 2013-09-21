@@ -18,8 +18,8 @@ import org.ggp.base.util.gdl.grammar.GdlRule;
 import org.ggp.base.util.gdl.grammar.GdlSentence;
 import org.ggp.base.util.gdl.grammar.GdlTerm;
 import org.ggp.base.util.gdl.model.SentenceForm;
-import org.ggp.base.util.gdl.model.SentenceModel;
-import org.ggp.base.util.gdl.model.SentenceModelImpl;
+import org.ggp.base.util.gdl.model.SentenceFormModel;
+import org.ggp.base.util.gdl.model.SentenceFormModelFactory;
 
 
 public class Relationizer {
@@ -37,7 +37,7 @@ public class Relationizer {
 	 * @throws InterruptedException 
 	 */
 	public static List<Gdl> run(List<Gdl> description) throws InterruptedException {
-		SentenceModel model = new SentenceModelImpl(description);
+		SentenceFormModel model = SentenceFormModelFactory.create(description);
 		GdlConstant NEXT = GdlPool.getConstant("next");
 		
 		List<SentenceForm> nextFormsToReplace = new ArrayList<SentenceForm>();

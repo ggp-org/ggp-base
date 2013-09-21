@@ -26,7 +26,7 @@ import org.ggp.base.util.gdl.model.assignments.FunctionInfo;
 import org.ggp.base.util.gdl.model.assignments.FunctionInfoImpl;
 import org.ggp.base.util.gdl.transforms.CommonTransforms;
 import org.ggp.base.util.gdl.transforms.ConstantChecker;
-import org.ggp.base.util.gdl.transforms.ConstantFinder;
+import org.ggp.base.util.gdl.transforms.ConstantCheckerFactory;
 import org.ggp.base.util.gdl.transforms.DeORer;
 import org.ggp.base.util.gdl.transforms.GdlCleaner;
 import org.ggp.base.util.gdl.transforms.VariableConstrainer;
@@ -64,11 +64,9 @@ public class GameFlow {
 		formsControlledByFlow.addAll(model.getIndependentSentenceForms());
 		formsControlledByFlow.removeAll(model.getConstantSentenceForms());
 		constantForms = model.getConstantSentenceForms();
-		
-		//System.out.println("Setting constants for the game flow...");
-		constantChecker = ConstantFinder.getConstants(description);
-		//System.out.println("Done setting constants");
-		
+
+		constantChecker = ConstantCheckerFactory.createWithForwardChaining(model);
+
 		//Figure out which of these sentences are true at each stage
 		solveTurns(model);
 	}
