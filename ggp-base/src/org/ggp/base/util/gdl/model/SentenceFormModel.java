@@ -21,7 +21,7 @@ import com.google.common.collect.Multimap;
  * The recommended way of creating a SentenceFormModel is via
  * {@link SentenceFormModelFactory#create(List)}.
  */
-public interface SentenceFormModel extends SentenceFormSource {
+public interface SentenceFormModel {
 	/**
 	 * Returns the set of sentence forms that are independent; that is,
 	 * the truth values of the sentences of these forms may depend on
@@ -80,6 +80,11 @@ public interface SentenceFormModel extends SentenceFormSource {
 	 * Returns all sentence forms in the model.
 	 */
 	Set<SentenceForm> getSentenceForms();
+
+	/**
+	 * Returns the sentence form of the given sentence.
+	 */
+    SentenceForm getSentenceForm(GdlSentence transformed);
 
 	/**
 	 * Returns the game description for the game.
