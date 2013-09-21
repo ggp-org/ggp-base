@@ -11,6 +11,8 @@ import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import com.google.common.collect.MapMaker;
+
 public final class GdlPool
 {
 	private static final ConcurrentMap<GdlTerm, ConcurrentMap<GdlTerm, GdlDistinct>> distinctPool = new ConcurrentHashMap<GdlTerm, ConcurrentMap<GdlTerm, GdlDistinct>>();
@@ -169,9 +171,11 @@ public final class GdlPool
 	public static GdlFunction getFunction(GdlConstant name, List<GdlTerm> body)
 	{
 		ConcurrentMap<List<GdlTerm>, GdlFunction> bucket = functionPool.get(name);
-		if(bucket == null)
-			bucket = addToPool(name, new ConcurrentHashMap<List<GdlTerm>, GdlFunction>(), functionPool);
-		
+		if(bucket == null) {
+			ConcurrentMap<List<GdlTerm>, GdlFunction> newMap = new MapMaker().softValues().makeMap();
+			bucket = addToPool(name, newMap, functionPool);
+		}
+
 		GdlFunction ret = bucket.get(body);
 		if(ret == null) {
 		    body = getImmutableCopy(body);
@@ -229,9 +233,11 @@ public final class GdlPool
 	public static GdlRelation getRelation(GdlConstant name, List<GdlTerm> body)
 	{
 		ConcurrentMap<List<GdlTerm>, GdlRelation> bucket = relationPool.get(name);
-		if(bucket == null)
-			bucket = addToPool(name, new ConcurrentHashMap<List<GdlTerm>, GdlRelation>(), relationPool);
-		
+		if(bucket == null) {
+			ConcurrentMap<List<GdlTerm>, GdlRelation> newMap = new MapMaker().softValues().makeMap();
+			bucket = addToPool(name, newMap, relationPool);
+		}
+
 		GdlRelation ret = bucket.get(body);
 		if(ret == null) {
 		    body = getImmutableCopy(body);
