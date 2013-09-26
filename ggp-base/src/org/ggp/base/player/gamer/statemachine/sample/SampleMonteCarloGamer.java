@@ -47,7 +47,7 @@ public final class SampleMonteCarloGamer extends SampleGamer
     		    if (System.currentTimeMillis() > finishBy)
     		        break;
     		    
-    		    int theScore = performDepthChargeFromMove(theMachine.getInitialState(), moves.get(i));
+    		    int theScore = performDepthChargeFromMove(getCurrentState(), moves.get(i));
     		    moveTotalPoints[i] += theScore;
     		    moveTotalAttempts[i] += 1;
     		}
