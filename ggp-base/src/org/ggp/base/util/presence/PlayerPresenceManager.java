@@ -159,8 +159,11 @@ public class PlayerPresenceManager implements Subject {
 		try {
 			String line;
 			StringBuilder pdata = new StringBuilder();
-			FileInputStream fis = new FileInputStream(new File(System.getProperty("user.home"), playerListFilename));
-			BufferedReader br = new BufferedReader(new InputStreamReader(fis, Charset.forName("UTF-8")));
+			File file = new File(System.getProperty("user.home"), playerListFilename);
+			if (!file.exists()) {
+				return;
+			}
+			BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file), Charset.forName("UTF-8")));
 			try {
 				while ((line = br.readLine()) != null) {
 					pdata.append(line);
