@@ -217,6 +217,12 @@ public final class TiltyardRequestFarm
         }
         if (!testMode) {
 	        if (theBackendKeys == null) {
+	        	try {
+					listener.close();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 	            System.err.println("Could not load cryptographic keys for signing request responses.");
 	            return;
 	        }	

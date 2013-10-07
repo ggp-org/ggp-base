@@ -174,9 +174,13 @@ public class StaticValidator implements GameValidator {
 		try {
 			String line;			
 			BufferedReader in = new BufferedReader(new FileReader(file));
-			while((line = in.readLine()) != null) {
-				lines.add(line);
-			}			
+			try {
+				while((line = in.readLine()) != null) {
+					lines.add(line);
+				}		
+			} finally {
+				in.close();
+			}
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {

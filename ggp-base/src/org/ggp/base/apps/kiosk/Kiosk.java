@@ -91,7 +91,7 @@ public final class Kiosk extends JPanel implements ActionListener, ItemListener,
 
     private final JPanel theGUIPanel;
         
-    private final JComboBox playerComboBox;
+    private final JComboBox<String> playerComboBox;
     private List<Class<? extends Gamer>> gamers = null;
     private final JTextField computerAddress;
 
@@ -124,7 +124,7 @@ public final class Kiosk extends JPanel implements ActionListener, ItemListener,
         JScrollPane selectedGamePane = new JScrollPane(selectedGame);
 
         computerAddress = new JTextField("player.ggp.org:80");        
-        playerComboBox = new JComboBox();
+        playerComboBox = new JComboBox<String>();
         playerComboBox.addItemListener(this);
 
         gamers = new ArrayList<Class<? extends Gamer>>();
@@ -262,7 +262,7 @@ public final class Kiosk extends JPanel implements ActionListener, ItemListener,
                 GdlPool.drainPool();
                 SymbolPool.drainPool();
                 
-                AvailableGame theGame = (AvailableGame) (selectedGame.getSelectedValue());
+                AvailableGame theGame = (selectedGame.getSelectedValue());
                 Game game = theRepository.getGame(theGame.kifFile);
                 
                 if (game == null) {
