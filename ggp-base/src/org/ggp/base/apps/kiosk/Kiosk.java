@@ -84,7 +84,7 @@ public final class Kiosk extends JPanel implements ActionListener, ItemListener,
     private final JTextField startClockTextField;
     
     private final JButton runButton;
-    private final JList selectedGame;
+    private final JList<AvailableGame> selectedGame;
     private final JCheckBox flipRoles;
     
     private final PublishButton publishButton;
@@ -92,7 +92,7 @@ public final class Kiosk extends JPanel implements ActionListener, ItemListener,
     private final JPanel theGUIPanel;
         
     private final JComboBox playerComboBox;
-    private List<Class<?>> gamers = null;
+    private List<Class<? extends Gamer>> gamers = null;
     private final JTextField computerAddress;
 
     private final GameRepository theRepository;
@@ -106,10 +106,10 @@ public final class Kiosk extends JPanel implements ActionListener, ItemListener,
         GamerLogger.setFileToDisplay("GamePlayer");
         
         SortedSet<AvailableGame> theAvailableGames = new TreeSet<AvailableGame>();
-        List<Class<?>> theAvailableCanvasList = ProjectSearcher.getAllClassesThatAre(GameCanvas.class);
-        for(Class<?> availableCanvas : theAvailableCanvasList) {
+        List<Class<? extends GameCanvas>> theAvailableCanvasList = ProjectSearcher.getAllGameCanvases();
+        for(Class<? extends GameCanvas> availableCanvas : theAvailableCanvasList) {
             try {
-                GameCanvas theCanvas = (GameCanvas) availableCanvas.newInstance();                
+                GameCanvas theCanvas = availableCanvas.newInstance();                
                 theAvailableGames.add(new AvailableGame(theCanvas.getGameName(), theCanvas.getGameKey(), availableCanvas));
             } catch(Exception e) {
                 ;
@@ -118,7 +118,7 @@ public final class Kiosk extends JPanel implements ActionListener, ItemListener,
         
         flipRoles = new JCheckBox("Flip roles?");
         
-        selectedGame = new JList(theAvailableGames.toArray());
+        selectedGame = new JList<AvailableGame>(theAvailableGames.toArray(new AvailableGame[theAvailableGames.size()]));
         selectedGame.setSelectedIndex(0);
         selectedGame.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         JScrollPane selectedGamePane = new JScrollPane(selectedGame);
@@ -127,18 +127,18 @@ public final class Kiosk extends JPanel implements ActionListener, ItemListener,
         playerComboBox = new JComboBox();
         playerComboBox.addItemListener(this);
 
-        gamers = ProjectSearcher.getAllClassesThatAre(Gamer.class);
-        List<Class<?>> gamersCopy = new ArrayList<Class<?>>(gamers);            
-        for(Class<?> gamer : gamersCopy)
+        gamers = new ArrayList<Class<? extends Gamer>>();
+        List<Class<? extends Gamer>> allGamers = ProjectSearcher.getAllGamers();            
+        for(Class<? extends Gamer> gamer : allGamers)
         {
             try {
-                Gamer g = (Gamer) gamer.newInstance();
+                Gamer g = gamer.newInstance();
                 if (!g.isComputerPlayer()) {
-                	throw new Exception("Kiosk only considers computer players");
+                	playerComboBox.addItem(g.getName());
+                	gamers.add(gamer);
                 }
-                playerComboBox.addItem(g.getName());
             } catch(Exception ex) {
-                gamers.remove(gamer);
+            	// Don't use uninstatiable gamers
             }
         }
         playerComboBox.setSelectedItem("Random");
@@ -199,9 +199,9 @@ public final class Kiosk extends JPanel implements ActionListener, ItemListener,
     
     class AvailableGame implements Comparable<AvailableGame> {
         private String gameName, kifFile;
-        private Class<?> theCanvasClass;
+        private Class<? extends GameCanvas> theCanvasClass;
         
-        public AvailableGame(String gameName, String kifFile, Class<?> theCanvasClass) {
+        public AvailableGame(String gameName, String kifFile, Class<? extends GameCanvas> theCanvasClass) {
             this.gameName = gameName;
             this.kifFile = kifFile;
             this.theCanvasClass = theCanvasClass;
@@ -213,7 +213,7 @@ public final class Kiosk extends JPanel implements ActionListener, ItemListener,
         
         public GameCanvas getCanvas() {
             try {
-                return (GameCanvas)theCanvasClass.newInstance();
+                return theCanvasClass.newInstance();
             } catch (InstantiationException e) {
                 e.printStackTrace();
             } catch (IllegalAccessException e) {
@@ -288,9 +288,9 @@ public final class Kiosk extends JPanel implements ActionListener, ItemListener,
                 if(theComputerPlayer == null) {
                     Gamer gamer = null;                    
                     if(!playerComboBox.getSelectedItem().equals(remotePlayerString)) {
-                        Class<?> gamerClass = gamers.get(playerComboBox.getSelectedIndex());
+                        Class<? extends Gamer> gamerClass = gamers.get(playerComboBox.getSelectedIndex());
                         try {
-                            gamer = (Gamer) gamerClass.newInstance();
+                            gamer = gamerClass.newInstance();
                         } catch(Exception ex) { throw new RuntimeException(ex); }
                         theComputerPlayer = new GamePlayer(DEFAULT_COMPUTER_PORT, gamer);
                         theComputerPlayer.start();

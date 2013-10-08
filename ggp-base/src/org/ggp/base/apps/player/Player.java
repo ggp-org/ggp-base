@@ -68,7 +68,7 @@ public final class Player extends JPanel
 	
 	private Integer defaultPort = 9147;
 	
-	private List<Class<?>> gamers = ProjectSearcher.getAllClassesThatAre(Gamer.class);
+	private List<Class<? extends Gamer>> gamers;
 
 	public Player()
 	{
@@ -81,15 +81,16 @@ public final class Player extends JPanel
 
 		portTextField.setColumns(15);
 
-		List<Class<?>> gamersCopy = new ArrayList<Class<?>>(gamers);
-		for(Class<?> gamer : gamersCopy)
+		List<Class<? extends Gamer>> allGamers = ProjectSearcher.getAllGamers();
+		gamers = new ArrayList<Class<? extends Gamer>>();
+		for(Class<? extends Gamer> gamer : allGamers)
 		{
-			Gamer g;
 			try {
-				g = (Gamer) gamer.newInstance();
+				Gamer g = gamer.newInstance();
+				gamers.add(gamer);
 				typeComboBox.addItem(g.getName());
 			} catch(Exception ex) {
-			    gamers.remove(gamer);
+			    // Don't use uninstatiable gamers
 			}
 		}
 		typeComboBox.setSelectedItem("Random");
@@ -130,9 +131,9 @@ public final class Player extends JPanel
 					ConfigPanel configPanel = null;
 					Gamer gamer = null;
 
-					Class<?> gamerClass = gamers.get(typeComboBox.getSelectedIndex());
+					Class<? extends Gamer> gamerClass = gamers.get(typeComboBox.getSelectedIndex());
 					try {
-						gamer = (Gamer) gamerClass.newInstance();
+						gamer = gamerClass.newInstance();
 					} catch(Exception ex) { throw new RuntimeException(ex); }
 					detailPanel = gamer.getDetailPanel();
 					configPanel = gamer.getConfigPanel();

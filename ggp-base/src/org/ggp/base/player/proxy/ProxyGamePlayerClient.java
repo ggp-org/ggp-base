@@ -56,7 +56,7 @@ public final class ProxyGamePlayerClient extends Thread implements Subject, Obse
             return;
         }
         
-        List<Class<?>> gamers = ProjectSearcher.getAllClassesThatAre(Gamer.class);
+        List<Class<? extends Gamer>> gamers = ProjectSearcher.getAllGamers();
         List<String> gamerNames = new ArrayList<String>();
         if(gamerNames.size()!=gamers.size())
         {
@@ -73,7 +73,7 @@ public final class ProxyGamePlayerClient extends Thread implements Subject, Obse
         }
         
         try {
-            gamer = (Gamer)(gamers.get(idx).newInstance());
+            gamer = gamers.get(idx).newInstance();
         } catch(Exception ex) {
             GamerLogger.logError("Proxy", "Cannot create instance of " + args[0]);
             return;

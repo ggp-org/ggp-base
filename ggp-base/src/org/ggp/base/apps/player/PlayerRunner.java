@@ -25,9 +25,9 @@ public final class PlayerRunner
     	int port = Integer.parseInt(args[0]);
     	String name = args[1];
     	System.out.println("Starting up preconfigured player on port " + port + " using player class named " + name);
-    	Class<?> chosenGamerClass = null;
+    	Class<? extends Gamer> chosenGamerClass = null;
     	List<String> availableGamers = new ArrayList<String>();
-    	for (Class<?> gamerClass : ProjectSearcher.getAllClassesThatAre(Gamer.class)) {
+    	for (Class<? extends Gamer> gamerClass : ProjectSearcher.getAllGamers()) {
     		availableGamers.add(gamerClass.getSimpleName());
     		if (gamerClass.getSimpleName().equals(name)) {
     			chosenGamerClass = gamerClass;
@@ -37,7 +37,7 @@ public final class PlayerRunner
     		System.out.println("Could not find player class with that name. Available choices are: " + Arrays.toString(availableGamers.toArray()));
     		return;
     	}
-    	Gamer gamer = (Gamer) chosenGamerClass.newInstance();
+    	Gamer gamer = chosenGamerClass.newInstance();
 		new GamePlayer(port, gamer).start();
 		return;
 	}

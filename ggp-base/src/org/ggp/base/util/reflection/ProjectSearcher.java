@@ -8,6 +8,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Stack;
 
+import org.ggp.base.apps.kiosk.GameCanvas;
 import org.ggp.base.player.gamer.Gamer;
 import org.ggp.base.util.configuration.ProjectConfiguration;
 
@@ -15,17 +16,17 @@ import org.ggp.base.util.configuration.ProjectConfiguration;
 public class ProjectSearcher {
 	public static void main(String[] args)
 	{
-		System.out.println(getAllClassesThatAre(Gamer.class));
+		System.out.println(getAllGamers());
 	}
 	
-	public static List<Class<?>> getAllClassesThatAre(Class<?> ofThisType) 
+	private static <T> List<Class<? extends T>> getAllClassesThatAre(Class<T> ofThisType) 
 	{
 		return getAllClassesThatAre(ofThisType, true);
 	}
 	
-	public static List<Class<?>> getAllClassesThatAre(Class<?> ofThisType, boolean mustBeConcrete)
+	private static <T> List<Class<? extends T>> getAllClassesThatAre(Class<T> ofThisType, boolean mustBeConcrete)
 	{
-		List<Class<?>> rval = new ArrayList<Class<?>>();
+		List<Class<? extends T>> rval = new ArrayList<Class<? extends T>>();
 		for(String name : allClasses) {
 			if(name.contains("Test_"))
 				continue; 
@@ -37,8 +38,11 @@ public class ProjectSearcher {
 				throw new RuntimeException(ex); 
 			}
 			
-			if(ofThisType.isAssignableFrom(c) && (!mustBeConcrete || !Modifier.isAbstract(c.getModifiers())) )
-				rval.add(c);	
+			if(ofThisType.isAssignableFrom(c) && (!mustBeConcrete || !Modifier.isAbstract(c.getModifiers()))) {
+				@SuppressWarnings("unchecked")
+				Class<? extends T> cls = (Class<? extends T>) c; 
+				rval.add(cls);
+			}
 		}
 		return rval;
 	}
@@ -48,9 +52,9 @@ public class ProjectSearcher {
 	private static List<String> findAllClasses()
 	{
 		FilenameFilter filter = new FilenameFilter() {
-	        public boolean accept(File dir, String name) {
-	            return !name.startsWith(".");
-	        }
+		public boolean accept(File dir, String name) {
+		    return !name.startsWith(".");
+		}
 	    };
 		
 		List<String> rval = new ArrayList<String>();
@@ -81,5 +85,13 @@ public class ProjectSearcher {
 		}
 		
 		return rval;
+	}
+
+	public static List<Class<? extends GameCanvas>> getAllGameCanvases() {
+		return getAllClassesThatAre(GameCanvas.class);
+	}
+
+	public static List<Class<? extends Gamer>> getAllGamers() {
+		return getAllClassesThatAre(Gamer.class);
 	}
 }
