@@ -92,7 +92,7 @@ public final class Kiosk extends JPanel implements ActionListener, ItemListener,
     private final JPanel theGUIPanel;
         
     private final JComboBox<String> playerComboBox;
-    private List<Class<? extends Gamer>> gamers = null;
+    private List<Class<? extends Gamer>> gamers;
     private final JTextField computerAddress;
 
     private final GameRepository theRepository;
@@ -105,7 +105,7 @@ public final class Kiosk extends JPanel implements ActionListener, ItemListener,
         NativeUI.setNativeUI();
         GamerLogger.setFileToDisplay("GamePlayer");
         
-        SortedSet<AvailableGame> theAvailableGames = new TreeSet<AvailableGame>();
+        SortedSet<AvailableGame> theAvailableGames = new TreeSet<>();
         List<Class<? extends GameCanvas>> theAvailableCanvasList = ProjectSearcher.getAllGameCanvases();
         for(Class<? extends GameCanvas> availableCanvas : theAvailableCanvasList) {
             try {
@@ -118,16 +118,16 @@ public final class Kiosk extends JPanel implements ActionListener, ItemListener,
         
         flipRoles = new JCheckBox("Flip roles?");
         
-        selectedGame = new JList<AvailableGame>(theAvailableGames.toArray(new AvailableGame[theAvailableGames.size()]));
+        selectedGame = new JList<>(theAvailableGames.toArray(new AvailableGame[theAvailableGames.size()]));
         selectedGame.setSelectedIndex(0);
         selectedGame.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         JScrollPane selectedGamePane = new JScrollPane(selectedGame);
 
         computerAddress = new JTextField("player.ggp.org:80");        
-        playerComboBox = new JComboBox<String>();
+        playerComboBox = new JComboBox<>();
         playerComboBox.addItemListener(this);
 
-        gamers = new ArrayList<Class<? extends Gamer>>();
+        gamers = new ArrayList<>();
         List<Class<? extends Gamer>> allGamers = ProjectSearcher.getAllGamers();            
         for(Class<? extends Gamer> gamer : allGamers)
         {
@@ -298,9 +298,9 @@ public final class Kiosk extends JPanel implements ActionListener, ItemListener,
                     }
                 }
 
-                List<String> hosts = new ArrayList<String>();
-                List<Integer> ports = new ArrayList<Integer>();
-                List<String> playerNames = new ArrayList<String>();
+                List<String> hosts = new ArrayList<>();
+                List<Integer> ports = new ArrayList<>();
+                List<String> playerNames = new ArrayList<>();
 
                 if(!flipRoles.isSelected()) {
                     hosts.add("127.0.0.1");
