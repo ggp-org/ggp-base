@@ -4,7 +4,6 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.Font;
-import java.awt.GraphicsEnvironment;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.HashSet;
@@ -20,7 +19,6 @@ import org.ggp.base.util.observer.Subject;
 import org.ggp.base.util.statemachine.MachineState;
 import org.ggp.base.util.statemachine.Move;
 import org.ggp.base.util.statemachine.Role;
-
 
 public class GameGUI extends JPanel implements Subject, Observer, ActionListener {
     public static final long serialVersionUID = 0x1;
@@ -43,7 +41,7 @@ public class GameGUI extends JPanel implements Subject, Observer, ActionListener
         this.theCanvas = theCanvas;
 
         JLabel theTitleLabel = new JLabel(theCanvas.getGameName());
-        theTitleLabel.setFont(new Font(GraphicsEnvironment.getLocalGraphicsEnvironment().getAvailableFontFamilyNames()[0], Font.BOLD, 36));        
+        theTitleLabel.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 36));        
         
         JPanel northPanel = new JPanel(new FlowLayout());
         northPanel.add(theTitleLabel);
