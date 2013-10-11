@@ -13,7 +13,7 @@
 (<= (init (rTrue ?x ?y)) (r ?x ?y))
 (<= (init (sTrue ?x ?y)) (s ?x ?y))
 
-(<= (legal you proceed) (true (sTrue 2 1)))
+(<= (legal you proceed) (true (sTrue 1 2)))
 
 (<= (next (state 1))
     (does you proceed))
