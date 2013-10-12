@@ -75,6 +75,10 @@ public class StaticValidationTests {
     public void test5CValidation() throws Exception {
         validate("test_case_5c");
     }
+    @Test
+    public void test5DValidation() throws Exception {
+        validate("test_case_5d");
+    }
     @Test(expected=ValidatorException.class)
     public void testCleanNotDistinctValidation() throws Exception {
         validate("test_clean_not_distinct");
