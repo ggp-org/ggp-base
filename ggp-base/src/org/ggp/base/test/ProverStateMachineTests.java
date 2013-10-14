@@ -85,6 +85,36 @@ public class ProverStateMachineTests extends Assert {
     }
 
     @Test
+    public void testProverOnExercise_2_1_3() throws Exception {
+        List<Gdl> desc = new TestGameRepository().getGame("exercise_2_1").getRules();
+        sm.initialize(desc);
+        MachineState state = sm.getInitialState();
+        Role white = new Role(GdlPool.getConstant("white"));
+        assertEquals(4, sm.getLegalMoves(state, white).size());
+    }
+ 
+    @Test
+    public void testProverOnExercise_2_1_6() throws Exception {
+        List<Gdl> desc = new TestGameRepository().getGame("exercise_2_1").getRules();
+        sm.initialize(desc);
+        MachineState state = sm.getInitialState();
+        state = sm.getNextState(state, Arrays.asList(move("a"), move("d")));
+        assertEquals(2, state.getContents().size());
+    }
+    
+    @Test
+    public void testProverOnExercise_2_1_7() throws Exception {
+        List<Gdl> desc = new TestGameRepository().getGame("exercise_2_1").getRules();
+        sm.initialize(desc);
+        MachineState state = sm.getInitialState();
+        state = sm.getNextState(state, Arrays.asList(move("a"), move("d")));
+        state = sm.getNextState(state, Arrays.asList(move("b"), move("d")));
+        state = sm.getNextState(state, Arrays.asList(move("c"), move("d")));
+        state = sm.getNextState(state, Arrays.asList(move("b"), move("d")));
+        assertFalse(sm.isTerminal(state));
+    }
+
+    @Test
     public void testCase1A() throws Exception {
         List<Gdl> desc = new TestGameRepository().getGame("test_case_1a").getRules();
         sm.initialize(desc);

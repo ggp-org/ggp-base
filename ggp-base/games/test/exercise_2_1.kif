@@ -1,0 +1,33 @@
+(role white)
+(role black)
+
+(base p)
+(base q)
+(base r)
+(base s)
+
+(action a)
+(action b)
+(action c)
+(action d)
+
+(init s)
+
+(legal white a)
+(legal white b)
+(legal white c)
+(legal black d)
+
+(<= (next p) (does white a) (not (true p)))
+(<= (next p) (not (does white a)) (true p))
+(<= (next q) (does white b) (true p))
+(<= (next q) (does white c) (true r))
+(<= (next q) (not (does white b)) (not (does white c)) (true q))
+(<= (next r) (does white c) (true q))
+(<= (next r) (not (does white c)) (true r))
+
+(<= terminal  (true p) (true q) (true r))
+(<= (goal white 100) terminal)
+(<= (goal white 0) (not terminal))
+(<= (goal black 100) terminal)
+(<= (goal black 0) (not terminal))
