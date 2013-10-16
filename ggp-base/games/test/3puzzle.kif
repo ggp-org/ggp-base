@@ -1,0 +1,113 @@
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; 3-Puzzle;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Components
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  (role robot)  
+  (<= (base (cell ?m ?n ?t)) (index ?m) (index ?n) (tile ?t))
+  (base (step 1))
+  (<= (base (step ?n)) (successor ?m ?n))
+
+  (index 1)
+  (index 2)
+
+  (tile 1)
+  (tile 2)
+  (tile 3)
+  (tile b)
+
+  (input robot left)
+  (input robot right)
+  (input robot up)
+  (input robot down)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; init
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  (init (cell 1 1 b))  (init (cell 1 2 3))  (init (cell 2 1 2))  (init (cell 2 2 1))  (init (step 1));;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; legal
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  (<= (legal robot left)  (true (cell ?m 2 b)))  (<= (legal robot right) (true (cell ?m 1 b)))  (<= (legal robot up)    (true (cell 2 ?n b)))  (<= (legal robot down)  (true (cell 1 ?n b)));;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; next
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+  (<= (next (cell 1 ?n b))
+      (does robot up)
+      (true (cell 2 ?n b)))
+
+  (<= (next (cell 2 ?n b))
+      (does robot down)
+      (true (cell 1 ?n b)))
+
+  (<= (next (cell ?m 1 b))
+      (does robot left)
+      (true (cell ?m 2 b)))
+
+  (<= (next (cell ?m 2 b))
+      (does robot right)
+      (true (cell ?m 1 b)))
+
+
+  (<= (next (cell 2 ?n ?x))
+      (does robot up)
+      (true (cell 2 ?n b))
+      (true (cell 1 ?n ?x)))
+
+  (<= (next (cell 1 ?n ?x))
+      (does robot down)
+      (true (cell 1 ?n b))
+      (true (cell 2 ?n ?x)))
+
+  (<= (next (cell ?m 2 ?x))
+      (does robot left)
+      (true (cell ?m 2 b))
+      (true (cell ?m 1 ?x)))
+
+  (<= (next (cell ?m 1 ?x))
+      (does robot right)
+      (true (cell ?m 1 b))
+      (true (cell ?m 2 ?x)))
+
+
+  (<= (next (cell ?m ?n ?w))
+      (does robot up)
+      (true (cell ?x ?y b))
+      (true (cell ?m ?n ?w))
+      (distinct ?y ?n))
+
+  (<= (next (cell ?m ?n ?w))
+      (does robot down)
+      (true (cell ?x ?y b))
+      (true (cell ?m ?n ?w))
+      (distinct ?y ?n))
+
+  (<= (next (cell ?m ?n ?w))
+      (does robot left)
+      (true (cell ?x ?y b))
+      (true (cell ?m ?n ?w))
+      (distinct ?x ?m))
+
+  (<= (next (cell ?m ?n ?w))
+      (does robot right)
+      (true (cell ?x ?y b))
+      (true (cell ?m ?n ?w))
+      (distinct ?x ?m))
+
+
+  (<= (next (step ?n))
+      (true (step ?m))
+      (successor ?m ?n))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; goal
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+  (<= (goal robot 100)
+      (true (cell 1 1 1))
+      (true (cell 1 2 2))
+      (true (cell 2 1 3)))
+
+  (<= (goal robot 0) (not (true (cell 1 1 1))))  (<= (goal robot 0) (not (true (cell 1 2 2))))  (<= (goal robot 0) (not (true (cell 2 1 3))));;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; terminal
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  (<= terminal (true (step 7)));;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Data
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  (successor 1 2)  (successor 2 3)  (successor 3 4)  (successor 4 5)  (successor 5 6)  (successor 6 7);;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
