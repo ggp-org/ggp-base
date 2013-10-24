@@ -3,12 +3,10 @@ package org.ggp.base.util.reflection;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Stack;
+import java.util.*;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import org.ggp.base.player.gamer.Gamer;
 import org.ggp.base.util.configuration.ProjectConfiguration;
 
@@ -32,9 +30,9 @@ public class ProjectSearcher {
         return rval;
 	}
 
-    private static void findClassesInList(List<String> listToSearch, Class<?> ofThisType,
+    private static void findClassesInList(Set<String> classesToSearch, Class<?> ofThisType,
                                           boolean mustBeConcrete, List<Class<?>> rval) {
-        for(String name : allClasses) {
+        for(String name : classesToSearch) {
             if(name.contains("Test_"))
                 continue;
 
@@ -50,14 +48,14 @@ public class ProjectSearcher {
         }
     }
 
-    private static List<String> allClasses = findAllClasses();
-    private static List<String> injectedClasses = Lists.newArrayList();
+    private static Set<String> allClasses = findAllClasses();
+    private static Set<String> injectedClasses = Sets.newHashSet();
 
     public static <T> void injectClass(Class<T> klass) {
         injectedClasses.add(klass.getCanonicalName());
     }
 
-	private static List<String> findAllClasses()
+	private static Set<String> findAllClasses()
 	{
 		FilenameFilter filter = new FilenameFilter() {
 	        public boolean accept(File dir, String name) {
@@ -65,7 +63,7 @@ public class ProjectSearcher {
 	        }
 	    };
 
-		List<String> rval = new ArrayList<String>();
+		Set<String> rval = Sets.newHashSet();
 		Stack<File> toProcess = new Stack<File>();
 		for(String classDirName : ProjectConfiguration.classRoots)
 		    toProcess.add(new File(classDirName));
