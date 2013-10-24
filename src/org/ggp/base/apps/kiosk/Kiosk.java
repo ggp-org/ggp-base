@@ -84,14 +84,14 @@ public final class Kiosk extends JPanel implements ActionListener, ItemListener,
     private final JTextField startClockTextField;
     
     private final JButton runButton;
-    private final JList selectedGame;
+    private final JList<AvailableGame> selectedGame;
     private final JCheckBox flipRoles;
     
     private final PublishButton publishButton;
 
     private final JPanel theGUIPanel;
         
-    private final JComboBox playerComboBox;
+    private final JComboBox<String> playerComboBox;
     private List<Class<?>> gamers = null;
     private final JTextField computerAddress;
 
@@ -118,13 +118,13 @@ public final class Kiosk extends JPanel implements ActionListener, ItemListener,
         
         flipRoles = new JCheckBox("Flip roles?");
         
-        selectedGame = new JList(theAvailableGames.toArray());
+        selectedGame = new JList<AvailableGame>(theAvailableGames.toArray(new AvailableGame[0]));
         selectedGame.setSelectedIndex(0);
         selectedGame.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         JScrollPane selectedGamePane = new JScrollPane(selectedGame);
 
         computerAddress = new JTextField("player.ggp.org:80");        
-        playerComboBox = new JComboBox();
+        playerComboBox = new JComboBox<String>();
         playerComboBox.addItemListener(this);
 
         gamers = ProjectSearcher.getAllClassesThatAre(Gamer.class);

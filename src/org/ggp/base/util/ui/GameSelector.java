@@ -26,8 +26,8 @@ import org.ggp.base.util.game.LocalGameRepository;
  * @author Sam Schreiber
  */
 public class GameSelector implements ActionListener {
-    JComboBox theGameList;
-    JComboBox theRepositoryList;
+    JComboBox<NamedItem> theGameList;
+    JComboBox<String> theRepositoryList;
     
     GameRepository theSelectedRepository;
     Map<String, GameRepository> theCachedRepositories;
@@ -47,10 +47,10 @@ public class GameSelector implements ActionListener {
     }
     
     public GameSelector() {
-        theGameList = new JComboBox();
+        theGameList = new JComboBox<NamedItem>();
         theGameList.addActionListener(this); 
         
-        theRepositoryList = new JComboBox();
+        theRepositoryList = new JComboBox<String>();
         theRepositoryList.addActionListener(this);
 
         theCachedRepositories = new HashMap<String, GameRepository>();        
@@ -102,11 +102,11 @@ public class GameSelector implements ActionListener {
         }
     }
     
-    public JComboBox getRepositoryList() {
+    public JComboBox<String> getRepositoryList() {
         return theRepositoryList;
     }
     
-    public JComboBox getGameList() {
+    public JComboBox<NamedItem> getGameList() {
         return theGameList;
     }
     

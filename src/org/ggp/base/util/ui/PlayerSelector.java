@@ -25,7 +25,7 @@ public class PlayerSelector {
     	thePresenceManager = new PlayerPresenceManager();
     }
     
-    class PlayerPresenceLabel extends JLabel implements ListCellRenderer {
+    class PlayerPresenceLabel extends JLabel implements ListCellRenderer<String> {
 		private static final long serialVersionUID = 1L;
 		private int maxLabelLength;
 
@@ -37,8 +37,8 @@ public class PlayerSelector {
     	}
     	
     	public Component getListCellRendererComponent(
-                    JList list,
-                    Object value,
+                    JList<? extends String> list,
+                    String value,
                     int index,
                     boolean isSelected,
                     boolean cellHasFocus) {
@@ -90,7 +90,7 @@ public class PlayerSelector {
     	}
     }
     
-    class PlayerSelectorBox extends JComboBox implements Observer {
+    class PlayerSelectorBox extends JComboBox<String> implements Observer {
 		private static final long serialVersionUID = 1L;
 
 		public PlayerSelectorBox() {
@@ -122,7 +122,7 @@ public class PlayerSelector {
 		}
     }
     
-    class PlayerSelectorList extends JList implements Observer {
+    class PlayerSelectorList extends JList<String> implements Observer {
 		private static final long serialVersionUID = 1L;
 
 		public PlayerSelectorList() {
@@ -133,7 +133,7 @@ public class PlayerSelector {
     	}
 		
 		private void setAllPlayerItems() {
-			setListData(thePresenceManager.getSortedPlayerNames().toArray());
+			setListData(thePresenceManager.getSortedPlayerNames().toArray(new String[0]));
 		}
 
 		@Override
@@ -164,11 +164,11 @@ public class PlayerSelector {
     	return thePresenceManager.getPresence(name);
     }
     
-    public JComboBox getPlayerSelectorBox() {
+    public JComboBox<String> getPlayerSelectorBox() {
     	return new PlayerSelectorBox();
     }
     
-    public JList getPlayerSelectorList() {
+    public JList<String> getPlayerSelectorList() {
     	return new PlayerSelectorList();
     }    
 }

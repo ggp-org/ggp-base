@@ -64,7 +64,7 @@ public final class Player extends JPanel
 
 	private final JTextField portTextField;
 
-	private final JComboBox typeComboBox;
+	private final JComboBox<String> typeComboBox;
 	
 	private Integer defaultPort = 9147;
 	
@@ -75,7 +75,7 @@ public final class Player extends JPanel
 		super(new GridBagLayout());
 
 		portTextField = new JTextField(defaultPort.toString());
-		typeComboBox = new JComboBox();
+		typeComboBox = new JComboBox<String>();
 		createButton = new JButton(createButtonMethod());
 		playersTabbedPane = new JTabbedPane();
 
