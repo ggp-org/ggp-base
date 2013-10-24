@@ -8,6 +8,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Stack;
 
+import com.google.common.collect.Lists;
 import org.ggp.base.player.gamer.Gamer;
 import org.ggp.base.util.configuration.ProjectConfiguration;
 
@@ -17,34 +18,45 @@ public class ProjectSearcher {
 	{
 		System.out.println(getAllClassesThatAre(Gamer.class));
 	}
-	
-	public static List<Class<?>> getAllClassesThatAre(Class<?> ofThisType) 
+
+	public static List<Class<?>> getAllClassesThatAre(Class<?> ofThisType)
 	{
 		return getAllClassesThatAre(ofThisType, true);
 	}
-	
+
 	public static List<Class<?>> getAllClassesThatAre(Class<?> ofThisType, boolean mustBeConcrete)
 	{
 		List<Class<?>> rval = new ArrayList<Class<?>>();
-		for(String name : allClasses) {
-			if(name.contains("Test_"))
-				continue; 
-			
-			Class<?> c = null;
-			try {	
-				c = Class.forName(name);
-			} catch (ClassNotFoundException ex)  { 
-				throw new RuntimeException(ex); 
-			}
-			
-			if(ofThisType.isAssignableFrom(c) && (!mustBeConcrete || !Modifier.isAbstract(c.getModifiers())) )
-				rval.add(c);	
-		}
-		return rval;
+        findClassesInList(allClasses, ofThisType, mustBeConcrete, rval);
+        findClassesInList(injectedClasses, ofThisType, mustBeConcrete, rval);
+        return rval;
 	}
-	
-	private static List<String> allClasses = findAllClasses();
-	
+
+    private static void findClassesInList(List<String> listToSearch, Class<?> ofThisType,
+                                          boolean mustBeConcrete, List<Class<?>> rval) {
+        for(String name : allClasses) {
+            if(name.contains("Test_"))
+                continue;
+
+            Class<?> c = null;
+            try {
+                c = Class.forName(name);
+            } catch (ClassNotFoundException ex)  {
+                throw new RuntimeException(ex);
+            }
+
+            if(ofThisType.isAssignableFrom(c) && (!mustBeConcrete || !Modifier.isAbstract(c.getModifiers())) )
+                rval.add(c);
+        }
+    }
+
+    private static List<String> allClasses = findAllClasses();
+    private static List<String> injectedClasses = Lists.newArrayList();
+
+    public static <T> void injectClass(Class<T> klass) {
+        injectedClasses.add(klass.getCanonicalName());
+    }
+
 	private static List<String> findAllClasses()
 	{
 		FilenameFilter filter = new FilenameFilter() {
@@ -52,9 +64,9 @@ public class ProjectSearcher {
 	            return !name.startsWith(".");
 	        }
 	    };
-		
+
 		List<String> rval = new ArrayList<String>();
-		Stack<File> toProcess = new Stack<File>();		
+		Stack<File> toProcess = new Stack<File>();
 		for(String classDirName : ProjectConfiguration.classRoots)
 		    toProcess.add(new File(classDirName));
 		while(!toProcess.empty())
@@ -67,7 +79,7 @@ public class ProjectSearcher {
 			else
 			{
 				if(f.getName().endsWith(".class"))
-				{					
+				{
 					String fullyQualifiedName = f.getPath();
 					for(String classDirName : ProjectConfiguration.classRoots) {
 					    fullyQualifiedName = fullyQualifiedName.replaceAll("^" + classDirName.replace(File.separatorChar, '.'), "");
@@ -79,7 +91,7 @@ public class ProjectSearcher {
 				}
 			}
 		}
-		
+
 		return rval;
 	}
 }
