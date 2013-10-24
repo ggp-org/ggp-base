@@ -22,6 +22,7 @@
         <pathelement location="src/external/Clojure/clojure.jar"/>
         <pathelement location="src/external/Guava/guava-14.0.1.jar"/>
       <pathelement location="src/external/JUnit/junit-4.11.jar"/>
+      <pathelement location="src/external/JUnit/hamcrest-core-1.3.jar"/>
     </path>
     <target name="init">
         <mkdir dir="bin"/>
