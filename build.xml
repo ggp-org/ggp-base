@@ -66,6 +66,9 @@
             <classpath refid="GGP_Base.classpath"/>
         </javac>
     </target>
+    <target name="jar" depends="build">
+        <jar destfile="bin/ggp-base.jar" basedir="bin" includes="**/*.class"/>
+    </target>
     <target description="copy Eclipse compiler jars to ant lib directory" name="init-eclipse-compiler">
         <copy todir="${ant.library.dir}">
             <fileset dir="${ECLIPSE_HOME}/plugins" includes="org.eclipse.jdt.core_*.jar"/>
