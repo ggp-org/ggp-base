@@ -5,11 +5,9 @@ import java.io.FilenameFilter;
 import java.lang.reflect.Modifier;
 import java.util.*;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.ggp.base.player.gamer.Gamer;
 import org.ggp.base.util.configuration.ProjectConfiguration;
-
 
 public class ProjectSearcher {
 	public static void main(String[] args)
