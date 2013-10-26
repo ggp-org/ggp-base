@@ -7,7 +7,9 @@ import java.io.PrintStream;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
+import com.google.common.collect.Lists;
 import org.ggp.base.player.event.PlayerDroppedPacketEvent;
 import org.ggp.base.player.event.PlayerReceivedMessageEvent;
 import org.ggp.base.player.event.PlayerSentMessageEvent;
@@ -56,7 +58,7 @@ public final class ProxyGamePlayerClient extends Thread implements Subject, Obse
             return;
         }
         
-        List<Class<?>> gamers = ProjectSearcher.getAllClassesThatAre(Gamer.class);
+        List<Class<? extends Gamer>> gamers = Lists.newArrayList(ProjectSearcher.GAMERS.getConcreteClasses());
         List<String> gamerNames = new ArrayList<String>();
         if(gamerNames.size()!=gamers.size())
         {

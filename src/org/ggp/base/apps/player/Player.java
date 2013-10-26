@@ -19,6 +19,7 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
 
+import com.google.common.collect.Lists;
 import org.ggp.base.apps.player.config.ConfigPanel;
 import org.ggp.base.apps.player.detail.DetailPanel;
 import org.ggp.base.apps.player.match.MatchPanel;
@@ -68,7 +69,7 @@ public final class Player extends JPanel
 	
 	private Integer defaultPort = 9147;
 	
-	private List<Class<?>> gamers = ProjectSearcher.getAllClassesThatAre(Gamer.class);
+	private List<Class<? extends Gamer>> gamers = Lists.newArrayList(ProjectSearcher.GAMERS.getConcreteClasses());
 
 	public Player()
 	{
@@ -81,12 +82,12 @@ public final class Player extends JPanel
 
 		portTextField.setColumns(15);
 
-		List<Class<?>> gamersCopy = new ArrayList<Class<?>>(gamers);
-		for(Class<?> gamer : gamersCopy)
+		List<Class<? extends Gamer>> gamersCopy = new ArrayList<Class<? extends Gamer>>(gamers);
+		for(Class<? extends Gamer> gamer : gamersCopy)
 		{
 			Gamer g;
 			try {
-				g = (Gamer) gamer.newInstance();
+				g = gamer.newInstance();
 				typeComboBox.addItem(g.getName());
 			} catch(Exception ex) {
 			    gamers.remove(gamer);

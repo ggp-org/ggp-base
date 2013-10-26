@@ -10,9 +10,9 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
-
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -26,6 +26,7 @@ import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.border.TitledBorder;
 
+import com.google.common.collect.Lists;
 import org.ggp.base.player.GamePlayer;
 import org.ggp.base.player.gamer.Gamer;
 import org.ggp.base.player.gamer.exception.AbortingException;
@@ -43,7 +44,8 @@ import org.ggp.base.util.observer.Event;
 import org.ggp.base.util.observer.Observer;
 import org.ggp.base.util.reflection.ProjectSearcher;
 import org.ggp.base.util.symbol.grammar.SymbolPool;
-import org.ggp.base.util.ui.*;
+import org.ggp.base.util.ui.NativeUI;
+import org.ggp.base.util.ui.PublishButton;
 
 /**
  * Kiosk is a program for running two-player human-vs-computer matches
@@ -92,24 +94,24 @@ public final class Kiosk extends JPanel implements ActionListener, ItemListener,
     private final JPanel theGUIPanel;
         
     private final JComboBox<String> playerComboBox;
-    private List<Class<?>> gamers = null;
+    private List<Class<? extends Gamer>> gamers = null;
     private final JTextField computerAddress;
 
     private final GameRepository theRepository;
     
     public Kiosk()
     {        
-        super(new GridBagLayout());   
+        super(new GridBagLayout());
         setPreferredSize(new Dimension(1050, 900));
 
         NativeUI.setNativeUI();
         GamerLogger.setFileToDisplay("GamePlayer");
         
         SortedSet<AvailableGame> theAvailableGames = new TreeSet<AvailableGame>();
-        List<Class<?>> theAvailableCanvasList = ProjectSearcher.getAllClassesThatAre(GameCanvas.class);
-        for(Class<?> availableCanvas : theAvailableCanvasList) {
+        Set<Class<? extends GameCanvas>> theAvailableCanvasList = ProjectSearcher.GAME_CANVASES.getConcreteClasses();
+        for(Class<? extends GameCanvas> availableCanvas : theAvailableCanvasList) {
             try {
-                GameCanvas theCanvas = (GameCanvas) availableCanvas.newInstance();                
+                GameCanvas theCanvas = availableCanvas.newInstance();
                 theAvailableGames.add(new AvailableGame(theCanvas.getGameName(), theCanvas.getGameKey(), availableCanvas));
             } catch(Exception e) {
                 ;
@@ -127,8 +129,8 @@ public final class Kiosk extends JPanel implements ActionListener, ItemListener,
         playerComboBox = new JComboBox<String>();
         playerComboBox.addItemListener(this);
 
-        gamers = ProjectSearcher.getAllClassesThatAre(Gamer.class);
-        List<Class<?>> gamersCopy = new ArrayList<Class<?>>(gamers);            
+        gamers = Lists.newArrayList(ProjectSearcher.GAMERS.getConcreteClasses());
+        List<Class<?>> gamersCopy = new ArrayList<Class<?>>(gamers);
         for(Class<?> gamer : gamersCopy)
         {
             try {
