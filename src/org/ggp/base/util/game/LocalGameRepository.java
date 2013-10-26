@@ -47,7 +47,15 @@ public final class LocalGameRepository extends GameRepository {
                 throw new RuntimeException(e);
             }
         }
+        
         theRealRepo = new RemoteGameRepository(theLocalRepoURL);
+    }
+   
+    public void cleanUp()
+    {
+        if (theLocalRepoServer != null) {
+        	theLocalRepoServer.stop(0);
+        }
     }
     
     @Override
