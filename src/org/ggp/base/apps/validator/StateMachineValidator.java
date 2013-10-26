@@ -10,6 +10,7 @@ import org.ggp.base.util.game.LocalGameRepository;
 import org.ggp.base.util.gdl.grammar.Gdl;
 import org.ggp.base.util.logging.GamerLogger;
 import org.ggp.base.util.statemachine.StateMachine;
+import org.ggp.base.util.statemachine.implementation.propnet.TestPropnetStateMachine;
 import org.ggp.base.util.statemachine.implementation.prover.ProverStateMachine;
 import org.ggp.base.util.statemachine.verifier.StateMachineVerifier;
 
@@ -25,9 +26,30 @@ public class StateMachineValidator {
             
         // Set of games to omit from tests - e.g. - due to known GDL issues
         //exceptedGames.add("merrills");
+	    exceptedGames.add("alexChess");
+	    exceptedGames.add("chess");
+	    exceptedGames.add("amazons");
+	    exceptedGames.add("amazonsTorus");
+	    exceptedGames.add("amazonsSuicide");
+	    exceptedGames.add("factoringImpossibleTurtleBrain");
+	    exceptedGames.add("knightwar");
+	    exceptedGames.add("laikLee_hex");
+	    exceptedGames.add("cylinder-checkers");
+	    exceptedGames.add("mummymaze1p");
+	    exceptedGames.add("pancakes88");
+	    exceptedGames.add("knightsTourLarge");
+	    exceptedGames.add("sudoku");
+	    exceptedGames.add("god");
+	    exceptedGames.add("slaughter");
+	    exceptedGames.add("skirmish");
+	    exceptedGames.add("cubicup_3player");
+	    exceptedGames.add("anon");
+	    exceptedGames.add("simple3space");
+	    exceptedGames.add("modifiedTicTacToe2");
+	    exceptedGames.add("wallmaze");
         
-        String startGame = "racer4";        // Game to begin with if desired
-        boolean foundStartGame = false;     // Set to true to just start at the beginning
+        String startGame = "snake_2009_big";        // Game to begin with if desired
+        boolean foundStartGame = false;      // Set to true to just start at the beginning
         boolean stopOnError = true;         // Whether to stop on first failing game or continue
         
         Set<String> failureCases = new HashSet<String>();
@@ -42,8 +64,8 @@ public class StateMachineValidator {
                 StateMachine theReference = new ProverStateMachine();
                 //  Instantiate the statemachine to be tested here as per the following commented out
                 //  line in place of the basic prover
-                //TestPropnetStateMachine theMachine = new TestPropnetStateMachine();            
-                StateMachine theMachine = new ProverStateMachine(); // Replace this line with your state machine instantiation           
+                TestPropnetStateMachine theMachine = new TestPropnetStateMachine();            
+                //StateMachine theMachine = new ProverStateMachine(); // Replace this line with your state machine instantiation           
                     
                 System.out.println("Precheck game " + gameKey + ".");
                 if (gameKey.equals(startGame))
