@@ -56,7 +56,6 @@ public final class LocalGameRepository extends GameRepository {
         if (theLocalRepoServer != null) {
         	theLocalRepoServer.stop(0);
         }
-   	
     }
     
     @Override
