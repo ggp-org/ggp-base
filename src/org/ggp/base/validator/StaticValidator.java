@@ -12,7 +12,6 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Queue;
 import java.util.Set;
 import java.util.Stack;
 
@@ -33,6 +32,13 @@ import org.ggp.base.util.gdl.grammar.GdlRule;
 import org.ggp.base.util.gdl.grammar.GdlSentence;
 import org.ggp.base.util.gdl.grammar.GdlTerm;
 import org.ggp.base.util.gdl.grammar.GdlVariable;
+import org.ggp.base.util.gdl.model.DependencyGraphs;
+
+import com.google.common.base.Predicates;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Maps;
+import com.google.common.collect.SetMultimap;
 
 public class StaticValidator implements GameValidator {
 	private static final GdlConstant ROLE = GdlPool.getConstant("role");
@@ -51,11 +57,11 @@ public class StaticValidator implements GameValidator {
 	 * to the extent that it can be determined. If the description is
 	 * invalid, throws an exception of type ValidatorException
 	 * explaining the problem.
-	 * 
+	 *
 	 * Features like finitism and monotonicity can't be definitively determined
 	 * with a static analysis; these are left to the other validator. (See
 	 * GdlValidator and the ValidatorPanel in apps.validator.)
-	 * 
+	 *
 	 * @param description A parsed GDL game description.
 	 * @throws ValidatorException The description did not pass validation.
 	 * The error message explains the error found in the GDL description.
@@ -64,7 +70,7 @@ public class StaticValidator implements GameValidator {
 		/* This assumes that the description is already well-formed enough
 		 * to be made into a list of Gdl objects. We need to check those
 		 * remaining features that can be verified here.
-		 * 
+		 *
 		 * A + is an implemented test; a - is not (fully) implemented.
 		 *
 		 * Features of negated datalog with functions:
@@ -98,7 +104,7 @@ public class StaticValidator implements GameValidator {
 		 *
 		 * Reference for the restrictions: http://games.stanford.edu/language/spec/gdl_spec_2008_03.pdf
 		 */
-		
+
 		List<GdlRelation> relations = new ArrayList<GdlRelation>();
 		List<GdlRule> rules = new ArrayList<GdlRule>();
 		//1) Are all objects in the description rules or relations?
@@ -134,27 +140,22 @@ public class StaticValidator implements GameValidator {
 		//4) Are the arities of the GDL-defined relations correct?
 		//5) Do any functions have the names of GDL keywords (likely an error)?
 		testPredefinedArities(sentenceArities, functionArities);
-		
+
 		//6) Are all rules safe?
 		for(GdlRule rule : rules) {
 			testRuleSafety(rule);
 		}
-		
+
 		//7) Are the rules stratified? (Checked as part of dependency graph generation)
 		//This dependency graph is actually based on relation constants, not sentence forms (like some of the other tools here)
-		Map<GdlConstant, Set<GdlConstant>> dependencyGraph = getDependencyGraph(sentenceArities.keySet(), rules);
-		
-		if(!dependencyGraph.containsKey(DOES))
-			dependencyGraph.put(DOES, new HashSet<GdlConstant>());
-		if(!dependencyGraph.containsKey(TRUE))
-			dependencyGraph.put(TRUE, new HashSet<GdlConstant>());
-		
-		
+		SetMultimap<GdlConstant, GdlConstant> dependencyGraph =
+				getDependencyGraphAndValidateNoNegativeCycles(sentenceArities.keySet(), rules);
+
 		//8) We check that all the keywords are related to one another correctly, according to the dependency graph
-		checkKeywordLocations(relations, rules, dependencyGraph);
-		
+		checkKeywordLocations(dependencyGraph);
+
 		//9) We check the restriction on functions and recursion
-		Map<GdlConstant, Set<GdlConstant>> ancestorsGraph = getAncestorsGraph(dependencyGraph);
+		Map<GdlConstant, Set<GdlConstant>> ancestorsGraph = getAncestorsGraph(dependencyGraph, sentenceArities.keySet());
 		for(GdlRule rule : rules) {
 			checkRecursionFunctionRestriction(rule, ancestorsGraph);
 		}
@@ -172,18 +173,18 @@ public class StaticValidator implements GameValidator {
 	public static void matchParentheses(File file) throws ValidatorException {
 		List<String> lines = new ArrayList<String>();
 		try {
-			String line;			
+			String line;
 			BufferedReader in = new BufferedReader(new FileReader(file));
 			while((line = in.readLine()) != null) {
 				lines.add(line);
-			}			
+			}
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		matchParentheses(lines.toArray(new String[]{}));
-	}	
+	}
 	private static void matchParentheses(String[] lines) throws ValidatorException {
 		int lineNumber = 1;
 		Stack<Integer> linesStack = new Stack<Integer>();
@@ -208,9 +209,9 @@ public class StaticValidator implements GameValidator {
 
 		if(!linesStack.isEmpty()) {
 			throw new ValidatorException("Extra open parens encountered, starting at line " + linesStack.peek());
-		}			
+		}
 	}
-	
+
 	private static void checkRecursionFunctionRestriction(GdlRule rule,
 			Map<GdlConstant, Set<GdlConstant>> ancestorsGraph) throws ValidatorException {
 		//TODO: This might not work 100% correctly with descriptions with
@@ -218,7 +219,7 @@ public class StaticValidator implements GameValidator {
 		//before testing.
 		//The restriction goes something like this:
 		//Look at all the terms in each positive relation in the rule that
-		// is in a cycle with the head. 
+		// is in a cycle with the head.
 		GdlConstant head = rule.getHead().getName();
 		Set<GdlRelation> cyclicRelations = new HashSet<GdlRelation>();
 		Set<GdlRelation> acyclicRelations = new HashSet<GdlRelation>();
@@ -277,41 +278,36 @@ public class StaticValidator implements GameValidator {
 		}
 	}
 
-
 	private static Map<GdlConstant, Set<GdlConstant>> getAncestorsGraph(
-			Map<GdlConstant, Set<GdlConstant>> dependencyGraph) {
-		Map<GdlConstant, Set<GdlConstant>> ancestorsGraph = new HashMap<GdlConstant, Set<GdlConstant>>();
-		for(GdlConstant head : dependencyGraph.keySet()) {
-			ancestorsGraph.put(head, getAncestors(head, dependencyGraph));
+			SetMultimap<GdlConstant, GdlConstant> dependencyGraph,
+			Set<GdlConstant> allSentenceNames) {
+		Map<GdlConstant, Set<GdlConstant>> ancestorsGraph = Maps.newHashMap();
+		for (GdlConstant sentenceName : allSentenceNames) {
+			ancestorsGraph.put(sentenceName, DependencyGraphs.getMatchingAndUpstream(
+					allSentenceNames, dependencyGraph, Predicates.equalTo(sentenceName)));
 		}
 		return ancestorsGraph;
 	}
 
-
-	private static void checkKeywordLocations(List<GdlRelation> relations,
-			List<GdlRule> rules,
-			Map<GdlConstant, Set<GdlConstant>> dependencyGraph) throws ValidatorException {
+	private static final ImmutableSet<GdlConstant> NEVER_IN_BODY =
+			ImmutableSet.of(INIT, NEXT, BASE, INPUT);
+	private static void checkKeywordLocations(
+			SetMultimap<GdlConstant, GdlConstant> dependencyGraph) throws ValidatorException {
 		//- Role relations must be ground sentences, not in rules
 		if(!dependencyGraph.get(ROLE).isEmpty())
-			throw new ValidatorException("The role relation should be defined by ground statements, not by rules");
+			throw new ValidatorException("The role relation should be defined by ground statements, not by rules.");
 		//- Trues only in bodies of rules, not heads
 		if(!dependencyGraph.get(TRUE).isEmpty())
-			throw new ValidatorException("The true relation should never be in the head of a rule");
-		//- Does only in bodies of rules 
+			throw new ValidatorException("The true relation should never be in the head of a rule.");
+		//- Does only in bodies of rules
 		if(!dependencyGraph.get(DOES).isEmpty())
-			throw new ValidatorException("The does relation should never be in the head of a rule");
+			throw new ValidatorException("The does relation should never be in the head of a rule.");
 		//- Inits only in heads of rules; not in same CC as true, does, next, legal, goal, terminal
 		//- Nexts only in heads of rules
-		for(Set<GdlConstant> relsInBodies : dependencyGraph.values()) {
-			if(relsInBodies.contains(INIT))
-				throw new ValidatorException("The init relation should never be in the body of a rule");
-			if(relsInBodies.contains(NEXT))
-				throw new ValidatorException("The next relation should never be in the body of a rule");
-			if(relsInBodies.contains(BASE))
-				throw new ValidatorException("The base relation should never be in the body of a rule");
-			if(relsInBodies.contains(INPUT))
-				throw new ValidatorException("The input relation should never be in the body of a rule");
-			
+		for(GdlConstant relNameInBody : dependencyGraph.values()) {
+			if(NEVER_IN_BODY.contains(relNameInBody)) {
+				throw new ValidatorException("The " + relNameInBody + " relation should never be in the body of a rule.");
+			}
 		}
 
 		//no paths between does and legal/goal/terminal
@@ -320,61 +316,40 @@ public class StaticValidator implements GameValidator {
 	}
 
 
-	private static Map<GdlConstant, Set<GdlConstant>> getDependencyGraph(
+	private static SetMultimap<GdlConstant, GdlConstant> getDependencyGraphAndValidateNoNegativeCycles(
 			Set<GdlConstant> relationNames, List<GdlRule> rules) throws ValidatorException {
-		Map<GdlConstant, Set<GdlConstant>> dependencyGraph = new HashMap<GdlConstant, Set<GdlConstant>>();
-		Map<GdlConstant, Set<GdlConstant>> negativeEdges = new HashMap<GdlConstant, Set<GdlConstant>>();
-		for(GdlConstant relationName : relationNames) {
-			dependencyGraph.put(relationName, new HashSet<GdlConstant>());
-			negativeEdges.put(relationName, new HashSet<GdlConstant>());
-		}
+		SetMultimap<GdlConstant, GdlConstant> dependencyGraph = HashMultimap.create();
+		SetMultimap<GdlConstant, GdlConstant> negativeEdges = HashMultimap.create();
 		for(GdlRule rule : rules) {
 			GdlConstant headName = rule.getHead().getName();
 			for(GdlLiteral literal : rule.getBody()) {
 				addLiteralAsDependent(literal, dependencyGraph.get(headName), negativeEdges.get(headName));
 			}
 		}
-		
-		checkForNegativeCycles(dependencyGraph, negativeEdges);
-		
+
+		checkForNegativeCycles(dependencyGraph, negativeEdges, relationNames);
+
 		return dependencyGraph;
 	}
 	private static void checkForNegativeCycles(
-			Map<GdlConstant, Set<GdlConstant>> dependencyGraph,
-			Map<GdlConstant, Set<GdlConstant>> negativeEdges) throws ValidatorException {
+			SetMultimap<GdlConstant, GdlConstant> dependencyGraph,
+			SetMultimap<GdlConstant, GdlConstant> negativeEdges,
+			Set<GdlConstant> allNames) throws ValidatorException {
 		while(!negativeEdges.isEmpty()) {
 			//Look for a cycle containing this edge
 			GdlConstant tail = negativeEdges.keySet().iterator().next();
 			Set<GdlConstant> heads = negativeEdges.get(tail);
-			negativeEdges.remove(tail);
+			negativeEdges.removeAll(tail);
+
 			for(GdlConstant head : heads) {
-				//Check for any head->tail path in dependencyGraph
-				Set<GdlConstant> ancestors = getAncestors(head, dependencyGraph);
-				if(ancestors.contains(tail))
+				Set<GdlConstant> upstreamNames =
+						DependencyGraphs.getMatchingAndUpstream(allNames, dependencyGraph, Predicates.equalTo(head));
+				if (upstreamNames.contains(tail)) {
 					throw new ValidatorException("There is a negative edge from " + tail + " to " + head + " in a cycle in the dependency graph");
+				}
 			}
 		}
 	}
-
-
-	private static Set<GdlConstant> getAncestors(GdlConstant child,
-			Map<GdlConstant, Set<GdlConstant>> dependencyGraph) {
-		Set<GdlConstant> ancestors = new HashSet<GdlConstant>();
-		Queue<GdlConstant> unexpanded = new LinkedList<GdlConstant>();
-		
-		ancestors.addAll(dependencyGraph.get(child));
-		unexpanded.addAll(ancestors);
-		
-		while(!unexpanded.isEmpty()) {
-			GdlConstant toExpand = unexpanded.remove();
-			for(GdlConstant parent : dependencyGraph.get(toExpand)) {
-				if(ancestors.add(parent))
-					unexpanded.add(parent);
-			}
-		}
-		return ancestors;
-	}
-
 
 	private static void addLiteralAsDependent(GdlLiteral literal,
 			Set<GdlConstant> dependencies, Set<GdlConstant> negativeEdges) {
@@ -382,7 +357,7 @@ public class StaticValidator implements GameValidator {
 			dependencies.add(((GdlSentence) literal).getName());
 		} else if(literal instanceof GdlNot) {
 			addLiteralAsDependent(((GdlNot) literal).getBody(), dependencies, negativeEdges);
-			addLiteralAsDependent(((GdlNot) literal).getBody(), negativeEdges, negativeEdges);			
+			addLiteralAsDependent(((GdlNot) literal).getBody(), negativeEdges, negativeEdges);
 		} else if(literal instanceof GdlOr) {
 			GdlOr or = (GdlOr) literal;
 			for(int i = 0; i < or.arity(); i++) {
@@ -490,7 +465,7 @@ public class StaticValidator implements GameValidator {
 		} else if(sentenceArities.containsKey(INPUT) && sentenceArities.get(INPUT) != 2) {
 			throw new ValidatorException("The input relation should have arity 2 (first argument: the player, second argument: the move)");
 		}
-		
+
 		//Look for function arities with these names
 		if(functionArities.containsKey(ROLE)
 				|| functionArities.containsKey(TERMINAL)
@@ -578,39 +553,34 @@ public class StaticValidator implements GameValidator {
 			}
 		}
 	}
-	
+
 	@Override
 	public void checkValidity(Game theGame) throws ValidatorException {
 		StaticValidator.matchParentheses(theGame.getRulesheet().split("[\r\n]"));
 		StaticValidator.validateDescription(theGame.getRules());
 	}
 
+	//These are test cases for smooth handling of errors that often
+	//appear in rulesheets. They are intentionally invalid.
+	private static final ImmutableSet<String> GAME_KEY_BLACKLIST =
+			ImmutableSet.of("test_case_3b",
+					"test_case_3e",
+					"test_case_3f",
+					"test_invalid_function_arities_differ",
+					"test_invalid_sentence_arities_differ",
+					"test_clean_not_distinct");
 	/**
 	 * Tries to test most of the rulesheets in the games directory. This should
 	 * be run when developing a new game to spot errors.
 	 */
 	public static void main(String[] args) {
 		GameRepository testGameRepo = new TestGameRepository();
-		
-		for(String gameKey : testGameRepo.getGameKeys()) {			
-			//These are test cases for smooth handling of errors that often
-			//appear in rulesheets. They are intentionally invalid.
-			if(gameKey.equals("test_case_3b"))
+
+		for(String gameKey : testGameRepo.getGameKeys()) {
+			if (GAME_KEY_BLACKLIST.contains(gameKey)) {
 				continue;
-			if(gameKey.equals("test_case_3e"))
-				continue;
-			if(gameKey.equals("test_case_3f"))
-				continue;
-			// TODO(alex): Should this be excluded?
-			if(gameKey.equals("test_invalid_function_arities_differ"))
-				continue;
-			// TODO(alex): Should this be excluded?			
-			if(gameKey.equals("test_invalid_sentence_arities_differ"))
-				continue;
-			// TODO(alex): Should this be excluded?
-			if(gameKey.equals("test_clean_not_distinct"))
-				continue;
-						
+			}
+
 			System.out.println("Testing " + gameKey);
 			try {
 				new StaticValidator().checkValidity(testGameRepo.getGame(gameKey));
