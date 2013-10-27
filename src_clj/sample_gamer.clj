@@ -1,28 +1,30 @@
-; An implementation of a sample random gamer in Clojure.
-; -Sam Schreiber
+(ns gamer_namespace
+  (:import [org.ggp.base.player.gamer.statemachine StateMachineGamer]
+           [org.ggp.base.util.statemachine.implementation.prover ProverStateMachine]))
 
-; NOTE: the implicit 'this symbol is bound to the local class.
-
-(ns gamer_namespace)
-
+;; An implementation of a sample random gamer in Clojure.
+;; -Sam Schreiber
 (defn SampleClojureGamer []
-  (proxy [org.ggp.base.player.gamer.statemachine.StateMachineGamer] []
+  (proxy [StateMachineGamer] []
+    ;; NOTE: the implicit 'this symbol is bound to the local class.
+
     (getInitialStateMachine []
-      (new org.ggp.base.util.statemachine.implementation.prover.ProverStateMachine))
+      (ProverStateMachine.))
 
     (stateMachineSelectMove [timeout]
-      (.
-        (. this (getStateMachine) [])
-        (getRandomMove
-          (. this (getCurrentState) [])
-          (. this (getRole) [])
-        )
-      )
-    )
-    
-    (stateMachineMetaGame [timeout] ())
-    (stateMachineAbort [] ())    
-    (stateMachineStop [] ())
-    (getName [] ())    
-  )
-)
+      (let [state-machine (.getStateMachine this)
+            current-state (.getCurrentState this)
+            role          (.getRole this)
+            random-move   (.getRandomMove state-machine
+                                          current-state
+                                          role)]
+        random-move))
+
+    (stateMachineMetaGame [timeout]
+      (println "SampleClojureGamer metagame called"))
+
+    (stateMachineAbort []
+      (println "SampleClojureGamer abort called"))
+
+    (stateMachineStop []
+      (println "SampleClojureGamer stop called"))))
