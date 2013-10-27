@@ -36,6 +36,7 @@ import org.ggp.base.util.gdl.model.DependencyGraphs;
 
 import com.google.common.base.Predicates;
 import com.google.common.collect.HashMultimap;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import com.google.common.collect.SetMultimap;
@@ -83,10 +84,11 @@ public class StaticValidator implements GameValidator {
 		 * + Added restriction on functions and recursion
 		 * Additional features of GDL:
 		 * + Role relations must be ground sentences, not in rules
-		 * - Inits only in heads of rules; not in same CC as true, does, next, legal, goal, terminal
+		 * + Inits only in heads of rules; not in same CC as true, does, next, legal, goal, terminal
 		 * + Trues only in bodies of rules, not heads
 		 * + Nexts only in heads of rules
-		 * - Does only in bodies of rules; no paths between does and legal/goal/terminal
+		 * + Does only in bodies of rules; no paths between does and legal/goal/terminal
+		 * + Bases and inputs only in heads of rules, not downstream of true or does
 		 *
 		 * + Arities: Role 1, true 1, init 1, next 1, legal 2, does 2, goal 2, terminal 0
 		 * - Legal's first argument must be a player; ditto does, goal
@@ -152,7 +154,7 @@ public class StaticValidator implements GameValidator {
 				getDependencyGraphAndValidateNoNegativeCycles(sentenceArities.keySet(), rules);
 
 		//8) We check that all the keywords are related to one another correctly, according to the dependency graph
-		checkKeywordLocations(dependencyGraph);
+		checkKeywordLocations(dependencyGraph, sentenceArities.keySet());
 
 		//9) We check the restriction on functions and recursion
 		Map<GdlConstant, Set<GdlConstant>> ancestorsGraph = getAncestorsGraph(dependencyGraph, sentenceArities.keySet());
@@ -289,10 +291,15 @@ public class StaticValidator implements GameValidator {
 		return ancestorsGraph;
 	}
 
-	private static final ImmutableSet<GdlConstant> NEVER_IN_BODY =
+	private static final ImmutableSet<GdlConstant> NEVER_IN_RULE_BODIES =
 			ImmutableSet.of(INIT, NEXT, BASE, INPUT);
+	private static final ImmutableList<GdlConstant> NEVER_TURN_DEPENDENT =
+			ImmutableList.of(INIT, BASE, INPUT);
+	private static final ImmutableList<GdlConstant> NEVER_ACTION_DEPENDENT =
+			ImmutableList.of(TERMINAL, LEGAL, GOAL);
 	private static void checkKeywordLocations(
-			SetMultimap<GdlConstant, GdlConstant> dependencyGraph) throws ValidatorException {
+			SetMultimap<GdlConstant, GdlConstant> dependencyGraph,
+			Set<GdlConstant> allSentenceNames) throws ValidatorException {
 		//- Role relations must be ground sentences, not in rules
 		if(!dependencyGraph.get(ROLE).isEmpty())
 			throw new ValidatorException("The role relation should be defined by ground statements, not by rules.");
@@ -302,17 +309,31 @@ public class StaticValidator implements GameValidator {
 		//- Does only in bodies of rules
 		if(!dependencyGraph.get(DOES).isEmpty())
 			throw new ValidatorException("The does relation should never be in the head of a rule.");
+
 		//- Inits only in heads of rules; not in same CC as true, does, next, legal, goal, terminal
+		//- Bases and inputs follow the same rules as init
 		//- Nexts only in heads of rules
 		for(GdlConstant relNameInBody : dependencyGraph.values()) {
-			if(NEVER_IN_BODY.contains(relNameInBody)) {
+			if(NEVER_IN_RULE_BODIES.contains(relNameInBody)) {
 				throw new ValidatorException("The " + relNameInBody + " relation should never be in the body of a rule.");
 			}
 		}
+		ImmutableSet<GdlConstant> turnDependentSentenceNames = DependencyGraphs.getMatchingAndDownstream(allSentenceNames, dependencyGraph,
+				Predicates.in(ImmutableSet.of(TRUE, DOES, NEXT, LEGAL, GOAL, TERMINAL)));
+		for (GdlConstant keyword : NEVER_TURN_DEPENDENT) {
+			if (turnDependentSentenceNames.contains(keyword)) {
+				throw new ValidatorException("A " + keyword + " relation should never have a dependency on a true, does, next, legal, goal, or terminal sentence.");
+			}
+		}
 
-		//no paths between does and legal/goal/terminal
-		//connected component restrictions
-		//Base and input: same rules as init?
+		//- No paths between does and legal/goal/terminal
+		ImmutableSet<GdlConstant> actionDependentSentenceNames = DependencyGraphs.getMatchingAndDownstream(allSentenceNames, dependencyGraph,
+				Predicates.equalTo(DOES));
+		for (GdlConstant keyword : NEVER_ACTION_DEPENDENT) {
+			if (actionDependentSentenceNames.contains(keyword)) {
+				throw new ValidatorException("A " + keyword + " relation should never have a dependency on a does sentence.");
+			}
+		}
 	}
 
 
