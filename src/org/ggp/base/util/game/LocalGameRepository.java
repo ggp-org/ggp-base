@@ -188,7 +188,7 @@ public final class LocalGameRepository extends GameRepository {
             int maxVersion = 0;
             String[] children = theDir.list();
             for (String s : children) {
-                if (s.equals(".svn")) continue;
+                if (s.startsWith(".")) continue;
                 if (s.startsWith("v")) {
                     int nVersion = Integer.parseInt(s.substring(1));
                     if (nVersion > maxVersion) {
@@ -252,7 +252,7 @@ public final class LocalGameRepository extends GameRepository {
 
             String[] children = theDirectory.list();
             for (int i=0; i<children.length; i++) {
-            	if (children[i].equals(".svn")) continue;
+            	if (children[i].startsWith(".")) continue;
                 // Get filename of file or directory
                 response.append("\"");
                 response.append(children[i]);
