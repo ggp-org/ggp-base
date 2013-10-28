@@ -102,7 +102,7 @@ public final class LocalGameRepository extends GameRepository {
             if (reqURI.equals("/games/metadata")) {
                 JSONObject theGameMetaMap = new JSONObject();
                 for (String gameName : new File("games", "games").list()) {
-                    if (gameName.equals(".svn")) continue;
+                    if (gameName.startsWith(".")) continue;
                     try {
                         theGameMetaMap.put(gameName, new JSONObject(new String(getResponseBytesForURI("/games/" + gameName + "/"))));
                     } catch (JSONException e) {
