@@ -190,13 +190,14 @@ public final class CloudGameRepository extends GameRepository {
                         // Skip updating the game cache entry if the version is the same
                         // and the cache entry was written less than a week ago.
                         if (myGameVersion.getRepositoryURL().equals(remoteVersionedGameURL) &&
-                        	getCacheEntryAge(theKey) < 604800000) {
+                            getCacheEntryAge(theKey) < 604800000) {
                             unchangedKeys.add(theKey);
                         }
                     } catch (Exception e) {
                         continue;
                     }                        
                 }
+                theGameKeys.removeAll(unchangedKeys);
             }
 
             // Start threads to update every entry in the cache (or at least verify
