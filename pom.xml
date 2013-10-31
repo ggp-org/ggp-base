@@ -48,6 +48,7 @@
     <dep.jtidy.version>r938</dep.jtidy.version>
     <dep.junit.version>4.11</dep.junit.version>
     <dep.jython.version>2.7-b1</dep.jython.version>
+    <dep.reflections.version>0.9.9-RC1</dep.reflections.version>
     <dep.xml-apis.version>1.3.04</dep.xml-apis.version>
   </properties>
 
@@ -93,6 +94,13 @@
       <artifactId>jython</artifactId>
       <version>${dep.jython.version}</version>
     </dependency>
+    <!-- TODO: enable me if/when https://github.com/ggp-org/ggp-base/pull/24 is put in.
+    <dependency>
+      <groupId>org.reflections</groupId>
+      <artifactId>reflections</artifactId>
+      <version>${dep.reflections.version}</version>
+    </dependency>
+    -->
 
     <!-- TODO: junit should really only be used for testing... -->
     <dependency>
