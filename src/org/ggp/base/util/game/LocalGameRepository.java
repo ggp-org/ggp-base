@@ -90,6 +90,12 @@ public final class LocalGameRepository extends GameRepository {
     static class BaseRepository {
         public static final String repositoryRootDirectory = theLocalRepoURL;    
         
+        public static boolean shouldIgnoreFile(String fileName) {
+        	if (fileName.startsWith(".")) return true;
+        	if (fileName.contains(" ")) return true;
+        	return false;
+        }
+
         public static byte[] getResponseBytesForURI(String reqURI) throws IOException {
             // Files not under /games/games/ aren't versioned,
             // and can just be accessed directly.
@@ -102,7 +108,7 @@ public final class LocalGameRepository extends GameRepository {
             if (reqURI.equals("/games/metadata")) {
                 JSONObject theGameMetaMap = new JSONObject();
                 for (String gameName : new File("games", "games").list()) {
-                    if (gameName.equals(".svn")) continue;
+                	if (shouldIgnoreFile(gameName)) continue;
                     try {
                         theGameMetaMap.put(gameName, new JSONObject(new String(getResponseBytesForURI("/games/" + gameName + "/"))));
                     } catch (JSONException e) {
@@ -188,7 +194,7 @@ public final class LocalGameRepository extends GameRepository {
             int maxVersion = 0;
             String[] children = theDir.list();
             for (String s : children) {
-                if (s.equals(".svn")) continue;
+            	if (shouldIgnoreFile(s)) continue;
                 if (s.startsWith("v")) {
                     int nVersion = Integer.parseInt(s.substring(1));
                     if (nVersion > maxVersion) {
@@ -252,7 +258,7 @@ public final class LocalGameRepository extends GameRepository {
 
             String[] children = theDirectory.list();
             for (int i=0; i<children.length; i++) {
-            	if (children[i].equals(".svn")) continue;
+            	if (shouldIgnoreFile(children[i])) continue;
                 // Get filename of file or directory
                 response.append("\"");
                 response.append(children[i]);
