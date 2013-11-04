@@ -1,4 +1,7 @@
 /**
+ * ProjectConfiguration handles the project-specific directory settings.
+ * This class stores the paths of the game directory so it can quickly be changed and overridden.
+ *
  * @author Sam Schreiber
  */
 
