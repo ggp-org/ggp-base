@@ -145,7 +145,8 @@ public abstract class StateMachine
 
     /**
      * Returns a list containing every joint move possible in the given state.
-     * A joint move consists of one move for each player
+     * A joint move consists of one move for each role, with the moves in the
+     * same ordering that their roles have in {@link #getRoles()}.
      * <p>
      * The list of possible joint moves is the Cartesian product of the lists
      * of legal moves available for each player.
