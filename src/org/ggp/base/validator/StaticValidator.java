@@ -488,17 +488,10 @@ public class StaticValidator implements GameValidator {
 		}
 
 		//Look for function arities with these names
-		if(functionArities.containsKey(ROLE)
-				|| functionArities.containsKey(TERMINAL)
-				|| functionArities.containsKey(GOAL)
-				|| functionArities.containsKey(LEGAL)
-				|| functionArities.containsKey(DOES)
-				|| functionArities.containsKey(INIT)
-				|| functionArities.containsKey(TRUE)
-				|| functionArities.containsKey(NEXT)
-				|| functionArities.containsKey(BASE)
-				|| functionArities.containsKey(INPUT)) {
-			throw new ValidatorException("Probable error: Misuse of a keyword as a function");
+		for (GdlConstant functionName : functionArities.keySet()) {
+			if (GdlPool.KEYWORDS.contains(functionName)) {
+				throw new ValidatorException("The keyword " + functionName + " is being used as a function. It should only be used as the name of a sentence.");
+			}
 		}
 	}
 

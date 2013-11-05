@@ -109,7 +109,7 @@ public class MappingGdlScrambler implements GdlScrambler {
 	}
 	
 	private static boolean shouldMap(String token) {
-		if (GdlPool.keywords.contains(token.toLowerCase())) {
+		if (GdlPool.KEYWORDS.contains(token.toLowerCase())) {
 			return false;
 		}
 		try {
