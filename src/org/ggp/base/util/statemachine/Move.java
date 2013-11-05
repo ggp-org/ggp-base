@@ -4,7 +4,14 @@ import java.io.Serializable;
 
 import org.ggp.base.util.gdl.grammar.GdlTerm;
 
-
+/**
+ * A Move represents a possible move that can be made by a role. Each
+ * player makes exactly one move on every turn. This includes moves
+ * that represent passing, or taking no action.
+ * <p>
+ * Note that Move objects are not intrinsically tied to a role. They
+ * only express the action itself.
+ */
 @SuppressWarnings("serial")
 public class Move implements Serializable
 {
