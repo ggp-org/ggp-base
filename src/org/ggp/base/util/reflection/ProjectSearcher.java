@@ -19,13 +19,17 @@ public class ProjectSearcher {
 
     private static final Reflections REFLECTIONS = new Reflections();
 
-    public static final LoadedClasses<Gamer> GAMERS = new LoadedClasses(Gamer.class);
-    public static final LoadedClasses<GameCanvas> GAME_CANVASES = new LoadedClasses(GameCanvas.class);
+    public static final LoadedClasses<Gamer> GAMERS = new LoadedClasses<Gamer>(Gamer.class);
+    public static final LoadedClasses<GameCanvas> GAME_CANVASES = new LoadedClasses<GameCanvas>(GameCanvas.class);
+    
+    public static final <T> ImmutableSet<Class<? extends T>> getAllClassesThatAre(Class<T> klass) {
+    	return new LoadedClasses<T>(klass).getConcreteClasses();
+    }
 
     public static class LoadedClasses<T> {
-        private static Predicate<Class> IS_CONCRETE_CLASS = new Predicate<Class>() {
+        private static Predicate<Class<?>> IS_CONCRETE_CLASS = new Predicate<Class<?>>() {
             @Override
-            public boolean apply(Class klass) {
+            public boolean apply(Class<?> klass) {
                 return !Modifier.isAbstract(klass.getModifiers());
             }
         };
