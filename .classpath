@@ -14,5 +14,6 @@
 	<classpathentry kind="lib" path="src/external/JFreeChart/jfreechart-1.0.14.jar"/>
 	<classpathentry kind="lib" path="src/external/Guava/guava-14.0.1.jar"/>
 	<classpathentry kind="lib" path="src/external/reflections/reflections-0.9.9-RC1.jar"/>
+	<classpathentry kind="lib" path="src/external/javassist/javassist.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
