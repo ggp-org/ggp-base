@@ -94,13 +94,11 @@
       <artifactId>jython</artifactId>
       <version>${dep.jython.version}</version>
     </dependency>
-    <!-- TODO: enable me if/when https://github.com/ggp-org/ggp-base/pull/24 is put in.
     <dependency>
       <groupId>org.reflections</groupId>
       <artifactId>reflections</artifactId>
       <version>${dep.reflections.version}</version>
     </dependency>
-    -->
 
     <!-- TODO: junit should really only be used for testing... -->
     <dependency>
