@@ -27,7 +27,7 @@ public final class PlayerRunner
     	System.out.println("Starting up preconfigured player on port " + port + " using player class named " + name);
     	Class<?> chosenGamerClass = null;
     	List<String> availableGamers = new ArrayList<String>();
-    	for (Class<?> gamerClass : ProjectSearcher.getAllClassesThatAre(Gamer.class)) {
+    	for (Class<?> gamerClass : ProjectSearcher.GAMERS.getConcreteClasses()) {
     		availableGamers.add(gamerClass.getSimpleName());
     		if (gamerClass.getSimpleName().equals(name)) {
     			chosenGamerClass = gamerClass;
@@ -39,6 +39,5 @@ public final class PlayerRunner
     	}
     	Gamer gamer = (Gamer) chosenGamerClass.newInstance();
 		new GamePlayer(port, gamer).start();
-		return;
 	}
 }
