@@ -1,1 +1,8 @@
 /bin
+/.gradle
+/.groovy
+/.settings
+/${ant.library.dir}
+/build
+/logs
+/junit

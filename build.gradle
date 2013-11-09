@@ -1,0 +1,48 @@
+apply plugin: 'eclipse'
+apply plugin: 'groovy'
+
+
+ 
+dependencies {
+	compile 'org.xhtmlrenderer:flying-saucer-core:9.0.1'
+	compile 'jtidy:jtidy:4aug2000r7-dev'//Original size 178KB
+	compile 'com.jgoodies:jgoodies-forms:1.6.0'//Original version 1.2.1
+	compile 'org.python:jython:2.5.3' //Origninal size 8.7MB
+	compile 'org.clojure:clojure:1.1.0'//Original size 1.8MB
+	compile 'jfree:jfreechart:1.0.13'//Original version 1.0.14
+	compile 'com.google.guava:guava:14.0.1'
+	compile 'junit:junit:4.11'
+	testCompile 'org.codehaus.groovy:groovy-all:2.0.5'
+	testCompile "org.spockframework:spock-core:0.7-groovy-2.0"
+	testCompile "cglib:cglib-nodep:2.2"
+	testCompile "org.objenesis:objenesis:1.2"
+	//compile files('./bin/ggp-base.jar')
+}
+
+tasks.addRule('Pattern: a-<target> will execute a single <target> in the ant build') { String taskName ->
+	if (taskName.startsWith('a-')) {
+		task(taskName, type: GradleBuild) {
+			buildFile = 'antImport.gradle'
+			tasks = [taskName - 'a-']
+		}
+	}
+}
+
+repositories {
+    mavenCentral()
+}
+
+sourceSets {
+	main {
+		java{
+			srcDirs = ['src']
+		}
+	}
+	test {
+		groovy {
+			srcDirs = ['test/groovy']
+		}
+	}
+}
+
+task runTests(dependsOn: ['a-cleanall','a-jar','test'])

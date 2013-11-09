@@ -7,8 +7,8 @@ import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
-import org.ggp.base.util.crypto.SignableJSON;
 import org.ggp.base.util.crypto.BaseCryptography.EncodedKeyPair;
+import org.ggp.base.util.crypto.SignableJSON;
 import org.ggp.base.util.game.Game;
 import org.ggp.base.util.game.RemoteGameRepository;
 import org.ggp.base.util.gdl.factory.GdlFactory;
@@ -49,7 +49,7 @@ import external.JSON.JSONObject;
  * 
  * @author Sam
  */
-public final class Match
+public class Match
 {
     private final String matchId;
     private final String randomToken;
@@ -367,7 +367,8 @@ public final class Match
         return getGame().getRepositoryURL();
     }
     
-    public String toString() {
+    @Override
+	public String toString() {
         return toJSON();
     }    
 	
