@@ -18,6 +18,8 @@ import java.util.Stack;
 import org.ggp.base.util.game.Game;
 import org.ggp.base.util.game.GameRepository;
 import org.ggp.base.util.game.TestGameRepository;
+import org.ggp.base.util.gdl.GdlVisitor;
+import org.ggp.base.util.gdl.GdlVisitors;
 import org.ggp.base.util.gdl.grammar.Gdl;
 import org.ggp.base.util.gdl.grammar.GdlConstant;
 import org.ggp.base.util.gdl.grammar.GdlDistinct;
@@ -110,22 +112,26 @@ public class StaticValidator implements GameValidator {
 		List<GdlRelation> relations = new ArrayList<GdlRelation>();
 		List<GdlRule> rules = new ArrayList<GdlRule>();
 		//1) Are all objects in the description rules or relations?
-		for(Gdl gdl : description) {
-			if(gdl instanceof GdlRelation) {
+		for (Gdl gdl : description) {
+			if (gdl instanceof GdlRelation) {
 				relations.add((GdlRelation) gdl);
-			} else if(gdl instanceof GdlRule) {
+			} else if (gdl instanceof GdlRule) {
 				rules.add((GdlRule) gdl);
+			} else if (gdl instanceof GdlProposition) {
+				System.out.println("StaticValidator warning: The rules contain the GdlProposition " + gdl + ", which may not be intended");
 			} else {
 				throw new ValidatorException("The rules include a GDL object of type " + gdl.getClass().getSimpleName() + ". Only GdlRelations and GdlRules are expected. The Gdl object is: " + gdl);
 			}
 		}
-		//2) Do all negations apply directly to sentences?
+		//2) Do all objects parsed as functions, relations, and rules have non-zero arity?
+		verifyNonZeroArities(relations, rules);
+		//3) Do all negations apply directly to sentences?
 		for(GdlRule rule : rules) {
 			for(GdlLiteral literal : rule.getBody()) {
 				testLiteralForImproperNegation(literal);
 			}
 		}
-		//3) Are the arities of all relations and all functions fixed?
+		//4) Are the arities of all relations and all functions fixed?
 		Map<GdlConstant, Integer> sentenceArities = new HashMap<GdlConstant, Integer>();
 		Map<GdlConstant, Integer> functionArities = new HashMap<GdlConstant, Integer>();
 		for(GdlRelation relation : relations) {
@@ -139,27 +145,63 @@ public class StaticValidator implements GameValidator {
 				addFunctionArities(sentence, functionArities);
 			}
 		}
-		//4) Are the arities of the GDL-defined relations correct?
-		//5) Do any functions have the names of GDL keywords (likely an error)?
+		//5) Are the arities of the GDL-defined relations correct?
+		//6) Do any functions have the names of GDL keywords (likely an error)?
 		testPredefinedArities(sentenceArities, functionArities);
 
-		//6) Are all rules safe?
+		//7) Are all rules safe?
 		for(GdlRule rule : rules) {
 			testRuleSafety(rule);
 		}
 
-		//7) Are the rules stratified? (Checked as part of dependency graph generation)
+		//8) Are the rules stratified? (Checked as part of dependency graph generation)
 		//This dependency graph is actually based on relation constants, not sentence forms (like some of the other tools here)
 		SetMultimap<GdlConstant, GdlConstant> dependencyGraph =
 				getDependencyGraphAndValidateNoNegativeCycles(sentenceArities.keySet(), rules);
 
-		//8) We check that all the keywords are related to one another correctly, according to the dependency graph
+		//9) We check that all the keywords are related to one another correctly, according to the dependency graph
 		checkKeywordLocations(dependencyGraph, sentenceArities.keySet());
 
-		//9) We check the restriction on functions and recursion
+		//10) We check the restriction on functions and recursion
 		Map<GdlConstant, Set<GdlConstant>> ancestorsGraph = getAncestorsGraph(dependencyGraph, sentenceArities.keySet());
 		for(GdlRule rule : rules) {
 			checkRecursionFunctionRestriction(rule, ancestorsGraph);
+		}
+	}
+
+	private static void verifyNonZeroArities(List<GdlRelation> relations,
+			List<GdlRule> rules) throws ValidatorException {
+		GdlVisitor arityCheckingVisitor = new GdlVisitor() {
+			@Override
+			public void visitFunction(GdlFunction function) {
+				if (function.arity() == 0) {
+					throw new RuntimeException(function + " is written as a zero-arity function; " +
+							"it should be written as a constant instead. " +
+							"(Try dropping the parentheses.)");
+				}
+			}
+			@Override
+			public void visitRelation(GdlRelation relation) {
+				if (relation.arity() == 0) {
+					throw new RuntimeException(relation + " is written as a zero-arity relation; " +
+							"it should be written as a proposition instead. " +
+							"(Try dropping the parentheses.)");
+				}
+			}
+			@Override
+			public void visitRule(GdlRule rule) {
+				if (rule.arity() == 0) {
+					throw new RuntimeException(rule + " is written as a zero-arity rule; " +
+							"if it's always supposed to be true, it should be written as a " +
+							"relation instead. Otherwise, check your parentheses.");
+				}
+			}
+		};
+		try {
+			GdlVisitors.visitAll(relations, arityCheckingVisitor);
+			GdlVisitors.visitAll(rules, arityCheckingVisitor);
+		} catch (RuntimeException e) {
+			throw new ValidatorException(e.getMessage());
 		}
 	}
 
