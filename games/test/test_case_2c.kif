@@ -75,7 +75,7 @@
     (not (true (pos ?x ?y)))
     (not (true (tailpos ?x ?y))))
 
-(<= (goal snake 100))
+(goal snake 100)
 
 (<= terminal
     (true (step 10)))
