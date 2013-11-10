@@ -11,13 +11,13 @@ public final class OPNFValidator implements GameValidator
 	@Override
 	public void checkValidity(Game theGame) throws ValidatorException {
         PrintStream stdout = System.out;
-        System.setOut(new PrintStream(new ByteArrayOutputStream()));                                
+        System.setOut(new PrintStream(new ByteArrayOutputStream()));
 		try {
 			if (OptimizingPropNetFactory.create(theGame.getRules()) == null) {
 				throw new ValidatorException("Got null result from OPNF");
 			}
 		} catch (Exception e) {
-			throw new ValidatorException("OPNF Exception: " + e);
+			throw new ValidatorException("OPNF Exception: " + e, e);
 		} finally {
 	        System.setOut(stdout);
 		}

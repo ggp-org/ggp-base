@@ -57,6 +57,7 @@ public class SimpleSentenceForm extends AbstractSentenceForm {
 			if (term instanceof GdlFunction) {
 				SimpleSentenceForm functionForm = create((GdlFunction) term);
 				functions.put(i, functionForm);
+				tupleSize += functionForm.getTupleSize();
 			} else {
 				tupleSize++;
 			}
@@ -185,7 +186,7 @@ public class SimpleSentenceForm extends AbstractSentenceForm {
 			Preconditions.checkArgument(!(term instanceof GdlFunction));
 			if (functions.containsKey(i)) {
 				SimpleSentenceForm functionForm = functions.get(i);
-				functionBody.add(getFunctionFromTuple(tuple, curIndex));
+				functionBody.add(functionForm.getFunctionFromTuple(tuple, curIndex));
 				curIndex += functionForm.getTupleSize();
 			} else {
 				functionBody.add(term);
