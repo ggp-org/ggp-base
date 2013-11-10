@@ -6,3 +6,5 @@
 /build
 /logs
 /junit
+/.classpath
+/.project
