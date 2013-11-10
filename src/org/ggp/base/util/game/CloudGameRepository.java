@@ -178,16 +178,19 @@ public final class CloudGameRepository extends GameRepository {
             if (bundledMetadata != null) {
                 Set<String> unchangedKeys = new HashSet<String>();
                 for (String theKey : theGameKeys) {
-                    try {                    
+                    try {
                         Game myGameVersion = loadGameFromCache(theKey);
                         if (myGameVersion == null)
                             continue;                    
-                    
+
                         String remoteGameURL = remoteRepository.getGameURL(theKey);
                         int remoteVersion = bundledMetadata.getJSONObject(theKey).getInt("version");
                         String remoteVersionedGameURL = RemoteGameRepository.addVersionToGameURL(remoteGameURL, remoteVersion);
-                    
-                        if (myGameVersion.getRepositoryURL().equals(remoteVersionedGameURL)) {
+
+                        // Skip updating the game cache entry if the version is the same
+                        // and the cache entry was written less than a week ago.
+                        if (myGameVersion.getRepositoryURL().equals(remoteVersionedGameURL) &&
+                            getCacheEntryAge(theKey) < 604800000) {
                             unchangedKeys.add(theKey);
                         }
                     } catch (Exception e) {
@@ -260,6 +263,14 @@ public final class CloudGameRepository extends GameRepository {
         
         if (theLine == null) return null;
         return Game.loadFromJSON(theLine);
+    }
+    
+    private synchronized long getCacheEntryAge(String theKey) {
+    	File theGameFile = new File(theCacheDirectory, theKey + ".zip");
+    	if (theGameFile.exists()) {
+    		return System.currentTimeMillis() - theGameFile.lastModified();
+    	}
+    	return System.currentTimeMillis();
     }
 
     // ================================================================

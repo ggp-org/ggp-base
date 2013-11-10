@@ -1,93 +1,68 @@
 package org.ggp.base.util.reflection;
 
-import java.io.File;
-import java.io.FilenameFilter;
-import java.lang.reflect.Modifier;
-import java.util.*;
-
+import com.google.common.base.Objects;
+import com.google.common.base.Predicate;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
+import org.ggp.base.apps.kiosk.GameCanvas;
 import org.ggp.base.player.gamer.Gamer;
-import org.ggp.base.util.configuration.ProjectConfiguration;
+import org.reflections.Reflections;
+
+import java.lang.reflect.Modifier;
 
 public class ProjectSearcher {
 	public static void main(String[] args)
 	{
-		System.out.println(getAllClassesThatAre(Gamer.class));
+		System.out.println(GAMERS);
+        System.out.println(GAME_CANVASES);
 	}
 
-	public static List<Class<?>> getAllClassesThatAre(Class<?> ofThisType)
-	{
-		return getAllClassesThatAre(ofThisType, true);
-	}
+    private static final Reflections REFLECTIONS = new Reflections();
 
-	public static List<Class<?>> getAllClassesThatAre(Class<?> ofThisType, boolean mustBeConcrete)
-	{
-		List<Class<?>> rval = new ArrayList<Class<?>>();
-        findClassesInList(allClasses, ofThisType, mustBeConcrete, rval);
-        findClassesInList(injectedClasses, ofThisType, mustBeConcrete, rval);
-        return rval;
-	}
+    public static final LoadedClasses<Gamer> GAMERS = new LoadedClasses<Gamer>(Gamer.class);
+    public static final LoadedClasses<GameCanvas> GAME_CANVASES = new LoadedClasses<GameCanvas>(GameCanvas.class);
+    
+    public static final <T> ImmutableSet<Class<? extends T>> getAllClassesThatAre(Class<T> klass) {
+    	return new LoadedClasses<T>(klass).getConcreteClasses();
+    }
 
-    private static void findClassesInList(Set<String> classesToSearch, Class<?> ofThisType,
-                                          boolean mustBeConcrete, List<Class<?>> rval) {
-        for(String name : classesToSearch) {
-            if(name.contains("Test_"))
-                continue;
-
-            Class<?> c = null;
-            try {
-                c = Class.forName(name);
-            } catch (ClassNotFoundException ex)  {
-                throw new RuntimeException(ex);
+    public static class LoadedClasses<T> {
+        private static Predicate<Class<?>> IS_CONCRETE_CLASS = new Predicate<Class<?>>() {
+            @Override
+            public boolean apply(Class<?> klass) {
+                return !Modifier.isAbstract(klass.getModifiers());
             }
+        };
 
-            if(ofThisType.isAssignableFrom(c) && (!mustBeConcrete || !Modifier.isAbstract(c.getModifiers())) )
-                rval.add(c);
+        private final Class<T> interfaceClass;
+        private final ImmutableSet<Class<? extends T>> allClasses;
+        private final ImmutableSet<Class<? extends T>> concreteClasses;
+
+        private LoadedClasses(Class<T> interfaceClass) {
+            this.interfaceClass = interfaceClass;
+            this.allClasses = ImmutableSet.copyOf(REFLECTIONS.getSubTypesOf(interfaceClass));
+            this.concreteClasses = ImmutableSet.copyOf(Sets.filter(allClasses, IS_CONCRETE_CLASS));
+        }
+
+        public Class<T> getInterfaceClass() {
+            return interfaceClass;
+        }
+
+        public ImmutableSet<Class<? extends T>> getConcreteClasses() {
+            return concreteClasses;
+        }
+
+        public ImmutableSet<Class<? extends T>> getAllClasses() {
+            return allClasses;
+        }
+
+        @Override
+        public String toString() {
+            return Objects.toStringHelper(this)
+                    .add("allClasses", allClasses)
+                    .add("interfaceClass", interfaceClass)
+                    .add("concreteClasses", concreteClasses)
+                    .toString();
         }
     }
-
-    private static Set<String> allClasses = findAllClasses();
-    private static Set<String> injectedClasses = Sets.newHashSet();
-
-    public static <T> void injectClass(Class<T> klass) {
-        injectedClasses.add(klass.getCanonicalName());
-    }
-
-	private static Set<String> findAllClasses()
-	{
-		FilenameFilter filter = new FilenameFilter() {
-	        public boolean accept(File dir, String name) {
-	            return !name.startsWith(".");
-	        }
-	    };
-
-		Set<String> rval = Sets.newHashSet();
-		Stack<File> toProcess = new Stack<File>();
-		for(String classDirName : ProjectConfiguration.classRoots)
-		    toProcess.add(new File(classDirName));
-		while(!toProcess.empty())
-		{
-			File f = toProcess.pop();
-			if(!f.exists())
-				System.out.println("Could not find expected file: [" + f + "] when running ProjectSearcher.");
-			if(f.isDirectory())
-				toProcess.addAll(Arrays.asList(f.listFiles(filter)));
-			else
-			{
-				if(f.getName().endsWith(".class"))
-				{
-					String fullyQualifiedName = f.getPath();
-					for(String classDirName : ProjectConfiguration.classRoots) {
-					    fullyQualifiedName = fullyQualifiedName.replaceAll("^" + classDirName.replace(File.separatorChar, '.'), "");
-					}
-					fullyQualifiedName = fullyQualifiedName.replaceAll("\\.class$","");
-					fullyQualifiedName = fullyQualifiedName.replaceAll("^[\\\\/]", "");
-					fullyQualifiedName = fullyQualifiedName.replaceAll("[\\\\/]", ".");
-					rval.add(fullyQualifiedName);
-				}
-			}
-		}
-
-		return rval;
-	}
 }

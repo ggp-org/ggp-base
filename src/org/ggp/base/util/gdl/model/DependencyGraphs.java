@@ -19,8 +19,48 @@ import com.google.common.collect.Queues;
 import com.google.common.collect.SetMultimap;
 import com.google.common.collect.Sets;
 
+/**
+ * When dealing with GDL, dependency graphs are often useful. DependencyGraphs
+ * offers a variety of functionality for dealing with dependency graphs expressed
+ * in the form of SetMultimaps.
+ *
+ * These multimaps are paired with sets of all nodes, to account for the
+ * possibility of nodes not included in the multimap representation.
+ *
+ * All methods assume that keys in multimaps depend on their associated values,
+ * or in other words are downstream of or are children of those values.
+ */
 public class DependencyGraphs {
 	private DependencyGraphs() {}
+
+	/**
+	 * Returns all elements of the dependency graph that match the
+	 * given predicate, and any elements upstream of those matching
+	 * elements.
+	 *
+	 * The graph may contain cycles.
+	 *
+	 * Each key in the dependency graph depends on/is downstream of
+	 * its associated values.
+	 */
+	public static <T> ImmutableSet<T> getMatchingAndUpstream(
+			Set<T> allNodes,
+			SetMultimap<T, T> dependencyGraph,
+			Predicate<T> matcher) {
+		Set<T> results = Sets.newHashSet();
+
+		Deque<T> toTry = Queues.newArrayDeque();
+		toTry.addAll(Collections2.filter(allNodes, matcher));
+
+		while (!toTry.isEmpty()) {
+			T curElem = toTry.remove();
+			if (!results.contains(curElem)) {
+				results.add(curElem);
+				toTry.addAll(dependencyGraph.get(curElem));
+			}
+		}
+		return ImmutableSet.copyOf(results);
+	}
 
 	/**
 	 * Returns all elements of the dependency graph that match the
@@ -36,21 +76,7 @@ public class DependencyGraphs {
 			Set<T> allNodes,
 			SetMultimap<T, T> dependencyGraph,
 			Predicate<T> matcher) {
-		Set<T> results = Sets.newHashSet();
-
-		SetMultimap<T, T> reversedGraph = reverseGraph(dependencyGraph);
-
-		Deque<T> toTry = Queues.newArrayDeque();
-		toTry.addAll(Collections2.filter(allNodes, matcher));
-
-		while (!toTry.isEmpty()) {
-			T curElem = toTry.remove();
-			if (!results.contains(curElem)) {
-				results.add(curElem);
-				toTry.addAll(reversedGraph.get(curElem));
-			}
-		}
-		return ImmutableSet.copyOf(results);
+		return getMatchingAndUpstream(allNodes, reverseGraph(dependencyGraph), matcher);
 	}
 
 	public static <T> SetMultimap<T, T> reverseGraph(SetMultimap<T, T> graph) {

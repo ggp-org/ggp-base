@@ -12,6 +12,8 @@ dependencies {
 	compile 'jfree:jfreechart:1.0.13'//Original version 1.0.14
 	compile 'com.google.guava:guava:14.0.1'
 	compile 'junit:junit:4.11'
+	compile 'org.reflections:reflections:0.9.9-RC1'
+            
 	testCompile 'org.codehaus.groovy:groovy-all:2.0.5'
 	testCompile "org.spockframework:spock-core:0.7-groovy-2.0"
 	testCompile "cglib:cglib-nodep:2.2"
