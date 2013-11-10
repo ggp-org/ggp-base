@@ -30,4 +30,4 @@
 (<= terminal
     (true (state 4)))
     
-(<= (goal you 100))
+(goal you 100)

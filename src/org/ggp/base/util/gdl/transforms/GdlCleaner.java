@@ -21,11 +21,23 @@ import org.ggp.base.util.gdl.grammar.GdlVariable;
 
 //Cleans up various issues with games to make them more standardized.
 public class GdlCleaner {
+	private final static int MAX_ITERATIONS = 100;
     private final static GdlConstant BASE = GdlPool.getConstant("base");
 
 	public static List<Gdl> run(List<Gdl> description) {
+		for (int i = 0; i < MAX_ITERATIONS; i++) {
+			List<Gdl> newDescription = runOnce(description);
+			if (newDescription.equals(description)) {
+				break;
+			}
+			description = newDescription;
+		}
+		return description;
+	}
+
+	private static List<Gdl> runOnce(List<Gdl> description) {
 		List<Gdl> newDescription = new ArrayList<Gdl>();
-		
+
 		//First: Clean up all rules with zero-element bodies
 		for(Gdl gdl : description) {
 			if(gdl instanceof GdlRule) {
@@ -39,7 +51,7 @@ public class GdlCleaner {
 				newDescription.add(gdl);
 			}
 		}
-		
+
 		//TODO: Add (role ?player) where appropriate, i.e. in rules for
 		//"legal" or "input" where the first argument is an undefined
 		//variable
@@ -56,7 +68,7 @@ public class GdlCleaner {
 			}
 		}
 		//TODO: Get rid of GdlPropositions in the description
-		
+
 		//Get rid of (not (distinct _ _)) literals in rules
 		//TODO: Expand to functions
 		description = newDescription;

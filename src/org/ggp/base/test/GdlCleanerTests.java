@@ -20,9 +20,9 @@ public class GdlCleanerTests {
     public void testCleanNotDistinct() throws Exception {
     	List<Gdl> description = new TestGameRepository().getGame("test_clean_not_distinct").getRules();
         description = GdlCleaner.run(description);
-        
+
         StaticValidator.validateDescription(description);
-        
+
         StateMachine sm = new ProverStateMachine();
         sm.initialize(description);
         MachineState state = sm.getInitialState();
@@ -33,5 +33,5 @@ public class GdlCleanerTests {
         Assert.assertTrue(sm.isTerminal(state));
         Assert.assertEquals(100, sm.getGoal(state, player));
     }
-    
+
 }
