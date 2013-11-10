@@ -3,6 +3,7 @@ package org.ggp.base.player.gamer.statemachine.sample
 import static org.junit.Assert.assertNotNull
 
 import org.ggp.base.game.TTTGameDescription
+import org.ggp.base.player.gamer.statemachine.strategic.StrategicGamer
 import org.ggp.base.util.game.Game
 import org.ggp.base.util.gdl.grammar.GdlConstant
 import org.ggp.base.util.gdl.grammar.GdlPool
@@ -46,7 +47,7 @@ class SampleMonteCarloGamerSpec extends Specification {
 		bestMove.contents == GdlPool.getConstant("noop")
 	}
 
-	private SampleMonteCarloGamer getGamer(GdlConstant WHITE_PLAYER) {
+	private StrategicGamer getGamer(GdlConstant WHITE_PLAYER) {
 		Game theGame = getGame()
 		Match theMatch = getMatch(theGame)
 
@@ -72,7 +73,7 @@ class SampleMonteCarloGamerSpec extends Specification {
 		theMatch
 	}
 
-	private SampleMonteCarloGamer getStrategicGamer(Match theMatch, GdlConstant roleName) {
+	private StrategicGamer getStrategicGamer(Match theMatch, GdlConstant roleName) {
 		SampleMonteCarloGamer gamer = new SampleMonteCarloGamer()
 		gamer.match = theMatch
 		gamer.roleName = roleName
