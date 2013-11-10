@@ -3,7 +3,6 @@ package org.ggp.base.player.gamer.statemachine.sample
 import static org.junit.Assert.assertNotNull
 
 import org.ggp.base.game.TTTGameDescription
-import org.ggp.base.player.gamer.statemachine.sample.SampleMonteCarloGamer
 import org.ggp.base.util.game.Game
 import org.ggp.base.util.gdl.grammar.GdlConstant
 import org.ggp.base.util.gdl.grammar.GdlPool
@@ -19,7 +18,7 @@ class SampleMonteCarloGamerSpec extends Specification {
 	def "Role in control with enough time will find the best move"() {
 		given:
 		GdlConstant WHITE_PLAYER = GdlPool.getConstant("white")
-		long timeout = System.currentTimeMillis() + 6000
+		long timeout = System.currentTimeMillis() + 6500
 
 		SampleMonteCarloGamer theGamer = getGamer(WHITE_PLAYER)
 		theGamer.metaGame(timeout)
