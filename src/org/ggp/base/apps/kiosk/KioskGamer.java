@@ -27,39 +27,39 @@ import org.ggp.base.util.statemachine.implementation.prover.ProverStateMachine;
 
 public class KioskGamer extends StateMachineGamer implements Observer {
     private BlockingQueue<Move> theQueue = new ArrayBlockingQueue<Move>(25);
-    
+
     private GameGUI theGUI;
     private JPanel theGUIPanel;
-    public KioskGamer(JPanel theGUIPanel) {        
+    public KioskGamer(JPanel theGUIPanel) {
         this.theGUIPanel = theGUIPanel;
         theGUIPanel.setLayout(new BorderLayout());
     }
-    
+
     private GameCanvas theCanvas = null;
     public void setCanvas(GameCanvas theCanvas) {
         this.theCanvas = theCanvas;
     }
-    
+
     @Override
     public void stateMachineMetaGame(long timeout)
             throws TransitionDefinitionException, MoveDefinitionException,
             GoalDefinitionException {
         if(theCanvas == null)
-            System.err.println("KioskGamer did not receive a canvas.");
+            throw new IllegalStateException("KioskGamer did not receive a canvas.");
         theCanvas.setStateMachine(getStateMachine());
-        
+
         theGUI = new GameGUI(theCanvas);
         theGUI.setRole(getRole());
         theGUI.setBackground(theGUIPanel.getBackground());
         theGUI.updateGameState(getStateMachine().getInitialState());
         theGUI.addObserver(this);
-        
+
         theGUIPanel.removeAll();
         theGUIPanel.add("Center", theGUI);
         theGUIPanel.repaint();
-        
+
         theGUIPanel.setVisible(false);
-        theGUIPanel.setVisible(true);                     
+        theGUIPanel.setVisible(true);
         theGUIPanel.validate();
         theGUIPanel.repaint();
     }
@@ -88,10 +88,10 @@ public class KioskGamer extends StateMachineGamer implements Observer {
     public String getName() {
         return "GraphicalHumanGamer";
     }
-    
+
     private MachineState stateFromServer;
 
-    @Override    
+    @Override
     public void observe(Event event) {
         if(event instanceof MoveSelectedEvent) {
             Move theMove = ((MoveSelectedEvent)event).getMove();
@@ -102,10 +102,10 @@ public class KioskGamer extends StateMachineGamer implements Observer {
             stateFromServer = ((ServerNewGameStateEvent)event).getState();
         } else if(event instanceof ServerCompletedMatchEvent) {
             theGUI.updateGameState(stateFromServer);
-            
+
             List<Role> theRoles = getStateMachine().getRoles();
             List<Integer> theGoals = ((ServerCompletedMatchEvent)event).getGoals();
-            
+
             StringBuilder finalMessage = new StringBuilder();
             finalMessage.append("Goals: ");
             for(int i = 0; i < theRoles.size(); i++) {
@@ -116,7 +116,7 @@ public class KioskGamer extends StateMachineGamer implements Observer {
                     finalMessage.append(", ");
                 }
             }
-            
+
             theGUI.showFinalMessage(finalMessage.toString());
         }
     }
@@ -125,7 +125,7 @@ public class KioskGamer extends StateMachineGamer implements Observer {
 	public void stateMachineStop() {
 		// Do nothing
 	}
-	
+
 	@Override
 	public void stateMachineAbort() {
 		// Add an "ABORT" move to the queue so that we don't wait indefinitely
@@ -133,16 +133,16 @@ public class KioskGamer extends StateMachineGamer implements Observer {
 		// finish it up as quickly as possible so we can display the next match
 		// when it arrives.
 		theQueue.add(new Move(GdlPool.getConstant("ABORT")));
-		theGUI.showFinalMessage("Aborted");		
+		theGUI.showFinalMessage("Aborted");
 	}
-	
+
 	@Override
 	public boolean isComputerPlayer() {
 		return false;
 	}
-	
+
 	@Override
 	public void preview(Game g, long timeout) throws GamePreviewException {
 		;
-	}	
+	}
 }

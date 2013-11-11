@@ -9,13 +9,13 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.ggp.base.util.loader.RemoteResourceLoader;
-import org.ggp.base.util.crypto.SignableJSON;
 import org.ggp.base.util.crypto.BaseCryptography.EncodedKeyPair;
+import org.ggp.base.util.crypto.SignableJSON;
 import org.ggp.base.util.files.FileUtils;
 import org.ggp.base.util.http.HttpReader;
 import org.ggp.base.util.http.HttpRequest;
 import org.ggp.base.util.http.HttpWriter;
+import org.ggp.base.util.loader.RemoteResourceLoader;
 
 import external.JSON.JSONException;
 import external.JSON.JSONObject;
@@ -29,33 +29,34 @@ import external.JSON.JSONObject;
  * This is the backend for the continuously-running online GGP.org Tiltyard,
  * which schedules matches between players around the world and aggregates stats
  * based on the outcome of those matches.
- * 
+ *
  * SAMPLE INVOCATION (when running locally):
  *
  * ResourceLoader.load_raw('http://127.0.0.1:9124/' + escape(JSON.stringify({
  * "targetPort":9147,"targetHost":"0.player.ggp.org","timeoutClock":30000,
  * "forPlayerName":"Webplayer-0","callbackURL":"http://tiltyard.ggp.org/farm/",
  * "requestContent":"( play foo bar baz )"})))
- * 
+ *
  * Tiltyard Request Farm will open up a network connection to the target, send
  * the request string, and wait for the response. Once the response arrives, it
  * will close the connection and call the callback, sending the response to the
  * remote client that issued the original request.
- * 
+ *
  * You shouldn't be running this server unless you are bringing up an instance of the
  * online GGP.org Tiltyard or an equivalent service.
- * 
+ *
  * @author Sam Schreiber
  */
 public final class TiltyardRequestFarm
 {
-    public static final int SERVER_PORT = 9125;   
+    public static final int SERVER_PORT = 9125;
     private static final String registrationURL = "http://tiltyard.ggp.org/backends/register/farm";
-    
-    private static Integer ongoingRequests = new Integer(0);
-    
+
+    private static final Object ongoingRequestsLock = new Object();
+    private static int ongoingRequests = 0;
+
     public static boolean testMode = false;
-    
+
     static EncodedKeyPair getKeyPair(String keyPairString) {
     	if (keyPairString == null)
     		return null;
@@ -64,7 +65,7 @@ public final class TiltyardRequestFarm
         } catch (JSONException e) {
             return null;
         }
-    }    
+    }
     public static final EncodedKeyPair theBackendKeys = getKeyPair(FileUtils.readFileAsString(new File("src/org/ggp/base/apps/tiltyard/BackendKeys.json")));
     public static String generateSignedPing() {
         JSONObject thePing = new JSONObject();
@@ -77,10 +78,10 @@ public final class TiltyardRequestFarm
         }
         return thePing.toString();
     }
-    
+
     // Connections are run asynchronously in their own threads.
     static class RunRequestThread extends Thread {
-    	String targetHost, requestContent, forPlayerName, callbackURL, originalRequest;    	
+    	String targetHost, requestContent, forPlayerName, callbackURL, originalRequest;
     	int targetPort, timeoutClock;
     	boolean fastReturn;
     	Set<String> activeRequests;
@@ -88,7 +89,7 @@ public final class TiltyardRequestFarm
         public RunRequestThread(Socket connection, Set<String> activeRequests) throws IOException, JSONException {
             String line = HttpReader.readAsServer(connection);
             System.out.println("On " + new Date() + ", client has requested: " + line);
-            
+
             String response = null;
             if (line.equals("ping")) {
                 response = generateSignedPing();
@@ -101,7 +102,7 @@ public final class TiltyardRequestFarm
                 	}
                 	this.activeRequests = activeRequests;
                 }
-                
+
                 JSONObject theJSON = new JSONObject(line);
                 targetPort = theJSON.getInt("targetPort");
                 targetHost = theJSON.getString("targetHost");
@@ -114,7 +115,7 @@ public final class TiltyardRequestFarm
                 } else {
                 	fastReturn = true;
                 }
-                
+
                 originalRequest = line;
                 response = "okay";
             }
@@ -122,22 +123,22 @@ public final class TiltyardRequestFarm
             HttpWriter.writeAsServer(connection, response);
             connection.close();
         }
-        
+
         @Override
         public void run() {
-            if (originalRequest != null) {                
-                synchronized (ongoingRequests) {
-                	ongoingRequests++;
-                }                
+            if (originalRequest != null) {
+            	synchronized (ongoingRequestsLock) {
+            		ongoingRequests++;
+            	}
                 System.out.println("On " + new Date() + ", starting request. There are now " + ongoingRequests + " ongoing requests.");
                 long startTime = System.currentTimeMillis();
-                JSONObject responseJSON = new JSONObject();                
+                JSONObject responseJSON = new JSONObject();
                 try {
                 	responseJSON.put("originalRequest", originalRequest);
 	                try {
-	                	String response = HttpRequest.issueRequest(targetHost, targetPort, forPlayerName, requestContent, timeoutClock);	                	
+	                	String response = HttpRequest.issueRequest(targetHost, targetPort, forPlayerName, requestContent, timeoutClock);
 	                	responseJSON.put("response", response);
-	                	responseJSON.put("responseType", "OK");	                	
+	                	responseJSON.put("responseType", "OK");
 	                } catch (SocketTimeoutException te) {
 	                	responseJSON.put("responseType", "TO");
 	                } catch (IOException ie) {
@@ -171,8 +172,8 @@ public final class TiltyardRequestFarm
 						}
                 	}
                 }
-                synchronized (ongoingRequests) {
-                	ongoingRequests--;                	
+                synchronized (ongoingRequestsLock) {
+                	ongoingRequests--;
                 	if (ongoingRequests == 0) {
                 		System.gc();
                 		System.out.println("On " + new Date() + ", completed request. Garbage collecting since there are no ongoing requests.");
@@ -182,18 +183,18 @@ public final class TiltyardRequestFarm
                 }
                 synchronized (activeRequests) {
                 	activeRequests.remove(originalRequest);
-                }                
+                }
             }
         }
     }
-    
+
     static class TiltyardRegistration extends Thread {
         @Override
         public void run() {
             // Send a registration ping to Tiltyard every five minutes.
             while (true) {
                 try {
-                    RemoteResourceLoader.postRawWithTimeout(registrationURL, generateSignedPing(), 2500);                    
+                    RemoteResourceLoader.postRawWithTimeout(registrationURL, generateSignedPing(), 2500);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -205,8 +206,8 @@ public final class TiltyardRequestFarm
             }
        }
     }
-    
-    public static void main(String[] args) {        
+
+    public static void main(String[] args) {
         ServerSocket listener = null;
         try {
              listener = new ServerSocket(SERVER_PORT);
@@ -219,10 +220,10 @@ public final class TiltyardRequestFarm
 	        if (theBackendKeys == null) {
 	            System.err.println("Could not load cryptographic keys for signing request responses.");
 	            return;
-	        }	
+	        }
 	        new TiltyardRegistration().start();
         }
-        
+
         Set<String> activeRequests = new HashSet<String>();
         while (true) {
             try {
@@ -232,6 +233,6 @@ public final class TiltyardRequestFarm
             } catch (Exception e) {
                 System.err.println(e);
             }
-        }        
+        }
     }
 }

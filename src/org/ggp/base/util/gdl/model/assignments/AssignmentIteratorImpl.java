@@ -256,25 +256,28 @@ public class AssignmentIteratorImpl implements AssignmentIterator {
 		@Override
 		public void changeOneInNext(Collection<GdlVariable> varsToChange,
 				Map<GdlVariable, GdlConstant> assignment) {
-			if(nextAssignment == null)
+			if (nextAssignment == null) {
 				return;
+			}
 
 			//First, we stop and see if any of these have already been
 			//changed (in nextAssignment)
-			for(GdlVariable varToChange : varsToChange) {
+			for (GdlVariable varToChange : varsToChange) {
 				int index = plan.getVarsToAssign().indexOf(varToChange);
-				if(index != -1) {
+				if (index != -1) {
 					GdlConstant assignedValue = assignment.get(varToChange);
-					if(assignedValue == null) {
-						System.out.println("assignedValue is null");
-						System.out.println("varToChange is " + varToChange);
-						System.out.println("assignment is " + assignment);
+					if (assignedValue == null) {
+						throw new IllegalArgumentException("assignedValue is null; " +
+								"varToChange is " + varToChange +
+								" and assignment is " + assignment);
 					}
-					if(nextAssignment == null)
-						System.out.println("nextAssignment is null");
-					if(!assignedValue.equals(nextAssignment.get(index)))
+					if (nextAssignment == null) {
+						throw new IllegalStateException("nextAssignment is null");
+					}
+					if (!assignedValue.equals(nextAssignment.get(index))) {
 						//We've already changed one of these
 						return;
+					}
 				}
 			}
 

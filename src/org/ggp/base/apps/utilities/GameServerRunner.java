@@ -19,7 +19,7 @@ import org.ggp.base.util.symbol.factory.exceptions.SymbolFormatException;
 /**
  * GameServerRunner is a utility program that lets you start up a match
  * directly from the command line. It takes the following arguments:
- * 
+ *
  * args[0] = tournament name, for storing results
  * args[1] = game key, for loading the game
  * args[2] = start clock, in seconds
@@ -27,7 +27,7 @@ import org.ggp.base.util.symbol.factory.exceptions.SymbolFormatException;
  * args[4,5,6] = host, port, name for player 1
  * args[7,8,9] = host, port, name for player 2
  * etc...
- * 
+ *
  * @author Evan Cox
  * @author Sam Schreiber
  */
@@ -39,7 +39,7 @@ public final class GameServerRunner
 		String tourneyName = args[0];
 		String gameKey = args[1];
 		Game game = GameRepository.getDefaultRepository().getGame(gameKey);
-		int startClock = Integer.valueOf(args[2]); 
+		int startClock = Integer.valueOf(args[2]);
 		int playClock = Integer.valueOf(args[3]);
 		if ((args.length - 4) % 3 != 0) {
 			throw new RuntimeException("Invalid number of player arguments of the form host/port/name.");
@@ -62,12 +62,12 @@ public final class GameServerRunner
 		}
 		Match match = new Match(matchName, -1, startClock, playClock, game);
 		match.setPlayerNamesFromHost(playerNames);
-		
+
 		// Actually run the match, using the desired configuration.
 		GameServer server = new GameServer(match, hostNames, portNumbers);
-		server.run();
+		server.start();
 		server.join();
-		
+
 		// Open up the directory for this tournament.
 		// Create a "scores" file if none exists.
 		File f = new File(tourneyName);
@@ -76,18 +76,18 @@ public final class GameServerRunner
 			f = new File(tourneyName + "/scores");
 			f.createNewFile();
 		}
-		
+
 		// Open up the XML file for this match, and save the match there.
 		f = new File(tourneyName + "/" + matchName + ".xml");
-		if (f.exists()) f.delete();		
+		if (f.exists()) f.delete();
 		BufferedWriter bw = new BufferedWriter(new FileWriter(f));
 		bw.write(match.toXML());
 		bw.flush();
 		bw.close();
-		
+
 		// Open up the JSON file for this match, and save the match there.
 		f = new File(tourneyName + "/" + matchName + ".json");
-		if (f.exists()) f.delete();		
+		if (f.exists()) f.delete();
 		bw = new BufferedWriter(new FileWriter(f));
 		bw.write(match.toJSON());
 		bw.flush();

@@ -216,9 +216,8 @@ public class StaticValidator implements GameValidator {
 	 */
 	public static void matchParentheses(File file) throws ValidatorException {
 		List<String> lines = new ArrayList<String>();
-		try {
+		try (BufferedReader in = new BufferedReader(new FileReader(file))) {
 			String line;
-			BufferedReader in = new BufferedReader(new FileReader(file));
 			while((line = in.readLine()) != null) {
 				lines.add(line);
 			}
@@ -531,7 +530,7 @@ public class StaticValidator implements GameValidator {
 
 		//Look for function arities with these names
 		for (GdlConstant functionName : functionArities.keySet()) {
-			if (GdlPool.KEYWORDS.contains(functionName)) {
+			if (GdlPool.KEYWORDS.contains(functionName.getValue())) {
 				throw new ValidatorException("The keyword " + functionName + " is being used as a function. It should only be used as the name of a sentence.");
 			}
 		}

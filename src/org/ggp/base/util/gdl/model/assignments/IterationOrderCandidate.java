@@ -14,6 +14,7 @@ import org.ggp.base.util.gdl.grammar.GdlSentence;
 import org.ggp.base.util.gdl.grammar.GdlTerm;
 import org.ggp.base.util.gdl.grammar.GdlVariable;
 
+//This class has a natural ordering that is inconsistent with equals.
 public class IterationOrderCandidate implements Comparable<IterationOrderCandidate> {
 		//Information specific to this ordering
 		private List<Integer> sourceConjunctIndices; //Which conjuncts are we using as sources, and in what order?
