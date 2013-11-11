@@ -53,7 +53,7 @@ import external.JSON.JSONObject;
  * @author Sam
  */
 
-public final class Game {
+public class Game {
     private final String theKey;
     private final String theName;
     private final String theDescription;    
