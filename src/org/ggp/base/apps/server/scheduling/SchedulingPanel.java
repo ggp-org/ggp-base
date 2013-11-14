@@ -100,6 +100,7 @@ public final class SchedulingPanel extends JPanel implements Observer, ListSelec
 
 	private AbstractAction viewPublishedMatchButtonMethod() {
 		return new AbstractAction("View Published") {
+			@Override
 			public void actionPerformed(ActionEvent evt) {
 				if (queueTable.getSelectedRow() >= 0) {
 					String matchId = queueTable.getModel().getValueAt(queueTable.getSelectedRow(), 0).toString();
@@ -117,6 +118,7 @@ public final class SchedulingPanel extends JPanel implements Observer, ListSelec
 
 	private AbstractAction viewSavedMatchButtonMethod() {
 		return new AbstractAction("View Saved") {
+			@Override
 			public void actionPerformed(ActionEvent evt) {
 				if (queueTable.getSelectedRow() >= 0) {
 					String matchId = queueTable.getModel().getValueAt(queueTable.getSelectedRow(), 0).toString();
@@ -134,6 +136,7 @@ public final class SchedulingPanel extends JPanel implements Observer, ListSelec
 
 	private AbstractAction removeMatchButtonMethod() {
 		return new AbstractAction("Cancel Match") {
+			@Override
 			public void actionPerformed(ActionEvent evt) {
 				if (queueTable.getSelectedRow() >= 0) {
 					String matchId = queueTable.getModel().getValueAt(queueTable.getSelectedRow(), 0).toString();
@@ -196,6 +199,7 @@ public final class SchedulingPanel extends JPanel implements Observer, ListSelec
 		queueTable.setRowHeight(model.getRowCount()-1, spec.thePlayers.size()*20);
 	}
 
+	@Override
 	public void observe(Event genericEvent) {
 		if (!(genericEvent instanceof ServerMatchUpdatedEvent)) return;
 		ServerMatchUpdatedEvent event = (ServerMatchUpdatedEvent)genericEvent;

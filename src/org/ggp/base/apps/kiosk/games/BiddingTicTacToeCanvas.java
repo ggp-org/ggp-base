@@ -12,13 +12,19 @@ import org.ggp.base.apps.kiosk.templates.GameCanvas_FancyGrid;
 public class BiddingTicTacToeCanvas extends GameCanvas_FancyGrid {
     private static final long serialVersionUID = 1L;
 
-    public String getGameName() { return "Tic-Tac-Toe (Bidding)"; }
-    protected String getGameKey() { return "biddingTicTacToe"; }
-    protected int getGridHeight() { return 5; }
-    protected int getGridWidth() { return 7; }
+    @Override
+	public String getGameName() { return "Tic-Tac-Toe (Bidding)"; }
+    @Override
+	protected String getGameKey() { return "biddingTicTacToe"; }
+    @Override
+	protected int getGridHeight() { return 5; }
+    @Override
+	protected int getGridWidth() { return 7; }
 
-    protected boolean coordinatesStartAtOne() { return false; }
-    protected boolean useGridVisualization() { return false; }
+    @Override
+	protected boolean coordinatesStartAtOne() { return false; }
+    @Override
+	protected boolean useGridVisualization() { return false; }
 
     @Override
     protected Set<String> getFactsAboutCell(int xCell, int yCell) {

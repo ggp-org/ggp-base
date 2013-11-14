@@ -110,7 +110,8 @@ public class GameStateRenderer {
 
         class IOStringInputStream extends java.io.InputStream {
             private int position = 0;
-            public int read() throws java.io.IOException
+            @Override
+			public int read() throws java.io.IOException
             {
                 if (position < buf.length()) {
                     return buf.charAt(position++);
@@ -120,7 +121,8 @@ public class GameStateRenderer {
             }
         }
         class IOStringOutputStream extends java.io.OutputStream {
-            public void write(int character) throws java.io.IOException {
+            @Override
+			public void write(int character) throws java.io.IOException {
                 buf.append((char)character);
             }
         }

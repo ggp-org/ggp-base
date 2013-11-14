@@ -101,11 +101,13 @@ public final class ProxyGamePlayerClient extends Thread implements Subject, Obse
 		gamer.addObserver(this);
 	}
 
+	@Override
 	public void addObserver(Observer observer)
 	{
 		observers.add(observer);
 	}
 
+	@Override
 	public void notifyObservers(Event event)
 	{
 		for (Observer observer : observers)
@@ -163,7 +165,8 @@ public final class ProxyGamePlayerClient extends Thread implements Subject, Obse
 		GamerLogger.log("Proxy", "[ProxyClient] Got interrupted, shutting down.");
 	}
 
-    public void observe(Event event) {
+    @Override
+	public void observe(Event event) {
         if(event instanceof WorkingResponseSelectedEvent) {
             WorkingResponseSelectedEvent theWorking = (WorkingResponseSelectedEvent)event;
             ProxyMessage theMessage = new ProxyMessage("WORK:" + theWorking.getWorkingResponse(), theCode, 0L);

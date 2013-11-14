@@ -61,6 +61,7 @@ public final class LeaderboardPanel extends JPanel implements Observer
 		leaderTable.getColumnModel().getColumn(2).setPreferredWidth(10);
 		sorter = new TableRowSorter<TableModel>(model);
 		sorter.setComparator(1, new Comparator<Integer>() {
+			@Override
 			public int compare(Integer a, Integer b) {
 				return a-b;
 			}
@@ -72,6 +73,7 @@ public final class LeaderboardPanel extends JPanel implements Observer
 		add(new JScrollPane(leaderTable, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED), BorderLayout.CENTER);
 	}
 
+	@Override
 	public void observe(Event event)
 	{
 		if (!(event instanceof ServerMatchUpdatedEvent)) return;

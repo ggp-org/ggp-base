@@ -67,6 +67,7 @@ public final class Server extends JPanel implements ActionListener
 		javax.swing.SwingUtilities.invokeLater(new Runnable()
 		{
 
+			@Override
 			public void run()
 			{
 				createAndShowGUI(serverPanel, "Game Server");
@@ -232,6 +233,7 @@ public final class Server extends JPanel implements ActionListener
 
 	private AbstractAction runButtonMethod() {
 		return new AbstractAction("Start a new match!") {
+			@Override
 			public void actionPerformed(ActionEvent evt) {
 				int startClock = (Integer)startClockSpinner.getValue();
 				int playClock = (Integer)playClockSpinner.getValue();
@@ -259,6 +261,7 @@ public final class Server extends JPanel implements ActionListener
 
 	private AbstractAction testPlayerButtonMethod() {
 		return new AbstractAction("Test") {
+			@Override
 			public void actionPerformed(ActionEvent evt) {
 				if (playerSelectorList.getSelectedValue() != null) {
 					Game testGame = GameRepository.getDefaultRepository().getGame("maze");
@@ -272,6 +275,7 @@ public final class Server extends JPanel implements ActionListener
 
 	private AbstractAction addPlayerButtonMethod() {
 		return new AbstractAction("Add") {
+			@Override
 			public void actionPerformed(ActionEvent evt) {
 				String hostport = JOptionPane.showInputDialog(null, "What is the new player's address?\nPlease use the format \"host:port\".", "Add a player", JOptionPane.QUESTION_MESSAGE, null, null, "127.0.0.1:9147").toString();
 				try {
@@ -285,6 +289,7 @@ public final class Server extends JPanel implements ActionListener
 
 	private AbstractAction removePlayerButtonMethod() {
 		return new AbstractAction("Remove") {
+			@Override
 			public void actionPerformed(ActionEvent evt) {
 				if (playerSelectorList.getSelectedValue() != null) {
 					playerSelector.removePlayer(playerSelectorList.getSelectedValue().toString());

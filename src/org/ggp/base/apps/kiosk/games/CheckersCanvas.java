@@ -11,8 +11,10 @@ import org.ggp.base.apps.kiosk.templates.GameCanvas_Chessboard;
 public class CheckersCanvas extends GameCanvas_Chessboard {
     private static final long serialVersionUID = 1L;
 
-    public String getGameName() { return "Checkers"; }
-    protected String getGameKey() { return "checkers"; }
+    @Override
+	public String getGameName() { return "Checkers"; }
+    @Override
+	protected String getGameKey() { return "checkers"; }
 
     @Override
     protected Set<String> getLegalMovesForCell(int xCell, int yCell) {

@@ -49,6 +49,7 @@ public final class HistoryPanel extends JPanel implements Observer
 		this.add(timerBar, new GridBagConstraints(0, 1, 1, 1, 1.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 5, 5));
 	}
 
+	@Override
 	public void observe(Event event)
 	{
 		if (event instanceof ServerNewMatchEvent)

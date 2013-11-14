@@ -19,6 +19,7 @@ public class EmptyDetailPanel extends DetailPanel {
 		this.add(new JLabel("No details available."), new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 5, 5));
 	}
 
+	@Override
 	public void observe(Event event) {
 		// Do nothing when notified about events
 	}

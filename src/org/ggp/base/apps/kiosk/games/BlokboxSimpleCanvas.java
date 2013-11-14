@@ -18,8 +18,10 @@ import org.ggp.base.util.statemachine.MachineState;
 public class BlokboxSimpleCanvas extends GameCanvas_SimpleGrid {
     private static final long serialVersionUID = 1L;
 
-    public String getGameName() { return "Blokbox Simple"; }
-    protected String getGameKey() { return "blokbox_simple"; }
+    @Override
+	public String getGameName() { return "Blokbox Simple"; }
+    @Override
+	protected String getGameKey() { return "blokbox_simple"; }
 
     protected Set<String> getLegalMovesForCell(int xCell, int yCell) {
         if(selectedPiece == -1) return new HashSet<String>();
@@ -27,8 +29,10 @@ public class BlokboxSimpleCanvas extends GameCanvas_SimpleGrid {
     }
 
     // ========================================================================
-    protected int getGridHeight() { return 20; }
-    protected int getGridWidth() { return 20; }
+    @Override
+	protected int getGridHeight() { return 20; }
+    @Override
+	protected int getGridWidth() { return 20; }
 
     protected Set<String> getFactsAboutCell(int xCell, int yCell) {
         Set<String> theFacts = gameStateHasFactsMatching("\\( cell " + xCell + " " + yCell + " (.*) \\)");
@@ -160,7 +164,8 @@ public class BlokboxSimpleCanvas extends GameCanvas_SimpleGrid {
     private int selectedColumn = -1;
     private String currentSelectedMove;
     private Iterator<String> possibleSelectedMoves = null;
-    protected final void handleClickOnCell(int xCell, int yCell, int xWithin, int yWithin) {
+    @Override
+	protected final void handleClickOnCell(int xCell, int yCell, int xWithin, int yWithin) {
         if(xCell > 20 || yCell > 20) return;
 
         if(xCell > 15 || yCell > 15) {
@@ -206,18 +211,21 @@ public class BlokboxSimpleCanvas extends GameCanvas_SimpleGrid {
     }
 
     // When the game state changes, clear our cache of known facts.
-    public void updateGameState(MachineState gameState) {
+    @Override
+	public void updateGameState(MachineState gameState) {
         factsCache.clear();
         super.updateGameState(gameState);
     }
 
-    protected final void renderCell(Graphics g, int xCell, int yCell) {
+    @Override
+	protected final void renderCell(Graphics g, int xCell, int yCell) {
         renderCellBackground(g, xCell, yCell);
         renderCellContent(g, getCachedFactsAboutCell(xCell, yCell));
         renderMoveSelectionForCell(g, xCell, yCell, currentSelectedMove);
     }
 
-    public final void clearMoveSelection() {
+    @Override
+	public final void clearMoveSelection() {
         submitWorkingMove(null);
 
         selectedPiece = -1;

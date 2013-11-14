@@ -27,6 +27,7 @@ public class StatesPanel extends JPanel implements Observer {
 	}
 
 	private int stepCount = 1;
+	@Override
 	public void observe(Event event) {
 		if (event instanceof ServerNewGameStateEvent)
 		{

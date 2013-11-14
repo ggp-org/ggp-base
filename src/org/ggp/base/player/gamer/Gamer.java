@@ -100,11 +100,13 @@ public abstract class Gamer implements Subject
 
 	// ==== Observer Stuff ====
 	private final List<Observer> observers;
+	@Override
 	public final void addObserver(Observer observer)
 	{
 		observers.add(observer);
 	}
 
+	@Override
 	public final void notifyObservers(Event event)
 	{
 		for (Observer observer : observers) {

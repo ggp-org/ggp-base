@@ -21,16 +21,19 @@ import org.ggp.base.util.statemachine.exceptions.MoveDefinitionException;
 public class TicTacToeCanvas_Reference extends GameCanvas {
     public static final long serialVersionUID = 0x1;
 
-    public String getGameName() {
+    @Override
+	public String getGameName() {
         return "Tic-Tac-Toe (Old Version)";
     }
 
-    protected String getGameKey() {
+    @Override
+	protected String getGameKey() {
         return "ticTacToe";
     }
 
     private Graphics mostRecentG;
-    protected void paintGame(Graphics g) {
+    @Override
+	protected void paintGame(Graphics g) {
         int width = g.getClipBounds().width;
         int height = g.getClipBounds().height;
 
@@ -106,12 +109,14 @@ public class TicTacToeCanvas_Reference extends GameCanvas {
         }
     }
 
-    protected void handleDragEvent(int dx, int dy) {
+    @Override
+	protected void handleDragEvent(int dx, int dy) {
         ;
     }
 
     private int xSelectedCell, ySelectedCell;
-    protected void handleClickEvent(int x, int y) {
+    @Override
+	protected void handleClickEvent(int x, int y) {
         int width = mostRecentG.getClipBounds().width;
         int height = mostRecentG.getClipBounds().height;
 
@@ -137,7 +142,8 @@ public class TicTacToeCanvas_Reference extends GameCanvas {
         }
     }
 
-    public void clearMoveSelection() {
+    @Override
+	public void clearMoveSelection() {
         xSelectedCell = ySelectedCell = 0;
         submitWorkingMove(null);
 

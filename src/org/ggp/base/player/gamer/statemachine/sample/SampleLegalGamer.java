@@ -25,6 +25,7 @@ public final class SampleLegalGamer extends SampleGamer
 	 * before the timeout.
 	 *
 	 */
+	@Override
 	public Move stateMachineSelectMove(long timeout) throws TransitionDefinitionException, MoveDefinitionException, GoalDefinitionException
 	{
 		// We get the current start time

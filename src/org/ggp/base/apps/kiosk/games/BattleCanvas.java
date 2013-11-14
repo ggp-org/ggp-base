@@ -11,8 +11,10 @@ import org.ggp.base.apps.kiosk.templates.GameCanvas_Chessboard;
 public class BattleCanvas extends GameCanvas_Chessboard {
     private static final long serialVersionUID = 1L;
 
-    public String getGameName() { return "Battle"; }
-    protected String getGameKey() { return "battle"; }
+    @Override
+	public String getGameName() { return "Battle"; }
+    @Override
+	protected String getGameKey() { return "battle"; }
 
     @Override
     protected Set<String> getLegalMovesForCell(int xCell, int yCell) {

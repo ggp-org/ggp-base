@@ -10,10 +10,14 @@ import org.ggp.base.apps.kiosk.templates.GameCanvas_SimpleGrid;
 public class GoldenRectangleCanvas extends GameCanvas_SimpleGrid {
     private static final long serialVersionUID = 1L;
 
-    public String getGameName() { return "Golden Rectangle"; }
-    protected String getGameKey() { return "golden_rectangle"; }
-    protected int getGridHeight() { return 8; }
-    protected int getGridWidth() { return 7; }
+    @Override
+	public String getGameName() { return "Golden Rectangle"; }
+    @Override
+	protected String getGameKey() { return "golden_rectangle"; }
+    @Override
+	protected int getGridHeight() { return 8; }
+    @Override
+	protected int getGridWidth() { return 7; }
 
     private int selectedColumn = 0;
 

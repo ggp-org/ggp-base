@@ -11,10 +11,14 @@ import org.ggp.base.apps.kiosk.templates.GameCanvas_Chessboard;
 public class KnightFightCanvas extends GameCanvas_Chessboard {
     private static final long serialVersionUID = 1L;
 
-    public String getGameName() { return "Knight Fight"; }
-    protected String getGameKey() { return "knightfight"; }
-    protected int getGridHeight() { return 10; }
-    protected int getGridWidth() { return 10; }
+    @Override
+	public String getGameName() { return "Knight Fight"; }
+    @Override
+	protected String getGameKey() { return "knightfight"; }
+    @Override
+	protected int getGridHeight() { return 10; }
+    @Override
+	protected int getGridWidth() { return 10; }
 
     @Override
     protected Set<String> getFactsAboutCell(int xCell, int yCell) {
@@ -29,7 +33,8 @@ public class KnightFightCanvas extends GameCanvas_Chessboard {
         return theMoves;
     }
 
-    protected void renderCellContent(Graphics g, String theFact) {
+    @Override
+	protected void renderCellContent(Graphics g, String theFact) {
         String[] cellFacts = theFact.split(" ");
         String cellType = cellFacts[4];
         if(cellType.equals("b")) return;

@@ -23,7 +23,8 @@ public final class RemoteGameRepository extends GameRepository {
         theRepoURL = properlyFormatURL(theURL);
     }
 
-    protected Set<String> getUncachedGameKeys() {
+    @Override
+	protected Set<String> getUncachedGameKeys() {
     	Set<String> theGameKeys = new HashSet<String>();
         try {
             JSONArray theArray = RemoteResourceLoader.loadJSONArray(theRepoURL + "/games/");
@@ -36,7 +37,8 @@ public final class RemoteGameRepository extends GameRepository {
         return theGameKeys;
     }
 
-    protected Game getUncachedGame(String theKey) {
+    @Override
+	protected Game getUncachedGame(String theKey) {
         return loadSingleGame(getGameURL(theKey));
     }
 

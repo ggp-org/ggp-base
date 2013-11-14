@@ -36,16 +36,19 @@ public abstract class SampleGamer extends StateMachineGamer
 	 * If you are working on : public abstract class MyGamer extends SampleGamer
 	 * Then this function would return "MyGamer"
 	 */
+	@Override
 	public String getName() {
 		return getClass().getSimpleName();
 	}
 
 	// This is the default State Machine
+	@Override
 	public StateMachine getInitialStateMachine() {
 		return new CachedStateMachine(new ProverStateMachine());
 	}
 
 	// This is the defaul Sample Panel
+	@Override
 	public DetailPanel getDetailPanel() {
 		return new SimpleDetailPanel();
 	}

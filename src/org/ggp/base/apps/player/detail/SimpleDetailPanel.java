@@ -42,6 +42,7 @@ public class SimpleDetailPanel extends DetailPanel {
 		this.add(new JScrollPane(moveTable, ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED), new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 5, 5));
 	}
 
+	@Override
 	public void observe(Event event) {
 		if (event instanceof GamerNewMatchEvent) {
 			observe((GamerNewMatchEvent) event);

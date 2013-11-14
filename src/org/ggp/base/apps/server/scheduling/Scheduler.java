@@ -165,7 +165,8 @@ public final class Scheduler implements Observer
 	@SuppressWarnings("serial")
 	private AbstractAction addTabCloseButton(final Component tabToClose) {
 		return new AbstractAction("x") {
-		    public void actionPerformed(ActionEvent evt) {
+		    @Override
+			public void actionPerformed(ActionEvent evt) {
 		    	for (int i = 0; i < matchesTabbedPane.getTabCount(); i++) {
 		    		if (tabToClose == matchesTabbedPane.getComponentAt(i)) {
 		    			matchesTabbedPane.remove(tabToClose);
@@ -176,6 +177,7 @@ public final class Scheduler implements Observer
 	}
 
 	class SchedulingThread extends Thread {
+		@Override
 		public void run() {
 			while (true) {
 				try {

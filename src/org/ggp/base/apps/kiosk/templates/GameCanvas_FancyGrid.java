@@ -109,7 +109,8 @@ public abstract class GameCanvas_FancyGrid extends GameCanvas_SimpleGrid {
     private int selectedColumn = -1;
     private String currentSelectedMove;
     private Iterator<String> possibleSelectedMoves = null;
-    protected final void handleClickOnCell(int xCell, int yCell, int xWithin, int yWithin) {
+    @Override
+	protected final void handleClickOnCell(int xCell, int yCell, int xWithin, int yWithin) {
         if(selectedRow != yCell || selectedColumn != xCell || !possibleSelectedMoves.hasNext()) {
             SortedSet<String> theMoves = new TreeSet<String>(getLegalMovesForCell(xCell, yCell));
             if(theMoves.size() == 0)
@@ -139,12 +140,14 @@ public abstract class GameCanvas_FancyGrid extends GameCanvas_SimpleGrid {
     }
 
     // When the game state changes, clear our cache of known facts.
-    public void updateGameState(MachineState gameState) {
+    @Override
+	public void updateGameState(MachineState gameState) {
         factsCache.clear();
         super.updateGameState(gameState);
     }
 
-    protected final void renderCell(Graphics g, int xCell, int yCell) {
+    @Override
+	protected final void renderCell(Graphics g, int xCell, int yCell) {
         renderCellBackground(g, xCell, yCell);
         renderCellContent(g, getCachedFactsAboutCell(xCell, yCell));
         if(useGridVisualization()) CommonGraphics.drawCellBorder(g);
@@ -156,7 +159,8 @@ public abstract class GameCanvas_FancyGrid extends GameCanvas_SimpleGrid {
         }
     }
 
-    public final void clearMoveSelection() {
+    @Override
+	public final void clearMoveSelection() {
         submitWorkingMove(null);
 
         possibleSelectedMoves = null;

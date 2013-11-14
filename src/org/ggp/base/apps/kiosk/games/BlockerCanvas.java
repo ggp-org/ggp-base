@@ -11,12 +11,17 @@ import org.ggp.base.apps.kiosk.templates.GameCanvas_FancyGrid;
 public class BlockerCanvas extends GameCanvas_FancyGrid {
     private static final long serialVersionUID = 1L;
 
-    public String getGameName() { return "Blocker"; }
-    protected String getGameKey() { return "blocker"; }
-    protected int getGridHeight() { return 6; }
-    protected int getGridWidth() { return 6; }
+    @Override
+	public String getGameName() { return "Blocker"; }
+    @Override
+	protected String getGameKey() { return "blocker"; }
+    @Override
+	protected int getGridHeight() { return 6; }
+    @Override
+	protected int getGridWidth() { return 6; }
 
-    protected boolean coordinatesStartAtOne() { return false; }
+    @Override
+	protected boolean coordinatesStartAtOne() { return false; }
 
     @Override
     protected void renderCellBackground(Graphics g, int xCell, int yCell) {

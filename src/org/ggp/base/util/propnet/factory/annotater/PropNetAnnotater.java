@@ -168,7 +168,8 @@ public class PropNetAnnotater {
 
     private class SortTerms implements Comparator<GdlTerm>
     {
-        public int compare(GdlTerm arg0, GdlTerm arg1) {
+        @Override
+		public int compare(GdlTerm arg0, GdlTerm arg1) {
             GdlConstant a1 = (GdlConstant)arg0;
             GdlConstant a2 = (GdlConstant)arg1;
             String s1 = a1.toString();

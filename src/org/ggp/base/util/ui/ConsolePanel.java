@@ -37,13 +37,16 @@ public class ConsolePanel extends JPanel {
         // Send the standard out and standard error streams
         // to this panel, instead.
         OutputStream out = new OutputStream() {
-            public void write(int b) throws IOException {
+            @Override
+			public void write(int b) throws IOException {
                 updateTextArea(String.valueOf((char) b));
             }
-            public void write(byte[] b, int off, int len) throws IOException {
+            @Override
+			public void write(byte[] b, int off, int len) throws IOException {
                 updateTextArea(new String(b, off, len));
             }
-            public void write(byte[] b) throws IOException {
+            @Override
+			public void write(byte[] b) throws IOException {
                 write(b, 0, b.length);
             }
         };
@@ -54,7 +57,8 @@ public class ConsolePanel extends JPanel {
     private final JTextArea outputConsole;
     private void updateTextArea(final String text) {
         SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
+            @Override
+			public void run() {
                 outputConsole.append(text);
             }
         });

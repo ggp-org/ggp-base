@@ -41,7 +41,8 @@ public class GameSelector implements ActionListener {
             this.theName = theName;
         }
 
-        public String toString() {
+        @Override
+		public String toString() {
             return theName;
         }
     }

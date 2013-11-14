@@ -96,7 +96,8 @@ public final class GameServer extends Thread implements Subject
         return publishWhenNecessary();
     }
 
-    public void addObserver(Observer observer) {
+    @Override
+	public void addObserver(Observer observer) {
         observers.add(observer);
     }
 
@@ -113,7 +114,8 @@ public final class GameServer extends Thread implements Subject
         return stateMachine;
     }
 
-    public void notifyObservers(Event event) {
+    @Override
+	public void notifyObservers(Event event) {
         for (Observer observer : observers) {
             observer.observe(event);
         }

@@ -11,8 +11,10 @@ import org.ggp.base.apps.kiosk.templates.GameCanvas_Chessboard;
 public class PawnWhoppingCanvas extends GameCanvas_Chessboard {
     private static final long serialVersionUID = 1L;
 
-    public String getGameName() { return "Pawn Whopping"; }
-    protected String getGameKey() { return "pawnWhopping"; }
+    @Override
+	public String getGameName() { return "Pawn Whopping"; }
+    @Override
+	protected String getGameKey() { return "pawnWhopping"; }
 
     @Override
     protected Set<String> getLegalMovesForCell(int xCell, int yCell) {

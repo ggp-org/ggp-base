@@ -11,10 +11,14 @@ import org.ggp.base.apps.kiosk.templates.GameCanvas_FancyGrid;
 public class CephalopodCanvas extends GameCanvas_FancyGrid {
     private static final long serialVersionUID = 1L;
 
-    public String getGameName() { return "Cephalopod"; }
-    protected String getGameKey() { return "cephalopodMicro"; }
-    protected int getGridHeight() { return 3; }
-    protected int getGridWidth() { return 3; }
+    @Override
+	public String getGameName() { return "Cephalopod"; }
+    @Override
+	protected String getGameKey() { return "cephalopodMicro"; }
+    @Override
+	protected int getGridHeight() { return 3; }
+    @Override
+	protected int getGridWidth() { return 3; }
 
     @Override
     protected Set<String> getFactsAboutCell(int xCell, int yCell) {

@@ -11,18 +11,24 @@ import org.ggp.base.apps.kiosk.templates.GameCanvas_SimpleGrid;
 public class TTTxNineCanvas extends GameCanvas_SimpleGrid {
     private static final long serialVersionUID = 1L;
 
-    public String getGameName() { return "Nine Board Tic Tac Toe"; }
-    protected String getGameKey() { return "nineBoardTicTacToe"; }
-    protected int getGridHeight() { return 9; }
-    protected int getGridWidth() { return 9; }
+    @Override
+	public String getGameName() { return "Nine Board Tic Tac Toe"; }
+    @Override
+	protected String getGameKey() { return "nineBoardTicTacToe"; }
+    @Override
+	protected int getGridHeight() { return 9; }
+    @Override
+	protected int getGridWidth() { return 9; }
 
-    protected boolean coordinatesStartAtOne() { return false; }
+    @Override
+	protected boolean coordinatesStartAtOne() { return false; }
 
     private int xSelectedBoard = 0;
     private int ySelectedBoard = 0;
     private int xSelectedSpot = 0;
     private int ySelectedSpot = 0;
-    protected void handleClickOnCell(int xCell, int yCell, int xWithin, int yWithin) {
+    @Override
+	protected void handleClickOnCell(int xCell, int yCell, int xWithin, int yWithin) {
         int xBoard = 1 + (xCell / 3);
         int yBoard = 1 + (yCell / 3);
         int xSpot = 1 + (xCell % 3);

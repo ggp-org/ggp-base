@@ -37,6 +37,7 @@ public class PlayerPresenceManager implements Subject {
 
 	public static final int INFO_PING_PERIOD_IN_SECONDS = 1;
 	class PresenceMonitor extends Thread {
+		@Override
 		public void run() {
 			while(true) {
 				try {

@@ -38,6 +38,7 @@ public final class TtlCache<K, V> implements Map<K,V>
 			this.ttl = ttl;
 		}
 
+		@Override
 		@SuppressWarnings("unchecked")
         public boolean equals(Object o) {
 		    if (o instanceof TtlCache.Entry) {
@@ -56,11 +57,13 @@ public final class TtlCache<K, V> implements Map<K,V>
 		this.ttl = ttl;
 	}
 
+	@Override
 	public synchronized boolean containsKey(Object key)
 	{
 		return contents.containsKey(key);
 	}
 
+	@Override
 	public synchronized V get(Object key)
 	{
 		Entry entry = contents.get(key);
@@ -91,6 +94,7 @@ public final class TtlCache<K, V> implements Map<K,V>
 		}
 	}
 
+	@Override
 	public synchronized V put(K key, V value)
 	{
 		Entry x = contents.put(key, new Entry(value, ttl));
@@ -98,38 +102,46 @@ public final class TtlCache<K, V> implements Map<K,V>
 		return x.value;
 	}
 
+	@Override
 	public synchronized int size()
 	{
 		return contents.size();
 	}
 
-    public synchronized void clear() {
+    @Override
+	public synchronized void clear() {
         contents.clear();
     }
 
-    public synchronized boolean containsValue(Object value) {
+    @Override
+	public synchronized boolean containsValue(Object value) {
         return contents.containsValue(value);
     }
 
-    public synchronized boolean isEmpty() {
+    @Override
+	public synchronized boolean isEmpty() {
         return contents.isEmpty();
     }
 
-    public synchronized Set<K> keySet() {
+    @Override
+	public synchronized Set<K> keySet() {
         return contents.keySet();
     }
 
-    public synchronized void putAll(Map<? extends K, ? extends V> m) {
+    @Override
+	public synchronized void putAll(Map<? extends K, ? extends V> m) {
          for(Map.Entry<? extends K, ? extends V> anEntry : m.entrySet()) {
              this.put(anEntry.getKey(), anEntry.getValue());
          }
     }
 
-    public synchronized V remove(Object key) {
+    @Override
+	public synchronized V remove(Object key) {
         return contents.remove(key).value;
     }
 
-    public synchronized Collection<V> values() {
+    @Override
+	public synchronized Collection<V> values() {
         Collection<V> theValues = new HashSet<V>();
         for (Entry e : contents.values())
             theValues.add(e.value);
@@ -145,12 +157,16 @@ public final class TtlCache<K, V> implements Map<K,V>
             value = v;
         }
 
-        public K getKey() { return key; }
-        public V getValue() { return value; }
-        public V setValue(V value) { return (this.value = value); }
+        @Override
+		public K getKey() { return key; }
+        @Override
+		public V getValue() { return value; }
+        @Override
+		public V setValue(V value) { return (this.value = value); }
     }
 
-    public synchronized Set<java.util.Map.Entry<K, V>> entrySet() {
+    @Override
+	public synchronized Set<java.util.Map.Entry<K, V>> entrySet() {
         Set<Map.Entry<K,V>> theEntries = new HashSet<Map.Entry<K, V>>();
         for (Map.Entry<K, Entry> e : contents.entrySet())
             theEntries.add(new entrySetMapEntry(e.getKey(), e.getValue().value));

@@ -147,7 +147,8 @@ public final class ProxyGamePlayer extends Thread implements Subject
 	            return true;
 	        }
 
-	        public void run() {
+	        @Override
+			public void run() {
 	            try {
 	                while(!pleaseStop) {
 	                    int next = theInput.read();
@@ -174,7 +175,8 @@ public final class ProxyGamePlayer extends Thread implements Subject
             }
 	    }
 
-	    public void run() {
+	    @Override
+		public void run() {
             while(theInput != null) {
                 try {
                     ProxyMessage in = ProxyMessage.readFrom(theInput);
@@ -258,11 +260,13 @@ public final class ProxyGamePlayer extends Thread implements Subject
 	    return myPort;
 	}
 
+	@Override
 	public void addObserver(Observer observer)
 	{
 		observers.add(observer);
 	}
 
+	@Override
 	public void notifyObservers(Event event)
 	{
 		for (Observer observer : observers)
@@ -482,7 +486,8 @@ public final class ProxyGamePlayer extends Thread implements Subject
 	private BlockingQueue<ProxyMessage> inputQueue;
 	private BlockingQueue<Socket> inputConnectionQueue;
 	private class QueueListenerThread extends Thread {
-	    public void run() {
+	    @Override
+		public void run() {
 	        while(true) {
 	            try {
                     // First, read a message from the server.

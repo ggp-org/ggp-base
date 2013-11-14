@@ -63,6 +63,7 @@ public final class HumanDetailPanel extends DetailPanel
 		this.add(timerBar, new GridBagConstraints(0, 2, 2, 1, 1.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 5, 5));
 	}
 
+	@Override
 	public void observe(Event event)
 	{
 		if (event instanceof HumanNewMovesEvent)
@@ -107,6 +108,7 @@ public final class HumanDetailPanel extends DetailPanel
 		return new AbstractAction("Select")
 		{
 
+			@Override
 			public void actionPerformed(ActionEvent evt)
 			{
 				int row = moveTable.getSelectedRow();

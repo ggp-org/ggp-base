@@ -11,11 +11,15 @@ import org.ggp.base.apps.kiosk.templates.GameCanvas_Chessboard;
 public class CheckersSmallCanvas extends GameCanvas_Chessboard {
     private static final long serialVersionUID = 1L;
 
-    public String getGameName() { return "Checkers (Small)"; }
-    protected String getGameKey() { return "checkersSmall"; }
+    @Override
+	public String getGameName() { return "Checkers (Small)"; }
+    @Override
+	protected String getGameKey() { return "checkersSmall"; }
 
-    protected int getGridHeight() { return 8; }
-    protected int getGridWidth() { return 8; }
+    @Override
+	protected int getGridHeight() { return 8; }
+    @Override
+	protected int getGridWidth() { return 8; }
 
     @Override
     protected void renderCellForeground(Graphics g, int xCell, int yCell) {

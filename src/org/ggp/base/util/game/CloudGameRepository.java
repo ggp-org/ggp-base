@@ -88,7 +88,8 @@ public final class CloudGameRepository extends GameRepository {
         }
     }
 
-    protected Set<String> getUncachedGameKeys() {
+    @Override
+	protected Set<String> getUncachedGameKeys() {
         Set<String> theKeys = new HashSet<String>();
         for(File game : theCacheDirectory.listFiles()) {
             theKeys.add(game.getName().replace(".zip", ""));
@@ -96,7 +97,8 @@ public final class CloudGameRepository extends GameRepository {
         return theKeys;
     }
 
-    protected Game getUncachedGame(String theKey) {
+    @Override
+	protected Game getUncachedGame(String theKey) {
         Game cachedGame = loadGameFromCache(theKey);
         if (cachedGame != null) {
         	return cachedGame;

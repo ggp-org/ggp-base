@@ -10,10 +10,14 @@ import org.ggp.base.apps.kiosk.templates.GameCanvas_SimpleGrid;
 public class ConnectFourCanvas extends GameCanvas_SimpleGrid {
     private static final long serialVersionUID = 1L;
 
-    public String getGameName() { return "Connect Four"; }
-    protected String getGameKey() { return "connectFour"; }
-    protected int getGridHeight() { return 6; }
-    protected int getGridWidth() { return 8; }
+    @Override
+	public String getGameName() { return "Connect Four"; }
+    @Override
+	protected String getGameKey() { return "connectFour"; }
+    @Override
+	protected int getGridHeight() { return 6; }
+    @Override
+	protected int getGridWidth() { return 8; }
 
     private int selectedColumn = 0;
 

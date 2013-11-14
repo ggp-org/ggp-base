@@ -76,7 +76,8 @@ public final class Kiosk extends JPanel implements ActionListener, ItemListener,
         NativeUI.setNativeUI();
         final Kiosk serverPanel = new Kiosk();
         javax.swing.SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
+            @Override
+			public void run() {
                 createAndShowGUI(serverPanel);
             }
         });
@@ -211,7 +212,8 @@ public final class Kiosk extends JPanel implements ActionListener, ItemListener,
             this.theCanvasClass = theCanvasClass;
         }
 
-        public String toString() {
+        @Override
+		public String toString() {
             return gameName;
         }
 

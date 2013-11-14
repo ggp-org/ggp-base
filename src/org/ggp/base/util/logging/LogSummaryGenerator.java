@@ -8,7 +8,8 @@ public abstract class LogSummaryGenerator {
         final String thePrefix = matchId;
         File logsDirectory = new File("logs");
         FilenameFilter logsFilter = new FilenameFilter() {
-            public boolean accept(File dir, String name) {
+            @Override
+			public boolean accept(File dir, String name) {
                 return name.startsWith(thePrefix);
             }
         };

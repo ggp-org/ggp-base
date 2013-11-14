@@ -11,10 +11,14 @@ import org.ggp.base.apps.kiosk.templates.GameCanvas_FancyGrid;
 public class PentagoCanvas extends GameCanvas_FancyGrid {
     private static final long serialVersionUID = 1L;
 
-    public String getGameName() { return "Pentago"; }
-    protected String getGameKey() { return "pentago"; }
-    protected int getGridHeight() { return 6; }
-    protected int getGridWidth() { return 6; }
+    @Override
+	public String getGameName() { return "Pentago"; }
+    @Override
+	protected String getGameKey() { return "pentago"; }
+    @Override
+	protected int getGridHeight() { return 6; }
+    @Override
+	protected int getGridWidth() { return 6; }
 
     @Override
     protected Set<String> getFactsAboutCell(int xCell, int yCell) {
