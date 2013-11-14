@@ -25,13 +25,13 @@ import org.xml.sax.InputSource;
  * that converts that XML match state into HTML. After rendering the match
  * state in HTML as a DOM, it renders that DOM into a BufferedImage which
  * can be displayed to the user.
- * 
+ *
  * TODO: This class is still pretty rough, and I suspect there's much room
  * for improvement. Furthermore, improving this class will yield immediate
  * visible benefits, in terms of better visualizations and such. For example,
  * when rendering games that don't take up the full 600x600 image, there's an
  * empty black space on the final image, which looks bad. That could be fixed.
- * 
+ *
  * @author Ethan Dreyfuss and Sam Schreiber
  */
 public class GameStateRenderer {
@@ -48,10 +48,10 @@ public class GameStateRenderer {
 
         String xhtml = getXHTMLfromGameXML(gameXML, XSL);
         xhtml = xhtml.replace("<?xml version=\"1.0\" encoding=\"UTF-8\"?>", "");
-        
+
         xhtml = xhtml.replace("<body>", "<body><table width=\"560\" height=\"560\"><tr><td>");
         xhtml = xhtml.replace("</body>", "</td></tr></table></body>");
-        
+
         InputSource is = new InputSource(new BufferedReader(new StringReader(xhtml)));
         Document dom = XMLResource.load(is).getDocument();
 
@@ -64,7 +64,7 @@ public class GameStateRenderer {
     private static String getXHTMLfromGameXML(String gameXML, String XSL) {
         XSL = XSL.replace("<!DOCTYPE stylesheet [<!ENTITY ROOT \"http://games.ggp.org/base\">]>", "");
         XSL = XSL.replace("&ROOT;", "http://games.ggp.org/base").trim();
-        
+
         IOString game = new IOString(gameXML);
         IOString xslIOString = new IOString(XSL);
         IOString content = new IOString("");
@@ -78,7 +78,7 @@ public class GameStateRenderer {
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-        
+
         Tidy tidy = new Tidy();
         tidy.setXHTML(true);
         tidy.setShowWarnings(false);
@@ -86,7 +86,7 @@ public class GameStateRenderer {
         tidy.setDropEmptyParas(false);
 
         IOString tidied = new IOString("");
-        tidy.parse(content.getInputStream(), tidied.getOutputStream());        
+        tidy.parse(content.getInputStream(), tidied.getOutputStream());
         return tidied.getString();
     }
 
@@ -99,7 +99,7 @@ public class GameStateRenderer {
         }
         public String getString() {
             return buf.toString();
-        }		
+        }
 
         public InputStream getInputStream() {
             return new IOString.IOStringInputStream();

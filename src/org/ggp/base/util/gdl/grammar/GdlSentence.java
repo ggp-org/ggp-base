@@ -19,7 +19,7 @@ public abstract class GdlSentence extends GdlLiteral
 	public abstract String toString();
 
 	public abstract GdlTerm toTerm();
-	
+
 	public abstract List<GdlTerm> getBody();
 
 }

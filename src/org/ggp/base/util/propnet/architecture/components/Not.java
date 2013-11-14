@@ -10,7 +10,7 @@ public final class Not extends Component
 {
 	/**
 	 * Returns the inverse of the input to the not.
-	 * 
+	 *
 	 * @see org.ggp.base.util.propnet.architecture.Component#getValue()
 	 */
 	@Override

@@ -14,11 +14,11 @@ import org.ggp.base.util.ui.GameStateRenderer;
 
 @SuppressWarnings("serial")
 public class VizContainerPanel extends JPanel {
-	public VizContainerPanel(String XML, String XSL, VisualizationPanel parent) 
+	public VizContainerPanel(String XML, String XSL, VisualizationPanel parent)
 	{
 		Dimension d = GameStateRenderer.getDefaultSize();
 		setPreferredSize(d);
-		
+
 		BufferedImage backimage = parent.getGraphicsConfiguration().createCompatibleImage(d.width, d.height);
 		GameStateRenderer.renderImagefromGameXML(XML, XSL, backimage);
 		try {
@@ -30,10 +30,10 @@ public class VizContainerPanel extends JPanel {
 		    ex.printStackTrace();
 		}
 	}
-	
+
 	private byte[] compressed = null;
 	private boolean imageWritten = false;
-	
+
 	@Override
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);

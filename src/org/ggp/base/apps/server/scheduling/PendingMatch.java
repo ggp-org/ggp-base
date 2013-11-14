@@ -12,13 +12,13 @@ public final class PendingMatch
 	public final String matchID;
 	public final int previewClock;
 	public final int startClock;
-	public final int playClock;		
+	public final int playClock;
 	public final boolean shouldScramble;
 	public final boolean shouldQueue;
 	public final boolean shouldDetail;
 	public final boolean shouldSave;
 	public final boolean shouldPublish;
-	
+
 	public PendingMatch(String matchIdPrefix, Game theGame, List<PlayerPresence> thePlayers, int previewClock, int startClock, int playClock, boolean shouldScramble, boolean shouldQueue, boolean shouldDetail, boolean shouldSave, boolean shouldPublish) {
 		this.matchID = matchIdPrefix + "." + theGame.getKey() + "." + System.currentTimeMillis();
 		this.theGame = theGame;
@@ -30,6 +30,6 @@ public final class PendingMatch
 		this.shouldQueue = shouldQueue;
 		this.shouldDetail = shouldDetail;
 		this.shouldSave = shouldSave;
-		this.shouldPublish = shouldPublish;			
+		this.shouldPublish = shouldPublish;
 	}
 }

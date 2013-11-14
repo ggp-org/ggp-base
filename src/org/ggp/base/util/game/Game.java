@@ -17,21 +17,21 @@ import external.JSON.JSONObject;
  * like Chess or Connect Four. This information includes the game's rules and
  * stylesheet, and maybe a human-readable description, and also any available
  * metadata, like the game's name and its associated game repository URL.
- * 
+ *
  * Games do not necessarily have all of these fields. Games loaded from local
  * storage will not have a repository URL, and probably will be missing other
  * metadata as well. Games sent over the wire from a game server rather than
  * loaded from a repository are called "ephemeral" games, and contain only
  * their rulesheet; they have no metadata, and do not even have unique keys.
- * 
+ *
  * Aside from ephemeral games, all games have a key that is unique within their
  * containing repository (either local storage or a remote repository). Games
  * can be indexed internally using this key. Whenever possible, the user should
  * be shown the game's name (if available) rather than the internal key, since
  * the game's name is more readable/informative than the key.
- * 
+ *
  * (e.g. A game with the name "Three-Player Free-For-All" but the key "3pffa".)
- * 
+ *
  * NOTE: Games are different from matches. Games represent the actual game
  * being played, whereas matches are particular instances in which players
  * played through the game. For example, you might have a Game object that
@@ -43,20 +43,20 @@ import external.JSON.JSONObject;
  * when everything happened, how the match was configured, and so on. There
  * can be many Match objects all associated with a single Game object, just
  * as there can be many matches played of a particular game.
- * 
+ *
  * NOTE: Games operate only on "processed" rulesheets, which have been stripped
  * of comments and are properly formatted as SymbolLists. Rulesheets which have
  * not been processed in this fashion will break the Game object. This processing
  * can be done by calling "Game.preprocessRulesheet" on the raw rulesheet. Note
  * that rules transmitted over the network are always processed.
- * 
+ *
  * @author Sam
  */
 
 public final class Game {
     private final String theKey;
     private final String theName;
-    private final String theDescription;    
+    private final String theDescription;
     private final String theRepositoryURL;
     private final String theStylesheet;
     private final String theRulesheet;
@@ -93,11 +93,11 @@ public final class Game {
     public String getStylesheet() {
         return theStylesheet;
     }
-    
+
     public String getRulesheet() {
     	return theRulesheet;
     }
-    
+
     /**
      * Pre-process a rulesheet into the standard form. This involves stripping
      * comments and adding opening and closing parens so that the rulesheet is
@@ -105,7 +105,7 @@ public final class Game {
      * the local disk or a repository server. This is always done to rulesheets
      * before they're stored in Game objects or sent over the network as part
      * of a START request.
-     * 
+     *
      * @param raw rulesheet
      * @return processed rulesheet
      */
@@ -121,10 +121,10 @@ public final class Game {
 			rulesheetBuilder.append(" ");
 		}
 		String processedRulesheet = rulesheetBuilder.toString();
-		
+
 		// Add opening and closing parens for parsing as symbol list.
 		processedRulesheet = "( " + processedRulesheet + " )";
-		
+
 		return processedRulesheet;
     }
 
@@ -137,7 +137,7 @@ public final class Game {
      * state machine is initialized -- as a result it's actually better to only parse
      * the rules when they're needed rather than parsing them for every game when the
      * game repository is created.
-     * 
+     *
      * @return
      */
     public List<Gdl> getRules() {
@@ -155,9 +155,9 @@ public final class Game {
     	} catch (SymbolFormatException e) {
     		e.printStackTrace();
     		return null;
-    	}        
+    	}
     }
-    
+
     public String serializeToJSON() {
         try {
             JSONObject theGameObject = new JSONObject();
@@ -167,28 +167,28 @@ public final class Game {
             theGameObject.put("theRepositoryURL", getRepositoryURL());
             theGameObject.put("theStylesheet", getStylesheet());
             theGameObject.put("theRulesheet", getRulesheet());
-            
+
             return theGameObject.toString();
         } catch(Exception e) {
             e.printStackTrace();
             return null;
         }
     }
-    
+
     public static Game loadFromJSON(String theSerializedGame) {
         try {
             JSONObject theGameObject = new JSONObject(theSerializedGame);
-            
+
             String theKey = null;
             try {
                 theKey = theGameObject.getString("theKey");
             } catch (Exception e) {}
-            
+
             String theName = null;
             try {
                 theName = theGameObject.getString("theName");
             } catch (Exception e) {}
-            
+
             String theDescription = null;
             try {
                 theDescription = theGameObject.getString("theDescription");
@@ -198,7 +198,7 @@ public final class Game {
             try {
                 theRepositoryURL = theGameObject.getString("theRepositoryURL");
             } catch (Exception e) {}
-            
+
             String theStylesheet = null;
             try {
                 theStylesheet = theGameObject.getString("theStylesheet");
@@ -208,11 +208,11 @@ public final class Game {
             try {
             	theRulesheet = theGameObject.getString("theRulesheet");
             } catch (Exception e) {}
-            
+
             return new Game(theKey, theName, theDescription, theRepositoryURL, theStylesheet, theRulesheet);
         } catch(Exception e) {
             e.printStackTrace();
             return null;
-        }        
+        }
     }
 }

@@ -30,7 +30,7 @@ import org.ggp.base.util.logging.GamerLogger;
  * PropNetFlattener is an implementation of a GDL flattener using fixed-point
  * analysis of the rules. This flattener works on many small and medium-sized
  * games, but can fail on very large games.
- * 
+ *
  * To use this class:
  *      PropNetFlattener PF = new PropNetFlattener(description);
  *      List<GdlRule> flatDescription = PF.flatten();
@@ -42,27 +42,27 @@ import org.ggp.base.util.logging.GamerLogger;
 public class PropNetFlattener {
 
     private List<Gdl> description;
-    
+
     private class Assignment extends ArrayList<GdlConstant> {
-        private static final long serialVersionUID = 1L;        
+        private static final long serialVersionUID = 1L;
     }
-    
+
     private class Assignments extends HashSet<Assignment> {
-        private static final long serialVersionUID = 1L;        
+        private static final long serialVersionUID = 1L;
     }
-    
+
     private class Index extends HashMap<GdlConstant, Assignments> {
-        private static final long serialVersionUID = 1L;        
+        private static final long serialVersionUID = 1L;
     }
-    
+
     private class Condition {
         public Condition(GdlTerm template)
-        {           
+        {
             this.template = getConstantAndVariableList(template);
             key = findGenericForm(template);
             updateDom();
         }
-        
+
         public void updateDom()
         {
             if(!domains.containsKey(key))
@@ -70,34 +70,34 @@ public class PropNetFlattener {
             else
                 dom = domains.get(key);
         }
-        
+
         public List<GdlTerm> template;
         public Domain dom;
         GdlTerm key;
-        
+
         @Override
         public String toString()
         {
             return template.toString();
         }
     }
-    
+
     private class RuleReference {
         public List<GdlTerm> productionTemplate; //The template from the rule head, contains only variables and constants
         public List<Condition> conditions = new ArrayList<Condition>(); //the conditions (right hand side of the rule)
         public Gdl originalRule;
-        
+
         public RuleReference(GdlRule originalRule)
         {
             this.originalRule = originalRule;
         }
-        
+
         @Override
         public String toString()
         {
             return "\n\tProduction: "+(productionTemplate!=null ? productionTemplate.toString() : "null")+" conditions: "+(conditions!=null ? conditions.toString() : "null");
         }
-        
+
         @Override
         public boolean equals(Object other)
         {
@@ -106,24 +106,24 @@ public class PropNetFlattener {
             RuleReference rhs = (RuleReference)other;
             return rhs.productionTemplate==this.productionTemplate && rhs.conditions.equals(this.conditions);
         }
-        
+
         @Override
         public int hashCode()
         {
             return productionTemplate.hashCode()+conditions.hashCode();
         }
     }
-    
+
     private class Domain {
         public Domain(GdlTerm name, GdlTerm name2) {this.name = name; this.name2 = name2;}
-        
+
         public Assignments assignments = new Assignments();
-        public List<Index> indices = new ArrayList<Index>(); 
+        public List<Index> indices = new ArrayList<Index>();
         public Set<RuleReference> ruleRefs = new HashSet<RuleReference>();
-        
+
         @SuppressWarnings("unused")
         public GdlTerm name, name2;
-        
+
         @Override
         public String toString()
         {
@@ -142,7 +142,7 @@ public class PropNetFlattener {
                 {
                     if(c.dom == null)
                         c.updateDom();
-                    
+
                     if(c.dom != null)
                         newConditions.add(c);
                 }
@@ -150,15 +150,15 @@ public class PropNetFlattener {
                     ruleRef.conditions = newConditions;
             }
         }
-        
+
         public void addAssignmentToIndex(Assignment assignment) {
             for(int i=0; i<assignment.size(); i++)
             {
                 GdlConstant c = assignment.get(i);
                 if(indices.size() <= i)
-                    indices.add(new Index());                   
+                    indices.add(new Index());
                 Index index = indices.get(i);
-                
+
                 if(!index.containsKey(c))
                     index.put(c, new Assignments());
                 Assignments val = index.get(c);
@@ -166,18 +166,18 @@ public class PropNetFlattener {
             }
         }
     }
-        
+
     private GdlVariable fillerVar = GdlPool.getVariable("?#*#");
-    
+
     HashMap<GdlTerm,Domain> domains = new HashMap<GdlTerm, Domain>();
-    
+
     private List<RuleReference> extraRefs = new ArrayList<RuleReference>();
-    
+
     public PropNetFlattener(List<Gdl> description)
     {
         this.description = description;
     }
-    
+
     public List<GdlRule> flatten()
     {
         //Find universe and initial domains
@@ -185,22 +185,22 @@ public class PropNetFlattener {
         {
             initializeDomains(gdl);
         }
-        
+
         for(Domain d : domains.values())
             d.buildIndices();
-        
+
         //Compute the actual domains of everything
         updateDomains();
-        
+
         //printDomains();
         //printDomainRefs();
-                                
+
         return getAllInstantiations();
     }
 
     private List<GdlRule> getAllInstantiations() {
         List<GdlRule> rval = new ArrayList<GdlRule>();
-        
+
         for(Gdl gdl : description)
         {
             if(gdl instanceof GdlRelation)
@@ -209,17 +209,17 @@ public class PropNetFlattener {
                 String name = relation.getName().toString();
                 if(name.equals("base"))
                     continue;
-                
+
                 rval.add(GdlPool.getRule(relation));
             }
         }
-        
+
         for(Domain d : domains.values())
         {
             for(RuleReference r : d.ruleRefs)
             {
                 Set<Map<GdlVariable,GdlConstant>> varInstantiations = findSatisfyingInstantiations(r);
-                
+
                 for(Map<GdlVariable,GdlConstant> varInstantiation : varInstantiations){
                     if(varInstantiation.containsValue(null))
                         throw new RuntimeException("Shouldn't instantiate anything to null.");
@@ -229,8 +229,8 @@ public class PropNetFlattener {
                 }
             }
         }
-        
-        
+
+
         for(RuleReference ruleRef : extraRefs)
         {
             List<Condition> newConditions = new ArrayList<Condition>();
@@ -238,7 +238,7 @@ public class PropNetFlattener {
             {
                 if(c.dom == null)
                     c.updateDom();
-                
+
                 if(c.dom != null)
                     newConditions.add(c);
             }
@@ -248,7 +248,7 @@ public class PropNetFlattener {
         for(RuleReference r : extraRefs)
         {
             Set<Map<GdlVariable,GdlConstant>> varInstantiations = findSatisfyingInstantiations(r);
-            
+
             for(Map<GdlVariable,GdlConstant> varInstantiation : varInstantiations){
                 if(varInstantiation.containsValue(null))
                     throw new RuntimeException("Shouldn't instantiate anything to null.");
@@ -257,24 +257,24 @@ public class PropNetFlattener {
                 if(rval.get(rval.size()-1).toString().contains("null"))
                     throw new RuntimeException("Shouldn't instantiate anything to null.");
             }
-            
+
             if(varInstantiations.size() == 0)
                 rval.add(getInstantiation(r.originalRule, new HashMap<GdlVariable,GdlConstant>()));
         }
-        
+
         return rval;
     }
-    
+
     private GdlRule getInstantiation(Gdl gdl, Map<GdlVariable, GdlConstant> varInstantiation) {
         Gdl instant = getInstantiationAux(gdl, varInstantiation);
-        return (GdlRule)instant;                
+        return (GdlRule)instant;
     }
-    
+
     private Gdl getInstantiationAux(Gdl gdl, Map<GdlVariable, GdlConstant> varInstantiation) {
         if(gdl instanceof GdlRelation)
         {
             GdlRelation relation = (GdlRelation) gdl;
-            
+
             List<GdlTerm> body = new ArrayList<GdlTerm>();
             for(int i=0; i<relation.arity(); i++)
             {
@@ -286,11 +286,11 @@ public class PropNetFlattener {
         {
             GdlRule rule = (GdlRule)gdl;
             GdlSentence head = (GdlSentence)getInstantiationAux(rule.getHead(), varInstantiation);
-            
+
             List<GdlLiteral> body = new ArrayList<GdlLiteral>();
             for(int i=0; i<rule.arity(); i++)
             {
-                body.add((GdlLiteral)getInstantiationAux(rule.get(i), varInstantiation));               
+                body.add((GdlLiteral)getInstantiationAux(rule.get(i), varInstantiation));
             }
             return GdlPool.getRule(head, body);
         }
@@ -303,7 +303,7 @@ public class PropNetFlattener {
         }
         else if(gdl instanceof GdlNot)
         {
-            GdlNot not = (GdlNot)gdl;   
+            GdlNot not = (GdlNot)gdl;
             GdlLiteral body = (GdlLiteral)getInstantiationAux(not.getBody(), varInstantiation);
             return GdlPool.getNot(body);
         }
@@ -330,26 +330,26 @@ public class PropNetFlattener {
             GdlFunction func = (GdlFunction)gdl;
             List<GdlTerm> body = new ArrayList<GdlTerm>();
             for(int i=0; i<func.arity(); i++)
-            {               
+            {
                 body.add((GdlTerm)getInstantiationAux(func.get(i), varInstantiation));
             }
-            return GdlPool.getFunction(func.getName(), body);           
+            return GdlPool.getFunction(func.getName(), body);
         }
         else if(gdl instanceof GdlVariable)
-        {   
+        {
             GdlVariable variable = (GdlVariable)gdl;
             return varInstantiation.get(variable);
         }
         else
             throw new RuntimeException("Someone went and extended the GDL hierarchy without updating this code.");
     }
-        
+
     void initializeDomains(Gdl gdl)
     {
         if(gdl instanceof GdlRelation)
         {
             GdlRelation relation = (GdlRelation) gdl;
-            String name = relation.getName().toString();            
+            String name = relation.getName().toString();
             if(!name.equals("base"))
             {
                 GdlTerm term = relation.toTerm();
@@ -369,14 +369,14 @@ public class PropNetFlattener {
             {
                 GdlRelation rel = (GdlRelation)head;
                 GdlTerm term = rel.toTerm();
-                
+
                 GdlTerm generified = findGenericForm(term);
                 if(!domains.containsKey(generified))
                     domains.put(generified, new Domain(generified, term));
                 Domain dom = domains.get(generified);
-                
+
                 List<GdlTerm> productionTemplate = getConstantAndVariableList(term);
-                
+
                 List<List<GdlLiteral>> newRHSs = deOr(rule.getBody());
                 for(List<GdlLiteral> RHS : newRHSs)
                 {
@@ -393,7 +393,7 @@ public class PropNetFlattener {
                     }
                     dom.ruleRefs.add(ruleRef);
                 }
-                
+
             }
             else
             {
@@ -414,8 +414,8 @@ public class PropNetFlattener {
                 }
             }
         }
-    }   
-    
+    }
+
     private Assignment getConstantList(GdlTerm term) {
         Assignment rval = new Assignment();
         if(term instanceof GdlConstant)
@@ -425,14 +425,14 @@ public class PropNetFlattener {
         }
         else if(term instanceof GdlVariable)
             throw new RuntimeException("Called getConstantList on something containing a variable.");
-        
+
         GdlFunction func = (GdlFunction)term;
         for(GdlTerm t : func.getBody())
             rval.addAll(getConstantList(t));
-        
+
         return rval;
     }
-    
+
     private List<GdlTerm> getConstantAndVariableList(GdlTerm term) {
         List<GdlTerm> rval = new ArrayList<GdlTerm>();
         if(term instanceof GdlConstant)
@@ -445,11 +445,11 @@ public class PropNetFlattener {
             rval.add(term);
             return rval;
         }
-        
+
         GdlFunction func = (GdlFunction)term;
         for(GdlTerm t : func.getBody())
             rval.addAll(getConstantAndVariableList(t));
-        
+
         return rval;
     }
 
@@ -463,7 +463,7 @@ public class PropNetFlattener {
             return fillerVar;
         else if(term instanceof GdlVariable)
             return fillerVar;
-        
+
         GdlFunction func = (GdlFunction)term;
         List<GdlTerm> newBody = new ArrayList<GdlTerm>();
         for(GdlTerm t : func.getBody())
@@ -497,11 +497,11 @@ public class PropNetFlattener {
                     if(!expandedSomething)
                     {
                         List<Gdl> expandedList = expandFirstOr(lit);
-                        
+
                         if(expandedList.size() > 1)
                         {
                             for(Gdl replacement : expandedList)
-                            {                   
+                            {
                                 List<GdlLiteral> newRhs = new ArrayList<GdlLiteral>(rhs);
                                 if(!(replacement instanceof GdlLiteral)) throw new RuntimeException("Top level return value is different type of gdl.");
                                 GdlLiteral newLit = (GdlLiteral)replacement;
@@ -509,10 +509,10 @@ public class PropNetFlattener {
                                 rval.add(newRhs);
                             }
                             expandedSomething = true;
-                            break;                      
+                            break;
                         }
                     }
-                    
+
                     i++;
                 }
                 if(!expandedSomething) //If I didn't find anything to expand
@@ -520,10 +520,10 @@ public class PropNetFlattener {
             }
             else
                 rval.add(rhs); //If I've already expanded this function call
-            
+
         }
-        
-        if(!expandedSomething)      
+
+        if(!expandedSomething)
             return rhsList;
         else
             return deOr2(rval);
@@ -558,7 +558,7 @@ public class PropNetFlattener {
             rval = new ArrayList<Gdl>();
             for(int i=0; i<or.arity(); i++)
             {
-                rval.add(or.get(i));                
+                rval.add(or.get(i));
             }
             return rval;
         }
@@ -620,7 +620,7 @@ public class PropNetFlattener {
             int rulesConsidered = 0;
             for(Domain d : domains.values())
             {
-                
+
                 for(RuleReference ruleRef : d.ruleRefs)
                 {
                     boolean containsUpdatedDomain = false;
@@ -632,9 +632,9 @@ public class PropNetFlattener {
                         }
                     if(!containsUpdatedDomain)
                         continue;
-                    
+
                     rulesConsidered++;
-                    
+
                     Set<Map<GdlVariable,GdlConstant>> instantiations = findSatisfyingInstantiations(ruleRef);
                     for(Map<GdlVariable,GdlConstant> instantiation : instantiations)
                     {
@@ -647,7 +647,7 @@ public class PropNetFlattener {
                             {
                                 GdlVariable var = (GdlVariable)t;
                                 a.add(instantiation.get(var));
-                            }                               
+                            }
                         }
                         if(!d.assignments.contains(a))
                         {
@@ -671,7 +671,7 @@ public class PropNetFlattener {
                                 //There's a variable and we didn't find an instantiation
                                 isVar = true;
                                 break;
-                            }                               
+                            }
                         }
                         if(!isVar && !d.assignments.contains(a))
                         {
@@ -689,26 +689,26 @@ public class PropNetFlattener {
         }
     }
 
-    
-    private Set<Map<GdlVariable, GdlConstant>> findSatisfyingInstantiations(RuleReference ruleRef) 
+
+    private Set<Map<GdlVariable, GdlConstant>> findSatisfyingInstantiations(RuleReference ruleRef)
     {
         Map<GdlVariable, GdlConstant> emptyInstantiation = new HashMap<GdlVariable, GdlConstant>();
-                
+
         return findSatisfyingInstantiations(ruleRef.conditions, 0, emptyInstantiation);
     }
 
     //Coolest method in this whole thing, does the real work of the JOIN stuff
     private Set<Map<GdlVariable, GdlConstant>> findSatisfyingInstantiations(
             List<Condition> conditions, int idx,
-            Map<GdlVariable, GdlConstant> instantiation) 
+            Map<GdlVariable, GdlConstant> instantiation)
     {
         Set<Map<GdlVariable, GdlConstant>> rval = new HashSet<Map<GdlVariable,GdlConstant>>();
         if(idx==conditions.size())
         {
             rval.add(instantiation);
             return rval;
-        }           
-        
+        }
+
         Condition cond = conditions.get(idx);
         Domain dom = cond.dom;
         Assignments assignments = null;
@@ -724,7 +724,7 @@ public class PropNetFlattener {
             }
             else if(t instanceof GdlConstant)
                 c = (GdlConstant)t;
-                
+
             if(c != null)
             {
                 if(assignments == null)
@@ -754,7 +754,7 @@ public class PropNetFlattener {
         {
             assignments = dom.assignments;
         }
-                
+
         for(Assignment a : assignments)
         {
             Map<GdlVariable, GdlConstant> newInstantiation = new HashMap<GdlVariable, GdlConstant>(instantiation);
@@ -770,7 +770,7 @@ public class PropNetFlattener {
             }
             rval.addAll(findSatisfyingInstantiations(conditions, idx+1, newInstantiation));
         }
-        
+
         return rval;
     }
 
@@ -779,17 +779,17 @@ public class PropNetFlattener {
      */
     public static void main(String[] args) {
         List<Gdl> description = GameRepository.getDefaultRepository().getGame("conn4").getRules();
-        
+
         PropNetFlattener flattener = new PropNetFlattener(description);
         List<GdlRule> flattened = flattener.flatten();
         System.out.println("Flattened description for connect four contains: \n" + flattened.size() + "\n\n");
-        
+
         List<String> strings = new ArrayList<String>();
         for(GdlRule rule : flattened)
             strings.add(rule.toString());
         Collections.sort(strings);
-        
+
         for(String s : strings)
-            System.out.println(s);        
+            System.out.println(s);
     }
 }

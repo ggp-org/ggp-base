@@ -32,7 +32,7 @@ public final class GamePlayer extends Thread implements Subject
     {
         observers = new ArrayList<Observer>();
         listener = null;
-        
+
         while(listener == null) {
             try {
                 listener = new ServerSocket(port);
@@ -40,9 +40,9 @@ public final class GamePlayer extends Thread implements Subject
                 listener = null;
                 port++;
                 System.err.println("Failed to start gamer on port: " + (port-1) + " trying port " + port);
-            }				
+            }
         }
-        
+
         this.port = port;
         this.gamer = gamer;
     }
@@ -59,11 +59,11 @@ public final class GamePlayer extends Thread implements Subject
 			observer.observe(event);
 		}
 	}
-	
+
 	public final int getGamerPort() {
 	    return port;
 	}
-	
+
 	public final Gamer getGamer() {
 	    return gamer;
 	}
@@ -80,13 +80,13 @@ public final class GamePlayer extends Thread implements Subject
 				if (in.length() == 0) {
 				    throw new IOException("Empty message received.");
 				}
-				
+
 				notifyObservers(new PlayerReceivedMessageEvent(in));
 				GamerLogger.log("GamePlayer", "[Received at " + System.currentTimeMillis() + "] " + in, GamerLogger.LOG_LEVEL_DATA_DUMP);
 
 				Request request = new RequestFactory().create(gamer, in);
 				String out = request.process(System.currentTimeMillis());
-				
+
 				HttpWriter.writeAsServer(connection, out);
 				connection.close();
 				notifyObservers(new PlayerSentMessageEvent(out));
@@ -108,16 +108,16 @@ public final class GamePlayer extends Thread implements Subject
 			System.err.println("Usage: GamePlayer <port>");
 			System.exit(1);
 		}
-		
+
 		try {
 			GamePlayer player = new GamePlayer(Integer.valueOf(args[0]), new RandomGamer());
 			player.run();
 		} catch (NumberFormatException e) {
-			System.err.println("Illegal port number: " + args[0]);			
+			System.err.println("Illegal port number: " + args[0]);
 			e.printStackTrace();
 			System.exit(2);
 		} catch (IOException e) {
-			System.err.println("IO Exception: " + e);			
+			System.err.println("IO Exception: " + e);
 			e.printStackTrace();
 			System.exit(3);
 		}

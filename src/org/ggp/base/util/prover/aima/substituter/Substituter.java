@@ -31,7 +31,7 @@ public final class Substituter
 	{
 		return substituteSentence(sentence, theta);
 	}
-	
+
 	public static GdlRule substitute(GdlRule rule, Substitution theta)
 	{
 		return substituteRule(rule, theta);

@@ -6,7 +6,7 @@ import org.ggp.base.player.gamer.clojure.ClojureGamer;
  * has been implemented in Clojure. This stub needs to exist so that the Clojure
  * code can interoperate with the rest of the Java framework (and applications
  * like Kiosk and PlayerPanel as a result).
- * 
+ *
  * @author Sam
  */
 public final class SampleClojureGamerStub extends ClojureGamer

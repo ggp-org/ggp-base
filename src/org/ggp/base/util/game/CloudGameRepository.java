@@ -21,7 +21,7 @@ import external.JSON.JSONObject;
  * repository servers on the web, while continuing to work while the user is
  * offline through aggressive caching based on the immutability + versioning
  * scheme provided by the repository servers.
- * 
+ *
  * Essentially, each game has a version number stored in the game metadata
  * file. Game resources are immutable until this version number changes, at
  * which point the game needs to be reloaded. Version numbers are passed along
@@ -31,31 +31,31 @@ import external.JSON.JSONObject;
  * to worry about our offline cache becoming stale/invalid. However, to stay up
  * to date with the latest bugfixes, etc, we aggressively refresh the cache any
  * time we can connect to the repository server, as a matter of policy.
- * 
+ *
  * Cached games are stored locally, in a directory managed by this class. These
  * files are compressed, to decrease their footprint on the local disk. GGP Base
- * has its SVN rules set up so that these caches are ignored by SVN. 
- * 
+ * has its SVN rules set up so that these caches are ignored by SVN.
+ *
  * @author Sam
  */
 public final class CloudGameRepository extends GameRepository {
     private final String theRepoURL;
     private final File theCacheDirectory;
     private static boolean needsRefresh = true;
-    
+
     public CloudGameRepository(String theURL) {
         theRepoURL = RemoteGameRepository.properlyFormatURL(theURL);
-        
+
         // Generate a unique hash of the repository URL, to use as the
         // local directory for files for the offline cache.
         StringBuilder theCacheHash = new StringBuilder();
         try {
             byte[] bytesOfMessage = theRepoURL.getBytes("UTF-8");
             MessageDigest md = MessageDigest.getInstance("MD5");
-            byte[] theDigest = md.digest(bytesOfMessage);            
+            byte[] theDigest = md.digest(bytesOfMessage);
             for(int i = 0; i < theDigest.length; i++) {
                 theCacheHash.append(Math.abs(theDigest[i]));
-            }            
+            }
         } catch(Exception e) {
             theCacheHash = null;
         }
@@ -65,15 +65,15 @@ public final class CloudGameRepository extends GameRepository {
     	theCacheDirectory = new File(theCachesDirectory, "repoHash" + theCacheHash);
     	if (theCacheDirectory.exists()) {
     		// For existing caches, only force a full refresh at most once per day
-            needsRefresh = (System.currentTimeMillis() - theCacheDirectory.lastModified()) > 86400000;    		
-    	} else {    		
+            needsRefresh = (System.currentTimeMillis() - theCacheDirectory.lastModified()) > 86400000;
+    	} else {
     		theCacheDirectory.mkdir();
     		needsRefresh = true;
     	}
 
         if (needsRefresh) {
         	Thread refreshThread = new RefreshCacheThread(theRepoURL);
-        	refreshThread.start();        	
+        	refreshThread.start();
         	// Update the game cache asynchronously if there are already games.
         	// Otherwise, force a blocking update.
         	if (theCacheDirectory.listFiles().length == 0) {
@@ -87,7 +87,7 @@ public final class CloudGameRepository extends GameRepository {
         	needsRefresh = false;
         }
     }
-    
+
     protected Set<String> getUncachedGameKeys() {
         Set<String> theKeys = new HashSet<String>();
         for(File game : theCacheDirectory.listFiles()) {
@@ -95,7 +95,7 @@ public final class CloudGameRepository extends GameRepository {
         }
         return theKeys;
     }
-    
+
     protected Game getUncachedGame(String theKey) {
         Game cachedGame = loadGameFromCache(theKey);
         if (cachedGame != null) {
@@ -106,17 +106,17 @@ public final class CloudGameRepository extends GameRepository {
     }
 
     // ================================================================
-    
+
     // Games are cached asynchronously in their own threads.
     class RefreshCacheForGameThread extends Thread {
         RemoteGameRepository theRepository;
         String theKey;
-        
+
         public RefreshCacheForGameThread(RemoteGameRepository a, String b) {
             theRepository = a;
             theKey = b;
         }
-        
+
         @Override
         public void run() {
             try {
@@ -142,16 +142,16 @@ public final class CloudGameRepository extends GameRepository {
             }
         }
     }
-    
+
     class RefreshCacheThread extends Thread {
         String theRepoURL;
-        
+
         public RefreshCacheThread(String theRepoURL) {
             this.theRepoURL = theRepoURL;
         }
-        
+
         @Override
-        public void run() {            
+        public void run() {
             try {
                 // Sleep for the first two seconds after which the cache is loaded,
                 // so that we don't interfere with the user interface startup.
@@ -164,14 +164,14 @@ public final class CloudGameRepository extends GameRepository {
             RemoteGameRepository remoteRepository = new RemoteGameRepository(theRepoURL);
 
             System.out.println("Updating the game cache...");
-            long beginTime = System.currentTimeMillis();            
+            long beginTime = System.currentTimeMillis();
 
             // Since games are immutable, we can guarantee that the games listed
             // by the repository server includes the games in the local cache, so
             // we can be happy just updating/refreshing the listed games.
             Set<String> theGameKeys = remoteRepository.getGameKeys();
             if (theGameKeys == null) return;
-            
+
             // If the server offers a single combined metadata file, download that
             // and use it to avoid checking games that haven't gotten new versions.
             JSONObject bundledMetadata = remoteRepository.getBundledMetadata();
@@ -181,7 +181,7 @@ public final class CloudGameRepository extends GameRepository {
                     try {
                         Game myGameVersion = loadGameFromCache(theKey);
                         if (myGameVersion == null)
-                            continue;                    
+                            continue;
 
                         String remoteGameURL = remoteRepository.getGameURL(theKey);
                         int remoteVersion = bundledMetadata.getJSONObject(theKey).getInt("version");
@@ -195,7 +195,7 @@ public final class CloudGameRepository extends GameRepository {
                         }
                     } catch (Exception e) {
                         continue;
-                    }                        
+                    }
                 }
                 theGameKeys.removeAll(unchangedKeys);
             }
@@ -219,15 +219,15 @@ public final class CloudGameRepository extends GameRepository {
             }
 
             long endTime = System.currentTimeMillis();
-            System.out.println("Updating the game cache took: " + (endTime - beginTime) + "ms.");              
+            System.out.println("Updating the game cache took: " + (endTime - beginTime) + "ms.");
         }
-    }    
-    
-    // ================================================================    
+    }
+
+    // ================================================================
 
     private synchronized void saveGameToCache(String theKey, Game theGame) {
         if (theGame == null) return;
-        
+
         File theGameFile = new File(theCacheDirectory, theKey + ".zip");
         try {
             theGameFile.createNewFile();
@@ -240,12 +240,12 @@ public final class CloudGameRepository extends GameRepository {
             gOut.close();
             fOut.close();
         } catch (Exception e) {
-            e.printStackTrace();            
+            e.printStackTrace();
         }
     }
-    
+
     private synchronized Game loadGameFromCache(String theKey) {
-        File theGameFile = new File(theCacheDirectory, theKey + ".zip");        
+        File theGameFile = new File(theCacheDirectory, theKey + ".zip");
         String theLine = null;
         try {
             FileInputStream fIn = new FileInputStream(theGameFile);
@@ -260,11 +260,11 @@ public final class CloudGameRepository extends GameRepository {
         } catch (Exception e) {
             ;
         }
-        
+
         if (theLine == null) return null;
         return Game.loadFromJSON(theLine);
     }
-    
+
     private synchronized long getCacheEntryAge(String theKey) {
     	File theGameFile = new File(theCacheDirectory, theKey + ".zip");
     	if (theGameFile.exists()) {
@@ -274,7 +274,7 @@ public final class CloudGameRepository extends GameRepository {
     }
 
     // ================================================================
-    
+
     public static void main(String[] args) {
         GameRepository theRepository = new CloudGameRepository("games.ggp.org/base");
 
@@ -282,10 +282,10 @@ public final class CloudGameRepository extends GameRepository {
 
         Map<String, Game> theGames = new HashMap<String, Game>();
         for(String gameKey : theRepository.getGameKeys()) {
-            theGames.put(gameKey, theRepository.getGame(gameKey));            
+            theGames.put(gameKey, theRepository.getGame(gameKey));
         }
         System.out.println("Games: " + theGames.size());
-        
+
         long endTime = System.currentTimeMillis();
         System.out.println("Time: " + (endTime - beginTime) + "ms.");
     }

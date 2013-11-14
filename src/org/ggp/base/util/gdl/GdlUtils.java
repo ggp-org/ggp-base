@@ -24,7 +24,7 @@ import org.ggp.base.util.gdl.grammar.GdlVariable;
 
 
 public class GdlUtils {
-	//TODO (AL): Check if we can switch over to just having this return a set. 
+	//TODO (AL): Check if we can switch over to just having this return a set.
 	public static List<GdlVariable> getVariables(Gdl gdl) {
 		final List<GdlVariable> variablesList = new ArrayList<GdlVariable>();
 		final Set<GdlVariable> variables = new HashSet<GdlVariable>();
@@ -77,7 +77,7 @@ public class GdlUtils {
 			GdlSentence sentence) {
 		if(sentence instanceof GdlProposition)
 			return Collections.emptyList();
-		
+
 		//A simple crawl through the sentence.
 		List<GdlTerm> tuple = new ArrayList<GdlTerm>();
 		try {
@@ -106,7 +106,7 @@ public class GdlUtils {
 			GdlSentence sentence) {
 		if(sentence instanceof GdlProposition)
 			return Collections.emptyList();
-		
+
 		//A simple crawl through the sentence.
 		List<GdlConstant> tuple = new ArrayList<GdlConstant>();
 		try {
@@ -130,7 +130,7 @@ public class GdlUtils {
 			}
 		}
 	}
-	
+
 	public static Map<GdlVariable, GdlConstant> getAssignmentMakingLeftIntoRight(
 			GdlSentence left, GdlSentence right) {
 		Map<GdlVariable, GdlConstant> assignment = new HashMap<GdlVariable, GdlConstant>();
@@ -169,7 +169,7 @@ public class GdlUtils {
 						return false;
 					}
 					assignment.put((GdlVariable)leftTerm, (GdlConstant)rightTerm);
-				}	
+				}
 			} else if(leftTerm instanceof GdlFunction) {
 				if(!(rightTerm instanceof GdlFunction))
 					return false;

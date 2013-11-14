@@ -19,7 +19,7 @@ public class ChessCanvas extends GameCanvas_Chessboard {
         String xLetter = coordinateToLetter(xCell);
         return gameStateHasLegalMovesMatching("\\( move .. " + xLetter + " " + yCell + " (.*) \\)");
     }
-    
+
     @Override
     protected Set<String> getFactsAboutCell(int xCell, int yCell) {
         String xLetter = coordinateToLetter(xCell);
@@ -33,20 +33,20 @@ public class ChessCanvas extends GameCanvas_Chessboard {
         if(!cellType.equals("b")) {
             CommonGraphics.drawChessPiece(g, cellType);
         }
-    }    
-    
+    }
+
     @Override
     protected void renderMoveSelectionForCell(Graphics g, int xCell, int yCell, String theMove) {
         int width = g.getClipBounds().width;
-        int height = g.getClipBounds().height;        
-        
+        int height = g.getClipBounds().height;
+
         String xLetter = coordinateToLetter(xCell);
 
         String[] moveParts = theMove.split(" ");
         String xTarget = moveParts[5];
         int yTarget = Integer.parseInt(moveParts[6]);
         if(xLetter.equals(xTarget) && yCell == yTarget) {
-            g.setColor(new Color(0, 0, 255, 192));                
+            g.setColor(new Color(0, 0, 255, 192));
             g.drawRect(3, 3, width-6, height-6);
             CommonGraphics.fillWithString(g, "X", 3);
         }

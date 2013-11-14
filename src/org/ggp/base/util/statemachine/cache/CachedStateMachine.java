@@ -16,7 +16,7 @@ import org.ggp.base.util.statemachine.exceptions.TransitionDefinitionException;
 public final class CachedStateMachine extends StateMachine
 {
 	private final StateMachine backingStateMachine;
-	private final TtlCache<MachineState, Entry> ttlCache;	
+	private final TtlCache<MachineState, Entry> ttlCache;
 
 	private final class Entry
 	{
@@ -109,7 +109,7 @@ public final class CachedStateMachine extends StateMachine
 			return entry.terminal;
 		}
 	}
-	
+
 	@Override
 	public void doPerMoveWork()
 	{
@@ -123,7 +123,7 @@ public final class CachedStateMachine extends StateMachine
 
 	@Override
 	public void initialize(List<Gdl> description) {
-		backingStateMachine.initialize(description);		
+		backingStateMachine.initialize(description);
 	}
 
 	@Override
@@ -134,7 +134,7 @@ public final class CachedStateMachine extends StateMachine
 
 	@Override
 	public MachineState getInitialState() {
-		// TODO(schreib): Should this be cached as well?		
+		// TODO(schreib): Should this be cached as well?
 		return backingStateMachine.getInitialState();
 	}
 }

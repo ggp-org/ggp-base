@@ -10,22 +10,22 @@ import org.ggp.base.util.logging.GamerLogger;
 
 public class ProxyMessage implements Serializable {
     private static final long serialVersionUID = 1237859L;
-    
+
     public final long messageCode;
     public final long receptionTime;
     public final String theMessage;
-    
+
     public ProxyMessage(String theMessage, long messageCode, long receptionTime) {
         this.theMessage = theMessage;
         this.messageCode = messageCode;
         this.receptionTime = receptionTime;
     }
-    
+
     public String toString() {
-        return "ProxyMessage<" + messageCode + ", " + receptionTime + ">[\"" + theMessage + "\"]"; 
+        return "ProxyMessage<" + messageCode + ", " + receptionTime + ">[\"" + theMessage + "\"]";
     }
-    
-    public static ProxyMessage readFrom(BufferedReader theInput) throws SocketException {        
+
+    public static ProxyMessage readFrom(BufferedReader theInput) throws SocketException {
         try {
             long messageCode = Long.parseLong(theInput.readLine());
             long receptionTime = Long.parseLong(theInput.readLine());
@@ -42,14 +42,14 @@ public class ProxyMessage implements Serializable {
                 theInput.skip(Long.MAX_VALUE);
             } catch(SocketException se) {
                 GamerLogger.log("Proxy", "[ProxyMessage Reader] Socket closed: stopping read operation.");
-                throw se;                
+                throw se;
             } catch(Exception ie) {
                 GamerLogger.logStackTrace("Proxy", ie);
             }
             return null;
         }
     }
-    
+
     public void writeTo(PrintStream theOutput) {
     	synchronized (theOutput) {
     		theOutput.println(messageCode);

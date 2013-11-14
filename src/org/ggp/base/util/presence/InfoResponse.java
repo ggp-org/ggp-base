@@ -14,7 +14,7 @@ import org.ggp.base.util.symbol.grammar.SymbolPool;
  * Wherein we poorly reinvent JSON, so that we can keep INFO responses
  * consistent with the Symbol-based KIF format that the other GGP protocol
  * messages are in.
- * 
+ *
  * @author schreib
  */
 
@@ -22,37 +22,37 @@ public class InfoResponse {
 	private String name;
 	private String status;
 	private String species;
-	
+
 	public InfoResponse() {
 		;
 	}
-	
+
 	public void setName(String name) {
 		this.name = name;
 	}
-	
+
 	public void setStatus(String status) {
 		this.status = status;
 	}
-	
+
 	public void setSpecies(String species) {
 		this.species = species;
 	}
-	
+
 	public String getName() {
 		return name;
 	}
-	
+
 	public String getStatus() {
 		return status;
 	}
-	
+
 	public String getSpecies() {
 		return species;
 	}
-	
+
 	public InfoResponse(Symbol symbol) {
-		if (symbol instanceof SymbolList) {				
+		if (symbol instanceof SymbolList) {
 			SymbolList pairs = (SymbolList)symbol;
 			for (int i = 0; i < pairs.size(); i++) {
 				Symbol pairSymbol = pairs.get(i);
@@ -77,7 +77,7 @@ public class InfoResponse {
 			status = ((SymbolAtom) symbol).getValue();
 		}
 	}
-	
+
 	public static InfoResponse create(String original) {
 		try {
 			return new InfoResponse(SymbolFactory.create(original));
@@ -91,8 +91,8 @@ public class InfoResponse {
 		Symbol valueSymbol = SymbolPool.getAtom(value);
 		return SymbolPool.getList(new Symbol[] {keySymbol, valueSymbol} );
 	}
-	
-	public Symbol toSymbol() {			
+
+	public Symbol toSymbol() {
 		List<Symbol> infoList = new ArrayList<Symbol>();
 		if (name != null) {
 			infoList.add(getKeyValueSymbol("name", name));

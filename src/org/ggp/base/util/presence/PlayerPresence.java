@@ -11,7 +11,7 @@ public class PlayerPresence {
 	private String name;
 	private String status;
 	private long statusTime;
-	
+
 	PlayerPresence(String host, int port) {
 		this.host = host;
 		this.port = port;
@@ -19,7 +19,7 @@ public class PlayerPresence {
 		this.status = null;
 		this.statusTime = 0;
 	}
-	
+
 	public void updateInfo() {
 		InfoResponse info;
 		try {
@@ -36,23 +36,23 @@ public class PlayerPresence {
 			statusTime = System.currentTimeMillis();
 		}
 	}
-	
+
 	public synchronized String getName() {
 		return name;
-	}	
-	
+	}
+
 	public synchronized String getStatus() {
 		return status;
 	}
-	
+
 	public synchronized long getStatusAge() {
 		return System.currentTimeMillis() - statusTime;
 	}
-	
+
 	public String getHost() {
 		return host;
 	}
-	
+
 	public int getPort() {
 		return port;
 	}

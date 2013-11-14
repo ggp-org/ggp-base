@@ -12,7 +12,7 @@ public final class PreviewRequestThread extends RequestThread
 	{
 		super(gameServer, role, host, port, playerName, match.getPreviewClock() * 1000, RequestBuilder.getPreviewRequest(match.getGame().getRules(), match.getPreviewClock(), match.getGdlScrambler()));
 	}
-	
+
 	@Override
 	protected void handleResponse(String response) {
 		;

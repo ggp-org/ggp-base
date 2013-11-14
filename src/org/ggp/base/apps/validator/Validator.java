@@ -58,13 +58,13 @@ public final class Validator extends JPanel implements ActionListener
 
 	private Game theGame;
 	private final JButton validateButton;
-	private final JTextField maxDepthTextField;	
+	private final JTextField maxDepthTextField;
 	private final JTextField simulationsTextField;
 	private final JTextField millisToSimulateField;
-	private final JTabbedPane simulationsTabbedPane;	
+	private final JTabbedPane simulationsTabbedPane;
 
-    private final GameSelector gameSelector;	
-	
+    private final GameSelector gameSelector;
+
 	public Validator()
 	{
 	    super(new GridBagLayout());
@@ -83,8 +83,8 @@ public final class Validator extends JPanel implements ActionListener
 		simulationsTextField.setColumns(15);
 		validateButton.setEnabled(false);
 
-        gameSelector = new GameSelector();		
-		
+        gameSelector = new GameSelector();
+
 		int nRowCount = 0;
 		JPanel sourcePanel = new JPanel(new GridBagLayout());
 		sourcePanel.setBorder(new TitledBorder("Source"));
@@ -98,7 +98,7 @@ public final class Validator extends JPanel implements ActionListener
 		sourcePanel.add(new JLabel("Simulations:"), new GridBagConstraints(0, nRowCount, 1, 1, 1.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 5, 5));
 		sourcePanel.add(simulationsTextField, new GridBagConstraints(1, nRowCount++, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 5, 5));
 		sourcePanel.add(new JLabel("Base Sim ms:"), new GridBagConstraints(0, nRowCount, 1, 1, 1.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 5, 5));
-		sourcePanel.add(millisToSimulateField, new GridBagConstraints(1, nRowCount++, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 5, 5));		
+		sourcePanel.add(millisToSimulateField, new GridBagConstraints(1, nRowCount++, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 5, 5));
 		sourcePanel.add(validateButton, new GridBagConstraints(1, nRowCount++, 1, 1, 1.0, 1.0, GridBagConstraints.SOUTH, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 0, 0));
 
 		JPanel simulationsPanel = new JPanel(new GridBagLayout());
@@ -107,18 +107,18 @@ public final class Validator extends JPanel implements ActionListener
 
 		this.add(sourcePanel, new GridBagConstraints(0, 0, 1, 1, 0.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 5, 5));
 		this.add(simulationsPanel, new GridBagConstraints(1, 0, 1, 1, 1.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 5, 5));
-		
+
         gameSelector.getGameList().addActionListener(this);
-        gameSelector.repopulateGameList();      		
+        gameSelector.repopulateGameList();
 	}
 
     @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == gameSelector.getGameList()) {
             theGame = gameSelector.getSelectedGame();
-            validateButton.setEnabled(theGame != null);               
-        }        
-    }	
+            validateButton.setEnabled(theGame != null);
+        }
+    }
 
 	private AbstractAction validateButtonMethod(final Validator validatorPanel)
 	{
@@ -129,13 +129,13 @@ public final class Validator extends JPanel implements ActionListener
 				try {
 					int maxDepth = Integer.valueOf(maxDepthTextField.getText());
 					int simulations = Integer.valueOf(simulationsTextField.getText());
-					int millisToSimulate = Integer.valueOf(millisToSimulateField.getText());					
+					int millisToSimulate = Integer.valueOf(millisToSimulateField.getText());
 
 					GameValidator[] theValidators = new GameValidator[] {
 							new OPNFValidator(),
 							new SimulationValidator(maxDepth, simulations),
 							new BasesInputsValidator(millisToSimulate),
-							new StaticValidator(),							
+							new StaticValidator(),
 					};
 					OutcomePanel simulationPanel = new OutcomePanel(theValidators.length);
 					for (GameValidator theValidator : theValidators) {
@@ -143,12 +143,12 @@ public final class Validator extends JPanel implements ActionListener
 						validator.addObserver(simulationPanel);
 						validator.start();
 					}
-					
-					validatorPanel.simulationsTabbedPane.addTab(theGame.getKey(), simulationPanel);					
+
+					validatorPanel.simulationsTabbedPane.addTab(theGame.getKey(), simulationPanel);
 				} catch (Exception e) {
 					// Do nothing.
 				}
 			}
 		};
-	}	
+	}
 }

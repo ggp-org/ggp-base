@@ -29,16 +29,16 @@ public final class LeaderboardPanel extends JPanel implements Observer
 {
 	private final JTable leaderTable;
 	private final TableRowSorter<TableModel> sorter;
-	
+
 	public LeaderboardPanel()
 	{
 		super(new BorderLayout());
-		
-        DefaultTableModel model = new DefaultTableModel();		
+
+        DefaultTableModel model = new DefaultTableModel();
         model.addColumn("Player");
         model.addColumn("Score");
         model.addColumn("Errors");
-        
+
 		leaderTable = new JTable(model)
 		{
 			@Override
@@ -76,10 +76,10 @@ public final class LeaderboardPanel extends JPanel implements Observer
 	{
 		if (!(event instanceof ServerMatchUpdatedEvent)) return;
 		Match match = ((ServerMatchUpdatedEvent) event).getMatch();
-		
+
 		if (!match.isCompleted()) return;
 		if (match.getMatchId().startsWith("Test")) return;
-		
+
 		List<Integer> goals = match.getGoalValues();
 		List<Integer> errors = getErrorCounts(match.getErrorHistory());
 		List<String> players = match.getPlayerNamesFromHost();
@@ -103,7 +103,7 @@ public final class LeaderboardPanel extends JPanel implements Observer
 		}
 		sorter.sort();
 	}
-	
+
 	public static List<Integer> getErrorCounts(List<List<String>> errorHistory) {
 		List<Integer> errorCounts = new ArrayList<Integer>();
 		for (int i = 0; i < errorHistory.get(0).size(); i++) {

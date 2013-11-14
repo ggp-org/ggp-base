@@ -29,31 +29,31 @@ public class GameGUI extends JPanel implements Subject, Observer, ActionListener
     private JLabel workingMoveLabel;
     private JButton submitMoveButton;
     private JButton clearSelectionButton;
-    
+
     private boolean gameOver = false;
-    
+
     private boolean moveBeingSubmitted = false;
     private boolean stillMetagaming = true;
-    
+
     public GameGUI(GameCanvas theCanvas) {
-        super(new BorderLayout());        
-        
+        super(new BorderLayout());
+
         this.theCanvas = theCanvas;
 
         JLabel theTitleLabel = new JLabel(theCanvas.getGameName());
-        theTitleLabel.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 36));        
-        
+        theTitleLabel.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 36));
+
         JPanel northPanel = new JPanel(new FlowLayout());
         northPanel.add(theTitleLabel);
-                
+
         submitMoveButton = new JButton("Submit Move");
         submitMoveButton.addActionListener(this);
-        
+
         clearSelectionButton = new JButton("Clear Selection");
         clearSelectionButton.addActionListener(this);
-        
+
         workingMoveLabel = new JLabel();
-        
+
         JPanel southCenterPanel = new JPanel(new FlowLayout());
         JPanel southEastPanel = new JPanel(new FlowLayout());
         JPanel southPanel = new JPanel(new BorderLayout());
@@ -63,11 +63,11 @@ public class GameGUI extends JPanel implements Subject, Observer, ActionListener
         southPanel.add("West", workingMoveLabel);
         southPanel.add("Center", southCenterPanel);
         southPanel.add("East", southEastPanel);
-        
+
         add("North", northPanel);
         add("Center", theCanvas);
         add("South", southPanel);
-        
+
         northPanel.setBackground(theCanvas.getBackground());
         southPanel.setBackground(theCanvas.getBackground());
         southEastPanel.setBackground(theCanvas.getBackground());
@@ -76,18 +76,18 @@ public class GameGUI extends JPanel implements Subject, Observer, ActionListener
         theCanvas.addObserver(this);
         updateControls();
     }
-    
+
     public void beginPlay() {
     	stillMetagaming = false;
     	updateControls();
     }
-    
+
     public void updateGameState(MachineState gameState) {
     	moveBeingSubmitted = false;
         theCanvas.updateGameState(gameState);
         updateControls();
     }
-    
+
     public void setRole(Role r) {
         theCanvas.setRole(r);
     }
@@ -95,22 +95,22 @@ public class GameGUI extends JPanel implements Subject, Observer, ActionListener
     @Override
     public void observe(Event event) {
         if(event instanceof MoveSelectedEvent) {
-            workingMove = ((MoveSelectedEvent)event).getMove();            
+            workingMove = ((MoveSelectedEvent)event).getMove();
             if(((MoveSelectedEvent)event).isFinal()) {
             	moveBeingSubmitted = true;
-            	updateControls();            	
-            	notifyObservers(new MoveSelectedEvent(workingMove));            	
-            }               
+            	updateControls();
+            	notifyObservers(new MoveSelectedEvent(workingMove));
+            }
             updateControls();
         }
     }
-    
+
     private void updateControls() {
         submitMoveButton.setEnabled(!gameOver && !moveBeingSubmitted && !stillMetagaming);
         clearSelectionButton.setEnabled(!gameOver && !moveBeingSubmitted && !stillMetagaming);
         theCanvas.setEnabled(!gameOver && !moveBeingSubmitted && !stillMetagaming);
-        
-        if(gameOver) return;        
+
+        if(gameOver) return;
         if(workingMove == null) {
             workingMoveLabel.setText("  Working Move: <none>");
             submitMoveButton.setEnabled(false);
@@ -119,23 +119,23 @@ public class GameGUI extends JPanel implements Subject, Observer, ActionListener
             workingMoveLabel.setText("  Working Move: " + workingMove);
         }
     }
-    
+
     public void showFinalMessage(String theMessage) {
         workingMoveLabel.setText(theMessage);
         workingMoveLabel.setForeground(Color.RED);
         gameOver = true;
         updateControls();
-        
+
         validate();
-        repaint();        
+        repaint();
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
         if(gameOver) return;
-        
+
         if(e.getSource() == clearSelectionButton) {
-            theCanvas.clearMoveSelection();            
+            theCanvas.clearMoveSelection();
         } else if(e.getSource() == submitMoveButton) {
             if(workingMove != null) {
                 moveBeingSubmitted = true;
@@ -144,18 +144,18 @@ public class GameGUI extends JPanel implements Subject, Observer, ActionListener
             }
         }
     }
-    
+
     // Subject boilerplate
     private Set<Observer> theObservers = new HashSet<Observer>();
 
-    @Override    
+    @Override
     public void addObserver(Observer observer) {
-        theObservers.add(observer);        
+        theObservers.add(observer);
     }
 
     @Override
     public void notifyObservers(Event event) {
         for(Observer theObserver : theObservers)
-            theObserver.observe(event);        
+            theObserver.observe(event);
     }
 }

@@ -11,10 +11,10 @@ import junit.framework.TestCase;
 /**
  * Unit tests for the PythonGamer class, to verify that we can actually
  * instantiate a Python-based gamer and have it play moves in a game.
- * 
+ *
  * @author Sam
  */
-public class PythonGamer_Test extends TestCase {	
+public class PythonGamer_Test extends TestCase {
     public void testPythonGamer() {
         try {
             Gamer g = new SamplePythonGamerStub();

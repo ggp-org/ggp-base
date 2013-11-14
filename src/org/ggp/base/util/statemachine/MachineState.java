@@ -8,7 +8,7 @@ public class MachineState {
     public MachineState() {
         this.contents = null;
     }
-    
+
     /**
      * Starts with a simple implementation of a MachineState. StateMachines that
      * want to do more advanced things can subclass this implementation, but for
@@ -29,7 +29,7 @@ public class MachineState {
 	{
         return contents;
     }
-	
+
 	public MachineState clone() {
 		return new MachineState(new HashSet<GdlSentence>(contents));
 	}
@@ -47,7 +47,7 @@ public class MachineState {
     		return "(MachineState with null contents)";
     	else
     		return contents.toString();
-    }	
+    }
 
     public boolean equals(Object o)
     {

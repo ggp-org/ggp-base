@@ -17,7 +17,7 @@ import java.util.Set;
  * method prune() is called, the TTL of all of the pairs in the
  * map is decremented, and pairs whose TTL has reached zero are
  * removed.
- * 
+ *
  * While this class implements the Map interface, keep in mind
  * that it only decrements the TTL of an entry when that entry
  * is accessed directly.
@@ -42,7 +42,7 @@ public final class TtlCache<K, V> implements Map<K,V>
         public boolean equals(Object o) {
 		    if (o instanceof TtlCache.Entry) {
 		        return ((Entry)o).value.equals(value);
-		    }		    
+		    }
 		    return false;
 		}
 	}
@@ -66,7 +66,7 @@ public final class TtlCache<K, V> implements Map<K,V>
 		Entry entry = contents.get(key);
 		if (entry == null)
 		    return null;
-		
+
 		// Reset the TTL when a value is accessed directly.
 		entry.ttl = ttl;
 		return entry.value;
@@ -135,7 +135,7 @@ public final class TtlCache<K, V> implements Map<K,V>
             theValues.add(e.value);
         return theValues;
     }
-    
+
     private class entrySetMapEntry implements Map.Entry<K,V> {
         private K key;
         private V value;
@@ -144,16 +144,16 @@ public final class TtlCache<K, V> implements Map<K,V>
             key = k;
             value = v;
         }
-        
+
         public K getKey() { return key; }
         public V getValue() { return value; }
         public V setValue(V value) { return (this.value = value); }
     }
-    
+
     public synchronized Set<java.util.Map.Entry<K, V>> entrySet() {
         Set<Map.Entry<K,V>> theEntries = new HashSet<Map.Entry<K, V>>();
         for (Map.Entry<K, Entry> e : contents.entrySet())
             theEntries.add(new entrySetMapEntry(e.getKey(), e.getValue().value));
         return theEntries;
-    }    
+    }
 }

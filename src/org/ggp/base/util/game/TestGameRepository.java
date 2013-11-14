@@ -10,7 +10,7 @@ import org.ggp.base.util.files.FileUtils;
 /**
  * Test game repository that provides rulesheet-only access to games with no
  * associated metadata or other resources, to be used only for unit tests.
- * 
+ *
  * @author Sam
  */
 public final class TestGameRepository extends GameRepository {
@@ -22,12 +22,12 @@ public final class TestGameRepository extends GameRepository {
         }
         return theKeys;
     }
-    
+
     protected Game getUncachedGame(String theKey) {
     	try {
     		return Game.createEphemeralGame(Game.preprocessRulesheet(FileUtils.readFileAsString(new File("games/test/" + theKey + ".kif"))));
     	} catch (Exception e) {
     		throw new RuntimeException(e);
-    	}        
+    	}
     }
 }

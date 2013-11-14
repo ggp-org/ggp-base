@@ -12,7 +12,7 @@ import java.util.Set;
 
 public abstract class Component implements Serializable
 {
-	
+
 	private static final long serialVersionUID = 352524175700224447L;
     /** The inputs to the component. */
     private final Set<Component> inputs;
@@ -30,7 +30,7 @@ public abstract class Component implements Serializable
 
     /**
      * Adds a new input.
-     * 
+     *
      * @param input
      *            A new input.
      */
@@ -38,22 +38,22 @@ public abstract class Component implements Serializable
     {
         inputs.add(input);
     }
-    
+
     public void removeInput(Component input)
     {
     	inputs.remove(input);
     }
-    
+
     public void removeOutput(Component output)
     {
     	outputs.remove(output);
     }
-    
+
     public void removeAllInputs()
     {
 		inputs.clear();
 	}
-    
+
 	public void removeAllOutputs()
 	{
 		outputs.clear();
@@ -61,7 +61,7 @@ public abstract class Component implements Serializable
 
     /**
      * Adds a new output.
-     * 
+     *
      * @param output
      *            A new output.
      */
@@ -72,41 +72,41 @@ public abstract class Component implements Serializable
 
     /**
      * Getter method.
-     * 
+     *
      * @return The inputs to the component.
      */
     public Set<Component> getInputs()
     {
         return inputs;
     }
-    
+
     /**
      * A convenience method, to get a single input.
      * To be used only when the component is known to have
      * exactly one input.
-     * 
+     *
      * @return The single input to the component.
      */
     public Component getSingleInput() {
         assert inputs.size() == 1;
         return inputs.iterator().next();
-    }    
-    
+    }
+
     /**
      * Getter method.
-     * 
+     *
      * @return The outputs of the component.
      */
     public Set<Component> getOutputs()
     {
         return outputs;
     }
-    
+
     /**
      * A convenience method, to get a single output.
      * To be used only when the component is known to have
      * exactly one output.
-     * 
+     *
      * @return The single output to the component.
      */
     public Component getSingleOutput() {
@@ -116,14 +116,14 @@ public abstract class Component implements Serializable
 
     /**
      * Returns the value of the Component.
-     * 
+     *
      * @return The value of the Component.
      */
     public abstract boolean getValue();
 
     /**
      * Returns a representation of the Component in .dot format.
-     * 
+     *
      * @see java.lang.Object#toString()
      */
     @Override
@@ -131,7 +131,7 @@ public abstract class Component implements Serializable
 
     /**
      * Returns a configurable representation of the Component in .dot format.
-     * 
+     *
      * @param shape
      *            The value to use as the <tt>shape</tt> attribute.
      * @param fillcolor

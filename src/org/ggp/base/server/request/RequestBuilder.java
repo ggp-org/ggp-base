@@ -24,7 +24,7 @@ public final class RequestBuilder
 			}
 			sb.append(") )");
 
-			return sb.toString();			
+			return sb.toString();
 		}
 	}
 
@@ -41,7 +41,7 @@ public final class RequestBuilder
 
 		return sb.toString();
 	}
-	
+
 	public static String getPreviewRequest(List<Gdl> description, int previewClock, GdlScrambler scrambler)
 	{
 		StringBuilder sb = new StringBuilder();
@@ -54,7 +54,7 @@ public final class RequestBuilder
 		sb.append(") " + previewClock + " )");
 
 		return sb.toString();
-	}	
+	}
 
 	public static String getStopRequest(String matchId, List<Move> moves, GdlScrambler scrambler)
 	{
@@ -62,23 +62,23 @@ public final class RequestBuilder
 			return "( STOP " + matchId + " NIL )";
 		} else {
 			StringBuilder sb = new StringBuilder();
-	
+
 			sb.append("( STOP " + matchId + " (");
 			for (Move move : moves)
 			{
 				sb.append(scrambler.scramble(move.getContents()) + " ");
 			}
 			sb.append(") )");
-	
+
 			return sb.toString();
 		}
 	}
-	
+
 	public static String getAbortRequest(String matchId)
 	{
 		return "( ABORT " + matchId + " )";
 	}
-	
+
 	public static String getInfoRequest()
 	{
 		return "( INFO )";

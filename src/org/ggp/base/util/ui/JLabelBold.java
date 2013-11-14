@@ -5,7 +5,7 @@ import javax.swing.JLabel;
 
 public class JLabelBold extends JLabel {
 	private static final long serialVersionUID = 1L;
-	public JLabelBold(String text) {			
+	public JLabelBold(String text) {
 		super(text);
 		setFont(new Font(getFont().getFamily(), Font.BOLD, getFont().getSize()+2));
 	}

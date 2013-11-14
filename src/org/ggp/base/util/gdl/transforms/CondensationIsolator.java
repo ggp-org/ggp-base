@@ -95,7 +95,7 @@ public class CondensationIsolator {
 		description = GdlCleaner.run(description);
 		description = DeORer.run(description);
 		description = VariableConstrainer.replaceFunctionValuedVariables(description);
-		
+
 		//How do we define a condensation, and what needs to be true in it?
 		//Definition: A condensation set is a set of conjuncts of a
 		//sentence.

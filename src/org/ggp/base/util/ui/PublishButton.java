@@ -12,13 +12,13 @@ import org.ggp.base.server.GameServer;
 @SuppressWarnings("serial")
 public class PublishButton extends JButton implements ActionListener {
     private GameServer theServer;
-    
+
     public PublishButton(String theName) {
         super(theName);
         this.addActionListener(this);
         this.setEnabled(false);
     }
-    
+
     public void setServer(GameServer theServer) {
         this.theServer = theServer;
         this.setEnabled(true);
@@ -36,8 +36,8 @@ public class PublishButton extends JButton implements ActionListener {
                         int nChoice = JOptionPane.showConfirmDialog(this,
                                 "Publishing successfully. Would you like to open the spectator view in a browser?",
                                 "Publishing Match Online",
-                                JOptionPane.YES_NO_OPTION);         
-                        if (nChoice == JOptionPane.YES_OPTION) {                        
+                                JOptionPane.YES_NO_OPTION);
+                        if (nChoice == JOptionPane.YES_OPTION) {
                             try {
                                 java.awt.Desktop.getDesktop().browse(java.net.URI.create(theURL));
                             } catch (Exception ee) {
@@ -48,7 +48,7 @@ public class PublishButton extends JButton implements ActionListener {
                         JOptionPane.showMessageDialog(this,
                                 "Unknown problem when publishing match.",
                                 "Publishing Match Online",
-                                JOptionPane.ERROR_MESSAGE);                        
+                                JOptionPane.ERROR_MESSAGE);
                     }
                 } else {
                     JOptionPane.showMessageDialog(this,

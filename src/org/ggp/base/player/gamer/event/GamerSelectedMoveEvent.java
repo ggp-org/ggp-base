@@ -16,15 +16,15 @@ public final class GamerSelectedMoveEvent extends Event
 		this.selection = selection;
 		this.time = time;
 	}
-	
+
 	public List<Move> getMoves() {
 		return moves;
 	}
-	
+
 	public Move getSelection() {
 		return selection;
 	}
-	
+
 	public long getTime() {
 		return time;
 	}

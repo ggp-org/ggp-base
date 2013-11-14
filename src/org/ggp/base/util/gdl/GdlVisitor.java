@@ -18,10 +18,10 @@ import org.ggp.base.util.gdl.grammar.GdlVariable;
  * A visitor for Gdl objects. The GdlVisitors class has methods for going
  * through a Gdl object or collection thereof and applying the visitor methods
  * to all relevant Gdl objects.
- * 
+ *
  * This visitor uses the adapter design pattern, providing empty implementations
  * of each method so subclasses need only implement the relevant methods.
- * 
+ *
  * @author Alex Landau
  */
 public abstract class GdlVisitor {

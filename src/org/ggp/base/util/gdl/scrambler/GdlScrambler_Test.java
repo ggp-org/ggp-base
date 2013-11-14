@@ -18,7 +18,7 @@ import junit.framework.TestCase;
  * Unit tests for the GdlScrambler class, which provides a way
  * to scramble and unscramble Gdl objects without changing the
  * underlying physics of the games they represent.
- * 
+ *
  * @author Sam
  */
 public class GdlScrambler_Test extends TestCase {
@@ -29,8 +29,8 @@ public class GdlScrambler_Test extends TestCase {
      */
     public void testNoOpScrambler() throws GdlFormatException, SymbolFormatException {
     	runScramblerTest(new NoOpGdlScrambler());
-    }	
-	
+    }
+
 	/**
 	 * When scrambling is enabled, the "MappingGdlScrambler" is used. This class
      * systematically replaces all of the constant and variable names in the Gdl
@@ -40,7 +40,7 @@ public class GdlScrambler_Test extends TestCase {
     public void testMappingScrambler() throws GdlFormatException, SymbolFormatException {
     	runScramblerTest(new MappingGdlScrambler(new Random()));
     }
-    
+
     /**
      * Furthermore, the mapping scrambler can be initialized with a Random object,
      * which can be used to ensure deterministic, reproducible scrambling. This can
@@ -72,12 +72,12 @@ public class GdlScrambler_Test extends TestCase {
     		}
     		assertEquals(aScrambledRules.toString(), bScrambledRules.toString());
     		assertEquals(aScrambledRules.toString(), dScrambledRules.toString());
-    		assertEquals(aScrambledRules.toString(), eScrambledRules.toString());    		
+    		assertEquals(aScrambledRules.toString(), eScrambledRules.toString());
     		assertFalse(aScrambledRules.toString().equals(cScrambledRules.toString()));
     		assertEquals(cScrambledRules.toString(), fScrambledRules.toString());
     	}
-    }    
-    
+    }
+
     private void runScramblerTest(GdlScrambler scrambler) throws SymbolFormatException, GdlFormatException {
     	GameRepository repo = GameRepository.getDefaultRepository();
     	for (String gameKey : repo.getGameKeys()) {
@@ -99,9 +99,9 @@ public class GdlScrambler_Test extends TestCase {
     			// One important property for any scrambler is that the original
     			// and the unscrambled Gdl must be the same. This guarantees that
     			// the server can correctly unscramble responses from the players.
-    			assertEquals(gameKey, renderedRule, renderedUnscrambledRule);    			
+    			assertEquals(gameKey, renderedRule, renderedUnscrambledRule);
     		}
-			
+
 			// An important property for any scrambler is that the scrambled rules
 			// have the same physics as the regular rules. For example, the number
 			// of roles in each game should be the same, and the number of facts
@@ -112,7 +112,7 @@ public class GdlScrambler_Test extends TestCase {
 			ProverStateMachine pNormal = new ProverStateMachine();
 			ProverStateMachine pScrambled = new ProverStateMachine();
 			pNormal.initialize(game.getRules());
-			pScrambled.initialize(theScrambledRules);    		
+			pScrambled.initialize(theScrambledRules);
 			assertEquals(gameKey, pNormal.getRoles().size(), pScrambled.getRoles().size());
 			assertEquals(gameKey, pNormal.getInitialState().getContents().size(), pScrambled.getInitialState().getContents().size());
     	}

@@ -11,10 +11,10 @@ import junit.framework.TestCase;
 /**
  * Unit tests for the ClojureGamer class, to verify that we can actually
  * instantiate a Clojure-based gamer and have it play moves in a game.
- * 
+ *
  * @author Sam
  */
-public class ClojureGamer_Test extends TestCase {	
+public class ClojureGamer_Test extends TestCase {
     public void testClojureGamer() {
         try {
             Gamer g = new SampleClojureGamerStub();

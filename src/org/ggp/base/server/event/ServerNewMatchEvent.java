@@ -25,7 +25,7 @@ public final class ServerNewMatchEvent extends Event implements Serializable
 	{
 		return roles;
 	}
-	
+
 	public MachineState getInitialState()
 	{
 		return initialState;

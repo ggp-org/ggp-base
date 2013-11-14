@@ -21,11 +21,11 @@ import org.ggp.base.util.gdl.grammar.GdlVariable;
  * As a GDL transformer, this class takes in a GDL description of a game,
  * transforms it in some way, and outputs a new GDL descriptions of a game
  * which is functionally equivalent to the original game.
- * 
+ *
  * DeORer removes OR rules from the GDL. Technically, these rules shouldn't
  * be in the GDL in the first place, but it's very straightforward to remove
  * them, so we do that so that we can handle GDL descriptions that use OR.
- * 
+ *
  * @author Ethan Dreyfuss
  */
 public class DeORer {
@@ -48,7 +48,7 @@ public class DeORer {
         }
         return newDesc;
     }
-    
+
     private static List<List<GdlLiteral>> deOr(List<GdlLiteral> rhs) {
         List<List<GdlLiteral>> wrapped = new ArrayList<List<GdlLiteral>>();
         wrapped.add(rhs);
@@ -68,11 +68,11 @@ public class DeORer {
                     if(!expandedSomething)
                     {
                         List<Gdl> expandedList = expandFirstOr(lit);
-                        
+
                         if(expandedList.size() > 1)
                         {
                             for(Gdl replacement : expandedList)
-                            {                   
+                            {
                                 List<GdlLiteral> newRhs = new ArrayList<GdlLiteral>(rhs);
                                 if(!(replacement instanceof GdlLiteral)) throw new RuntimeException("Top level return value is different type of gdl.");
                                 GdlLiteral newLit = (GdlLiteral)replacement;
@@ -80,10 +80,10 @@ public class DeORer {
                                 rval.add(newRhs);
                             }
                             expandedSomething = true;
-                            break;                      
+                            break;
                         }
                     }
-                    
+
                     i++;
                 }
                 if(!expandedSomething) //If I didn't find anything to expand
@@ -91,10 +91,10 @@ public class DeORer {
             }
             else
                 rval.add(rhs); //If I've already expanded this function call
-            
+
         }
-        
-        if(!expandedSomething)      
+
+        if(!expandedSomething)
             return rhsList;
         else
             return deOr2(rval);
@@ -129,7 +129,7 @@ public class DeORer {
             rval = new ArrayList<Gdl>();
             for(int i=0; i<or.arity(); i++)
             {
-                rval.add(or.get(i));                
+                rval.add(or.get(i));
             }
             return rval;
         }

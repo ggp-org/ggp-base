@@ -8,7 +8,7 @@ import javax.swing.UIManager;
  * system that it's running on. This is wrapped into its own separate class
  * because it's used in a number of different places (all of the graphical
  * applications) and it's useful to edit it centrally.
- * 
+ *
  * @author Sam Schreiber
  */
 public class NativeUI {

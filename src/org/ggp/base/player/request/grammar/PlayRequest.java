@@ -27,7 +27,7 @@ public final class PlayRequest extends Request
 	public String getMatchId() {
 		return matchId;
 	}
-	
+
 	@Override
 	public String process(long receptionTime)
 	{

@@ -18,34 +18,34 @@ public class FFACanvas extends GameCanvas_FancyGrid {
 
     protected final boolean useGridVisualization() { return false; }
     protected final boolean coordinatesStartAtOne() { return true; }
-    
+
     protected final void renderCellBackground(Graphics g, int xCell, int yCell) {
         int width = g.getClipBounds().width;
         int height = g.getClipBounds().height;
-        
+
         CommonGraphics.drawCellBorder(g);
-        
+
         // Clear out the edges
         if(xCell == 1 || xCell == 7 || yCell == 1 || yCell == 7) {
             g.setColor(Color.DARK_GRAY);
-            g.fillRect(0, 0, width, height);            
+            g.fillRect(0, 0, width, height);
         }
-    }    
-    
+    }
+
     @Override
     protected Set<String> getLegalMovesForCell(int xCell, int yCell) {
         Set<String> theMoves = gameStateHasLegalMovesMatching("\\( move " + xCell + " " + yCell + " (.*) \\)");
-        
+
         if(theMoves.size() == 0)
             theMoves.add("noop");
-        
+
         return theMoves;
     }
-    
+
     @Override
     protected Set<String> getFactsAboutCell(int xCell, int yCell) {
         Set<String> theFacts = gameStateHasFactsMatching("\\( cell " + xCell + " " + yCell + " (.*) \\)");
-        
+
         if (xCell == 1 && yCell == 1) {
             theFacts.addAll(gameStateHasFactsMatching("\\( capture red (.*) \\)"));
         } else if(xCell == 7 && yCell == 1) {
@@ -59,15 +59,15 @@ public class FFACanvas extends GameCanvas_FancyGrid {
     protected void renderCellContent(Graphics g, Set<String> theFacts) {
         if(theFacts.size() == 0) return;
         String theFact = theFacts.iterator().next();
-        
+
         String[] cellFacts = theFact.split(" ");
         if(cellFacts.length == 5) {
             String cellType = cellFacts[2];
             int score = 10*Integer.parseInt(cellFacts[3]);
-            
+
             Color myColor = null;
             if(cellType.startsWith("red")) myColor = Color.red;
-            if(cellType.startsWith("blue")) myColor = Color.blue;            
+            if(cellType.startsWith("blue")) myColor = Color.blue;
             if(myColor == null) {
                 System.err.println("Got weird piece: " + cellType);
                 return;
@@ -80,29 +80,29 @@ public class FFACanvas extends GameCanvas_FancyGrid {
             if(!cellType.equals("b")) {
                 Color myColor = null;
                 if(cellType.startsWith("red")) myColor = Color.red;
-                if(cellType.startsWith("blue")) myColor = Color.blue;            
+                if(cellType.startsWith("blue")) myColor = Color.blue;
                 if(myColor == null) {
                     System.err.println("Got weird piece: " + cellType);
                     return;
                 }
-    
+
                 int width = g.getClipBounds().width;
-                int height = g.getClipBounds().height;              
-                
+                int height = g.getClipBounds().height;
+
                 g.setColor(myColor);
                 g.fillOval(2, 2, width-4, height-4);
                 CommonGraphics.drawChessPiece(g, "wn");
             }
         }
-    }    
-    
+    }
+
     @Override
     protected void renderMoveSelectionForCell(Graphics g, int xCell, int yCell, String theMove) {
         int width = g.getClipBounds().width;
-        int height = g.getClipBounds().height;        
+        int height = g.getClipBounds().height;
 
         String[] moveParts = theMove.split(" ");
-        
+
         if(moveParts.length == 7) {
             int xTarget = Integer.parseInt(moveParts[4]);
             int yTarget = Integer.parseInt(moveParts[5]);

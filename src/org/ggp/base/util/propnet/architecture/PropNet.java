@@ -26,7 +26,7 @@ import org.ggp.base.util.statemachine.Role;
 
 /**
  * The PropNet class is designed to represent Propositional Networks.
- * 
+ *
  * A propositional network (also known as a "propnet") is a way of representing
  * a game as a logic circuit. States of the game are represented by assignments
  * of TRUE or FALSE to "base" propositions, each of which represents a single
@@ -36,12 +36,12 @@ import org.ggp.base.util.statemachine.Role;
  * to TRUE to indicate that the fact is true in the current state of the game.
  * Likewise, the base corresponding to the fact (cell 1 1 o) would be false,
  * because in that state of the game there isn't an 'o' in the cell (1,1).
- * 
+ *
  * A state of the game is uniquely determined by the assignment of truth values
  * to the base propositions in the propositional network. Every assignment of
  * truth values to base propositions corresponds to exactly one unique state of
  * the game.
- * 
+ *
  * Given the values of the base propositions, you can use the connections in
  * the network (AND gates, OR gates, NOT gates) to determine the truth values
  * of other propositions. For example, you can determine whether the terminal
@@ -50,19 +50,19 @@ import org.ggp.base.util.statemachine.Role;
  * also determine the value of the goal propositions, which represent facts
  * like (goal xplayer 100). If that proposition is true, then that fact is true
  * in this state of the game, which means that xplayer has 100 points.
- * 
+ *
  * You can also use a propositional network to determine the next state of the
  * game, given the current state and the moves for each player. First, you set
  * the input propositions which correspond to each move to TRUE. Once that has
  * been done, you can determine the truth value of the transitions. Each base
  * proposition has a "transition" component going into it. This transition has
  * the truth value that its base will take on in the next state of the game.
- * 
+ *
  * For further information about propositional networks, see:
- * 
+ *
  * "Decomposition of Games for Efficient Reasoning" by Eric Schkufza.
  * "Factoring General Games using Propositional Automata" by Evan Cox et al.
- * 
+ *
  * @author Sam Schreiber
  */
 
@@ -70,34 +70,34 @@ public final class PropNet
 {
 	/** References to every component in the PropNet. */
 	private final Set<Component> components;
-	
+
 	/** References to every Proposition in the PropNet. */
 	private final Set<Proposition> propositions;
-	
+
 	/** References to every BaseProposition in the PropNet, indexed by name. */
 	private final Map<GdlSentence, Proposition> basePropositions;
-	
+
 	/** References to every InputProposition in the PropNet, indexed by name. */
 	private final Map<GdlSentence, Proposition> inputPropositions;
-	
+
 	/** References to every LegalProposition in the PropNet, indexed by role. */
 	private final Map<Role, Set<Proposition>> legalPropositions;
-	
+
 	/** References to every GoalProposition in the PropNet, indexed by role. */
 	private final Map<Role, Set<Proposition>> goalPropositions;
-	
+
 	/** A reference to the single, unique, InitProposition. */
 	private final Proposition initProposition;
-	
+
 	/** A reference to the single, unique, TerminalProposition. */
 	private final Proposition terminalProposition;
-	
+
 	/** A helper mapping between input/legal propositions. */
 	private final Map<Proposition, Proposition> legalInputMap;
-	
+
 	/** A helper list of all of the roles. */
 	private final List<Role> roles;
-	
+
 	public void addComponent(Component c)
 	{
 		components.add(c);
@@ -107,13 +107,13 @@ public final class PropNet
 	/**
 	 * Creates a new PropNet from a list of Components, along with indices over
 	 * those components.
-	 * 
+	 *
 	 * @param components
 	 *            A list of Components.
 	 */
 	public PropNet(List<Role> roles, Set<Component> components)
 	{
-		 
+
 	    this.roles = roles;
 		this.components = components;
 		this.propositions = recordPropositions();
@@ -125,12 +125,12 @@ public final class PropNet
 		this.terminalProposition = recordTerminalProposition();
 		this.legalInputMap = makeLegalInputMap();
 	}
-	
+
 	public List<Role> getRoles()
 	{
 	    return roles;
 	}
-	
+
 	public Map<Proposition, Proposition> getLegalInputMap()
 	{
 		return legalInputMap;
@@ -158,10 +158,10 @@ public final class PropNet
 		}
 		return legalInputMap;
 	}
-	
+
 	/**
 	 * Getter method.
-	 * 
+	 *
 	 * @return References to every BaseProposition in the PropNet, indexed by
 	 *         name.
 	 */
@@ -172,7 +172,7 @@ public final class PropNet
 
 	/**
 	 * Getter method.
-	 * 
+	 *
 	 * @return References to every Component in the PropNet.
 	 */
 	public Set<Component> getComponents()
@@ -182,7 +182,7 @@ public final class PropNet
 
 	/**
 	 * Getter method.
-	 * 
+	 *
 	 * @return References to every GoalProposition in the PropNet, indexed by
 	 *         player name.
 	 */
@@ -193,7 +193,7 @@ public final class PropNet
 
 	/**
 	 * Getter method. A reference to the single, unique, InitProposition.
-	 * 
+	 *
 	 * @return
 	 */
 	public Proposition getInitProposition()
@@ -203,7 +203,7 @@ public final class PropNet
 
 	/**
 	 * Getter method.
-	 * 
+	 *
 	 * @return References to every InputProposition in the PropNet, indexed by
 	 *         name.
 	 */
@@ -214,7 +214,7 @@ public final class PropNet
 
 	/**
 	 * Getter method.
-	 * 
+	 *
 	 * @return References to every LegalProposition in the PropNet, indexed by
 	 *         player name.
 	 */
@@ -225,7 +225,7 @@ public final class PropNet
 
 	/**
 	 * Getter method.
-	 * 
+	 *
 	 * @return References to every Proposition in the PropNet.
 	 */
 	public Set<Proposition> getPropositions()
@@ -235,7 +235,7 @@ public final class PropNet
 
 	/**
 	 * Getter method.
-	 * 
+	 *
 	 * @return A reference to the single, unique, TerminalProposition.
 	 */
 	public Proposition getTerminalProposition()
@@ -245,7 +245,7 @@ public final class PropNet
 
 	/**
 	 * Returns a representation of the PropNet in .dot format.
-	 * 
+	 *
 	 * @see java.lang.Object#toString()
 	 */
 	@Override
@@ -266,7 +266,7 @@ public final class PropNet
 	/**
      * Outputs the propnet in .dot format to a particular file.
      * This can be viewed with tools like Graphviz and ZGRViewer.
-     * 
+     *
      * @param filename the name of the file to output to
      */
     public void renderToFile(String filename) {
@@ -284,11 +284,11 @@ public final class PropNet
 
 	/**
 	 * Builds an index over the BasePropositions in the PropNet.
-	 * 
+	 *
 	 * This is done by going over every single-input proposition in the network,
 	 * and seeing whether or not its input is a transition, which would mean that
 	 * by definition the proposition is a base proposition.
-	 * 
+	 *
 	 * @return An index over the BasePropositions in the PropNet.
 	 */
 	private Map<GdlSentence, Proposition> recordBasePropositions()
@@ -298,7 +298,7 @@ public final class PropNet
 		    // Skip all propositions without exactly one input.
 		    if (proposition.getInputs().size() != 1)
 		        continue;
-		    
+
 			Component component = proposition.getSingleInput();
 			if (component instanceof Transition) {
 				basePropositions.put(proposition.getName(), proposition);
@@ -310,12 +310,12 @@ public final class PropNet
 
 	/**
 	 * Builds an index over the GoalPropositions in the PropNet.
-	 * 
+	 *
 	 * This is done by going over every function proposition in the network
      * where the name of the function is "goal", and extracting the name of the
      * role associated with that goal proposition, and then using those role
      * names as keys that map to the goal propositions in the index.
-	 * 
+	 *
 	 * @return An index over the GoalPropositions in the PropNet.
 	 */
 	private Map<Role, Set<Proposition>> recordGoalPropositions()
@@ -326,11 +326,11 @@ public final class PropNet
 		    // Skip all propositions that aren't GdlRelations.
 		    if (!(proposition.getName() instanceof GdlRelation))
 		        continue;
-		    
+
 			GdlRelation relation = (GdlRelation) proposition.getName();
 			if (!relation.getName().getValue().equals("goal"))
 			    continue;
-			
+
 			Role theRole = new Role((GdlConstant) relation.get(0));
 			if (!goalPropositions.containsKey(theRole)) {
 				goalPropositions.put(theRole, new HashSet<Proposition>());
@@ -343,7 +343,7 @@ public final class PropNet
 
 	/**
 	 * Returns a reference to the single, unique, InitProposition.
-	 * 
+	 *
 	 * @return A reference to the single, unique, InitProposition.
 	 */
 	private Proposition recordInitProposition()
@@ -353,7 +353,7 @@ public final class PropNet
 		    // Skip all propositions that aren't GdlPropositions.
 			if (!(proposition.getName() instanceof GdlProposition))
 			    continue;
-			
+
 			GdlConstant constant = ((GdlProposition) proposition.getName()).getName();
 			if (constant.getValue().toUpperCase().equals("INIT")) {
 				return proposition;
@@ -364,7 +364,7 @@ public final class PropNet
 
 	/**
 	 * Builds an index over the InputPropositions in the PropNet.
-	 * 
+	 *
 	 * @return An index over the InputPropositions in the PropNet.
 	 */
 	private Map<GdlSentence, Proposition> recordInputPropositions()
@@ -375,7 +375,7 @@ public final class PropNet
 		    // Skip all propositions that aren't GdlFunctions.
 			if (!(proposition.getName() instanceof GdlRelation))
 			    continue;
-			
+
 			GdlRelation relation = (GdlRelation) proposition.getName();
 			if (relation.getName().getValue().equals("does")) {
 				inputPropositions.put(proposition.getName(), proposition);
@@ -387,7 +387,7 @@ public final class PropNet
 
 	/**
 	 * Builds an index over the LegalPropositions in the PropNet.
-	 * 
+	 *
 	 * @return An index over the LegalPropositions in the PropNet.
 	 */
 	private Map<Role, Set<Proposition>> recordLegalPropositions()
@@ -398,7 +398,7 @@ public final class PropNet
 		    // Skip all propositions that aren't GdlRelations.
 			if (!(proposition.getName() instanceof GdlRelation))
 			    continue;
-			
+
 			GdlRelation relation = (GdlRelation) proposition.getName();
 			if (relation.getName().getValue().equals("legal")) {
 				GdlConstant name = (GdlConstant) relation.get(0);
@@ -406,7 +406,7 @@ public final class PropNet
 				if (!legalPropositions.containsKey(r)) {
 					legalPropositions.put(r, new HashSet<Proposition>());
 				}
-				legalPropositions.get(r).add(proposition);				
+				legalPropositions.get(r).add(proposition);
 			}
 		}
 
@@ -415,7 +415,7 @@ public final class PropNet
 
 	/**
 	 * Builds an index over the Propositions in the PropNet.
-	 * 
+	 *
 	 * @return An index over Propositions in the PropNet.
 	 */
 	private Set<Proposition> recordPropositions()
@@ -432,7 +432,7 @@ public final class PropNet
 
 	/**
 	 * Records a reference to the single, unique, TerminalProposition.
-	 * 
+	 *
 	 * @return A reference to the single, unqiue, TerminalProposition.
 	 */
 	private Proposition recordTerminalProposition()
@@ -450,8 +450,8 @@ public final class PropNet
 		}
 
 		return null;
-	}		
-	
+	}
+
 	public int getSize() {
 		return components.size();
 	}
@@ -464,7 +464,7 @@ public final class PropNet
 		}
 		return andCount;
 	}
-	
+
 	public int getNumOrs() {
 		int orCount = 0;
 		for(Component c : components) {
@@ -473,7 +473,7 @@ public final class PropNet
 		}
 		return orCount;
 	}
-	
+
 	public int getNumNots() {
 		int notCount = 0;
 		for(Component c : components) {
@@ -497,12 +497,12 @@ public final class PropNet
 	 * that this method only be used in an optimization period between
 	 * the propnet's creation and its initial use, during which it
 	 * should only be accessed by a single thread.
-	 * 
+	 *
 	 * The INIT and terminal components cannot be removed.
 	 */
 	public void removeComponent(Component c) {
-		
-		
+
+
 		//Go through all the collections it could appear in
 		if(c instanceof Proposition) {
 			Proposition p = (Proposition) c;
@@ -528,7 +528,7 @@ public final class PropNet
 						Proposition partner = legalInputMap.get(p);
 						if(partner != null) {
 							legalInputMap.remove(partner);
-							legalInputMap.remove(p);							
+							legalInputMap.remove(p);
 						}
 					}
 				}

@@ -47,7 +47,7 @@ public final class Player extends JPanel
 
 	public static void main(String[] args) throws IOException
 	{
-	    NativeUI.setNativeUI();	    
+	    NativeUI.setNativeUI();
 
 	    final Player playerPanel = new Player();
 	    javax.swing.SwingUtilities.invokeLater(new Runnable()
@@ -66,9 +66,9 @@ public final class Player extends JPanel
 	private final JTextField portTextField;
 
 	private final JComboBox<String> typeComboBox;
-	
+
 	private Integer defaultPort = 9147;
-	
+
 	private List<Class<? extends Gamer>> gamers = Lists.newArrayList(ProjectSearcher.GAMERS.getConcreteClasses());
 
 	public Player()
@@ -143,7 +143,7 @@ public final class Player extends JPanel
 
 					GamePlayer player = new GamePlayer(port, gamer);
 					player.addObserver(networkPanel);
-					player.start();					
+					player.start();
 
 					JTabbedPane tab = new JTabbedPane();
 					tab.addTab("Match", matchPanel);
@@ -152,7 +152,7 @@ public final class Player extends JPanel
 					tab.addTab("Detail", detailPanel);
 					playersTabbedPane.addTab(type + " (" + player.getGamerPort() + ")", tab);
 					playersTabbedPane.setSelectedIndex(playersTabbedPane.getTabCount()-1);
-					
+
 					defaultPort++;
 					portTextField.setText(defaultPort.toString());
 				}

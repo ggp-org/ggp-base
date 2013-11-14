@@ -9,42 +9,42 @@ import org.ggp.base.apps.kiosk.templates.GameCanvas_Chessboard;
 
 
 public class CheckersSmallCanvas extends GameCanvas_Chessboard {
-    private static final long serialVersionUID = 1L;    
-    
+    private static final long serialVersionUID = 1L;
+
     public String getGameName() { return "Checkers (Small)"; }
     protected String getGameKey() { return "checkersSmall"; }
-    
+
     protected int getGridHeight() { return 8; }
-    protected int getGridWidth() { return 8; }        
+    protected int getGridWidth() { return 8; }
 
     @Override
     protected void renderCellForeground(Graphics g, int xCell, int yCell) {
         xCell--;
-        
+
         if(xCell == 0 || xCell == 7) {
             int width = g.getClipBounds().width;
-            int height = g.getClipBounds().height;            
-            
-            g.setColor(Color.DARK_GRAY);            
+            int height = g.getClipBounds().height;
+
+            g.setColor(Color.DARK_GRAY);
             g.fillRect(0, 0, width, height);
         }
     }
-    
+
     @Override
     protected Set<String> getLegalMovesForCell(int xCell, int yCell) {
         xCell--;
-        
-        String xLetter = coordinateToLetter(xCell);        
+
+        String xLetter = coordinateToLetter(xCell);
         Set<String> theMoves = gameStateHasLegalMovesMatching("\\( move .. " + xLetter + " " + yCell + " (.*) \\)");
         theMoves.addAll(gameStateHasLegalMovesMatching("\\( doublejump .. " + xLetter + " " + yCell + " (.*) \\)"));
         theMoves.addAll(gameStateHasLegalMovesMatching("\\( triplejump .. " + xLetter + " " + yCell + " (.*) \\)"));
         return theMoves;
     }
-    
+
     @Override
     protected Set<String> getFactsAboutCell(int xCell, int yCell) {
         xCell--;
-        
+
         String xLetter = coordinateToLetter(xCell);
         return gameStateHasFactsMatching("\\( cell " + xLetter + " " + yCell + " (.*) \\)");
     }
@@ -56,14 +56,14 @@ public class CheckersSmallCanvas extends GameCanvas_Chessboard {
         if(!cellType.equals("b")) {
             CommonGraphics.drawCheckersPiece(g, cellType);
         }
-    }    
-    
+    }
+
     @Override
     protected void renderMoveSelectionForCell(Graphics g, int xCell, int yCell, String theMove) {
         int width = g.getClipBounds().width;
         int height = g.getClipBounds().height;
         xCell--;
-        
+
         String xLetter = coordinateToLetter(xCell);
 
         String[] moveParts = theMove.split(" ");

@@ -21,9 +21,9 @@ public final class SampleLegalGamer extends SampleGamer
 {
 	/**
 	 * This function is called at the start of each round
-	 * You are required to return the Move your player will play 
+	 * You are required to return the Move your player will play
 	 * before the timeout.
-	 * 
+	 *
 	 */
 	public Move stateMachineSelectMove(long timeout) throws TransitionDefinitionException, MoveDefinitionException, GoalDefinitionException
 	{
@@ -31,13 +31,13 @@ public final class SampleLegalGamer extends SampleGamer
 		long start = System.currentTimeMillis();
 
 		/**
-		 * We put in memory the list of legal moves from the 
+		 * We put in memory the list of legal moves from the
 		 * current state. The goal of every stateMachineSelectMove()
 		 * is to return one of these moves. The choice of which
 		 * Move to play is the goal of GGP.
 		 */
 		List<Move> moves = getStateMachine().getLegalMoves(getCurrentState(), getRole());
-		
+
 		// SampleLegalGamer is very simple : it picks the first legal move
 		Move selection = moves.get(0);
 
@@ -48,7 +48,7 @@ public final class SampleLegalGamer extends SampleGamer
 		/**
 		 * These are functions used by other parts of the GGP codebase
 		 * You shouldn't worry about them, just make sure that you have
-		 * moves, selection, stop and start defined in the same way as 
+		 * moves, selection, stop and start defined in the same way as
 		 * this example, and copy-paste these two lines in your player
 		 */
 		notifyObservers(new GamerSelectedMoveEvent(moves, selection, stop - start));

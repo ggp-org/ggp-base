@@ -16,7 +16,7 @@ public final class AbortRequest extends Request
 		this.gamer = gamer;
 		this.matchId = matchId;
 	}
-	
+
 	@Override
 	public String getMatchId() {
 		return matchId;
@@ -27,7 +27,7 @@ public final class AbortRequest extends Request
 	{
         // First, check to ensure that this abort request is for the match
         // we're currently playing. If we're not playing a match, or we're
-        // playing a different match, send back "busy".	    
+        // playing a different match, send back "busy".
 		if (gamer.getMatch() == null || !gamer.getMatch().getMatchId().equals(matchId))
 		{
 		    GamerLogger.logError("GamePlayer", "Got abort message not intended for current game: ignoring.");
@@ -43,12 +43,12 @@ public final class AbortRequest extends Request
 		} catch (AbortingException e) {
 		    GamerLogger.logStackTrace("GamePlayer", e);
 		}
-		
+
 		// Once the match has ended, set 'roleName' and 'match'
 		// to NULL to indicate that we're ready to begin a new match.
 		gamer.setRoleName(null);
 	    gamer.setMatch(null);
-	    
+
 		return "aborted";
 	}
 

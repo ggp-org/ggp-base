@@ -10,7 +10,7 @@ import org.ggp.base.util.reflection.ProjectSearcher;
 
 /**
  * This is a simple command line app for running players.
- * 
+ *
  * @author schreib
  */
 public final class PlayerRunner
@@ -31,7 +31,7 @@ public final class PlayerRunner
     		availableGamers.add(gamerClass.getSimpleName());
     		if (gamerClass.getSimpleName().equals(name)) {
     			chosenGamerClass = gamerClass;
-    		}	    		
+    		}
     	}
     	if (chosenGamerClass == null) {
     		System.out.println("Could not find player class with that name. Available choices are: " + Arrays.toString(availableGamers.toArray()));

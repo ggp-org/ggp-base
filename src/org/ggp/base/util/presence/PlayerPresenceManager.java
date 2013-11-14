@@ -24,17 +24,17 @@ import external.JSON.JSONObject;
 
 public class PlayerPresenceManager implements Subject {
 	private Map<String,PlayerPresence> monitoredPlayers;
-	
+
 	public class PlayerPresenceChanged extends Event {}
 	public class PlayerPresenceAdded extends Event {}
 	public class PlayerPresenceRemoved extends Event {}
-	
+
 	public static boolean isDifferent(String a, String b) {
 		if (a == null && b == null) return false;
 		if (a == null && b != null) return true;
 		return !a.equals(b);
-	}	
-	
+	}
+
 	public static final int INFO_PING_PERIOD_IN_SECONDS = 1;
 	class PresenceMonitor extends Thread {
 		public void run() {
@@ -47,10 +47,10 @@ public class PlayerPresenceManager implements Subject {
 				Set<String> keys = new HashSet<String>(monitoredPlayers.keySet());
 				for (String key : keys) {
 					PlayerPresence presence = monitoredPlayers.get(key);
-					if (presence == null) continue;					
+					if (presence == null) continue;
 					if (presence.getStatusAge() > INFO_PING_PERIOD_IN_SECONDS*1000) {
 						String old_name = presence.getName();
-						String old_status = presence.getStatus();						
+						String old_status = presence.getStatus();
 						presence.updateInfo();
 						String new_name = presence.getName();
 						String new_status = presence.getStatus();
@@ -62,16 +62,16 @@ public class PlayerPresenceManager implements Subject {
 					}
 				}
 			}
-		}		
+		}
 	}
-	
+
 	public PlayerPresenceManager() {
 		monitoredPlayers = new HashMap<String,PlayerPresence>();
 		loadPlayersJSON();
 		if (monitoredPlayers.size() == 0) {
 			try {
 				// When starting from a blank slate, add some initial players to the
-				// monitoring list just so that it's clear how it works.				
+				// monitoring list just so that it's clear how it works.
 				addPlayer("127.0.0.1:9147");
 				addPlayer("127.0.0.1:9148");
 			} catch (InvalidHostportException e) {
@@ -80,10 +80,10 @@ public class PlayerPresenceManager implements Subject {
 		}
 		new PresenceMonitor().start();
 	}
-	
+
 	@SuppressWarnings("serial")
 	public class InvalidHostportException extends Exception {}
-	
+
 	private PlayerPresence addPlayerSilently(String hostport) throws InvalidHostportException {
 		try {
 			if (!monitoredPlayers.containsKey(hostport)) {
@@ -100,25 +100,25 @@ public class PlayerPresenceManager implements Subject {
 		} catch (NumberFormatException e) {
 			throw new InvalidHostportException();
 		}
-	}	
-	
+	}
+
 	public PlayerPresence addPlayer(String hostport) throws InvalidHostportException {
 		PlayerPresence presence = addPlayerSilently(hostport);
 		notifyObservers(new PlayerPresenceAdded());
 		savePlayersJSON();
 		return presence;
 	}
-	
+
 	public void removePlayer(String hostport) {
 		monitoredPlayers.remove(hostport);
 		notifyObservers(new PlayerPresenceRemoved());
 		savePlayersJSON();
 	}
-	
+
 	public PlayerPresence getPresence(String hostport) {
 		return monitoredPlayers.get(hostport);
 	}
-	
+
 	public Set<String> getSortedPlayerNames() {
 		return new TreeSet<String>(monitoredPlayers.keySet());
 	}
@@ -135,14 +135,14 @@ public class PlayerPresenceManager implements Subject {
 			observer.observe(event);
 		}
 	}
-	
+
 	private static final String playerListFilename = ".ggpserver-playerlist.json";
 	private void savePlayersJSON() {
 		try {
 			JSONObject playerListJSON = new JSONObject();
 			playerListJSON.put("hostports", monitoredPlayers.keySet());
 			File file = new File(System.getProperty("user.home"), playerListFilename);
-			if (!file.exists()) {				
+			if (!file.exists()) {
 				file.createNewFile();
 			}
 			FileWriter fw = new FileWriter(file);

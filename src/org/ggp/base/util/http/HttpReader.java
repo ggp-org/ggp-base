@@ -10,23 +10,23 @@ import java.net.SocketTimeoutException;
 public final class HttpReader
 {
     // Wrapper methods to support socket timeouts for reading requests/responses.
-    
+
     public static String readAsClient(Socket socket, int timeout) throws IOException, SocketTimeoutException
     {
         socket.setSoTimeout(timeout);
         return readAsClient(socket);
     }
-    
+
     public static String readAsServer(Socket socket, int timeout) throws IOException, SocketTimeoutException
     {
         socket.setSoTimeout(timeout);
         return readAsServer(socket);
     }
-    
+
     // Implementations of reading HTTP responses (readAsClient) and
     // HTTP requests (readAsServer) for the purpose of communicating
     // with other general game playing systems.
-    
+
 	public static String readAsClient(Socket socket) throws IOException
 	{
 		BufferedReader br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
@@ -58,16 +58,16 @@ public final class HttpReader
 		    throw new IOException("Drop this message at the network layer.");
 		} else {
 		    HttpWriter.writeAsServer(socket, "");
-            throw new IOException("Unexpected request type: " + requestLine);		    
+            throw new IOException("Unexpected request type: " + requestLine);
 		}
-		
+
 		return message;
 	}
-	
+
 	private static String readContentFromPOST(BufferedReader br) throws IOException {
 	    String line;
         int theContentLength = -1;
-        StringBuilder theContent = new StringBuilder();        
+        StringBuilder theContent = new StringBuilder();
         while ((line = br.readLine()) != null) {
             if (line.toLowerCase().startsWith("content-length:")) {
                 try {

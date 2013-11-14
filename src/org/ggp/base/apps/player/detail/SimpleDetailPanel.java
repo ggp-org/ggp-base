@@ -16,7 +16,7 @@ import org.ggp.base.util.ui.table.JZebraTable;
 /**
  * This is a simple tabular detail panel that shows the number of
  * available moves, the time it took to select a move, and the move
- * that was selected. 
+ * that was selected.
  */
 @SuppressWarnings("serial")
 public class SimpleDetailPanel extends DetailPanel {

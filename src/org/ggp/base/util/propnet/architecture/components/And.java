@@ -10,7 +10,7 @@ public final class And extends Component
 {
 	/**
 	 * Returns true if and only if every input to the and is true.
-	 * 
+	 *
 	 * @see org.ggp.base.util.propnet.architecture.Component#getValue()
 	 */
 	@Override

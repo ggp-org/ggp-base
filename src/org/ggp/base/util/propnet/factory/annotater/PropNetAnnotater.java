@@ -31,7 +31,7 @@ import org.ggp.base.util.gdl.grammar.GdlVariable;
  * Annotater generates ( base ?x ) annotations that explicitly specify the
  * domains of the propositions in a game. This only works on some relatively
  * simple games, unfortunately.
- * 
+ *
  * @author Ethan Dreyfuss
  */
 public class PropNetAnnotater {
@@ -40,34 +40,34 @@ public class PropNetAnnotater {
     private Set<GdlRelation> baseRelations = new HashSet<GdlRelation>();
     private Set<GdlConstant> universe = new HashSet<GdlConstant>();
     private GdlFunction universalDom = null;
-    
+
     private class Domain {
         public Domain(Location loc) {this.loc = loc;}
         public Set<GdlConstant> values = new HashSet<GdlConstant>();
         public Set<Set<Domain>> functionRefs = new HashSet<Set<Domain>>();
         public Location loc;
-        
+
         @Override
         public String toString()
         {
             return "Name: "+loc.name+" index: "+loc.idx+"\nvalues: "+values+"\nfunctionRefs: "+functionRefs;
         }
     }
-    
+
     private class Location {
         public GdlConstant name;
         public Integer idx;
-        
+
         public Location()
         {}
-        
+
         @SuppressWarnings("unused")
         public Location(Location other)
         {
             name = other.name;
             idx = other.idx;
         }
-        
+
         @Override
         public boolean equals(Object other)
         {
@@ -76,7 +76,7 @@ public class PropNetAnnotater {
             Location rhs = (Location)other;
             return idx==rhs.idx && name.toString().equals(rhs.name.toString());
         }
-        
+
         @Override
         public int hashCode()
         {
@@ -85,21 +85,21 @@ public class PropNetAnnotater {
             int val = bigInt.bitCount()+bigInt.intValue();
             return val+idx;
         }
-        
+
         @Override
         public String toString()
         {
             return name.toString()+"("+idx+")";
         }
     }
-    
+
     HashMap<Location,Domain> domains = new HashMap<Location, Domain>();
-    
+
     public PropNetAnnotater(List<Gdl> description)
     {
         this.description = description;
     }
-    
+
     public List<Gdl> getAnnotations()
     {
         //Find universe and initial domains
@@ -108,32 +108,32 @@ public class PropNetAnnotater {
             processGdl(gdl, null);
             processDomain(gdl);
         }
-        
+
         //Compute the actual domains of everything
         updateDomains();
-        
+
         //printDomains();
         //printDomainRefs();
-        
+
         //Compute function corresponding to universal set for insertion in baseprops
         List<GdlTerm> body = new ArrayList<GdlTerm>();
         body.addAll(universe);
         universalDom = GdlPool.getFunction(GdlPool.getConstant("thing"), body);
-        
+
         //Find next/init things and use them to instantiate base props
         for(Gdl gdl : description)
         {
             findAndInstantiateBaseProps(gdl);
         }
-        
+
         baseRelations = mergeBaseRelations(baseRelations);
-        
+
         //Return the results
         List<Gdl> rval = new ArrayList<Gdl>();
         rval.addAll(baseRelations);
         return rval;
     }
-    
+
     private Set<GdlRelation> mergeBaseRelations(Set<GdlRelation> rels) {
         HashMap<GdlConstant,List<Set<GdlConstant>>> merges = new HashMap<GdlConstant, List<Set<GdlConstant>>>();
         for(GdlRelation rel : rels)
@@ -143,10 +143,10 @@ public class PropNetAnnotater {
                 merges.put(name, new ArrayList<Set<GdlConstant>>());
             List<Set<GdlConstant>> merge = merges.get(name);
             addRelToMerge(rel, merge);
-        }       
-        
+        }
+
         Set<GdlRelation> rval = new HashSet<GdlRelation>();
-        
+
         GdlConstant valConst = GdlPool.getConstant("val");
         for(GdlConstant c : merges.keySet())
         {
@@ -162,10 +162,10 @@ public class PropNetAnnotater {
             GdlRelation toAdd = GdlPool.getRelation(baseConstant, body);
             rval.add(toAdd);
         }
-        
+
         return rval;
     }
-    
+
     private class SortTerms implements Comparator<GdlTerm>
     {
         public int compare(GdlTerm arg0, GdlTerm arg1) {
@@ -173,36 +173,36 @@ public class PropNetAnnotater {
             GdlConstant a2 = (GdlConstant)arg1;
             String s1 = a1.toString();
             String s2 = a2.toString();
-            
+
             int num1 = -1;
             int num2 = -1;
-            
+
             try {num1 = Integer.parseInt(s1);} catch(Exception ex) {}
             try {num2 = Integer.parseInt(s2);} catch(Exception ex) {}
-            
+
             if(num1 == -1 && num2 == -1)
                 return Collator.getInstance().compare(s1, s2);
-            
+
             if(num1 == -1)
                 return 1;
-            
+
             if(num2 == -1)
                 return -1;
-            
+
             return num1-num2;
-        }       
+        }
     }
 
     private void addRelToMerge(GdlRelation rel, List<Set<GdlConstant>> merge) {
         for(int i=1; i<rel.arity(); i++)
-        {   
+        {
             GdlTerm t = rel.get(i);
             if(!(t instanceof GdlFunction))
                 throw new RuntimeException("Incorrectly constructed base props");
-            
+
             if(merge.size()<i)
                 merge.add(new HashSet<GdlConstant>());
-                        
+
             GdlFunction f = (GdlFunction)t;
             Set<GdlConstant> dom = merge.get(i-1);
             for(GdlTerm t2 : f.getBody())
@@ -225,7 +225,7 @@ public class PropNetAnnotater {
                 System.out.println("\t\t"+val);
         }
     }
-    
+
     void printDomainRefs()
     {
         System.out.println("Domains refs: ");
@@ -242,7 +242,7 @@ public class PropNetAnnotater {
             }
         }
     }
-    
+
     void processGdl(Gdl gdl, GdlConstant parent)
     {
         if(gdl instanceof GdlRelation)
@@ -269,7 +269,7 @@ public class PropNetAnnotater {
         {
             GdlFunction func = (GdlFunction)gdl;
             for(Gdl gdl2 : func.getBody())
-                processGdl(gdl2, func.getName());               
+                processGdl(gdl2, func.getName());
         }
         else if(gdl instanceof GdlDistinct)
         {
@@ -297,9 +297,9 @@ public class PropNetAnnotater {
             //IGNORE
         }
     }
-    
+
     private GdlConstant baseConstant = GdlPool.getConstant("base");
-    
+
     private void findAndInstantiateBaseProps(Gdl gdl)
     {
         if(gdl instanceof GdlRelation)
@@ -318,7 +318,7 @@ public class PropNetAnnotater {
                     GdlRelation toAdd = GdlPool.getRelation(baseConstant, body);
                     baseRelations.add(toAdd);
                     System.err.println("Weird init of constant");
-                }               
+                }
                 else if(template instanceof GdlVariable)
                 {
                     System.err.println("Weird init of constant");
@@ -362,7 +362,7 @@ public class PropNetAnnotater {
             }
         }
     }
-    
+
     private void instantiateBaseProps(GdlSentence template)
     {
         List<GdlTerm> body = new ArrayList<GdlTerm>();
@@ -376,7 +376,7 @@ public class PropNetAnnotater {
                 domBody.add(arg);
                 GdlFunction dom = GdlPool.getFunction(GdlPool.getConstant("val"), domBody);
                 body.add(dom);
-            }               
+            }
             else if(arg instanceof GdlVariable)
             {
                 List<GdlTerm> domBody = new ArrayList<GdlTerm>();
@@ -398,7 +398,7 @@ public class PropNetAnnotater {
         GdlRelation toAdd = GdlPool.getRelation(baseConstant, body);
         baseRelations.add(toAdd);
     }
-    
+
     void processDomain(Gdl gdl)
     {
         if(gdl instanceof GdlRelation)
@@ -417,11 +417,11 @@ public class PropNetAnnotater {
             if(head instanceof GdlRelation)
             {
                 GdlRelation rel = (GdlRelation)head;
-                
+
                 int i=0;
                 for(GdlTerm term : rel.getBody())
                 {
-                    addDomain2(term, rel.getName(), i, rule.getBody());                 
+                    addDomain2(term, rel.getName(), i, rule.getBody());
                     i++;
                 }
             }
@@ -434,9 +434,9 @@ public class PropNetAnnotater {
                 throw new RuntimeException("Don't know how to deal with this.");
         }
     }
-    
-    
-    
+
+
+
     void addDomain2(GdlTerm term, GdlConstant name, int idx, List<GdlLiteral> RHS)
     {
         Location loc = new Location();
@@ -470,25 +470,25 @@ public class PropNetAnnotater {
 
     private Set<Domain> findAllInstancesOf(GdlVariable var, List<GdlLiteral> RHS) {
         Set<Domain> rval = new HashSet<Domain>();
-        
+
         for(GdlLiteral literal : RHS)
         {
             rval.addAll(findAllInstancesOf(var,literal));
         }
-        
+
         return rval;
     }
 
     private Set<Domain> findAllInstancesOf(GdlVariable var, GdlLiteral literal) {
         return findAllInstancesOf(var,literal,null);
     }
-    
+
     private Set<Domain> findAllInstancesOf(GdlVariable var, Gdl gdl, Location loc) {
         if(!domains.containsKey(loc))
             domains.put(loc, new Domain(loc));
-        
+
         Set<Domain> rval = new HashSet<Domain>();
-        
+
         if(gdl instanceof GdlRelation)
         {
             GdlRelation relation = (GdlRelation) gdl;
@@ -551,7 +551,7 @@ public class PropNetAnnotater {
         {
             throw new RuntimeException("Shouldn't nest rules.");
         }
-        
+
         return rval;
     }
 
@@ -567,7 +567,7 @@ public class PropNetAnnotater {
             i++;
         }
     }
-    
+
     void addDomain(GdlTerm term, Location loc)
     {
         if(!domains.containsKey(loc))
@@ -595,7 +595,7 @@ public class PropNetAnnotater {
             throw new RuntimeException("Uh oh, unbound variable which I don't know how to deal with.");
         }
     }
-    
+
     void updateDomains()
     {
         boolean changedSomething = true;
@@ -605,7 +605,7 @@ public class PropNetAnnotater {
             for(Domain d : domains.values())
             {
                 int before = d.values.size();
-                
+
                 for(Set<Domain> intSet : d.functionRefs)
                 {
                     Set<GdlConstant> domain = null;
@@ -619,10 +619,10 @@ public class PropNetAnnotater {
                                 domain.retainAll(d2.values);
                         }
                     }
-                    if(domain!=null)                        
+                    if(domain!=null)
                         d.values.addAll(domain);
                 }
-                
+
                 if(d.loc != null)
                 {
                     String name = d.loc.name.toString();
@@ -647,18 +647,18 @@ public class PropNetAnnotater {
                         d.values.addAll(otherDom.values);
                     }
                 }
-                
+
                 if(d.values.size()!=before)
                     changedSomething = true;
             }
         }
     }
-    
+
     private void instantiateBasePropsWithRHS(GdlSentence template, List<GdlLiteral> RHS)
     {
         instantiateBaseProps(template);
     }
-    
+
     public List<Gdl> getAugmentedDescription()
     {
         List<Gdl> rval = new ArrayList<Gdl>();
@@ -666,7 +666,7 @@ public class PropNetAnnotater {
         {
             boolean notBase = true;
             if(gdl instanceof GdlRelation)
-            {               
+            {
                 GdlRelation rel = (GdlRelation)gdl;
                 if(rel.getName().toString().equals("base"))
                     notBase = false;
@@ -677,13 +677,13 @@ public class PropNetAnnotater {
         rval.addAll(getAnnotations());
         return rval;
     }
-    
+
     /**
      * @param args
      */
     public static void main(String[] args) {
         List<Gdl> description = GameRepository.getDefaultRepository().getGame("conn4").getRules();;
-        
+
         PropNetAnnotater aa = new PropNetAnnotater(description);
         System.out.println("Annotations for connect four are: \n"+aa.getAnnotations());
     }

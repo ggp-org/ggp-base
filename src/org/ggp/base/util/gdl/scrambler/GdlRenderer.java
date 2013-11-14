@@ -19,13 +19,13 @@ import org.ggp.base.util.gdl.grammar.GdlVariable;
  * in the way you'd expect. It can be subclassed to override particular parts
  * of the rendering scheme; for example, to render GdlConstants scrambled via
  * a mapping.
- * 
+ *
  * TODO(schreib): Would it ever make sense for this to replace the regular
  * toString methods in the Gdl objects?
- * 
+ *
  * TODO(schreib): What is the relationship between this and the GdlVisitor
  * framework that Alex put together? Can they be combined?
- * 
+ *
  * @author Sam Schreiber
  */
 public class GdlRenderer {

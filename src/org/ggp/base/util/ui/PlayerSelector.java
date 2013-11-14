@@ -20,11 +20,11 @@ import org.ggp.base.util.presence.PlayerPresenceManager.InvalidHostportException
 
 public class PlayerSelector {
 	private PlayerPresenceManager thePresenceManager;
-	
+
     public PlayerSelector() {
     	thePresenceManager = new PlayerPresenceManager();
     }
-    
+
     class PlayerPresenceLabel extends JLabel implements ListCellRenderer<String> {
 		private static final long serialVersionUID = 1L;
 		private int maxLabelLength;
@@ -35,7 +35,7 @@ public class PlayerSelector {
     		setVerticalAlignment(CENTER);
     		this.maxLabelLength = maxLabelLength;
     	}
-    	
+
     	public Component getListCellRendererComponent(
                     JList<? extends String> list,
                     String value,
@@ -50,15 +50,15 @@ public class PlayerSelector {
 				setBackground(list.getBackground());
 				setForeground(list.getForeground());
 			}
-			
+
 			PlayerPresence presence = thePresenceManager.getPresence(value.toString());
 			String status = presence.getStatus();
 			if (status != null) status = status.toLowerCase();
-			
-			int iconSize = 20;			
-			
+
+			int iconSize = 20;
+
 			BufferedImage img = new BufferedImage( iconSize, iconSize, BufferedImage.TYPE_INT_RGB );
-			Graphics g = img.getGraphics();			 
+			Graphics g = img.getGraphics();
 			g.setColor( getBackground() );
 			g.fillRect( 0, 0, iconSize, iconSize );
 			if (status == null) {
@@ -72,9 +72,9 @@ public class PlayerSelector {
 			} else {
 				g.setColor(Color.MAGENTA);
 			}
-			
+
 			g.fillOval( 3, 3, iconSize-6, iconSize-6 );
-			
+
 			String textLabel = presence.getHost() + ":" + presence.getPort();
 			if (presence.getName() != null) {
 				textLabel = presence.getName() + " (" + textLabel + ")";
@@ -82,14 +82,14 @@ public class PlayerSelector {
 			if (textLabel.length() > maxLabelLength) {
 				textLabel = textLabel.substring(0, maxLabelLength-3) + "...";
 			}
-			
+
 			setIcon(new ImageIcon(img));
 			setText(textLabel);
-			setFont(list.getFont());		
+			setFont(list.getFont());
 			return this;
     	}
     }
-    
+
     class PlayerSelectorBox extends JComboBox<String> implements Observer {
 		private static final long serialVersionUID = 1L;
 
@@ -98,11 +98,11 @@ public class PlayerSelector {
     		setRenderer(new PlayerPresenceLabel(20));
     		addAllPlayerItems();
     	}
-		
+
 		private void addAllPlayerItems() {
         	for (String name : thePresenceManager.getSortedPlayerNames()) {
         		addItem(name);
-        	}			
+        	}
 		}
 
 		@Override
@@ -111,7 +111,7 @@ public class PlayerSelector {
 				repaint();
 				revalidate();
 			} else if (event instanceof PlayerPresenceManager.PlayerPresenceAdded ||
-					    event instanceof PlayerPresenceManager.PlayerPresenceRemoved) {				
+					    event instanceof PlayerPresenceManager.PlayerPresenceRemoved) {
 				Object currentlySelected = getSelectedItem();
 				removeAllItems();
 				addAllPlayerItems();
@@ -121,7 +121,7 @@ public class PlayerSelector {
 			}
 		}
     }
-    
+
     class PlayerSelectorList extends JList<String> implements Observer {
 		private static final long serialVersionUID = 1L;
 
@@ -131,7 +131,7 @@ public class PlayerSelector {
     		setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
     		setAllPlayerItems();
     	}
-		
+
 		private void setAllPlayerItems() {
 			setListData(thePresenceManager.getSortedPlayerNames().toArray(new String[0]));
 		}
@@ -140,7 +140,7 @@ public class PlayerSelector {
 		public void observe(Event event) {
 			if (event instanceof PlayerPresenceManager.PlayerPresenceChanged) {
 				repaint();
-				revalidate();				
+				revalidate();
 			} else if (event instanceof PlayerPresenceManager.PlayerPresenceAdded ||
 					    event instanceof PlayerPresenceManager.PlayerPresenceRemoved) {
 				Object currentlySelected = getSelectedValue();
@@ -149,26 +149,26 @@ public class PlayerSelector {
 				repaint();
 				revalidate();
 			}
-		}    	
+		}
     }
-    
+
     public void addPlayer(String hostport) throws InvalidHostportException {
     	thePresenceManager.addPlayer(hostport);
     }
-    
+
     public void removePlayer(String hostport) {
     	thePresenceManager.removePlayer(hostport);
-    }    
-    
+    }
+
     public PlayerPresence getPlayerPresence(String name) {
     	return thePresenceManager.getPresence(name);
     }
-    
+
     public JComboBox<String> getPlayerSelectorBox() {
     	return new PlayerSelectorBox();
     }
-    
+
     public JList<String> getPlayerSelectorList() {
     	return new PlayerSelectorList();
-    }    
+    }
 }

@@ -16,27 +16,27 @@ import org.python.util.PythonInterpreter;
 /**
  * PythonGamer is a superclass that allows you to hook Python gamers into the
  * rest of the Java framework. In order to do this, do the following:
- * 
+ *
  * 1) Create a subclass of PythonGamer that overrides getPythonGamerName() and
  *    getPythonGamerModule() to indicate where the Python source code file is.
  *    This is the Java stub that refers to the real Python gamer class.
- *    
+ *
  * 2) Create the Python source code file, in the /src_py/ directory in the root
  *    directory for this project. Make sure that the stub points to this class,
  *    and that the Python class is a valid subclass of Gamer.
- *    
+ *
  * For examples where this has already been done, see @PythonRandomGamerStub, which
  * is implemented in Python and hooks into the Java framework using the PythonGamer stub.
- * 
+ *
  * @author Sam
  * @author evancox
  */
 public abstract class PythonGamer extends Gamer
 {
     Gamer thePythonGamer;
-    
+
     protected abstract String getPythonGamerName();
-    protected abstract String getPythonGamerModule();        
+    protected abstract String getPythonGamerModule();
 
     // Gamer stubs are lazily loaded because the Python interface takes
     // time to initialize, so we only want to load it when necessary, and
@@ -56,14 +56,14 @@ public abstract class PythonGamer extends Gamer
 	        }
     	}
     }
-    
+
     // The following methods are overriden as 'final' because they should not
     // be changed in subclasses of this class. Subclasses of this class should
     // only implement getPythonGamerName() and getPythonGamerModule(), and then
     // implement the real methods in the actual Python gamer. Essentially, any
     // subclass of this class is a Java-implementation stub for the actual real
     // Python implementation.
-    
+
     @Override
     public final void preview(Game game, long timeout) throws GamePreviewException {
     	lazilyLoadGamerStub();
@@ -73,8 +73,8 @@ public abstract class PythonGamer extends Gamer
             GamerLogger.logError("GamePlayer", "Caught exception in Python stateMachinePreview:");
             GamerLogger.logStackTrace("GamePlayer", e);
         }
-    }    
-    
+    }
+
     @Override
     public final void metaGame(long timeout) throws MetaGamingException {
     	lazilyLoadGamerStub();
@@ -87,7 +87,7 @@ public abstract class PythonGamer extends Gamer
             GamerLogger.logStackTrace("GamePlayer", e);
         }
     }
-    
+
     @Override
     public final GdlTerm selectMove(long timeout) throws MoveSelectionException {
     	lazilyLoadGamerStub();
@@ -101,7 +101,7 @@ public abstract class PythonGamer extends Gamer
             return null;
         }
     }
-    
+
     @Override
     public final void stop() {
     	lazilyLoadGamerStub();
@@ -114,7 +114,7 @@ public abstract class PythonGamer extends Gamer
             GamerLogger.logStackTrace("GamePlayer", e);
         }
     }
-    
+
     @Override
     public final void abort() {
     	lazilyLoadGamerStub();
@@ -126,10 +126,10 @@ public abstract class PythonGamer extends Gamer
             GamerLogger.logError("GamePlayer", "Caught exception in Python stateMachineAbort:");
             GamerLogger.logStackTrace("GamePlayer", e);
         }
-    }    
-    
+    }
+
     @Override
     public final String getName() {
     	return getPythonGamerName();
-    }    
+    }
 }

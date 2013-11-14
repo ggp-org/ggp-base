@@ -136,8 +136,8 @@ public final class RequestFactory
         String matchId = arg1.getValue();
 
         return new AbortRequest(gamer, matchId);
-    }	
-    
+    }
+
     private InfoRequest createInfo(Gamer gamer, SymbolList list) throws GdlFormatException
     {
         if (list.size() != 1)
@@ -146,8 +146,8 @@ public final class RequestFactory
         }
 
         return new InfoRequest(gamer);
-    }    
-    
+    }
+
     private PreviewRequest createPreview(Gamer gamer, SymbolList list) throws GdlFormatException
     {
 		if (list.size() != 3)
@@ -160,10 +160,10 @@ public final class RequestFactory
 
 		String theRulesheet = arg1.toString();
 		int previewClock = Integer.valueOf(arg2.getValue());
-		
+
 		Game theReceivedGame = Game.createEphemeralGame(theRulesheet);
 		return new PreviewRequest(gamer, theReceivedGame, previewClock);
-    }    
+    }
 
 	private List<GdlTerm> parseMoves(Symbol symbol) throws GdlFormatException
 	{

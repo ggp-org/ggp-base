@@ -38,14 +38,14 @@ import com.google.common.collect.Multimap;
  * GameFlow describes the behavior of the sentences in sentence forms that depend
  * on which turn it is, but not on the actions of the player (past or present).
  * These include step counters and control markers.
- *  
+ *
  * @author Alex Landau
  */
 public class GameFlow {
 	private static final GdlConstant INIT = GdlPool.getConstant("init");
 	private static final GdlConstant TRUE = GdlPool.getConstant("true");
 	private static final GdlConstant NEXT = GdlPool.getConstant("next");
-	
+
 	private int turnAfterLast; //We end with a loop
 	private List<Set<GdlSentence>> sentencesTrueByTurn = new ArrayList<Set<GdlSentence>>(); //The non-constant ones
 	private Set<SentenceForm> formsControlledByFlow;
@@ -56,7 +56,7 @@ public class GameFlow {
 		description = GdlCleaner.run(description);
 		description = DeORer.run(description);
 		description = VariableConstrainer.replaceFunctionValuedVariables(description);
-		
+
 		//First we use a sentence model to get the relevant sentence forms
 		SentenceDomainModel model = SentenceDomainModelFactory.createWithCartesianDomains(description);
 		formsControlledByFlow = new HashSet<SentenceForm>();
@@ -80,7 +80,7 @@ public class GameFlow {
 		for(SentenceForm form : constantForms) {
 			functionInfoMap.put(form, FunctionInfoImpl.create(form, constantChecker));
 		}
-		
+
 		//First we set the "true" values, then we get the forms controlled by the flow...
 		//Use "init" values
 		Set<GdlSentence> trueFlowSentences = new HashSet<GdlSentence>();
@@ -95,7 +95,7 @@ public class GameFlow {
 		//Go through ordering, adding to trueFlowSentences
 		addSentenceForms(ordering, trueFlowSentences, model, functionInfoMap);
 		sentencesTrueByTurn.add(trueFlowSentences);
-		
+
 		outer : while(true) {
 			//Now we use the "next" values from the previous turn
 			Set<GdlSentence> sentencesPreviouslyTrue = trueFlowSentences;
@@ -121,7 +121,7 @@ public class GameFlow {
 			sentencesTrueByTurn.add(trueFlowSentences);
 		}
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	private void addSentenceForms(List<SentenceForm> ordering,
 			Set<GdlSentence> trueFlowSentences,
@@ -143,11 +143,11 @@ public class GameFlow {
 				while(asnItr.hasNext()) {
 					Map<GdlVariable, GdlConstant> assignment = asnItr.next();
 					boolean isGoodAssignment = true;
-					
+
 					GdlSentence transformedHead = CommonTransforms.replaceVariables(head, assignment);
 					if(trueFlowSentences.contains(transformedHead))
 						asnItr.changeOneInNext(varsInHead, assignment);
-					
+
 					//Go through the conjuncts
 					for(GdlLiteral literal : rule.getBody()) {
 						if(literal instanceof GdlSentence) {
@@ -171,7 +171,7 @@ public class GameFlow {
 							GdlSentence internal = (GdlSentence) ((GdlNot) literal).getBody();
 							GdlSentence transformed = CommonTransforms.replaceVariables(internal, assignment);
 							SentenceForm conjForm = model.getSentenceForm(transformed);
-							
+
 							if(constantForms.contains(conjForm)) {
 								if(constantChecker.isTrueConstant(transformed)) {
 									isGoodAssignment = false;
@@ -184,11 +184,11 @@ public class GameFlow {
 									asnItr.changeOneInNext(GdlUtils.getVariables(literal), assignment);
 								}
 							}
-							
+
 						}
 						//Nothing else needs attention, really
 					}
-					
+
 					//We've gone through all the conjuncts and are at the
 					//end of the rule
 					if(isGoodAssignment) {
@@ -256,15 +256,15 @@ public class GameFlow {
 					relevantLiterals.add(literal);
 			}
 		}
-		
+
 		//If none are related to the game flow, then that's it. It can
 		//happen on any turn.
 		//if(relevantLiterals.isEmpty())
 			//return getCompleteTurnSet();
 		Set<Integer> turnsPossible = new HashSet<Integer>(getCompleteTurnSet());
-		
+
 		//For each of the relevant literals, we need to see if there are assignments
-		//such that 
+		//such that
 		for(GdlLiteral literal : relevantLiterals) {
 			List<Integer> turns = new ArrayList<Integer>();
 			if(literal instanceof GdlSentence) {

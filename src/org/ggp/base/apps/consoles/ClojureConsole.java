@@ -9,12 +9,12 @@ import clojure.lang.Var;
  * console that has full access to all of the Java classes in the project.
  * This allows you to quickly experiment with the classes, without having to
  * write a full-blown Java program.
- * 
+ *
  * TODO: This could use some helper scripts, to allow it to quickly load game
  *       rulesheets and so on. Right now you have to manually load everything
  *       when you want to create a state machine that's initialized to a game,
  *       which is pretty bothersome.
- * 
+ *
  * @author Sam
  */
 public class ClojureConsole {

@@ -26,7 +26,7 @@ public final class GdlValidator
 	 * Note that as implemented, this method is incomplete: it only verifies a
 	 * subset of the correctness properties of well-formed Gdl. A more thorough
 	 * implementation is advisable.
-	 * 
+	 *
 	 * @param symbol
 	 *            The Symbol to validate.
 	 * @return True if the Symbol passes validation; false otherwise.
@@ -54,7 +54,7 @@ public final class GdlValidator
 	/**
 	 * A recursive method that checks whether a Symbol contains SymbolList that
 	 * does not begin with a SymbolAtom.
-	 * 
+	 *
 	 * @param symbol
 	 *            The Symbol to validate.
 	 * @return True if the Symbol passes validation; false otherwise.
@@ -89,7 +89,7 @@ public final class GdlValidator
 	/**
 	 * A recursive method that checks whether a Symbol contains the deprecated
 	 * 'or' keyword.
-	 * 
+	 *
 	 * @param symbol
 	 *            The Symbol to validate.
 	 * @return True if the Symbol passes validation; false otherwise.

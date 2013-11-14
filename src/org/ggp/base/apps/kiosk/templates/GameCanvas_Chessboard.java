@@ -9,7 +9,7 @@ import java.awt.Graphics;
  * conventions for this class of games: an 8x8 board with alternating colors.
  * It also defines the coordinates-to-letters mapping that appears in several
  * chess board games, such as chess and checkers.
- * 
+ *
  * @author Sam Schreiber
  */
 public abstract class GameCanvas_Chessboard extends GameCanvas_FancyGrid {
@@ -20,20 +20,20 @@ public abstract class GameCanvas_Chessboard extends GameCanvas_FancyGrid {
 
     protected final boolean useGridVisualization() { return true; }
     protected final boolean coordinatesStartAtOne() { return true; }
-    
+
     protected final void renderCellBackground(Graphics g, int xCell, int yCell) {
         int width = g.getClipBounds().width;
-        int height = g.getClipBounds().height;       
-        
+        int height = g.getClipBounds().height;
+
         // Alternating colors for the board
         if( (xCell + yCell) % 2 == 0) {
             g.setColor(Color.GRAY);
             g.fillRect(0, 0, width, height);
         }
     }
-    
+
     // This function only works properly when coordinates start at one.
     public final static String coordinateToLetter(int x) {
         return "" + ((char) ('a' + x - 1));
-    }        
+    }
 }

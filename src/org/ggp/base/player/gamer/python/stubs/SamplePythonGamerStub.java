@@ -6,7 +6,7 @@ import org.ggp.base.player.gamer.python.PythonGamer;
  * has been implemented in Python. This stub needs to exist so that the Python
  * code can interoperate with the rest of the Java framework (and applications
  * like Kiosk and PlayerPanel as a result).
- * 
+ *
  * @author Sam
  */
 public final class SamplePythonGamerStub extends PythonGamer

@@ -20,8 +20,8 @@ public abstract class LogSummaryGenerator {
         } else {
             return getSummaryFromLogsDirectory(logsDirectory + "/" + theMatchingMatches[0]);
         }
-        return null;        
+        return null;
     }
-    
+
     public abstract String getSummaryFromLogsDirectory(String theLogsDirectory);
 }

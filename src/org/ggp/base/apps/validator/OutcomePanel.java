@@ -47,7 +47,7 @@ public final class OutcomePanel extends JPanel implements Observer
 		logTable.getColumnModel().getColumn(0).setMaxWidth(150);
 		logTable.getColumnModel().getColumn(0).setPreferredWidth(500);
 		progressBar.setMaximum(numValidators);
-		
+
 		this.add(new JScrollPane(logTable, ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED), new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 5, 5));
 		this.add(progressBar, new GridBagConstraints(0, 1, 1, 1, 1.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 5, 5));
 	}
@@ -63,7 +63,7 @@ public final class OutcomePanel extends JPanel implements Observer
 			observeValidationFailureEvent((ValidatorFailureEvent) event);
 		}
 	}
-	
+
 	public static final String wrapLine(String line, int width) {
 		StringBuilder wrappedLine = new StringBuilder();
 		while (line.length() > width) {
