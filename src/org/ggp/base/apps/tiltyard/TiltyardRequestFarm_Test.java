@@ -4,11 +4,11 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Random;
 
-import org.ggp.base.util.loader.RemoteResourceLoader;
+import junit.framework.TestCase;
+
 import org.ggp.base.util.http.HttpReader;
 import org.ggp.base.util.http.HttpWriter;
-
-import junit.framework.TestCase;
+import org.ggp.base.util.loader.RemoteResourceLoader;
 
 import external.JSON.JSONObject;
 

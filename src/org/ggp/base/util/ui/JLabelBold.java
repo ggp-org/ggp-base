@@ -1,6 +1,7 @@
 package org.ggp.base.util.ui;
 
 import java.awt.Font;
+
 import javax.swing.JLabel;
 
 public class JLabelBold extends JLabel {

@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
+
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -26,7 +27,6 @@ import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.border.TitledBorder;
 
-import com.google.common.collect.Lists;
 import org.ggp.base.player.GamePlayer;
 import org.ggp.base.player.gamer.Gamer;
 import org.ggp.base.player.gamer.exception.AbortingException;
@@ -46,6 +46,8 @@ import org.ggp.base.util.reflection.ProjectSearcher;
 import org.ggp.base.util.symbol.grammar.SymbolPool;
 import org.ggp.base.util.ui.NativeUI;
 import org.ggp.base.util.ui.PublishButton;
+
+import com.google.common.collect.Lists;
 
 /**
  * Kiosk is a program for running two-player human-vs-computer matches

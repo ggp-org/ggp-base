@@ -1,10 +1,11 @@
 package org.ggp.base.util.crypto;
 
+import junit.framework.TestCase;
+
 import org.ggp.base.util.crypto.BaseCryptography.EncodedKeyPair;
 
 import external.JSON.JSONException;
 import external.JSON.JSONObject;
-import junit.framework.TestCase;
 
 /**
  * Unit tests for the SignableJSON class, which provides an easy way

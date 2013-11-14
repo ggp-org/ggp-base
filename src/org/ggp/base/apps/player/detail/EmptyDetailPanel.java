@@ -3,7 +3,9 @@ package org.ggp.base.apps.player.detail;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+
 import javax.swing.JLabel;
+
 import org.ggp.base.util.observer.Event;
 
 /**

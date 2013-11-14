@@ -1,8 +1,8 @@
 package org.ggp.base.util.crypto;
 
-import org.ggp.base.util.crypto.CanonicalJSON.CanonicalizationStrategy;
-
 import junit.framework.TestCase;
+
+import org.ggp.base.util.crypto.CanonicalJSON.CanonicalizationStrategy;
 
 /**
  * Unit tests for the CanonicalJSON class, which provides a

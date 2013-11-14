@@ -2,6 +2,7 @@ package org.ggp.base.util.statemachine;
 
 import java.util.HashSet;
 import java.util.Set;
+
 import org.ggp.base.util.gdl.grammar.GdlSentence;
 
 public class MachineState {

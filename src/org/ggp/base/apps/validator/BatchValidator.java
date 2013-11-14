@@ -4,10 +4,10 @@ import org.ggp.base.util.game.CloudGameRepository;
 import org.ggp.base.util.game.Game;
 import org.ggp.base.util.game.GameRepository;
 import org.ggp.base.validator.BasesInputsValidator;
+import org.ggp.base.validator.GameValidator;
 import org.ggp.base.validator.OPNFValidator;
 import org.ggp.base.validator.SimulationValidator;
 import org.ggp.base.validator.StaticValidator;
-import org.ggp.base.validator.GameValidator;
 import org.ggp.base.validator.ValidatorException;
 
 /**

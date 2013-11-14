@@ -1,14 +1,15 @@
 package org.ggp.base.util.reflection;
 
-import com.google.common.base.Objects;
-import com.google.common.base.Predicate;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Sets;
+import java.lang.reflect.Modifier;
+
 import org.ggp.base.apps.kiosk.GameCanvas;
 import org.ggp.base.player.gamer.Gamer;
 import org.reflections.Reflections;
 
-import java.lang.reflect.Modifier;
+import com.google.common.base.Objects;
+import com.google.common.base.Predicate;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Sets;
 
 public class ProjectSearcher {
 	public static void main(String[] args)

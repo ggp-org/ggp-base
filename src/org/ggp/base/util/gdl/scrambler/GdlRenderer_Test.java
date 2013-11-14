@@ -1,10 +1,10 @@
 package org.ggp.base.util.gdl.scrambler;
 
+import junit.framework.TestCase;
+
 import org.ggp.base.util.game.Game;
 import org.ggp.base.util.game.GameRepository;
 import org.ggp.base.util.gdl.grammar.Gdl;
-
-import junit.framework.TestCase;
 
 /**
  * Unit tests for the GdlRenderer class, which provides a way

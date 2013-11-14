@@ -1,12 +1,12 @@
 package org.ggp.base.player.gamer.python;
 
+import junit.framework.TestCase;
+
 import org.ggp.base.player.gamer.Gamer;
 import org.ggp.base.player.gamer.python.stubs.SamplePythonGamerStub;
 import org.ggp.base.util.game.GameRepository;
 import org.ggp.base.util.gdl.grammar.GdlPool;
 import org.ggp.base.util.match.Match;
-
-import junit.framework.TestCase;
 
 /**
  * Unit tests for the PythonGamer class, to verify that we can actually

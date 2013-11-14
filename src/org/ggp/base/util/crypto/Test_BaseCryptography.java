@@ -1,8 +1,8 @@
 package org.ggp.base.util.crypto;
 
-import org.ggp.base.util.crypto.BaseCryptography.EncodedKeyPair;
-
 import junit.framework.TestCase;
+
+import org.ggp.base.util.crypto.BaseCryptography.EncodedKeyPair;
 
 /**
  * Unit tests for the BaseCryptography class, which implements
