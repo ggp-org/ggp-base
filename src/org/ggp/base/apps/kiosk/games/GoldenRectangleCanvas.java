@@ -10,17 +10,21 @@ import org.ggp.base.apps.kiosk.templates.GameCanvas_SimpleGrid;
 public class GoldenRectangleCanvas extends GameCanvas_SimpleGrid {
     private static final long serialVersionUID = 1L;
 
-    public String getGameName() { return "Golden Rectangle"; }
-    protected String getGameKey() { return "golden_rectangle"; }
-    protected int getGridHeight() { return 8; }
-    protected int getGridWidth() { return 7; }
-
-    private int selectedColumn = 0;    
-    
     @Override
-    protected void handleClickOnCell(int xCell, int yCell, int xWithin, int yWithin) {        
+	public String getGameName() { return "Golden Rectangle"; }
+    @Override
+	protected String getGameKey() { return "golden_rectangle"; }
+    @Override
+	protected int getGridHeight() { return 8; }
+    @Override
+	protected int getGridWidth() { return 7; }
+
+    private int selectedColumn = 0;
+
+    @Override
+    protected void handleClickOnCell(int xCell, int yCell, int xWithin, int yWithin) {
         yCell = 8 - yCell;
-        
+
         for (int y = 0; y <= 7; y++) {
             if(gameStateHasLegalMove("( mark " + xCell + " " + y + " )")) {
                 selectedColumn = xCell;
@@ -32,13 +36,13 @@ public class GoldenRectangleCanvas extends GameCanvas_SimpleGrid {
     @Override
     protected void renderCell(Graphics g, int xCell, int yCell) {
         yCell = 8 - yCell;
-        
+
         int width = g.getClipBounds().width;
         int height = g.getClipBounds().height;
-        
+
         g.setColor(Color.BLACK);
         g.drawRect(1, 1, width-2, height-2);
-        
+
         if(gameStateHasFact("( cell " + xCell + " " + yCell + " r )")) {
             g.setColor(Color.RED);
             CommonGraphics.drawDisc(g);
@@ -54,12 +58,12 @@ public class GoldenRectangleCanvas extends GameCanvas_SimpleGrid {
             g.drawRect(3, 3, width-6, height-6);
         }
     }
-    
+
     @Override
-    public void clearMoveSelection() {        
+    public void clearMoveSelection() {
         submitWorkingMove(null);
         selectedColumn = 0;
-        
+
         repaint();
     }
 }

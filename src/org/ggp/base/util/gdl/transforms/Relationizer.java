@@ -28,18 +28,18 @@ public class Relationizer {
 	 * Searches the description for statements that are needlessly treated as
 	 * base propositions when they could be expressed as simple relations, and
 	 * replaces them with these simpler forms.
-	 * 
+	 *
 	 * Some games have been written such that unchanging facts of the game
 	 * are listed as base propositions. Often, this is so the fact can be
 	 * accessed by a visualization. Gamers usually don't need this distinction,
 	 * and can reduce the costs in time and memory of processing the game if
 	 * these statements are instead transformed into sentences.
-	 * @throws InterruptedException 
+	 * @throws InterruptedException
 	 */
 	public static List<Gdl> run(List<Gdl> description) throws InterruptedException {
 		SentenceFormModel model = SentenceFormModelFactory.create(description);
 		GdlConstant NEXT = GdlPool.getConstant("next");
-		
+
 		List<SentenceForm> nextFormsToReplace = new ArrayList<SentenceForm>();
 		//Find the update rules for each "true" statement
 		for(SentenceForm nextForm : model.getSentenceForms()) {
@@ -74,7 +74,7 @@ public class Relationizer {
 				}
 			}
 		}
-		
+
 		List<Gdl> newDescription = new ArrayList<Gdl>(description);
 		//Now, replace the next forms
 		for(SentenceForm nextForm : nextFormsToReplace) {

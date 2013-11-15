@@ -27,14 +27,14 @@ import org.ggp.base.util.observer.Subject;
  * design pattern.
  */
 public abstract class Gamer implements Subject
-{	
+{
 	private Match match;
 	private GdlConstant roleName;
 
 	public Gamer()
 	{
 		observers = new ArrayList<Observer>();
-		
+
 		// When not playing a match, the variables 'match'
 		// and 'roleName' should be NULL. This indicates that
 		// the player is available for starting a new match.
@@ -47,45 +47,45 @@ public abstract class Gamer implements Subject
 	 * and when you actually return from metaGame and selectMove. They are
 	 * stored here so they can be shared amongst all Gamers. */
     public static final long PREFERRED_METAGAME_BUFFER = 3900;
-    public static final long PREFERRED_PLAY_BUFFER = 1900;    
-	
+    public static final long PREFERRED_PLAY_BUFFER = 1900;
+
 	// ==== The Gaming Algorithms ====
 	public abstract void metaGame(long timeout) throws MetaGamingException;
-	
+
 	public abstract GdlTerm selectMove(long timeout) throws MoveSelectionException;
-	
+
 	/* Note that the match's goal values will not necessarily be known when
 	 * stop() is called, as we only know the final set of moves and haven't
 	 * interpreted them yet. To get the final goal values, process the final
 	 * moves of the game.
 	 */
 	public abstract void stop() throws StoppingException;  // Cleanly stop playing the match
-	
+
 	public abstract void abort() throws AbortingException;  // Abruptly stop playing the match
 
 	public abstract void preview(Game g, long timeout) throws GamePreviewException;  // Preview a game
-	
+
 	// ==== Gamer Profile and Configuration ====
 	public abstract String getName();
 	public String getSpecies() { return null; }
-	
+
 	public boolean isComputerPlayer() {
 		return true;
 	}
-	
+
 	public ConfigPanel getConfigPanel() {
 		return new EmptyConfigPanel();
 	}
-	
+
 	public DetailPanel getDetailPanel() {
 		return new EmptyDetailPanel();
 	}
 
-	// ==== Accessors ====	
+	// ==== Accessors ====
 	public final Match getMatch() {
 		return match;
 	}
-	
+
 	public final void setMatch(Match match) {
 		this.match = match;
 	}
@@ -93,18 +93,20 @@ public abstract class Gamer implements Subject
 	public final GdlConstant getRoleName() {
 		return roleName;
 	}
-	
+
 	public final void setRoleName(GdlConstant roleName) {
 		this.roleName = roleName;
 	}
-	
+
 	// ==== Observer Stuff ====
 	private final List<Observer> observers;
+	@Override
 	public final void addObserver(Observer observer)
 	{
 		observers.add(observer);
 	}
-	
+
+	@Override
 	public final void notifyObservers(Event event)
 	{
 		for (Observer observer : observers) {

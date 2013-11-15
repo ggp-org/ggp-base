@@ -20,11 +20,11 @@ public final class ServerMatchUpdatedEvent extends Event implements Serializable
 	public Match getMatch() {
 		return match;
 	}
-	
+
 	public String getExternalFilename() {
 		return externalFilename;
 	}
-	
+
 	public String getExternalPublicationKey() {
 		return externalPublicationKey;
 	}

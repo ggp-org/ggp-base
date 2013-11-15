@@ -20,9 +20,9 @@ import org.ggp.base.util.match.Match;
  * Logs are written to directories on a per-game basis. Each logfile represents
  * a single logical component of the game playing program, identified whenever
  * the logger is called.
- * 
+ *
  * TODO: More details about specific use examples.
- * 
+ *
  * @author Sam Schreiber
  */
 public class GamerLogger {
@@ -33,37 +33,37 @@ public class GamerLogger {
             System.out.print(s);
         }
     }
-    
+
     public static void stopFileLogging() {
         log("Logger", "Stopped logging to files at: " + new Date());
         log("Logger", "LOG SEALED");
         writeLogsToFile = false;
     }
-    
+
     public static void setSpilloverLogfile(String spilloverFilename) {
     	spilloverLogfile = spilloverFilename;
     }
-    
+
     public static void startFileLogging(Match m, String roleName) {
         writeLogsToFile = true;
         myDirectory = "logs/" + m.getMatchId() + "-" + roleName;
-        
+
         new File(myDirectory).mkdirs();
-        
+
         log("Logger", "Started logging to files at: " + new Date());
         log("Logger", "Game rules: " + m.getGame().getRules());
         log("Logger", "Start clock: " + m.getStartClock());
-        log("Logger", "Play clock: " + m.getPlayClock());        
+        log("Logger", "Play clock: " + m.getPlayClock());
     }
-    
+
     public static void setFileToDisplay(String toFile) {
         filesToDisplay.add(toFile);
     }
-    
+
     public static void setMinimumLevelToDisplay(int nLevel) {
         minLevelToDisplay = nLevel;
     }
-    
+
     public static void setSuppressLoggerOutput(boolean bSuppress) {
         suppressLoggerOutput = bSuppress;
     }
@@ -72,45 +72,45 @@ public class GamerLogger {
     public static final int LOG_LEVEL_ORDINARY = 3;
     public static final int LOG_LEVEL_IMPORTANT = 6;
     public static final int LOG_LEVEL_CRITICAL = 9;
-    
+
     public static void logError(String toFile, String message) {
         logEntry(System.err, toFile, message, LOG_LEVEL_CRITICAL);
         if(writeLogsToFile) {
             logEntry(System.err, "Errors", "(in " + toFile + ") " + message, LOG_LEVEL_CRITICAL);
         }
     }
-        
+
     public static void log(String toFile, String message) {
         log(toFile, message, LOG_LEVEL_ORDINARY);
     }
-    
+
     public static void log(String toFile, String message, int nLevel) {
         logEntry(System.out, toFile, message, nLevel);
-    }    
-    
+    }
+
     public static void logStackTrace(String toFile, Exception ex) {
         StringWriter s = new StringWriter();
         ex.printStackTrace(new PrintWriter(s));
         logError(toFile, s.toString());
     }
-    
+
     public static void logStackTrace(String toFile, Error ex) {
         StringWriter s = new StringWriter();
         ex.printStackTrace(new PrintWriter(s));
         logError(toFile, s.toString());
-    }    
-    
-    // Private Implementation    
+    }
+
+    // Private Implementation
     private static boolean writeLogsToFile = false;
-    
+
     private static final Random theRandom = new Random();
     private static final Set<String> filesToSkip = new HashSet<String>();
     private static final long maximumLogfileSize = 25 * 1024 * 1024;
-    
+
     private static void logEntry(PrintStream ordinaryOutput, String toFile, String message, int logLevel) {
         if(suppressLoggerOutput)
             return;
-        
+
         // When we're not writing to a particular directory, and we're not spilling over into
         // a general logfile, write directly to the standard output unless it is really unimportant.
         if(!writeLogsToFile && spilloverLogfile == null) {
@@ -119,15 +119,15 @@ public class GamerLogger {
             }
             return;
         }
-        
+
         try {
             String logMessage = logFormat(logLevel, ordinaryOutput == System.err, message);
-            
+
             // If we are also displaying this file, write it to the standard output.
             if(filesToDisplay.contains(toFile) || logLevel >= minLevelToDisplay) {
                 ordinaryOutput.println("[" + toFile + "] " + message);
             }
-            
+
             // When constructing filename, if we are not writing to a particular directory,
             // go directly to the spillover file if one exists.
             String myFilename = myDirectory + "/" + toFile;
@@ -147,28 +147,28 @@ public class GamerLogger {
                     logLevel = 9;
                     logMessage = logFormat(logLevel, ordinaryOutput == System.err, "File too long; stopping all writes to this file.");
                 }
-            }            
-            
+            }
+
             // Finally, write the log message to the file.
             BufferedWriter out = new BufferedWriter(new FileWriter(myFilename, true));
             out.write(logMessage);
             out.close();
         } catch (IOException e) {
             e.printStackTrace();
-        }        
-    }   
-    
+        }
+    }
+
     private static String logFormat(int logLevel, boolean isError, String message) {
-        String logMessage = "LOG " + System.currentTimeMillis() + " [L" + logLevel + "]: " + (isError ? "<ERR> " : "") + message;            
+        String logMessage = "LOG " + System.currentTimeMillis() + " [L" + logLevel + "]: " + (isError ? "<ERR> " : "") + message;
         if(logMessage.charAt(logMessage.length() - 1) != '\n') {
             logMessage += '\n';     // All log lines must end with a newline.
         }
         return logMessage;
     }
-    
-    private static String myDirectory;   
+
+    private static String myDirectory;
     private static HashSet<String> filesToDisplay = new HashSet<String>();
     private static int minLevelToDisplay = Integer.MAX_VALUE;
     private static boolean suppressLoggerOutput;
-    private static String spilloverLogfile;    
+    private static String spilloverLogfile;
 }

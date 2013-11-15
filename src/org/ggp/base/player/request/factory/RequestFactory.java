@@ -6,9 +6,9 @@ import java.util.List;
 import org.ggp.base.player.gamer.Gamer;
 import org.ggp.base.player.request.factory.exceptions.RequestFormatException;
 import org.ggp.base.player.request.grammar.AbortRequest;
-import org.ggp.base.player.request.grammar.PreviewRequest;
 import org.ggp.base.player.request.grammar.InfoRequest;
 import org.ggp.base.player.request.grammar.PlayRequest;
+import org.ggp.base.player.request.grammar.PreviewRequest;
 import org.ggp.base.player.request.grammar.Request;
 import org.ggp.base.player.request.grammar.StartRequest;
 import org.ggp.base.player.request.grammar.StopRequest;
@@ -136,8 +136,8 @@ public final class RequestFactory
         String matchId = arg1.getValue();
 
         return new AbortRequest(gamer, matchId);
-    }	
-    
+    }
+
     private InfoRequest createInfo(Gamer gamer, SymbolList list) throws GdlFormatException
     {
         if (list.size() != 1)
@@ -146,8 +146,8 @@ public final class RequestFactory
         }
 
         return new InfoRequest(gamer);
-    }    
-    
+    }
+
     private PreviewRequest createPreview(Gamer gamer, SymbolList list) throws GdlFormatException
     {
 		if (list.size() != 3)
@@ -160,10 +160,10 @@ public final class RequestFactory
 
 		String theRulesheet = arg1.toString();
 		int previewClock = Integer.valueOf(arg2.getValue());
-		
+
 		Game theReceivedGame = Game.createEphemeralGame(theRulesheet);
 		return new PreviewRequest(gamer, theReceivedGame, previewClock);
-    }    
+    }
 
 	private List<GdlTerm> parseMoves(Symbol symbol) throws GdlFormatException
 	{

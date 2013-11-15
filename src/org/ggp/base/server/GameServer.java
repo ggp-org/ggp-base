@@ -21,8 +21,8 @@ import org.ggp.base.server.event.ServerNewMovesEvent;
 import org.ggp.base.server.event.ServerTimeEvent;
 import org.ggp.base.server.event.ServerTimeoutEvent;
 import org.ggp.base.server.threads.AbortRequestThread;
-import org.ggp.base.server.threads.PreviewRequestThread;
 import org.ggp.base.server.threads.PlayRequestThread;
+import org.ggp.base.server.threads.PreviewRequestThread;
 import org.ggp.base.server.threads.RandomPlayRequestThread;
 import org.ggp.base.server.threads.StartRequestThread;
 import org.ggp.base.server.threads.StopRequestThread;
@@ -42,61 +42,62 @@ import org.ggp.base.util.statemachine.implementation.prover.ProverStateMachine;
 public final class GameServer extends Thread implements Subject
 {
     private final Match match;
-    private final StateMachine stateMachine;    
-    private MachineState currentState;    
+    private final StateMachine stateMachine;
+    private MachineState currentState;
 
-    private final List<String> hosts;    
+    private final List<String> hosts;
     private final List<Integer> ports;
     private final Boolean[] playerGetsUnlimitedTime;
     private final Boolean[] playerPlaysRandomly;
-    
-    private final List<Observer> observers;        
+
+    private final List<Observer> observers;
     private List<Move> previousMoves;
-    
+
     private Map<Role,String> mostRecentErrors;
-    
+
     private String saveToFilename;
     private String spectatorServerURL;
     private String spectatorServerKey;
     private boolean forceUsingEntireClock;
-    
+
     public GameServer(Match match, List<String> hosts, List<Integer> ports) {
         this.match = match;
-        
+
         this.hosts = hosts;
-        this.ports = ports;        
-        
+        this.ports = ports;
+
         playerGetsUnlimitedTime = new Boolean[hosts.size()];
         Arrays.fill(playerGetsUnlimitedTime, Boolean.FALSE);
-        
+
         playerPlaysRandomly = new Boolean[hosts.size()];
-        Arrays.fill(playerPlaysRandomly, Boolean.FALSE);        
+        Arrays.fill(playerPlaysRandomly, Boolean.FALSE);
 
         stateMachine = new ProverStateMachine();
         stateMachine.initialize(match.getGame().getRules());
         currentState = stateMachine.getInitialState();
         previousMoves = null;
-        
-        mostRecentErrors = new HashMap<Role,String>();        
-        
+
+        mostRecentErrors = new HashMap<Role,String>();
+
         match.appendState(currentState.getContents());
-        
+
         observers = new ArrayList<Observer>();
-        
+
         spectatorServerURL = null;
         forceUsingEntireClock = false;
     }
-    
+
     public void startSavingToFilename(String theFilename) {
     	saveToFilename = theFilename;
     }
-    
+
     public String startPublishingToSpectatorServer(String theURL) {
         spectatorServerURL = theURL;
         return publishWhenNecessary();
     }
-    
-    public void addObserver(Observer observer) {
+
+    @Override
+	public void addObserver(Observer observer) {
         observers.add(observer);
     }
 
@@ -108,29 +109,30 @@ public final class GameServer extends Thread implements Subject
 
         return goals;
     }
-    
+
     public StateMachine getStateMachine() {
-        return stateMachine;        
+        return stateMachine;
     }
 
-    public void notifyObservers(Event event) {
+    @Override
+	public void notifyObservers(Event event) {
         for (Observer observer : observers) {
             observer.observe(event);
         }
-        
+
         // Add error events to mostRecentErrors for recording.
         if (event instanceof ServerIllegalMoveEvent) {
             ServerIllegalMoveEvent sEvent = (ServerIllegalMoveEvent)event;
             mostRecentErrors.put(sEvent.getRole(), "IL " + sEvent.getMove());
         } else if (event instanceof ServerTimeoutEvent) {
             ServerTimeoutEvent sEvent = (ServerTimeoutEvent)event;
-            mostRecentErrors.put(sEvent.getRole(), "TO");            
+            mostRecentErrors.put(sEvent.getRole(), "TO");
         } else if (event instanceof ServerConnectionErrorEvent) {
             ServerConnectionErrorEvent sEvent = (ServerConnectionErrorEvent)event;
             mostRecentErrors.put(sEvent.getRole(), "CE");
         }
     }
-    
+
     // Should be called after each move, to collect all of the errors
     // caused by players and write them into the match description.
     private void appendErrorsToMatchDescription() {
@@ -144,7 +146,7 @@ public final class GameServer extends Thread implements Subject
             }
         }
         match.appendErrors(theErrors);
-        mostRecentErrors.clear();        
+        mostRecentErrors.clear();
     }
 
     @Override
@@ -153,9 +155,9 @@ public final class GameServer extends Thread implements Subject
         	if (match.getPreviewClock() >= 0) {
         		sendPreviewRequests();
         	}
-        	
-            notifyObservers(new ServerNewMatchEvent(stateMachine.getRoles(), currentState));                        
-            notifyObservers(new ServerTimeEvent(match.getStartClock() * 1000));            
+
+            notifyObservers(new ServerNewMatchEvent(stateMachine.getRoles(), currentState));
+            notifyObservers(new ServerTimeEvent(match.getStartClock() * 1000));
             sendStartRequests();
             appendErrorsToMatchDescription();
 
@@ -169,11 +171,11 @@ public final class GameServer extends Thread implements Subject
 
                 notifyObservers(new ServerNewMovesEvent(previousMoves));
                 currentState = stateMachine.getNextState(currentState, previousMoves);
-                
+
                 match.appendMoves2(previousMoves);
                 match.appendState(currentState.getContents());
                 appendErrorsToMatchDescription();
-                
+
                 if (match.isAborted()) {
                 	return;
                 }
@@ -195,29 +197,29 @@ public final class GameServer extends Thread implements Subject
         	e.printStackTrace();
         }
     }
-    
+
     public void abort() {
     	try {
     		match.markAborted();
     		interrupt();
     		sendAbortRequests();
     		saveWhenNecessary();
-    		publishWhenNecessary();    		
+    		publishWhenNecessary();
     		notifyObservers(new ServerAbortedMatchEvent());
     		notifyObservers(new ServerMatchUpdatedEvent(match, spectatorServerKey, saveToFilename));
     	} catch (Exception e) {
     		e.printStackTrace();
     	}
     }
-    
+
     private void saveWhenNecessary() {
     	if (saveToFilename == null) {
     		return;
     	}
-    	
+
     	try {
 			File file = new File(saveToFilename);
-			if (!file.exists()) {				
+			if (!file.exists()) {
 				file.createNewFile();
 			}
 			FileWriter fw = new FileWriter(file);
@@ -234,7 +236,7 @@ public final class GameServer extends Thread implements Subject
         if (spectatorServerURL == null) {
         	return null;
         }
-        
+
     	int nAttempt = 0;
     	while (true) {
             try {
@@ -249,7 +251,7 @@ public final class GameServer extends Thread implements Subject
     		nAttempt++;
     	}
     }
-    
+
     public String getSpectatorServerKey() {
     	return spectatorServerKey;
     }
@@ -267,7 +269,7 @@ public final class GameServer extends Thread implements Subject
         for (PlayRequestThread thread : threads) {
             thread.start();
         }
-        
+
         if (forceUsingEntireClock) {
             Thread.sleep(match.getPlayClock() * 1000);
         }
@@ -293,12 +295,12 @@ public final class GameServer extends Thread implements Subject
         }
         if (forceUsingEntireClock) {
             Thread.sleep(match.getStartClock() * 1000);
-        }        
+        }
         for (PreviewRequestThread thread : threads) {
             thread.join();
         }
-    }    
-    
+    }
+
     private synchronized void sendStartRequests() throws InterruptedException {
         List<StartRequestThread> threads = new ArrayList<StartRequestThread>(hosts.size());
         for (int i = 0; i < hosts.size(); i++) {
@@ -311,7 +313,7 @@ public final class GameServer extends Thread implements Subject
         }
         if (forceUsingEntireClock) {
             Thread.sleep(match.getStartClock() * 1000);
-        }        
+        }
         for (StartRequestThread thread : threads) {
             thread.join();
         }
@@ -331,7 +333,7 @@ public final class GameServer extends Thread implements Subject
             thread.join();
         }
     }
-    
+
     private void sendAbortRequests() throws InterruptedException {
         List<AbortRequestThread> threads = new ArrayList<AbortRequestThread>(hosts.size());
         for (int i = 0; i < hosts.size(); i++) {
@@ -346,12 +348,12 @@ public final class GameServer extends Thread implements Subject
             thread.join();
         }
         interrupt();
-    }    
-    
+    }
+
     public void givePlayerUnlimitedTime(int i) {
         playerGetsUnlimitedTime[i] = true;
     }
-    
+
     public void makePlayerPlayRandomly(int i) {
         playerPlaysRandomly[i] = true;
     }
@@ -362,14 +364,14 @@ public final class GameServer extends Thread implements Subject
     public void setForceUsingEntireClock() {
         forceUsingEntireClock = true;
     }
-    
+
     public Match getMatch() {
         return match;
     }
-    
+
     private String getPlayerNameFromMatchForRequest(int i) {
     	if (match.getPlayerNamesFromHost() != null) {
-    		return match.getPlayerNamesFromHost().get(i); 
+    		return match.getPlayerNamesFromHost().get(i);
     	} else {
     		return "";
     	}

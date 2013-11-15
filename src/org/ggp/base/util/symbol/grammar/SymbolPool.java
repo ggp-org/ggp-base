@@ -14,11 +14,11 @@ public final class SymbolPool
 	/**
 	 * If the pool does not have a mapping for the given key, adds a mapping from key to value
 	 * to the pool.
-	 * 
+	 *
 	 * Note that even if you've checked to make sure that the pool doesn't contain the key,
 	 * you still shouldn't assume that this method actually inserts the given value, since
 	 * this class is accessed by multiple threads simultaneously.
-	 * 
+	 *
 	 * @return the value mapped to by key in the pool
 	 */
 	private static <K,V> V addToPool(K key, V value, ConcurrentMap<K, V> pool) {
@@ -28,13 +28,13 @@ public final class SymbolPool
 		else
 			return prevValue;
 	}
-	
+
 	public static SymbolAtom getAtom(String value)
 	{
 		SymbolAtom ret = atomPool.get(value);
 		if(ret == null)
 			ret = addToPool(value, new SymbolAtom(value), atomPool);
-		
+
 		return ret;
 	}
 
@@ -43,7 +43,7 @@ public final class SymbolPool
 		SymbolList ret = listPool.get(contents);
 		if(ret == null)
 			ret = addToPool(contents, new SymbolList(contents), listPool);
-		
+
 		return ret;
 	}
 

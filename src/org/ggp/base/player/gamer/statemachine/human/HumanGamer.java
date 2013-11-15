@@ -30,7 +30,7 @@ public final class HumanGamer extends StateMachineGamer
 	public String getName() {
 		return "Human";
 	}
-	
+
 	/**
 	 * Selects the default move as the first legal move, and then waits
 	 * while the Human sets their move. This is done via the HumanDetailPanel.
@@ -50,46 +50,46 @@ public final class HumanGamer extends StateMachineGamer
 		}
 
 		return move;
-	}	
+	}
 
 	private Move move;
 	public void setMove(Move move) {
 		this.move = move;
 	}
-	
+
 	@Override
 	public DetailPanel getDetailPanel() {
 		return new HumanDetailPanel();
-	}	
+	}
 
 	@Override
 	public void preview(Game g, long timeout) throws GamePreviewException {
 		// Human gamer does no game previewing.
-	}	
-	
+	}
+
 	@Override
 	public void stateMachineMetaGame(long timeout) throws TransitionDefinitionException, MoveDefinitionException, GoalDefinitionException
 	{
 		// Human gamer does no metagaming at the beginning of the match.
-	}	
-	
+	}
+
 	@Override
 	public void stateMachineStop() {
 		// Human gamer does no special cleanup when the match ends normally.
 	}
-	
+
 	@Override
 	public void stateMachineAbort() {
 		// Human gamer does no special cleanup when the match ends abruptly.
-	}		
-	
+	}
+
 	@Override
 	public StateMachine getInitialStateMachine() {
 		return new CachedStateMachine(new ProverStateMachine());
 	}
-	
+
 	@Override
 	public boolean isComputerPlayer() {
 		return false;
-	}	
+	}
 }

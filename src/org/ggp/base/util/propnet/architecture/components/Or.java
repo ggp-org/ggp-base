@@ -10,7 +10,7 @@ public final class Or extends Component
 {
 	/**
 	 * Returns true if and only if at least one of the inputs to the or is true.
-	 * 
+	 *
 	 * @see org.ggp.base.util.propnet.architecture.Component#getValue()
 	 */
 	@Override

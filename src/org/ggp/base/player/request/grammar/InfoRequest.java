@@ -11,12 +11,12 @@ public final class InfoRequest extends Request
 	{
 		this.gamer = gamer;
 	}
-	
+
 	@Override
 	public String getMatchId() {
 		return null;
 	}
-	
+
 	@Override
 	public String process(long receptionTime)
 	{
@@ -26,7 +26,7 @@ public final class InfoRequest extends Request
 		info.setSpecies(gamer.getSpecies());
 		return info.toSymbol().toString();
 	}
-	
+
 	@Override
 	public String toString()
 	{

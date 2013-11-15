@@ -23,7 +23,7 @@ public final class PropNetFactory
 	 * <li>Flattens the game description to remove variables.</li>
 	 * <li>Converts the flattened description into an equivalent PropNet.</li>
 	 * </ol>
-	 * 
+	 *
 	 * @param description
 	 *            A game description.
 	 * @return An equivalent PropNet.

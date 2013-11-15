@@ -47,7 +47,7 @@ public final class PropNetConverter
 	 * <li>Adds or gates to Propositions with more than one input.</li>
 	 * <li>Adds inputs that are implicitly specified by <tt>description</tt>.</li>
 	 * </ol>
-	 * 
+	 *
 	 * @param description
 	 *            A game description.
 	 * @return An equivalent PropNet.
@@ -71,7 +71,7 @@ public final class PropNetConverter
 
 		fixDisjunctions();
 		addMissingInputs();
-		
+
 		return new PropNet(roles, components);
 	}
 
@@ -104,7 +104,7 @@ public final class PropNetConverter
 	/**
 	 * Converts a literal to equivalent PropNet Components and returns a
 	 * reference to the last of those components.
-	 * 
+	 *
 	 * @param literal
 	 *            The literal to convert to equivalent PropNet Components.
 	 * @return The last of those components.
@@ -156,7 +156,7 @@ public final class PropNetConverter
 	/**
 	 * Converts a sentence to equivalent PropNet Components and returns the
 	 * first of those components.
-	 * 
+	 *
 	 * @param sentence
 	 *            The sentence to convert to equivalent PropNet Components.
 	 * @return The first of those Components.
@@ -193,7 +193,7 @@ public final class PropNetConverter
 	 * <tt>convertHead()</tt> method on the head, and the
 	 * <tt>convertConjunct</tt> method on every literal in the body and
 	 * joining the results by an and gate.
-	 * 
+	 *
 	 * @param rule
 	 *            The rule to convert.
 	 */
@@ -216,7 +216,7 @@ public final class PropNetConverter
 
 	/**
 	 * Converts a sentence to equivalent PropNet Components.
-	 * 
+	 *
 	 * @param sentence
 	 *            The sentence to convert to equivalent PropNet Components.
 	 */
@@ -299,7 +299,7 @@ public final class PropNetConverter
 	/**
 	 * Returns a Proposition with name <tt>term</tt>, creating one if none
 	 * already exists.
-	 * 
+	 *
 	 * @param sentence
 	 *            The name of the Proposition.
 	 * @return A Proposition with name <tt>term</tt>.

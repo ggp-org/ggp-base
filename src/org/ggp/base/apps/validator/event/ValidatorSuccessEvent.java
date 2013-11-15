@@ -10,7 +10,7 @@ public final class ValidatorSuccessEvent extends Event
 	{
 		this.name = name;
 	}
-	
+
 	public String getName()
 	{
 		return name;

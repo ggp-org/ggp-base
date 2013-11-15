@@ -17,12 +17,12 @@ public final class PreviewRequest extends Request
 		this.game = theGame;
 		this.previewClock = previewClock;
 	}
-	
+
 	@Override
 	public String getMatchId() {
 		return null;
-	}	
-	
+	}
+
 	@Override
 	public String process(long receptionTime)
 	{
@@ -33,13 +33,13 @@ public final class PreviewRequest extends Request
             //gamer.notifyObservers(new GamerUnrecognizedMatchEvent(matchId));
             return "busy";
         }
-	    
+
 		// Otherwise, if we're not busy, have the gamer start previewing.
 		try {
 			//gamer.notifyObservers(new PlayerTimeEvent(gamer.getMatch().getStartClock() * 1000));
 			gamer.preview(game, previewClock * 1000 + receptionTime);
 			//gamer.metaGame(gamer.getMatch().getStartClock() * 1000 + receptionTime);
-		} catch (GamePreviewException e) {		    
+		} catch (GamePreviewException e) {
 		    GamerLogger.logStackTrace("GamePlayer", e);
 
 		    // Upon encountering an uncaught exception during previewing,

@@ -18,8 +18,8 @@ import org.ggp.base.util.statemachine.Role;
  * with that host, a timeout, a game server to report connection issues to,
  * et cetera. This framework does the usual setup and try-catch responding so
  * that the concrete RequestThread subclasses can focus on request-specific
- * business logic. 
- * 
+ * business logic.
+ *
  * @author schreib
  */
 public abstract class RequestThread extends Thread
@@ -31,7 +31,7 @@ public abstract class RequestThread extends Thread
 	private final int timeout;
 	private final Role role;
 	private final String request;
-	
+
 	public RequestThread(GameServer gameServer, Role role, String host, int port, String playerName, int timeout, String request)
 	{
 		this.gameServer = gameServer;
@@ -44,12 +44,12 @@ public abstract class RequestThread extends Thread
 	}
 
 	protected abstract void handleResponse(String response);
-	
+
 	@Override
 	public void run()
 	{
 		try {
-			String response = HttpRequest.issueRequest(host, port, playerName, request, timeout);			
+			String response = HttpRequest.issueRequest(host, port, playerName, request, timeout);
 			handleResponse(response);
 		} catch (SocketTimeoutException e) {
 			gameServer.notifyObservers(new ServerTimeoutEvent(role));

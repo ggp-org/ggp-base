@@ -4,19 +4,20 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Random;
 
-import org.ggp.base.util.loader.RemoteResourceLoader;
+import junit.framework.TestCase;
+
 import org.ggp.base.util.http.HttpReader;
 import org.ggp.base.util.http.HttpWriter;
-
-import junit.framework.TestCase;
+import org.ggp.base.util.loader.RemoteResourceLoader;
 
 import external.JSON.JSONObject;
 
 public class TiltyardRequestFarm_Test extends TestCase {
+	@Override
 	public void setUp() {
 		new RequestFarmLoopThread().start();
 	}
-	
+
 	public void testThroughput() {
     	new ResponderLoopThread(2000).start();
     	new ReceiverLoopThread("OK").start();
@@ -29,28 +30,28 @@ public class TiltyardRequestFarm_Test extends TestCase {
     	new ReceiverLoopThread("CE").start();
     	runTestingLoop();
 	}
-	
+
 	public void testTimeout() {
     	new ResponderLoopThread(4000).start();
     	new ReceiverLoopThread("TO").start();
     	runTestingLoop();
 	}
-	*/	
-	
+	*/
+
 	static long doMath(long a) {
 		return a/2+3;
 	}
-	
+
     // Connections are run asynchronously in their own threads.
     class ResponderThread extends Thread {
     	private Socket conn;
     	private int sleepTime;
-    	
+
     	public ResponderThread(Socket connection, int sleepTime) {
     		conn = connection;
     		this.sleepTime = sleepTime;
     	}
-    	
+
         @Override
         public void run() {
             try {
@@ -65,17 +66,17 @@ public class TiltyardRequestFarm_Test extends TestCase {
     }
 
     Integer nSuccesses = new Integer(0);
-    
+
     // Connections are run asynchronously in their own threads.
     class ReceiverThread extends Thread {
     	private Socket conn;
     	private String response;
-    	
+
     	public ReceiverThread(Socket connection, String expectedResponse) {
     		conn = connection;
     		response = expectedResponse;
     	}
-    	
+
         @Override
         public void run() {
             try {
@@ -91,19 +92,19 @@ public class TiltyardRequestFarm_Test extends TestCase {
                 }
             	synchronized (nSuccesses) {
             		nSuccesses++;
-            	}                
+            	}
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
     }
-    
+
     class ResponderLoopThread extends Thread {
     	private int sleepTime;
     	public ResponderLoopThread(int sleepTime) {
     		this.sleepTime = sleepTime;
     	}
-    	
+
         @Override
         public void run() {
             try {
@@ -121,13 +122,13 @@ public class TiltyardRequestFarm_Test extends TestCase {
             }
         }
     }
-    
+
     class ReceiverLoopThread extends Thread {
     	private String response;
     	public ReceiverLoopThread(String expectResponse) {
     		response = expectResponse;
     	}
-    	
+
         @Override
         public void run() {
             try {
@@ -140,12 +141,12 @@ public class TiltyardRequestFarm_Test extends TestCase {
                         System.err.println(e);
                     }
                 }
-            } catch (Exception e) {            	
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
     }
-    
+
     class RequestFarmLoopThread extends Thread {
         @Override
         public void run() {
@@ -157,7 +158,7 @@ public class TiltyardRequestFarm_Test extends TestCase {
             }
         }
     }
-    
+
     public void runTestingLoop() {
     	try {
 	    	Random r = new Random();
@@ -167,7 +168,7 @@ public class TiltyardRequestFarm_Test extends TestCase {
     		theRequest.put("timeoutClock", 3000);
     		theRequest.put("callbackURL", "http://127.0.0.1:12346");
     		theRequest.put("forPlayerName", "");
-	    	
+
 	    	int nRequests = 0;
 	    	while (true) {
 	    		theRequest.put("requestContent", "" + r.nextLong());
@@ -185,6 +186,6 @@ public class TiltyardRequestFarm_Test extends TestCase {
 	    	}
     	} catch (Exception e) {
     		e.printStackTrace();
-    	}    		
+    	}
     }
 }

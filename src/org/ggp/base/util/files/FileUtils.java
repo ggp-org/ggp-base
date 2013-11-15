@@ -7,7 +7,7 @@ import java.io.FileReader;
 import java.io.IOException;
 
 public class FileUtils {
-    /** 
+    /**
      * @param filePath the name of the file to open.
      */
     public static String readFileAsString(File file) {

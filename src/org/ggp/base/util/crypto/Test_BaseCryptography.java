@@ -1,14 +1,14 @@
 package org.ggp.base.util.crypto;
 
-import org.ggp.base.util.crypto.BaseCryptography.EncodedKeyPair;
-
 import junit.framework.TestCase;
+
+import org.ggp.base.util.crypto.BaseCryptography.EncodedKeyPair;
 
 /**
  * Unit tests for the BaseCryptography class, which implements
  * a wrapper for the use of asymmetric public/private key cryptography
  * for use in GGP.
- * 
+ *
  * @author Sam
  */
 public class Test_BaseCryptography extends TestCase {
@@ -18,10 +18,10 @@ public class Test_BaseCryptography extends TestCase {
         EncodedKeyPair theKeys = BaseCryptography.generateKeys();
         String theSK = theKeys.thePrivateKey;
         String thePK = theKeys.thePublicKey;
-        
+
         String theData = "Hello world!";
-        String theSignature = BaseCryptography.signData(theSK, theData);        
+        String theSignature = BaseCryptography.signData(theSK, theData);
         assertTrue(BaseCryptography.verifySignature(thePK, theSignature, theData));
     }
-    
+
 }

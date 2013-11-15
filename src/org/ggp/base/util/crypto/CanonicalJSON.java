@@ -30,9 +30,9 @@ public class CanonicalJSON {
             return getCanonicalForm(new JSONObject(x), s);
         } catch (JSONException e) {
             return null;
-        }        
+        }
     }
-    
+
     /* Main function to generate canonical strings for JSON objects */
     static String getCanonicalForm(JSONObject x, CanonicalizationStrategy s) {
         if (s == CanonicalizationStrategy.SIMPLE) {
@@ -41,21 +41,21 @@ public class CanonicalJSON {
             throw new RuntimeException("Canonicalization strategy not recognized.");
         }
     }
-    
+
     /* This should be identical to the standard code to render the JSON object,
      * except it forces the keys for maps to be listed in sorted order. */
     static String renderSimpleCanonicalJSON(Object x) {
         try {
             if (x instanceof JSONObject) {
                 JSONObject theObject = (JSONObject)x;
-                
+
                 // Sort the keys
                 TreeSet<String> t = new TreeSet<String>();
                 Iterator<?> i = theObject.keys();
                 while (i.hasNext()) t.add(i.next().toString());
                 Iterator<String> keys = t.iterator();
-                
-                StringBuffer sb = new StringBuffer("{");    
+
+                StringBuffer sb = new StringBuffer("{");
                 while (keys.hasNext()) {
                     if (sb.length() > 1) {
                         sb.append(',');
@@ -116,6 +116,6 @@ public class CanonicalJSON {
             }
         } catch (Exception e) {
             return null;
-        }            
+        }
     }
 }

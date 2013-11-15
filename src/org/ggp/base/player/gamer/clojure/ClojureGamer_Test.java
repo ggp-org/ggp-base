@@ -1,20 +1,20 @@
 package org.ggp.base.player.gamer.clojure;
 
+import junit.framework.TestCase;
+
 import org.ggp.base.player.gamer.Gamer;
 import org.ggp.base.player.gamer.clojure.stubs.SampleClojureGamerStub;
 import org.ggp.base.util.game.GameRepository;
 import org.ggp.base.util.gdl.grammar.GdlPool;
 import org.ggp.base.util.match.Match;
 
-import junit.framework.TestCase;
-
 /**
  * Unit tests for the ClojureGamer class, to verify that we can actually
  * instantiate a Clojure-based gamer and have it play moves in a game.
- * 
+ *
  * @author Sam
  */
-public class ClojureGamer_Test extends TestCase {	
+public class ClojureGamer_Test extends TestCase {
     public void testClojureGamer() {
         try {
             Gamer g = new SampleClojureGamerStub();

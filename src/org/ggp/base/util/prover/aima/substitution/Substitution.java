@@ -59,10 +59,10 @@ public final class Substitution
 	{
 		contents.put(variable, term);
 	}
-	
+
 	/**
 	 * Creates an identical substitution.
-	 * 
+	 *
 	 * @return A new, identical substitution.
 	 */
 	public Substitution copy()

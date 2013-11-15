@@ -7,8 +7,8 @@ import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
-import org.ggp.base.util.crypto.SignableJSON;
 import org.ggp.base.util.crypto.BaseCryptography.EncodedKeyPair;
+import org.ggp.base.util.crypto.SignableJSON;
 import org.ggp.base.util.game.Game;
 import org.ggp.base.util.game.RemoteGameRepository;
 import org.ggp.base.util.gdl.factory.GdlFactory;
@@ -38,7 +38,7 @@ import external.JSON.JSONObject;
  * lists what move each player made at each step through the match. This
  * also includes other relevant metadata about the match, including some
  * unique identifiers, configuration information, and so on.
- * 
+ *
  * NOTE: Match objects created by a player, representing state read from
  * a server, are not completely filled out. For example, they only get an
  * ephemeral Game object, which has a rulesheet but no key or metadata.
@@ -46,7 +46,7 @@ import external.JSON.JSONObject;
  * information on what states have been observed, because (somehow) they
  * are representing games without using state machines. In general, these
  * player-created Match objects shouldn't be sent out into the ecosystem.
- * 
+ *
  * @author Sam
  */
 public final class Match
@@ -67,11 +67,11 @@ public final class Match
 	private boolean isAborted;
 	private final List<Integer> goalValues;
 	private final int numRoles;
-	
+
 	private EncodedKeyPair theCryptographicKeys;
 	private List<String> thePlayerNamesFromHost;
 	private List<Boolean> isPlayerHuman;
-	
+
 	private GdlScrambler theGdlScrambler = new NoOpGdlScrambler();
 
 	public Match(String matchId, int previewClock, int startClock, int playClock, Game theGame)
@@ -81,23 +81,23 @@ public final class Match
 		this.startClock = startClock;
 		this.playClock = playClock;
 		this.theGame = theGame;
-		
+
 		this.startTime = new Date();
 		this.randomToken = getRandomString(32);
 		this.spectatorAuthToken = getRandomString(12);
 		this.isCompleted = false;
 		this.isAborted = false;
-		
+
 		this.numRoles = Role.computeRoles(theGame.getRules()).size();
-		
+
 		this.moveHistory = new ArrayList<List<GdlTerm>>();
 		this.stateHistory = new ArrayList<Set<GdlSentence>>();
 		this.stateTimeHistory = new ArrayList<Date>();
 		this.errorHistory = new ArrayList<List<String>>();
-		
+
 		this.goalValues = new ArrayList<Integer>();
 	}
-	
+
 	public Match(String theJSON, Game theGame, String authToken) throws JSONException, SymbolFormatException, GdlFormatException {
         JSONObject theMatchObject = new JSONObject(theJSON);
 
@@ -112,13 +112,13 @@ public final class Match
         } else {
             this.theGame = theGame;
         }
-        
+
         if (theMatchObject.has("previewClock")) {
         	this.previewClock = theMatchObject.getInt("previewClock");
         } else {
         	this.previewClock = -1;
         }
-        
+
         this.startTime = new Date(theMatchObject.getLong("startTime"));
         this.randomToken = theMatchObject.getString("randomToken");
         this.spectatorAuthToken = authToken;
@@ -130,12 +130,12 @@ public final class Match
         }
 
         this.numRoles = Role.computeRoles(this.theGame.getRules()).size();
-        
+
         this.moveHistory = new ArrayList<List<GdlTerm>>();
         this.stateHistory = new ArrayList<Set<GdlSentence>>();
         this.stateTimeHistory = new ArrayList<Date>();
         this.errorHistory = new ArrayList<List<String>>();
-        
+
         JSONArray theMoves = theMatchObject.getJSONArray("moves");
         for (int i = 0; i < theMoves.length(); i++) {
             List<GdlTerm> theMove = new ArrayList<GdlTerm>();
@@ -155,7 +155,7 @@ public final class Match
             }
             stateHistory.add(theState);
         }
-        JSONArray theStateTimes = theMatchObject.getJSONArray("stateTimes");        
+        JSONArray theStateTimes = theMatchObject.getJSONArray("stateTimes");
         for (int i = 0; i < theStateTimes.length(); i++) {
             this.stateTimeHistory.add(new Date(theStateTimes.getLong(i)));
         }
@@ -171,18 +171,18 @@ public final class Match
                 errorHistory.add(theMoveErrors);
             }
         }
-        
+
         this.goalValues = new ArrayList<Integer>();
         try {
             JSONArray theGoalValues = theMatchObject.getJSONArray("goalValues");
-            for (int i = 0; i < theGoalValues.length(); i++) {            
+            for (int i = 0; i < theGoalValues.length(); i++) {
                 this.goalValues.add(theGoalValues.getInt(i));
             }
         } catch (JSONException e) {}
-        
+
         // TODO: Add a way to recover cryptographic public keys and signatures.
         // Or, perhaps loading a match into memory for editing should strip those?
-        
+
         if (theMatchObject.has("playerNamesFromHost")) {
             thePlayerNamesFromHost = new ArrayList<String>();
             JSONArray thePlayerNames = theMatchObject.getJSONArray("playerNamesFromHost");
@@ -195,36 +195,36 @@ public final class Match
             JSONArray isPlayerHumanArray = theMatchObject.getJSONArray("isPlayerHuman");
             for (int i = 0; i < isPlayerHumanArray.length(); i++) {
             	isPlayerHuman.add(isPlayerHumanArray.getBoolean(i));
-            }        	
+            }
         }
 	}
-	
+
 	/* Mutators */
-	
+
 	public void setCryptographicKeys(EncodedKeyPair k) {
 	    this.theCryptographicKeys = k;
 	}
-	
+
 	public void enableScrambling() {
 		theGdlScrambler = new MappingGdlScrambler(new Random(startTime.getTime()));
 		for (Gdl rule : theGame.getRules()) {
 			theGdlScrambler.scramble(rule);
 		}
 	}
-	
+
 	public void setPlayerNamesFromHost(List<String> thePlayerNames) {
 	    this.thePlayerNamesFromHost = thePlayerNames;
 	}
-	
+
 	public List<String> getPlayerNamesFromHost() {
 		return thePlayerNamesFromHost;
 	}
-	
+
 	public void setWhichPlayersAreHuman(List<Boolean> isPlayerHuman) {
 		this.isPlayerHuman = isPlayerHuman;
 	}
 
-	public void appendMoves(List<GdlTerm> moves) {	    
+	public void appendMoves(List<GdlTerm> moves) {
 		moveHistory.add(moves);
 	}
 
@@ -236,14 +236,14 @@ public final class Match
 		for(Move m : moves) {
 			theMoves.add(m.getContents());
 		}
-		appendMoves(theMoves);          
+		appendMoves(theMoves);
 	}
-	
+
 	public void appendState(Set<GdlSentence> state) {
 	    stateHistory.add(state);
 	    stateTimeHistory.add(new Date());
 	}
-	
+
 	public void appendErrors(List<String> errors) {
 	    errorHistory.add(errors);
 	}
@@ -254,21 +254,21 @@ public final class Match
             theNoErrors.add("");
         }
         errorHistory.add(theNoErrors);
-    }	
-	
+    }
+
 	public void markCompleted(List<Integer> theGoalValues) {
 	    this.isCompleted = true;
 	    if (theGoalValues != null) {
 	        this.goalValues.addAll(theGoalValues);
 	    }
 	}
-	
+
 	public void markAborted() {
 		this.isAborted = true;
 	}
 
 	/* Complex accessors */
-		
+
     public String toJSON() {
         JSONObject theJSON = new JSONObject();
 
@@ -301,13 +301,13 @@ public final class Match
         } catch (JSONException e) {
             return null;
         }
-        
+
         if (theCryptographicKeys != null) {
             try {
                 SignableJSON.signJSON(theJSON, theCryptographicKeys.thePublicKey, theCryptographicKeys.thePrivateKey);
                 if (!SignableJSON.isSignedJSON(theJSON)) {
                     throw new Exception("Could not recognize signed match: " + theJSON);
-                }                
+                }
                 if (!SignableJSON.verifySignedJSON(theJSON)) {
                     throw new Exception("Could not verify signed match: " + theJSON);
                 }
@@ -317,7 +317,7 @@ public final class Match
                 theJSON.remove("matchHostSignature");
             }
         }
-        
+
         return theJSON.toString();
     }
 
@@ -344,13 +344,13 @@ public final class Match
     			}
     		}
     		theXML.append("</match>");
-    		
+
     		return theXML.toString();
     	} catch (JSONException je) {
     		return null;
     	}
     }
-    
+
     public List<GdlTerm> getMostRecentMoves() {
         if (moveHistory.size() == 0)
             return null;
@@ -360,31 +360,32 @@ public final class Match
     public Set<GdlSentence> getMostRecentState() {
         if (stateHistory.size() == 0)
             return null;
-        return stateHistory.get(stateHistory.size()-1);        
+        return stateHistory.get(stateHistory.size()-1);
     }
-    
+
     public String getGameRepositoryURL() {
         return getGame().getRepositoryURL();
     }
-    
-    public String toString() {
+
+    @Override
+	public String toString() {
         return toJSON();
-    }    
-	
+    }
+
 	/* Simple accessors */
 
     public String getMatchId() {
         return matchId;
     }
-    
+
     public String getRandomToken() {
         return randomToken;
     }
-    
+
     public String getSpectatorAuthToken() {
         return spectatorAuthToken;
     }
-	
+
 	public Game getGame() {
 		return theGame;
 	}
@@ -392,19 +393,19 @@ public final class Match
 	public List<List<GdlTerm>> getMoveHistory() {
 		return moveHistory;
 	}
-	
+
     public List<Set<GdlSentence>> getStateHistory() {
         return stateHistory;
     }
-        
+
     public List<Date> getStateTimeHistory() {
         return stateTimeHistory;
     }
-    
+
     public List<List<String>> getErrorHistory() {
         return errorHistory;
     }
-    
+
     public int getPreviewClock() {
     	return previewClock;
     }
@@ -416,11 +417,11 @@ public final class Match
 	public int getStartClock() {
 		return startClock;
 	}
-	
+
 	public Date getStartTime() {
 	    return startTime;
 	}
-	
+
 	public boolean isCompleted() {
 	    return isCompleted;
 	}
@@ -432,13 +433,13 @@ public final class Match
 	public List<Integer> getGoalValues() {
 	    return goalValues;
 	}
-	
+
 	public GdlScrambler getGdlScrambler() {
 		return theGdlScrambler;
 	}
-	
+
 	/* Static methods */
-	
+
     public static final String getRandomString(int nLength) {
         Random theGenerator = new Random();
         String theString = "";
@@ -450,24 +451,24 @@ public final class Match
         }
         return theString;
     }
-    
+
     /* JSON rendering methods */
-    
+
     private static final String renderArrayAsJSON(List<?> theList, boolean useQuotes) {
         String s = "[";
         for (int i = 0; i < theList.size(); i++) {
             Object o = theList.get(i);
             // AppEngine-specific, not needed yet: if (o instanceof Text) o = ((Text)o).getValue();
             if (o instanceof Date) o = ((Date)o).getTime();
-            
+
             if (useQuotes) s += "\"";
             s += o.toString();
             if (useQuotes) s += "\"";
-            
+
             if (i < theList.size() - 1)
                 s += ", ";
         }
-        return s + "]";        
+        return s + "]";
     }
 
     private static final List<String> renderStateHistory(List<Set<GdlSentence>> stateHistory) {
@@ -483,16 +484,16 @@ public final class Match
         for (List<GdlTerm> aMove : moveHistory) {
             renderedMoves.add(renderArrayAsJSON(aMove, true));
         }
-        return renderedMoves;        
+        return renderedMoves;
     }
-    
+
     private static final List<String> renderErrorHistory(List<List<String>> errorHistory) {
         List<String> renderedErrors = new ArrayList<String>();
         for (List<String> anError : errorHistory) {
             renderedErrors.add(renderArrayAsJSON(anError, true));
         }
-        return renderedErrors;        
-    }    
+        return renderedErrors;
+    }
 
     private static final String renderStateAsSymbolList(Set<GdlSentence> theState) {
         // Strip out the TRUE proposition, since those are implied for states.
@@ -503,13 +504,13 @@ public final class Match
         }
         return s + ")";
     }
-    
+
     /* XML Rendering methods -- these are horribly inefficient and are included only for legacy/standards compatibility */
-    
+
     private static final String renderLeafXML(String tagName, Object value) {
     	return "<" + tagName + ">" + value.toString() + "</" + tagName + ">";
     }
-    
+
     private static final String renderMoveHistoryXML(List<List<GdlTerm>> moveHistory) {
     	StringBuilder theXML = new StringBuilder();
 		theXML.append("<history>");
@@ -523,7 +524,7 @@ public final class Match
 		theXML.append("</history>");
 		return theXML.toString();
     }
-    
+
     private static final String renderErrorHistoryXML(List<List<String>> errorHistory) {
     	StringBuilder theXML = new StringBuilder();
 		theXML.append("<errorHistory>");
@@ -537,7 +538,7 @@ public final class Match
 		theXML.append("</errorHistory>");
 		return theXML.toString();
     }
-    
+
     private static final String renderStateHistoryXML(List<Set<GdlSentence>> stateHistory) {
     	StringBuilder theXML = new StringBuilder();
 		theXML.append("<herstory>");
@@ -547,7 +548,7 @@ public final class Match
 		theXML.append("</herstory>");
 		return theXML.toString();
     }
-    
+
     public static final String renderStateXML(Set<GdlSentence> state) {
     	StringBuilder theXML = new StringBuilder();
 		theXML.append("<state>");
@@ -557,7 +558,7 @@ public final class Match
 		theXML.append("</state>");
 		return theXML.toString();
     }
-    
+
     private static final String renderArrayXML(String tag, JSONArray arr) throws JSONException {
     	StringBuilder theXML = new StringBuilder();
     	for (int i = 0; i < arr.length(); i++) {
@@ -565,7 +566,7 @@ public final class Match
     	}
 		return theXML.toString();
     }
-    
+
     private static final String renderGdlToXML(Gdl gdl) {
         String rval = "";
         if(gdl instanceof GdlConstant) {
@@ -601,5 +602,5 @@ public final class Match
             System.err.println("gdlToXML Error: could not handle "+gdl.toString());
             return null;
         }
-    }    
+    }
 }

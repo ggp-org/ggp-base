@@ -21,7 +21,7 @@ public class PlayRequestThread extends RequestThread
 	private final List<Move> legalMoves;
 	private final Match match;
 	private final Role role;
-	
+
 	private Move move;
 
 	public PlayRequestThread(GameServer gameServer, Match match, List<Move> previousMoves, List<Move> legalMoves, Role role, String host, int port, String playerName, boolean unlimitedTime)
@@ -34,12 +34,12 @@ public class PlayRequestThread extends RequestThread
 
 		move = legalMoves.get(new Random().nextInt(legalMoves.size()));
 	}
-	
+
 	public Move getMove()
 	{
 		return move;
 	}
-	
+
 	@Override
 	protected void handleResponse(String response) {
 		try {

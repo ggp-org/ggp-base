@@ -9,20 +9,22 @@ import org.ggp.base.apps.kiosk.templates.GameCanvas_Chessboard;
 
 
 public class CheckersCanvas extends GameCanvas_Chessboard {
-    private static final long serialVersionUID = 1L;    
-    
-    public String getGameName() { return "Checkers"; }
-    protected String getGameKey() { return "checkers"; }
-        
+    private static final long serialVersionUID = 1L;
+
+    @Override
+	public String getGameName() { return "Checkers"; }
+    @Override
+	protected String getGameKey() { return "checkers"; }
+
     @Override
     protected Set<String> getLegalMovesForCell(int xCell, int yCell) {
-        String xLetter = coordinateToLetter(xCell);        
+        String xLetter = coordinateToLetter(xCell);
         Set<String> theMoves = gameStateHasLegalMovesMatching("\\( move .. " + xLetter + " " + yCell + " (.*) \\)");
         theMoves.addAll(gameStateHasLegalMovesMatching("\\( doublejump .. " + xLetter + " " + yCell + " (.*) \\)"));
         theMoves.addAll(gameStateHasLegalMovesMatching("\\( triplejump .. " + xLetter + " " + yCell + " (.*) \\)"));
         return theMoves;
     }
-    
+
     @Override
     protected Set<String> getFactsAboutCell(int xCell, int yCell) {
         String xLetter = coordinateToLetter(xCell);
@@ -36,13 +38,13 @@ public class CheckersCanvas extends GameCanvas_Chessboard {
         if(!cellType.equals("b")) {
             CommonGraphics.drawCheckersPiece(g, cellType);
         }
-    }    
-    
+    }
+
     @Override
     protected void renderMoveSelectionForCell(Graphics g, int xCell, int yCell, String theMove) {
         int width = g.getClipBounds().width;
-        int height = g.getClipBounds().height;        
-        
+        int height = g.getClipBounds().height;
+
         String xLetter = coordinateToLetter(xCell);
 
         String[] moveParts = theMove.split(" ");

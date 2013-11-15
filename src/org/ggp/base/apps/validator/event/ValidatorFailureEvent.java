@@ -12,7 +12,7 @@ public class ValidatorFailureEvent extends Event
 		this.name = name;
 		this.exception = exception;
 	}
-	
+
 	public String getName()
 	{
 		return name;

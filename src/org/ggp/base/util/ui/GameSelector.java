@@ -22,44 +22,45 @@ import org.ggp.base.util.game.LocalGameRepository;
  * is a little rough, and could use some polish, but it provides all
  * of the important functionality: you can load games both from local
  * storage and from game repositories on the web.
- * 
+ *
  * @author Sam Schreiber
  */
 public class GameSelector implements ActionListener {
     JComboBox<NamedItem> theGameList;
     JComboBox<String> theRepositoryList;
-    
+
     GameRepository theSelectedRepository;
     Map<String, GameRepository> theCachedRepositories;
 
     class NamedItem {
         public final String theKey;
         public final String theName;
-        
+
         public NamedItem(String theKey, String theName) {
             this.theKey = theKey;
             this.theName = theName;
         }
-        
-        public String toString() {
+
+        @Override
+		public String toString() {
             return theName;
         }
     }
-    
+
     public GameSelector() {
         theGameList = new JComboBox<NamedItem>();
-        theGameList.addActionListener(this); 
-        
+        theGameList.addActionListener(this);
+
         theRepositoryList = new JComboBox<String>();
         theRepositoryList.addActionListener(this);
 
-        theCachedRepositories = new HashMap<String, GameRepository>();        
+        theCachedRepositories = new HashMap<String, GameRepository>();
         theRepositoryList.addItem("games.ggp.org/base");
         theRepositoryList.addItem("games.ggp.org/dresden");
         theRepositoryList.addItem("games.ggp.org/stanford");
         theRepositoryList.addItem("Local Game Repository");
     }
-    
+
     @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == theRepositoryList) {
@@ -76,14 +77,14 @@ public class GameSelector implements ActionListener {
             }
             repopulateGameList();
         }
-    }    
-    
+    }
+
     public GameRepository getSelectedGameRepository() {
         return theSelectedRepository;
     }
-    
-    public void repopulateGameList() {        
-        GameRepository theRepository = getSelectedGameRepository();        
+
+    public void repopulateGameList() {
+        GameRepository theRepository = getSelectedGameRepository();
         List<String> theKeyList = new ArrayList<String>(theRepository.getGameKeys());
         Collections.sort(theKeyList);
         theGameList.removeAllItems();
@@ -101,15 +102,15 @@ public class GameSelector implements ActionListener {
             theGameList.addItem(new NamedItem(theKey, theName));
         }
     }
-    
+
     public JComboBox<String> getRepositoryList() {
         return theRepositoryList;
     }
-    
+
     public JComboBox<NamedItem> getGameList() {
         return theGameList;
     }
-    
+
     public Game getSelectedGame() {
         try {
             return getSelectedGameRepository().getGame(((NamedItem)theGameList.getSelectedItem()).theKey);

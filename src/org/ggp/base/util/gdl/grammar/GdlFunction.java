@@ -44,7 +44,7 @@ public final class GdlFunction extends GdlTerm
 	{
 		return name;
 	}
-	
+
 	public List<GdlTerm> getBody()
 	{
 		return body;

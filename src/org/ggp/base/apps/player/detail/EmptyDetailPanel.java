@@ -3,7 +3,9 @@ package org.ggp.base.apps.player.detail;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+
 import javax.swing.JLabel;
+
 import org.ggp.base.util.observer.Event;
 
 /**
@@ -17,6 +19,7 @@ public class EmptyDetailPanel extends DetailPanel {
 		this.add(new JLabel("No details available."), new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 5, 5));
 	}
 
+	@Override
 	public void observe(Event event) {
 		// Do nothing when notified about events
 	}

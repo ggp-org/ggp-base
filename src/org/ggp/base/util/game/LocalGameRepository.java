@@ -18,7 +18,8 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
 
-import external.JSON.*;
+import external.JSON.JSONException;
+import external.JSON.JSONObject;
 
 /**
  * Local game repositories provide access to game resources stored on the
@@ -26,16 +27,16 @@ import external.JSON.*;
  * web-based GGP.org infrastructure, this starts a simple HTTP server that
  * provides access to the local game resources, and then uses the standard
  * RemoteGameRepository interface to read from that server.
- * 
+ *
  * @author Sam
  */
 public final class LocalGameRepository extends GameRepository {
     private static final int REPO_SERVER_PORT = 9140;
     private static HttpServer theLocalRepoServer = null;
     private static String theLocalRepoURL = "http://127.0.0.1:" + REPO_SERVER_PORT;
-    
+
     private static RemoteGameRepository theRealRepo;
-    
+
     public LocalGameRepository() {
         if (theLocalRepoServer == null) {
             try {
@@ -47,17 +48,17 @@ public final class LocalGameRepository extends GameRepository {
                 throw new RuntimeException(e);
             }
         }
-        
+
         theRealRepo = new RemoteGameRepository(theLocalRepoURL);
     }
-   
+
     public void cleanUp()
     {
         if (theLocalRepoServer != null) {
         	theLocalRepoServer.stop(0);
         }
     }
-    
+
     @Override
     protected Game getUncachedGame(String theKey) {
         return theRealRepo.getGame(theKey);
@@ -67,17 +68,18 @@ public final class LocalGameRepository extends GameRepository {
     protected Set<String> getUncachedGameKeys() {
         return theRealRepo.getGameKeys();
     }
-    
+
     // ========================
-    
+
     class LocalRepoServer implements HttpHandler {
-        public void handle(HttpExchange t) throws IOException {
+        @Override
+		public void handle(HttpExchange t) throws IOException {
             String theURI = t.getRequestURI().toString();
             byte[] response = BaseRepository.getResponseBytesForURI(theURI);
             if (response == null) {
                 t.sendResponseHeaders(404, 0);
                 OutputStream os = t.getResponseBody();
-                os.close();                
+                os.close();
             } else {
                 t.sendResponseHeaders(200, response.length);
                 OutputStream os = t.getResponseBody();
@@ -85,11 +87,11 @@ public final class LocalGameRepository extends GameRepository {
                 os.close();
             }
         }
-    }    
-    
+    }
+
     static class BaseRepository {
-        public static final String repositoryRootDirectory = theLocalRepoURL;    
-        
+        public static final String repositoryRootDirectory = theLocalRepoURL;
+
         public static boolean shouldIgnoreFile(String fileName) {
         	if (fileName.startsWith(".")) return true;
         	if (fileName.contains(" ")) return true;
@@ -102,7 +104,7 @@ public final class LocalGameRepository extends GameRepository {
             if (!reqURI.startsWith("/games/")) {
                 return getBytesForFile(new File("games" + reqURI));
             }
-            
+
             // Provide a listing of all of the metadata files for all of
             // the games, on request.
             if (reqURI.equals("/games/metadata")) {
@@ -117,25 +119,25 @@ public final class LocalGameRepository extends GameRepository {
                 }
                 return theGameMetaMap.toString().getBytes();
             }
-            
+
             // Accessing the folder containing a game should show the game's
             // associated metadata (which includes the contents of the folder).
             if(reqURI.endsWith("/") && reqURI.length() > 9) {
                 reqURI += "METADATA";
             }
-            
+
             // Extract out the version number
             String thePrefix = reqURI.substring(0, reqURI.lastIndexOf("/"));
             String theSuffix = reqURI.substring(reqURI.lastIndexOf("/")+1);
             Integer theExplicitVersion = null;
             try {
                 String vPart = thePrefix.substring(thePrefix.lastIndexOf("/v")+2);
-                theExplicitVersion = Integer.parseInt(vPart);            
+                theExplicitVersion = Integer.parseInt(vPart);
                 thePrefix = thePrefix.substring(0, thePrefix.lastIndexOf("/v"));
             } catch (Exception e) {
                 ;
             }
-            
+
             // Sanity check: raise an exception if the parsing didn't work.
             if (theExplicitVersion == null) {
                 if (!reqURI.equals(thePrefix + "/" + theSuffix)) {
@@ -150,7 +152,7 @@ public final class LocalGameRepository extends GameRepository {
             // When no version number is explicitly specified, assume that we want the
             // latest version, whatever that is. Also, make sure the game version being
             // requested actually exists (i.e. is between 0 and the max version).
-            int nMaxVersion = getMaxVersionForDirectory(new File("games", thePrefix));        
+            int nMaxVersion = getMaxVersionForDirectory(new File("games", thePrefix));
             Integer theFetchedVersion = theExplicitVersion;
             if (theFetchedVersion == null) theFetchedVersion = nMaxVersion;
             if (theFetchedVersion < 0 || theFetchedVersion > nMaxVersion) return null;
@@ -167,14 +169,14 @@ public final class LocalGameRepository extends GameRepository {
             }
             return null;
         }
-        
+
         // When the user requests a particular version, the metadata should always be for that version.
         // When the user requests the latest version, the metadata should always indicate the most recent version.
         public static byte[] adjustMetadataJSON(String reqURI, byte[] theMetaBytes, Integer nExplicitVersion, int nMaxVersion) throws IOException {
             try {
                 JSONObject theMetaJSON = new JSONObject(new String(theMetaBytes));
                 if (nExplicitVersion == null) {
-                    theMetaJSON.put("version", nMaxVersion);             
+                    theMetaJSON.put("version", nMaxVersion);
                 } else {
                     theMetaJSON.put("version", nExplicitVersion);
                 }
@@ -184,13 +186,13 @@ public final class LocalGameRepository extends GameRepository {
             } catch (JSONException je) {
                 throw new IOException(je);
             }
-        }    
-        
+        }
+
         private static int getMaxVersionForDirectory(File theDir) {
             if (!theDir.exists() || !theDir.isDirectory()) {
                 return -1;
             }
-            
+
             int maxVersion = 0;
             String[] children = theDir.list();
             for (String s : children) {
@@ -204,7 +206,7 @@ public final class LocalGameRepository extends GameRepository {
             }
             return maxVersion;
         }
-        
+
         private static byte[] getBytesForVersionedFile(String thePrefix, int theVersion, String theSuffix) {
             if (theVersion == 0) {
                 return getBytesForFile(new File("games", thePrefix + "/" + theSuffix));
@@ -212,7 +214,7 @@ public final class LocalGameRepository extends GameRepository {
                 return getBytesForFile(new File("games", thePrefix + "/v" + theVersion + "/" + theSuffix));
             }
         }
-        
+
         private static byte[] getBytesForFile(File theFile) {
             try {
                 if (!theFile.exists()) {
@@ -233,12 +235,12 @@ public final class LocalGameRepository extends GameRepository {
                 return null;
             }
         }
-        
+
         private static String transformXSL(String theContent) {
-            // Special case override for XSLT        
+            // Special case override for XSLT
             return "<!DOCTYPE stylesheet [<!ENTITY ROOT \""+repositoryRootDirectory+"\">]>\n\n" + theContent;
         }
-        
+
         private static String transformJS(String theContent) throws IOException {
             // Horrible hack; fix this later. Right now this is used to
             // let games share a common board user interface, but this should
@@ -269,9 +271,9 @@ public final class LocalGameRepository extends GameRepository {
             response.append("]");
             return response.toString();
         }
-        
+
         public static String readFile(File rootFile) throws IOException {
-            // Show contents of the file.                                        
+            // Show contents of the file.
             FileReader fr = new FileReader(rootFile);
             BufferedReader br = new BufferedReader(fr);
         	try {
@@ -286,29 +288,29 @@ public final class LocalGameRepository extends GameRepository {
             	br.close();
             }
         }
-        
+
         private static byte[] readBinaryFile(File rootFile) throws IOException {
             InputStream in = new FileInputStream(rootFile);
             ByteArrayOutputStream out = new ByteArrayOutputStream();
-            
+
             // Transfer bytes from in to out
             byte[] buf = new byte[1024];
             while (in.read(buf) > 0) {
                 out.write(buf);
             }
             in.close();
-            
+
             return out.toByteArray();
         }
     }
-    
+
     static class MetadataCompleter {
     	/**
     	 * Complete fields in the metadata procedurally, based on the game rulesheet.
     	 * This is used to fill in the number of roles, and create a list containing
     	 * the names of all of the roles. Applications which read the game metadata
     	 * can use these without also having to process the rulesheet.
-    	 * 
+    	 *
     	 * @param theMetaJSON
     	 * @param theRulesheet
     	 * @throws JSONException
@@ -317,6 +319,6 @@ public final class LocalGameRepository extends GameRepository {
     		List<Role> theRoles = Role.computeRoles(Game.createEphemeralGame(Game.preprocessRulesheet(theRulesheet)).getRules());
             theMetaJSON.put("roleNames", theRoles);
             theMetaJSON.put("numRoles", theRoles.size());
-    	}    	
+    	}
     }
 }

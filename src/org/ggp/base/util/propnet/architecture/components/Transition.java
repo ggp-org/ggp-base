@@ -10,7 +10,7 @@ public final class Transition extends Component
 {
 	/**
 	 * Returns the value of the input to the transition.
-	 * 
+	 *
 	 * @see org.ggp.base.util.propnet.architecture.Component#getValue()
 	 */
 	@Override
