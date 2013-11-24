@@ -67,8 +67,16 @@ public final class TiltyardRequestFarm
     }
     public static final EncodedKeyPair theBackendKeys = getKeyPair(FileUtils.readFileAsString(new File("src/org/ggp/base/apps/tiltyard/BackendKeys.json")));
     public static String generateSignedPing() {
+    	String zone = null;
+   		try {
+			zone = RemoteResourceLoader.loadRaw("http://metadata/computeMetadata/v1beta1/instance/zone");
+		} catch (IOException e1) {
+			// If we can't acquire the request farm zone, just silently drop it.
+		}
+
         JSONObject thePing = new JSONObject();
         try {
+        	if (zone != null) thePing.put("zone", zone);
             thePing.put("lastTimeBlock", (System.currentTimeMillis() / 3600000));
             thePing.put("nextTimeBlock", (System.currentTimeMillis() / 3600000)+1);
             SignableJSON.signJSON(thePing, theBackendKeys.thePublicKey, theBackendKeys.thePrivateKey);
