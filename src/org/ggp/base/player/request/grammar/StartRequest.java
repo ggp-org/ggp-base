@@ -29,7 +29,7 @@ public final class StartRequest extends Request
 		this.startClock = startClock;
 		this.playClock = playClock;
 	}
-	
+
 	@Override
 	public String getMatchId() {
 		return matchId;
@@ -45,10 +45,10 @@ public final class StartRequest extends Request
             gamer.notifyObservers(new GamerUnrecognizedMatchEvent(matchId));
             return "busy";
         }
-	    
+
         // Create the new match, and handle all of the associated logistics
         // in the gamer to indicate that we're starting a new match.
-		Match match = new Match(matchId, -1, startClock, playClock, game);		
+		Match match = new Match(matchId, -1, startClock, playClock, game);
 		gamer.setMatch(match);
 		gamer.setRoleName(roleName);
 		gamer.notifyObservers(new GamerNewMatchEvent(match, roleName));
@@ -57,7 +57,7 @@ public final class StartRequest extends Request
 		try {
 			gamer.notifyObservers(new PlayerTimeEvent(gamer.getMatch().getStartClock() * 1000));
 			gamer.metaGame(gamer.getMatch().getStartClock() * 1000 + receptionTime);
-		} catch (MetaGamingException e) {		    
+		} catch (MetaGamingException e) {
 		    GamerLogger.logStackTrace("GamePlayer", e);
 
 		    // Upon encountering an uncaught exception during metagaming,

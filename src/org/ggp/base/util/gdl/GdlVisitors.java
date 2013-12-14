@@ -23,7 +23,7 @@ public class GdlVisitors {
 	 * with the given GdlVisitor. For example, when called on a GdlRule,
 	 * the visitor's visitConstant function is called once for every
 	 * constant anywhere in the head or body of the rule.
-	 * 
+	 *
 	 * @author Alex Landau
 	 */
 	public static void visitAll(Gdl gdl, GdlVisitor visitor) {

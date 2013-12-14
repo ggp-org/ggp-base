@@ -26,8 +26,8 @@ public final class RandomGamer extends StateMachineGamer
 	@Override
 	public String getName() {
 		return "Random";
-	}	
-	
+	}
+
 	@Override
 	public Move stateMachineSelectMove(long timeout) throws TransitionDefinitionException, MoveDefinitionException, GoalDefinitionException
 	{
@@ -41,28 +41,28 @@ public final class RandomGamer extends StateMachineGamer
 		notifyObservers(new GamerSelectedMoveEvent(moves, selection, stop - start));
 		return selection;
 	}
-	
+
 	@Override
 	public StateMachine getInitialStateMachine() {
 		return new CachedStateMachine(new ProverStateMachine());
 	}
-	
+
 	@Override
 	public void preview(Game g, long timeout) throws GamePreviewException {
 		// Random gamer does no game previewing.
-	}	
-	
+	}
+
 	@Override
 	public void stateMachineMetaGame(long timeout) throws TransitionDefinitionException, MoveDefinitionException, GoalDefinitionException
 	{
 		// Random gamer does no metagaming at the beginning of the match.
-	}	
-	
+	}
+
 	@Override
 	public void stateMachineStop() {
 		// Random gamer does no special cleanup when the match ends normally.
 	}
-	
+
 	@Override
 	public void stateMachineAbort() {
 		// Random gamer does no special cleanup when the match ends abruptly.
@@ -71,5 +71,5 @@ public final class RandomGamer extends StateMachineGamer
 	@Override
 	public DetailPanel getDetailPanel() {
 		return new SimpleDetailPanel();
-	}	
+	}
 }

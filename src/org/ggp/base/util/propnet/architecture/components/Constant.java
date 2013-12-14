@@ -13,7 +13,7 @@ public final class Constant extends Component
 
 	/**
 	 * Creates a new Constant with value <tt>value</tt>.
-	 * 
+	 *
 	 * @param value
 	 *            The value of the Constant.
 	 */
@@ -24,7 +24,7 @@ public final class Constant extends Component
 
 	/**
 	 * Returns the value that the constant was initialized to.
-	 * 
+	 *
 	 * @see org.ggp.base.util.propnet.architecture.Component#getValue()
 	 */
 	@Override

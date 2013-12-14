@@ -15,33 +15,33 @@ public class SignableJSON {
     // we can change this prefix to indicate that while still maintaining
     // backwards compatibility.
     static final String theCanonicalizationPrefix = "A";
-    
+
     public static void signJSON(JSONObject theJSON, String thePK, String theSK) throws JSONException {
         if (theJSON.has("matchHostPK") || theJSON.has("matchHostSignature"))
             throw new RuntimeException("Already signed JSON! Cannot sign again.");
-        
+
         theJSON.put("matchHostPK", thePK);
-        String theSignature = BaseCryptography.signData(theSK, CanonicalJSON.getCanonicalForm(theJSON, CanonicalizationStrategy.SIMPLE));        
+        String theSignature = BaseCryptography.signData(theSK, CanonicalJSON.getCanonicalForm(theJSON, CanonicalizationStrategy.SIMPLE));
         theJSON.put("matchHostSignature", theCanonicalizationPrefix + theSignature);
     }
-    
+
     public static boolean isSignedJSON(JSONObject theJSON) throws JSONException {
         if (theJSON.has("matchHostPK") && theJSON.has("matchHostSignature"))
             return true;
         return false;
     }
-    
+
     public static boolean verifySignedJSON(JSONObject theJSON) throws JSONException {
         if (!theJSON.has("matchHostPK") || !theJSON.has("matchHostSignature"))
             throw new RuntimeException("JSON not signed! Cannot verify.");
-        
+
         String thePK = theJSON.getString("matchHostPK");
-        
+
         String theSignature = theJSON.getString("matchHostSignature");
         if (!theSignature.startsWith(theCanonicalizationPrefix))
             return false;
         theSignature = theSignature.replaceFirst(theCanonicalizationPrefix, "");
-        
+
         JSONObject tempObject = new JSONObject(theJSON.toString());
         tempObject.remove("matchHostSignature");
         try {

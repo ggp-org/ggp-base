@@ -39,11 +39,12 @@ public final class VisualizationPanel extends JPanel implements Observer
 		this.theGame = theGame;
 		this.myThis = this;
 		this.timerBar = new JTimerBar();
-		this.add(tabs, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 5, 5));		
+		this.add(tabs, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 5, 5));
 		this.add(timerBar, new GridBagConstraints(0, 1, 1, 1, 1.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 5, 5));
 	}
 
 	private int stepCount = 1;
+	@Override
 	public void observe(Event event)
 	{
 	    if (event instanceof ServerNewGameStateEvent) {
@@ -60,16 +61,16 @@ public final class VisualizationPanel extends JPanel implements Observer
 			rt.start();
 		}
 	}
-	
-	private class RenderThread extends Thread {  
+
+	private class RenderThread extends Thread {
 	    private final MachineState s;
 	    private final int stepNum;
-	    
+
 	    public RenderThread(MachineState s, int stepNum) {
 	        this.s = s;
 	        this.stepNum = stepNum;
 	    }
-	    
+
 	    @Override
 	    public void run()
 	    {
@@ -83,7 +84,7 @@ public final class VisualizationPanel extends JPanel implements Observer
 	        } catch(Exception ex) {
 	            ex.printStackTrace();
 	        }
-	        
+
 	        if(newPanel != null) {
 	            // Add the rendered panel as a new tab
 	            synchronized(tabLock) {
@@ -94,7 +95,7 @@ public final class VisualizationPanel extends JPanel implements Observer
 	                    tabs.setComponentAt(stepNum-1, newPanel);
 	                    tabs.setTitleAt(stepNum-1, new Integer(stepNum).toString());
 
-	                    if(atEnd) {             
+	                    if(atEnd) {
 	                        tabs.setSelectedIndex(tabs.getTabCount()-1);
 	                    }
 	                } catch(Exception ex) {
@@ -110,18 +111,18 @@ public final class VisualizationPanel extends JPanel implements Observer
 	public static void main(String args[]) {
         JFrame frame = new JFrame("Visualization Test");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        
+
         Game theGame = GameRepository.getDefaultRepository().getGame("nineBoardTicTacToe");
         VisualizationPanel theVisual = new VisualizationPanel(theGame);
         frame.setPreferredSize(new Dimension(1200, 900));
         frame.getContentPane().add(theVisual);
         frame.pack();
         frame.setVisible(true);
-        
-        StateMachine theMachine = new CachedStateMachine(new ProverStateMachine());        
+
+        StateMachine theMachine = new CachedStateMachine(new ProverStateMachine());
         theMachine.initialize(theGame.getRules());
         try {
-            MachineState theCurrentState = theMachine.getInitialState();            
+            MachineState theCurrentState = theMachine.getInitialState();
             do {
                 theVisual.observe(new ServerNewGameStateEvent(theCurrentState));
                 theCurrentState = theMachine.getRandomNextState(theCurrentState);

@@ -20,13 +20,14 @@ import org.ggp.base.util.statemachine.MachineState;
 @SuppressWarnings("serial")
 public class StatesPanel extends JPanel implements Observer {
 	private JTabbedPane tabs = new JTabbedPane();
-	
+
 	public StatesPanel()
-	{		
-		this.add(tabs);		
+	{
+		this.add(tabs);
 	}
 
 	private int stepCount = 1;
+	@Override
 	public void observe(Event event) {
 		if (event instanceof ServerNewGameStateEvent)
 		{
@@ -47,7 +48,7 @@ public class StatesPanel extends JPanel implements Observer {
 	        JScrollPane scrollPane = new JScrollPane(statesTextArea);
 	        scrollPane.setPreferredSize(new Dimension(400, 500));
 	        statePanel.add(scrollPane);
-	        
+
 	        // Add the panel as a new tab
 	        // Reusing the VisualizationPanel code, to make it easier in case this gets
 	        // moved off into a new thread
@@ -60,7 +61,7 @@ public class StatesPanel extends JPanel implements Observer {
 	        tabs.setComponentAt(stepNum-1, statePanel);
 	        tabs.setTitleAt(stepNum-1, new Integer(stepNum).toString());
 
-	        if(atEnd) {             
+	        if(atEnd) {
 	        	tabs.setSelectedIndex(tabs.getTabCount()-1);
 	        }
 		}

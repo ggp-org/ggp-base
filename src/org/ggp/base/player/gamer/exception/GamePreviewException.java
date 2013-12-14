@@ -6,7 +6,7 @@ public final class GamePreviewException extends Exception
 	public GamePreviewException(Throwable cause) {
 		super(cause);
 	}
-	
+
 	@Override
 	public String toString()
 	{

@@ -7,7 +7,7 @@ public class GameFlowTester {
 	//This doesn't really "test" the game flow so much as let us
 	//examine it to evaluate it.
 	public static void main(String[] args) throws InterruptedException {
-		String gameName = "tictactoe";		
+		String gameName = "tictactoe";
 	    Game theGame = GameRepository.getDefaultRepository().getGame(gameName);
 		GameFlow flow = new GameFlow(theGame.getRules());
 

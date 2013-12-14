@@ -20,7 +20,7 @@ import clojure.lang.Var;
  * 1) Create a subclass of ClojureGamer that overrides getClojureGamerFile() and
  *    getClojureGamerName() to indicate where the Clojure source code file is.
  *    This is the Java stub that refers to the real Clojure gamer class.
- *    
+ *
  * 2) Create the Clojure source code file, in the /src_clj/ directory in the root
  *    directory for this project. Make sure that the stub points to this class,
  *    and that the Clojure class is a valid subclass of Gamer.
@@ -28,7 +28,7 @@ import clojure.lang.Var;
  * For examples where this has already been done, see @ClojureLegalGamerStub,
  * which is implemented in Clojure and hook into the Java framework using the
  * ClojureGamer stub.
- * 
+ *
  * @author Sam Schreiber
  */
 public abstract class ClojureGamer extends Gamer
@@ -36,8 +36,8 @@ public abstract class ClojureGamer extends Gamer
     Gamer theClojureGamer;
 
     protected abstract String getClojureGamerFile();
-    protected abstract String getClojureGamerName();    
-    
+    protected abstract String getClojureGamerName();
+
     // Gamer stubs are lazily loaded because the Clojure interface takes
     // time to initialize, so we only want to load it when necessary, and
     // not for light-weight things like returning the player name.
@@ -46,10 +46,10 @@ public abstract class ClojureGamer extends Gamer
 	        try {
 	            // Load the Clojure script -- as a side effect this initializes the runtime.
 	            RT.loadResourceScript(getClojureGamerFile() + ".clj");
-	
+
 	            // Get a reference to the gamer-generating function.
 	            Var gamerVar = RT.var("gamer_namespace", getClojureGamerName());
-	     
+
 	            // Call it!
 	            theClojureGamer = (Gamer)gamerVar.invoke();
 	        } catch(Exception e) {
@@ -58,14 +58,14 @@ public abstract class ClojureGamer extends Gamer
 	        }
     	}
     }
-    
+
     // The following methods are overriden as 'final' because they should not
     // be changed in subclasses of this class. Subclasses of this class should
     // only implement getClojureGamerFile() and getClojureGamerName(), and then
     // implement the real methods in the actual Clojure gamer. Essentially, any
     // subclass of this class is a Java-implementation stub for the actual real
     // Clojure implementation.
-    
+
     @Override
     public final void preview(Game game, long timeout) throws GamePreviewException {
     	lazilyLoadGamerStub();
@@ -75,8 +75,8 @@ public abstract class ClojureGamer extends Gamer
             GamerLogger.logError("GamePlayer", "Caught exception in Clojure stateMachineMetaGame:");
             GamerLogger.logStackTrace("GamePlayer", e);
         }
-    }    
-    
+    }
+
     @Override
     public final void metaGame(long timeout) throws MetaGamingException {
     	lazilyLoadGamerStub();
@@ -89,7 +89,7 @@ public abstract class ClojureGamer extends Gamer
             GamerLogger.logStackTrace("GamePlayer", e);
         }
     }
-    
+
     @Override
     public final GdlTerm selectMove(long timeout) throws MoveSelectionException {
     	lazilyLoadGamerStub();
@@ -103,7 +103,7 @@ public abstract class ClojureGamer extends Gamer
             return null;
         }
     }
-    
+
     @Override
     public final void stop() {
     	lazilyLoadGamerStub();
@@ -116,7 +116,7 @@ public abstract class ClojureGamer extends Gamer
             GamerLogger.logStackTrace("GamePlayer", e);
         }
     }
-    
+
     @Override
     public final void abort() {
     	lazilyLoadGamerStub();
@@ -128,10 +128,10 @@ public abstract class ClojureGamer extends Gamer
             GamerLogger.logError("GamePlayer", "Caught exception in Clojure stateMachineAbort:");
             GamerLogger.logStackTrace("GamePlayer", e);
         }
-    }    
-    
+    }
+
    @Override
     public final String getName() {
 	   return getClojureGamerName();
-    } 
+    }
 }

@@ -11,16 +11,20 @@ import org.ggp.base.apps.kiosk.templates.GameCanvas_FancyGrid;
 public class PentagoCanvas extends GameCanvas_FancyGrid {
     private static final long serialVersionUID = 1L;
 
-    public String getGameName() { return "Pentago"; }
-    protected String getGameKey() { return "pentago"; }
-    protected int getGridHeight() { return 6; }
-    protected int getGridWidth() { return 6; }
-    
+    @Override
+	public String getGameName() { return "Pentago"; }
+    @Override
+	protected String getGameKey() { return "pentago"; }
+    @Override
+	protected int getGridHeight() { return 6; }
+    @Override
+	protected int getGridWidth() { return 6; }
+
     @Override
     protected Set<String> getFactsAboutCell(int xCell, int yCell) {
         int nQuad = getQuadrant(xCell, yCell);
         xCell = ((xCell > 3) ? (xCell - 3) : xCell);
-        yCell = ((yCell > 3) ? (yCell - 3) : yCell);        
+        yCell = ((yCell > 3) ? (yCell - 3) : yCell);
         return gameStateHasFactsMatching("\\( cellHolds " + nQuad + " " + xCell + " " + yCell + " (.*) \\)");
     }
 
@@ -44,7 +48,7 @@ public class PentagoCanvas extends GameCanvas_FancyGrid {
 
     private Image left_arrow = CommonGraphics.getImage("pentago", "BlueCircleArrowCCW.png");
     private Image right_arrow = CommonGraphics.getImage("pentago", "BlueCircleArrowCW.png");
-    
+
     @Override
     protected void renderMoveSelectionForCell(Graphics g, int xCell, int yCell, String theMove) {
         String[] moveParts = theMove.split(" ");
@@ -52,21 +56,21 @@ public class PentagoCanvas extends GameCanvas_FancyGrid {
             int nQuad = Integer.parseInt(moveParts[2]);
             if(getQuadrant(xCell, yCell) == nQuad) {
                 CommonGraphics.drawSelectionBox(g);
-                
+
                 if(!(xCell == 2 || xCell == 5)) return;
                 if(!(yCell == 2 || yCell == 5)) return;
-                
+
                 int width = g.getClipBounds().width;
                 int height = g.getClipBounds().height;
                 if(moveParts[3].equals("clockwise")) {
                     g.drawImage(left_arrow, 15, 15, width-30, height-30, null);
                 } else {
-                    g.drawImage(right_arrow, 15, 15, width-30, height-30, null);                    
+                    g.drawImage(right_arrow, 15, 15, width-30, height-30, null);
                 }
             }
         }
     }
-    
+
     private int getQuadrant(int xCell, int yCell) {
         if(xCell > 3) {
             if(yCell > 3) return 1;

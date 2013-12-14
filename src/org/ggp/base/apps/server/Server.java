@@ -45,7 +45,7 @@ import org.ggp.base.util.ui.PlayerSelector;
 
 @SuppressWarnings("serial")
 public final class Server extends JPanel implements ActionListener
-{    
+{
 	static void createAndShowGUI(Server serverPanel, String title)
 	{
 		JFrame frame = new JFrame(title);
@@ -59,28 +59,29 @@ public final class Server extends JPanel implements ActionListener
 	}
 
 	public static void main(String[] args)
-	{        
+	{
 	    NativeUI.setNativeUI();
 	    GdlPool.caseSensitive = false;
-	
+
 		final Server serverPanel = new Server();
 		javax.swing.SwingUtilities.invokeLater(new Runnable()
 		{
 
+			@Override
 			public void run()
 			{
 				createAndShowGUI(serverPanel, "Game Server");
 			}
 		});
 	}
-	
+
 	private Game theGame;
-	
+
 	private final JPanel managerPanel;
-	private final JTabbedPane matchesTabbedPane;	
+	private final JTabbedPane matchesTabbedPane;
 	private final JPanel gamePanel;
 	private final JPanel playersPanel;
-	
+
 	private final SchedulingPanel schedulingPanel;
 	private final LeaderboardPanel leaderboardPanel;
 
@@ -91,29 +92,29 @@ public final class Server extends JPanel implements ActionListener
 	private final JSpinner startClockSpinner;
 	private final JSpinner playClockSpinner;
 	private final JSpinner repetitionsSpinner;
-	
+
 	private final JCheckBox shouldScramble;
 	private final JCheckBox shouldQueue;
 	private final JCheckBox shouldDetail;
-	private final JCheckBox shouldPublish;	
+	private final JCheckBox shouldPublish;
 	private final JCheckBox shouldSave;
-	
+
 	private final GameSelector gameSelector;
 	private final PlayerSelector playerSelector;
 	private final JList<String> playerSelectorList;
-	
+
 	private final Scheduler scheduler;
-		
+
 	public Server()
 	{
 		super(new GridBagLayout());
-		
+
 		runButton = new JButton(runButtonMethod());
 		startClockSpinner = new JSpinner(new SpinnerNumberModel(30,5,600,1));
 		playClockSpinner = new JSpinner(new SpinnerNumberModel(15,5,300,1));
 		repetitionsSpinner = new JSpinner(new SpinnerNumberModel(1,1,1000,1));
 		matchesTabbedPane = new JTabbedPane();
-		
+
 		managerPanel = new JPanel(new GridBagLayout());
 		gamePanel = new JPanel(new GridBagLayout());
 		playersPanel = new JPanel(new GridBagLayout());
@@ -126,14 +127,14 @@ public final class Server extends JPanel implements ActionListener
 		shouldQueue = new JCheckBox("Queue match?", true);
 		shouldDetail = new JCheckBox("Show match details?", true);
 		shouldSave = new JCheckBox("Save match to disk?", false);
-		shouldPublish = new JCheckBox("Publish match to the web?", false);		
-		
+		shouldPublish = new JCheckBox("Publish match to the web?", false);
+
 		runButton.setEnabled(false);
 
 		gameSelector = new GameSelector();
 		playerSelector = new PlayerSelector();
 		playerSelectorList = playerSelector.getPlayerSelectorList();
-		
+
 		int nRowCount = 0;
 		gamePanel.add(new JLabelBold("Match Setup"), new GridBagConstraints(0, nRowCount++, 3, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(5, 25, 5, 25), 0, 0));
 		gamePanel.add(new JLabel("Repository:"), new GridBagConstraints(0, nRowCount, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 1, 5), 5, 5));
@@ -145,21 +146,21 @@ public final class Server extends JPanel implements ActionListener
 		gamePanel.add(new JLabel("Play Clock:"), new GridBagConstraints(0, nRowCount, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(1, 5, 5, 5), 5, 5));
 		gamePanel.add(playClockSpinner, new GridBagConstraints(1, nRowCount++, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.HORIZONTAL, new Insets(1, 5, 5, 5), 5, 5));
 		gamePanel.add(new JLabel("Repetitions:"), new GridBagConstraints(0, nRowCount, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(1, 5, 5, 5), 5, 5));
-		gamePanel.add(repetitionsSpinner, new GridBagConstraints(1, nRowCount++, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.HORIZONTAL, new Insets(1, 5, 5, 5), 5, 5));		
+		gamePanel.add(repetitionsSpinner, new GridBagConstraints(1, nRowCount++, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.HORIZONTAL, new Insets(1, 5, 5, 5), 5, 5));
 		gamePanel.add(shouldScramble, new GridBagConstraints(1, nRowCount++, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 0, 5), 5, 0));
 		gamePanel.add(shouldQueue, new GridBagConstraints(1, nRowCount++, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.HORIZONTAL, new Insets(0, 5, 0, 5), 5, 0));
 		gamePanel.add(shouldDetail, new GridBagConstraints(1, nRowCount++, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.HORIZONTAL, new Insets(0, 5, 0, 5), 5, 0));
 		gamePanel.add(shouldSave, new GridBagConstraints(1, nRowCount++, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.HORIZONTAL, new Insets(0, 5, 0, 5), 5, 0));
-		gamePanel.add(shouldPublish, new GridBagConstraints(1, nRowCount++, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.HORIZONTAL, new Insets(0, 5, 5, 5), 5, 0));		
+		gamePanel.add(shouldPublish, new GridBagConstraints(1, nRowCount++, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.HORIZONTAL, new Insets(0, 5, 5, 5), 5, 0));
 		gamePanel.add(runButton, new GridBagConstraints(1, nRowCount, 1, 1, 0.0, 1.0, GridBagConstraints.SOUTH, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 0, 0));
-		
+
 		nRowCount = 0;
 		playersPanel.add(new JLabelBold("Player List"), new GridBagConstraints(0, nRowCount++, 3, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(5, 25, 5, 25), 0, 0));
 		playersPanel.add(new JScrollPane(playerSelectorList), new GridBagConstraints(0, nRowCount++, 3, 1, 1.0, 1.0, GridBagConstraints.WEST, GridBagConstraints.BOTH, new Insets(5, 25, 5, 25), 0, 0));
 		playersPanel.add(new JButton(addPlayerButtonMethod()), new GridBagConstraints(0, nRowCount, 1, 1, 1.0, 1.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 0, 0));
 		playersPanel.add(new JButton(removePlayerButtonMethod()), new GridBagConstraints(1, nRowCount, 1, 1, 0.0, 1.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 0, 0));
 		playersPanel.add(new JButton(testPlayerButtonMethod()), new GridBagConstraints(2, nRowCount++, 1, 1, 1.0, 1.0, GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 0, 0));
-		
+
 		nRowCount = 0;
 		managerPanel.add(gamePanel, new GridBagConstraints(0, nRowCount++, 1, 1, 1.0, 0.0, GridBagConstraints.NORTHWEST, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 5, 5));
 		managerPanel.add(new JSeparator(), new GridBagConstraints(0, nRowCount++, 1, 1, 0.0, 0.0, GridBagConstraints.NORTHWEST, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 5, 5));
@@ -167,31 +168,31 @@ public final class Server extends JPanel implements ActionListener
 
 		this.add(managerPanel, new GridBagConstraints(0, 0, 1, 1, 0.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 5, 5));
 		this.add(matchesTabbedPane, new GridBagConstraints(1, 0, 1, 1, 1.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 5, 5));
-		
+
         gameSelector.getGameList().addActionListener(this);
         gameSelector.repopulateGameList();
-        
+
         schedulingPanel = new SchedulingPanel();
         leaderboardPanel = new LeaderboardPanel();
 		matchesTabbedPane.addTab("Overview", new OverviewPanel());
-		
+
 		scheduler = new Scheduler(matchesTabbedPane, schedulingPanel, leaderboardPanel);
 		schedulingPanel.setScheduler(scheduler);
 		scheduler.start();
 	}
-	
+
 	public void setSigningKeys(EncodedKeyPair keys) {
 		scheduler.signingKeys = keys;
 	}
-	
+
 	class OverviewPanel extends JPanel {
 		public OverviewPanel() {
 			super(new GridBagLayout());
 			add(schedulingPanel, new GridBagConstraints(0, 0, 1, 1, 2.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 5, 5));
-			add(leaderboardPanel, new GridBagConstraints(1, 0, 1, 1, 1.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 5, 5));					
+			add(leaderboardPanel, new GridBagConstraints(1, 0, 1, 1, 1.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 5, 5));
 		}
 	}
-	
+
     @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == gameSelector.getGameList()) {
@@ -208,12 +209,12 @@ public final class Server extends JPanel implements ActionListener
             validate();
             runButton.setEnabled(false);
             if (theGame == null)
-                return;       
+                return;
 
             StateMachine stateMachine = new ProverStateMachine();
             stateMachine.initialize(theGame.getRules());
             List<Role> roles = stateMachine.getRoles();
-            
+
             int newRowCount = 11;
             for (int i = 0; i < roles.size(); i++) {
                 roleLabels.add(new JLabel(roles.get(i).getName().toString() + ":"));
@@ -227,11 +228,12 @@ public final class Server extends JPanel implements ActionListener
 
             validate();
             runButton.setEnabled(true);
-        }        
-    }	
+        }
+    }
 
 	private AbstractAction runButtonMethod() {
 		return new AbstractAction("Start a new match!") {
+			@Override
 			public void actionPerformed(ActionEvent evt) {
 				int startClock = (Integer)startClockSpinner.getValue();
 				int playClock = (Integer)playClockSpinner.getValue();
@@ -241,9 +243,9 @@ public final class Server extends JPanel implements ActionListener
                 	String name = playerField.getSelectedItem().toString();
                 	thePlayers.add(playerSelector.getPlayerPresence(name));
 				}
-				
+
 				synchronized (scheduler) {
-					for (int i = 0; i < (Integer)repetitionsSpinner.getValue(); i++) {					
+					for (int i = 0; i < (Integer)repetitionsSpinner.getValue(); i++) {
 						scheduler.addPendingMatch(new PendingMatch("Base", theGame, new ArrayList<PlayerPresence>(thePlayers), -1, startClock, playClock, shouldScramble.isSelected(), shouldQueue.isSelected(), shouldDetail.isSelected(), shouldSave.isSelected(), shouldPublish.isSelected()));
 						thePlayers.add(thePlayers.remove(0));  // rotate player roster for repeated matches
 						try {
@@ -259,19 +261,21 @@ public final class Server extends JPanel implements ActionListener
 
 	private AbstractAction testPlayerButtonMethod() {
 		return new AbstractAction("Test") {
+			@Override
 			public void actionPerformed(ActionEvent evt) {
 				if (playerSelectorList.getSelectedValue() != null) {
 					Game testGame = GameRepository.getDefaultRepository().getGame("maze");
 					String playerName = playerSelectorList.getSelectedValue().toString();
-					List<PlayerPresence> thePlayers = Arrays.asList(new PlayerPresence[]{playerSelector.getPlayerPresence(playerName)});				
+					List<PlayerPresence> thePlayers = Arrays.asList(new PlayerPresence[]{playerSelector.getPlayerPresence(playerName)});
 					scheduler.addPendingMatch(new PendingMatch("Test", testGame, thePlayers, -1, 10, 5, false, false, true, false, false));
 				}
 			}
 		};
 	}
-	
+
 	private AbstractAction addPlayerButtonMethod() {
 		return new AbstractAction("Add") {
+			@Override
 			public void actionPerformed(ActionEvent evt) {
 				String hostport = JOptionPane.showInputDialog(null, "What is the new player's address?\nPlease use the format \"host:port\".", "Add a player", JOptionPane.QUESTION_MESSAGE, null, null, "127.0.0.1:9147").toString();
 				try {
@@ -282,9 +286,10 @@ public final class Server extends JPanel implements ActionListener
 			}
 		};
 	}
-	
+
 	private AbstractAction removePlayerButtonMethod() {
 		return new AbstractAction("Remove") {
+			@Override
 			public void actionPerformed(ActionEvent evt) {
 				if (playerSelectorList.getSelectedValue() != null) {
 					playerSelector.removePlayer(playerSelectorList.getSelectedValue().toString());

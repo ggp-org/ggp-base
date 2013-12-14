@@ -10,7 +10,7 @@ public final class HttpWriter
     public static void writeAsClientGET(Socket socket, String hostField, String data, String playerName) throws IOException
     {
         PrintWriter pw = new PrintWriter(socket.getOutputStream());
-        
+
         pw.println("GET /" + URLEncoder.encode(data, "UTF-8") + " HTTP/1.0");
         pw.println("Accept: text/delim");
         pw.println("Host: " + hostField);
@@ -18,10 +18,10 @@ public final class HttpWriter
         pw.println("Receiver: "+playerName);
         pw.println();
         pw.println();
-        
+
         pw.flush();
     }
-    
+
 	public static void writeAsClient(Socket socket, String hostField, String data, String playerName) throws IOException
 	{
 		PrintWriter pw = new PrintWriter(socket.getOutputStream());
@@ -35,7 +35,7 @@ public final class HttpWriter
 		pw.println("Content-Length: " + data.length());
 		pw.println();
 		pw.print(data);
-		
+
 		pw.flush();
 	}
 

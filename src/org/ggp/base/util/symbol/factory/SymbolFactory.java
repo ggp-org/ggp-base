@@ -25,10 +25,10 @@ public final class SymbolFactory
         {
             throw new SymbolFormatException(string);
         }
-    }    
+    }
 
     /* Private, implementation-specific methods below here */
-    
+
 	private static Symbol convert(LinkedList<String> tokens)
 	{
 		if (tokens.getFirst().equals("("))

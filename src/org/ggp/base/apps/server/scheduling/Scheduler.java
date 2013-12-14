@@ -31,17 +31,17 @@ import org.ggp.base.util.ui.CloseableTabs;
 public final class Scheduler implements Observer
 {
 	public EncodedKeyPair signingKeys;
-	
+
 	private JTabbedPane matchesTabbedPane;
 	private SchedulingPanel schedulingPanel;
-	private LeaderboardPanel leaderboardPanel;	
-	
+	private LeaderboardPanel leaderboardPanel;
+
 	private final List<PendingMatch> schedulingQueue;
 	private final Set<String> activePlayers;
-	
+
 	private Map<String, WeakReference<GameServer>> gameServers;
-	
-	public Scheduler(JTabbedPane matchesTabbedPane, SchedulingPanel schedulingPanel, LeaderboardPanel leaderboardPanel) {		
+
+	public Scheduler(JTabbedPane matchesTabbedPane, SchedulingPanel schedulingPanel, LeaderboardPanel leaderboardPanel) {
 		this.schedulingPanel = schedulingPanel;
 		this.leaderboardPanel = leaderboardPanel;
 		this.matchesTabbedPane = matchesTabbedPane;
@@ -49,11 +49,11 @@ public final class Scheduler implements Observer
 		activePlayers = new HashSet<String>();
 		gameServers = new HashMap<String, WeakReference<GameServer>>();
 	}
-	
+
 	public void start() {
 		new SchedulingThread().start();
 	}
-	
+
 	public synchronized void addPendingMatch(PendingMatch spec) {
 		if (spec.shouldQueue) {
 			schedulingPanel.addPendingMatch(spec);
@@ -62,7 +62,7 @@ public final class Scheduler implements Observer
 			doSchedule(spec);
 		}
 	}
-	
+
 	private synchronized boolean canSchedule(PendingMatch spec) {
 		for (PlayerPresence player : spec.thePlayers) {
 			if (!player.getStatus().equals("available")) {
@@ -74,7 +74,7 @@ public final class Scheduler implements Observer
 		}
 		return true;
 	}
-	
+
 	public synchronized void abortOngoingMatch(String matchID) {
 		if (gameServers.containsKey(matchID)) {
 			GameServer server = gameServers.get(matchID).get();
@@ -83,7 +83,7 @@ public final class Scheduler implements Observer
 			}
 		}
 	}
-	
+
 	private synchronized void doSchedule(PendingMatch spec) {
 		try {
 			Match match = new Match(spec.matchID, spec.previewClock, spec.startClock, spec.playClock, spec.theGame);
@@ -110,13 +110,13 @@ public final class Scheduler implements Observer
 				tab.addTab("States", statesPanel);
 				CloseableTabs.addClosableTab(matchesTabbedPane, tab, spec.matchID, addTabCloseButton(tab));
 			}
-			
+
 			match.setCryptographicKeys(signingKeys);
 			match.setPlayerNamesFromHost(playerNames);
 			if (spec.shouldScramble) {
 				match.enableScrambling();
 			}
-			
+
 			GameServer gameServer = new GameServer(match, hosts, ports);
 			if (spec.shouldDetail) {
 				gameServer.addObserver(errorPanel);
@@ -128,7 +128,7 @@ public final class Scheduler implements Observer
 			gameServer.addObserver(leaderboardPanel);
 			gameServer.addObserver(this);
 			gameServer.start();
-			
+
 			activePlayers.addAll(playerNames);
 
 			if (spec.shouldSave) {
@@ -140,32 +140,33 @@ public final class Scheduler implements Observer
 				gameServer.startSavingToFilename(matchFile.getAbsolutePath());
 			}
 			if (spec.shouldPublish) {
-				if (!match.getGame().getRepositoryURL().contains("127.0.0.1")) {					
+				if (!match.getGame().getRepositoryURL().contains("127.0.0.1")) {
 					gameServer.startPublishingToSpectatorServer("http://matches.ggp.org/");
 					gameServer.setForceUsingEntireClock();
-				}				
+				}
 			}
-			
+
 			gameServers.put(spec.matchID, new WeakReference<GameServer>(gameServer));
 			schedulingQueue.remove(spec);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
-	
+
 	@Override
 	public void observe(Event genericEvent) {
 		if (!(genericEvent instanceof ServerMatchUpdatedEvent)) return;
 		ServerMatchUpdatedEvent event = (ServerMatchUpdatedEvent)genericEvent;
-		Match match = event.getMatch();		
+		Match match = event.getMatch();
 		if (!match.isAborted() && !match.isCompleted()) return;
 		activePlayers.removeAll(match.getPlayerNamesFromHost());
 	}
-	
+
 	@SuppressWarnings("serial")
 	private AbstractAction addTabCloseButton(final Component tabToClose) {
 		return new AbstractAction("x") {
-		    public void actionPerformed(ActionEvent evt) {
+		    @Override
+			public void actionPerformed(ActionEvent evt) {
 		    	for (int i = 0; i < matchesTabbedPane.getTabCount(); i++) {
 		    		if (tabToClose == matchesTabbedPane.getComponentAt(i)) {
 		    			matchesTabbedPane.remove(tabToClose);
@@ -173,9 +174,10 @@ public final class Scheduler implements Observer
 		    	}
 		    }
 		};
-	}	
-	
+	}
+
 	class SchedulingThread extends Thread {
+		@Override
 		public void run() {
 			while (true) {
 				try {
@@ -194,6 +196,6 @@ public final class Scheduler implements Observer
 					doSchedule(matchToSchedule);
 				}
 			}
-        }	
+        }
 	}
 }

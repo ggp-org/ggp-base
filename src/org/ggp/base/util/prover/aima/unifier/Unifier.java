@@ -49,10 +49,10 @@ public final class Unifier
 
             if (! unifyTerm(xFunction.getName(), yFunction.getName(), theta))
                 return false;
-            
+
             for (int i = 0; i < xFunction.arity(); i++)
             {
-                if (! unifyTerm(xFunction.get(i), yFunction.get(i), theta)) 
+                if (! unifyTerm(xFunction.get(i), yFunction.get(i), theta))
                     return false;
             }
         }
@@ -60,7 +60,7 @@ public final class Unifier
         {
             return false;
         }
-        
+
         return true;
     }
 

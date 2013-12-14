@@ -66,7 +66,7 @@ import com.google.common.collect.Multimap;
  * classes of rules that have poor performance and replace them with equivalent
  * rules that have better performance, with performance measured by the size of
  * the propnet.)
- * 
+ *
  * Known issues:
  * - Does not work on games with many advanced forms of recursion. These include:
  *   - Anything that breaks the SentenceModel
@@ -89,7 +89,7 @@ import com.google.common.collect.Multimap;
  *   CondensationIsolator could solve these problems. A stopgap alternative is to
  *   try both settings and use the smaller propnet (or the first to be created,
  *   if multithreading).
- * 
+ *
  */
 public class OptimizingPropNetFactory {
 	static final private GdlConstant LEGAL = GdlPool.getConstant("legal");
@@ -125,9 +125,9 @@ public class OptimizingPropNetFactory {
 		description = VariableConstrainer.replaceFunctionValuedVariables(description);
 		description = Relationizer.run(description);
 
-		description = CondensationIsolator.run(description);		    
-		
-		
+		description = CondensationIsolator.run(description);
+
+
 		if(verbose)
 			for(Gdl gdl : description)
 				System.out.println(gdl);
@@ -277,7 +277,7 @@ public class OptimizingPropNetFactory {
 	 * to the outputs of the PropNetFactory. This is for consistency and for
 	 * backwards compatibility with respect to state machines designed for the
 	 * old propnet factory. Feel free to remove this for your player.
-	 * 
+	 *
 	 * @param componentSet
 	 */
 	private static void normalizePropositions(Set<Component> componentSet) {

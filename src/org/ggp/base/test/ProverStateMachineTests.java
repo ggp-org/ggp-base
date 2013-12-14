@@ -141,7 +141,7 @@ public class ProverStateMachineTests extends Assert {
         state = sm.getNextState(state, Collections.singletonList(move("draw 1 1 1 2")));
         assertTrue(sm.isTerminal(state));
     }
-    
+
     @Test
     public void testCase5C() throws Exception {
         List<Gdl> desc = new TestGameRepository().getGame("test_case_5c").getRules();
@@ -156,7 +156,7 @@ public class ProverStateMachineTests extends Assert {
         assertEquals(100, sm.getGoal(state, you));
         assertEquals(Collections.singletonList(100), sm.getGoals(state));
     }
-    
+
     protected Move move(String description) {
         String[] parts = description.split(" ");
         GdlConstant head = GdlPool.getConstant(parts[0]);

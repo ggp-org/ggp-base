@@ -25,11 +25,13 @@ public final class ValidatorThread extends Thread implements Subject
 		this.observers = new ArrayList<Observer>();
 	}
 
+	@Override
 	public void addObserver(Observer observer)
 	{
 		observers.add(observer);
 	}
 
+	@Override
 	public void notifyObservers(Event event)
 	{
 		for (Observer observer : observers)

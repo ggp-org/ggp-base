@@ -19,7 +19,6 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
 
-import com.google.common.collect.Lists;
 import org.ggp.base.apps.player.config.ConfigPanel;
 import org.ggp.base.apps.player.detail.DetailPanel;
 import org.ggp.base.apps.player.match.MatchPanel;
@@ -28,6 +27,8 @@ import org.ggp.base.player.GamePlayer;
 import org.ggp.base.player.gamer.Gamer;
 import org.ggp.base.util.reflection.ProjectSearcher;
 import org.ggp.base.util.ui.NativeUI;
+
+import com.google.common.collect.Lists;
 
 
 @SuppressWarnings("serial")
@@ -47,12 +48,13 @@ public final class Player extends JPanel
 
 	public static void main(String[] args) throws IOException
 	{
-	    NativeUI.setNativeUI();	    
+	    NativeUI.setNativeUI();
 
 	    final Player playerPanel = new Player();
 	    javax.swing.SwingUtilities.invokeLater(new Runnable()
 	    {
 
+		@Override
 		public void run()
 		{
 		    createAndShowGUI(playerPanel);
@@ -66,9 +68,9 @@ public final class Player extends JPanel
 	private final JTextField portTextField;
 
 	private final JComboBox<String> typeComboBox;
-	
+
 	private Integer defaultPort = 9147;
-	
+
 	private List<Class<? extends Gamer>> gamers = Lists.newArrayList(ProjectSearcher.GAMERS.getConcreteClasses());
 
 	public Player()
@@ -118,6 +120,7 @@ public final class Player extends JPanel
 		return new AbstractAction("Create")
 		{
 
+			@Override
 			public void actionPerformed(ActionEvent evt)
 			{
 				try
@@ -143,7 +146,7 @@ public final class Player extends JPanel
 
 					GamePlayer player = new GamePlayer(port, gamer);
 					player.addObserver(networkPanel);
-					player.start();					
+					player.start();
 
 					JTabbedPane tab = new JTabbedPane();
 					tab.addTab("Match", matchPanel);
@@ -152,7 +155,7 @@ public final class Player extends JPanel
 					tab.addTab("Detail", detailPanel);
 					playersTabbedPane.addTab(type + " (" + player.getGamerPort() + ")", tab);
 					playersTabbedPane.setSelectedIndex(playersTabbedPane.getTabCount()-1);
-					
+
 					defaultPort++;
 					portTextField.setText(defaultPort.toString());
 				}

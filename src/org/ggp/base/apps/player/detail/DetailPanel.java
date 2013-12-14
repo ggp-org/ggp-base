@@ -1,7 +1,9 @@
 package org.ggp.base.apps.player.detail;
 
 import java.awt.LayoutManager;
+
 import javax.swing.JPanel;
+
 import org.ggp.base.util.observer.Observer;
 
 /**

@@ -10,8 +10,8 @@ import org.ggp.base.server.GameServer;
 import org.ggp.base.server.event.ServerCompletedMatchEvent;
 import org.ggp.base.server.event.ServerNewGameStateEvent;
 import org.ggp.base.server.event.ServerNewMovesEvent;
-import org.ggp.base.util.crypto.SignableJSON;
 import org.ggp.base.util.crypto.BaseCryptography.EncodedKeyPair;
+import org.ggp.base.util.crypto.SignableJSON;
 import org.ggp.base.util.files.FileUtils;
 import org.ggp.base.util.game.Game;
 import org.ggp.base.util.game.GameRepository;
@@ -30,18 +30,18 @@ import external.JSON.JSONObject;
  * given game, and see which propositions become true/false in each state as
  * the game is played. This can be used to understand how a game runs, or to
  * debug issues in the state machine implementation.
- * 
+ *
  * It can also hide the step counter / control proposition, though this is
  * done in a very naive way, by just looking for (step ?x) and (control ?x)
  * propositions. None the less, it's still useful to have.
- * 
+ *
  * @author Sam Schreiber
  */
 public class SimpleGameSim {
     public static final boolean hideStepCounter = true;
     public static final boolean hideControlProposition = true;
     public static final boolean showCurrentState = false;
-    
+
     public static void main(String[] args) throws InterruptedException {
         final Game theGame = GameRepository.getDefaultRepository().getGame("nineBoardTicTacToe");
         final Match theMatch = new Match("simpleGameSim." + Match.getRandomString(5), -1, 0, 0, theGame);
@@ -57,7 +57,7 @@ public class SimpleGameSim {
         } catch (JSONException e) {
             System.err.println("Could not load sample cryptograhic keys: " + e);
         }
-        
+
         // Set up fake players to pretend to play the game
         List<String> fakeHosts = new ArrayList<String>();
         List<Integer> fakePorts = new ArrayList<Integer>();
@@ -71,10 +71,10 @@ public class SimpleGameSim {
         for (int i = 0; i < fakeHosts.size(); i++) {
         	theServer.makePlayerPlayRandomly(i);
         }
-        
+
         // TODO: Allow a custom state machine to be plugged into the GameServer so that we can
-        // simulate games using this tool with custom state machines, to verify they're sane.        
-        
+        // simulate games using this tool with custom state machines, to verify they're sane.
+
         final Set<GdlSentence> oldContents = new HashSet<GdlSentence>();
         final int[] nState = new int[1];
         theServer.addObserver(new Observer() {
@@ -93,7 +93,7 @@ public class SimpleGameSim {
 	                }
 	                for(GdlSentence oldSentence : oldContents) {
 	                    if(hideStepCounter && oldSentence.toString().contains("step")) continue;
-	                    if(hideControlProposition && oldSentence.toString().contains("control")) continue;                    
+	                    if(hideControlProposition && oldSentence.toString().contains("control")) continue;
 	                    if(!newContents.contains(oldSentence)) {
 	                        System.out.print("-" + oldSentence + ", ");
 	                    }
@@ -101,7 +101,7 @@ public class SimpleGameSim {
 	                System.out.println();
 	                oldContents.clear();
 	                oldContents.addAll(newContents);
-	                
+
 	                if(showCurrentState) System.out.println("State[" + nState[0] + "] Full: " + theCurrentState);
 	                nState[0]++;
 				} else if (event instanceof ServerNewMovesEvent) {
@@ -120,8 +120,8 @@ public class SimpleGameSim {
 				}
 			}
 		});
-        
+
         theServer.start();
         theServer.join();
-    }    
+    }
 }
