@@ -1,0 +1,5 @@
+{
+  "gameName": "Maze",
+  "rulesheet": "maze.kif",
+  "stylesheet": "maze.xsl"
+}

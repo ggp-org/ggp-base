@@ -48,6 +48,13 @@ public class BasesInputsValidator implements GameValidator {
 			Set<GdlSentence> bases = prover.askAll(basesQuery, Collections.<GdlSentence>emptySet());
 			GdlSentence inputsQuery = GdlPool.getRelation(INPUT, new GdlTerm[] {X, Y});
 			Set<GdlSentence> inputs = prover.askAll(inputsQuery, Collections.<GdlSentence>emptySet());
+
+			if (bases.size() == 0) {
+				throw new ValidatorException("Could not find base propositions.");
+			} else if (inputs.size() == 0) {
+				throw new ValidatorException("Could not find input propositions.");
+			}
+
 			Set<GdlSentence> truesFromBases = new HashSet<GdlSentence>();
 			for (GdlSentence base : bases) {
 				truesFromBases.add(GdlPool.getRelation(TRUE, base.getBody()));
