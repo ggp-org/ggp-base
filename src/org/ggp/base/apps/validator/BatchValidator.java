@@ -1,5 +1,7 @@
 package org.ggp.base.apps.validator;
 
+import java.util.List;
+
 import org.ggp.base.util.game.CloudGameRepository;
 import org.ggp.base.util.game.Game;
 import org.ggp.base.util.game.GameRepository;
@@ -9,6 +11,9 @@ import org.ggp.base.validator.OPNFValidator;
 import org.ggp.base.validator.SimulationValidator;
 import org.ggp.base.validator.StaticValidator;
 import org.ggp.base.validator.ValidatorException;
+import org.ggp.base.validator.ValidatorWarning;
+
+import com.google.common.collect.ImmutableList;
 
 /**
  * BatchValidator does game validation on all of the games in a given game repository.
@@ -35,9 +40,10 @@ public final class BatchValidator
 			System.out.print(gameKey + " ... ");
 			System.out.flush();
 			boolean isValid = true;
+			List<ValidatorWarning> warnings = ImmutableList.of();
 			for (GameValidator theValidator : theValidators) {
 				try {
-					theValidator.checkValidity(game);
+					warnings = theValidator.checkValidity(game);
 				} catch (ValidatorException ve) {
 					System.out.println("Failed: " + ve);
 					isValid = false;
@@ -45,7 +51,11 @@ public final class BatchValidator
 				}
 			}
 			if (isValid) {
-				System.out.println("Passed!");
+				if (warnings.isEmpty()) {
+					System.out.println("Passed!");
+				} else {
+					System.out.println("Passed with warnings: " + warnings);
+				}
 			}
 		}
 	}

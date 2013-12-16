@@ -1,5 +1,7 @@
 package org.ggp.base.validator;
 
+import java.util.List;
+
 import org.ggp.base.util.game.Game;
 import org.ggp.base.util.statemachine.MachineState;
 import org.ggp.base.util.statemachine.StateMachine;
@@ -7,6 +9,8 @@ import org.ggp.base.util.statemachine.exceptions.GoalDefinitionException;
 import org.ggp.base.util.statemachine.exceptions.MoveDefinitionException;
 import org.ggp.base.util.statemachine.exceptions.TransitionDefinitionException;
 import org.ggp.base.util.statemachine.implementation.prover.ProverStateMachine;
+
+import com.google.common.collect.ImmutableList;
 
 public final class SimulationValidator implements GameValidator
 {
@@ -20,7 +24,7 @@ public final class SimulationValidator implements GameValidator
 	}
 
 	@Override
-	public void checkValidity(Game theGame) throws ValidatorException {
+	public List<ValidatorWarning> checkValidity(Game theGame) throws ValidatorException {
 		for (int i = 0; i < numSimulations; i++) {
 			StateMachine stateMachine = new ProverStateMachine();
 			stateMachine.initialize(theGame.getRules());
@@ -45,5 +49,6 @@ public final class SimulationValidator implements GameValidator
 				throw new ValidatorException("Could not find goals while simulating: " + gde);
 			}
 		}
+		return ImmutableList.of();
 	}
 }

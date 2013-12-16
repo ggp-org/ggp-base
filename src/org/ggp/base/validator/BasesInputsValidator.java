@@ -23,6 +23,8 @@ import org.ggp.base.util.statemachine.exceptions.MoveDefinitionException;
 import org.ggp.base.util.statemachine.exceptions.TransitionDefinitionException;
 import org.ggp.base.util.statemachine.implementation.prover.ProverStateMachine;
 
+import com.google.common.collect.ImmutableList;
+
 
 public class BasesInputsValidator implements GameValidator {
 	private static final GdlConstant BASE = GdlPool.getConstant("base");
@@ -38,7 +40,7 @@ public class BasesInputsValidator implements GameValidator {
 	}
 
 	@Override
-	public void checkValidity(Game theGame) throws ValidatorException {
+	public List<ValidatorWarning> checkValidity(Game theGame) throws ValidatorException {
 		try {
 			StateMachine sm = new ProverStateMachine();
 			sm.initialize(theGame.getRules());
@@ -65,7 +67,7 @@ public class BasesInputsValidator implements GameValidator {
 			}
 
 			if (truesFromBases.isEmpty() && legalsFromInputs.isEmpty()) {
-				return;
+				return ImmutableList.of();
 			}
 
 			MachineState initialState = sm.getInitialState();
@@ -114,6 +116,7 @@ public class BasesInputsValidator implements GameValidator {
 		} catch (OutOfMemoryError e) {
 			throw new ValidatorException("Ran out of memory while simulating: " + e);
 		}
+		return ImmutableList.of();
 	}
 
 	/**

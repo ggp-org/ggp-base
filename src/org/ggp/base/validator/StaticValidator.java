@@ -40,6 +40,7 @@ import com.google.common.base.Predicates;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.SetMultimap;
 
@@ -69,7 +70,7 @@ public class StaticValidator implements GameValidator {
 	 * @throws ValidatorException The description did not pass validation.
 	 * The error message explains the error found in the GDL description.
 	 */
-	public static void validateDescription(List<Gdl> description) throws ValidatorException {
+	public static List<ValidatorWarning> validateDescription(List<Gdl> description) throws ValidatorException {
 		/* This assumes that the description is already well-formed enough
 		 * to be made into a list of Gdl objects. We need to check those
 		 * remaining features that can be verified here.
@@ -108,9 +109,10 @@ public class StaticValidator implements GameValidator {
 		 *
 		 * Reference for the restrictions: http://games.stanford.edu/language/spec/gdl_spec_2008_03.pdf
 		 */
+		List<ValidatorWarning> warnings = Lists.newArrayList();
 
-		List<GdlRelation> relations = new ArrayList<GdlRelation>();
-		List<GdlRule> rules = new ArrayList<GdlRule>();
+		List<GdlRelation> relations = Lists.newArrayList();
+		List<GdlRule> rules = Lists.newArrayList();
 		//1) Are all objects in the description rules or relations?
 		for (Gdl gdl : description) {
 			if (gdl instanceof GdlRelation) {
@@ -118,7 +120,7 @@ public class StaticValidator implements GameValidator {
 			} else if (gdl instanceof GdlRule) {
 				rules.add((GdlRule) gdl);
 			} else if (gdl instanceof GdlProposition) {
-				System.out.println("StaticValidator warning: The rules contain the GdlProposition " + gdl + ", which may not be intended");
+				warnings.add(new ValidatorWarning("StaticValidator warning: The rules contain the GdlProposition " + gdl + ", which may not be intended."));
 			} else {
 				throw new ValidatorException("The rules include a GDL object of type " + gdl.getClass().getSimpleName() + ". Only GdlRelations and GdlRules are expected. The Gdl object is: " + gdl);
 			}
@@ -145,6 +147,7 @@ public class StaticValidator implements GameValidator {
 				addFunctionArities(sentence, functionArities);
 			}
 		}
+		checkSentenceFunctionNameOverlap(sentenceArities, functionArities, warnings);
 		//5) Are the arities of the GDL-defined relations correct?
 		//6) Do any functions have the names of GDL keywords (likely an error)?
 		testPredefinedArities(sentenceArities, functionArities);
@@ -166,6 +169,20 @@ public class StaticValidator implements GameValidator {
 		Map<GdlConstant, Set<GdlConstant>> ancestorsGraph = getAncestorsGraph(dependencyGraph, sentenceArities.keySet());
 		for(GdlRule rule : rules) {
 			checkRecursionFunctionRestriction(rule, ancestorsGraph);
+		}
+		return warnings;
+	}
+
+	private static void checkSentenceFunctionNameOverlap(
+			Map<GdlConstant, Integer> sentenceArities,
+			Map<GdlConstant, Integer> functionArities,
+			List<ValidatorWarning> warnings) {
+		for (GdlConstant sentenceName : sentenceArities.keySet()) {
+			if (functionArities.containsKey(sentenceName)) {
+				warnings.add(new ValidatorWarning("The constant " + sentenceName + " is used as both a " +
+						"sentence name and as a function name. This is probably unintended. Are you using " +
+						"'true' correctly?"));
+			}
 		}
 	}
 
@@ -611,9 +628,9 @@ public class StaticValidator implements GameValidator {
 	}
 
 	@Override
-	public void checkValidity(Game theGame) throws ValidatorException {
+	public List<ValidatorWarning> checkValidity(Game theGame) throws ValidatorException {
 		StaticValidator.matchParentheses(theGame.getRulesheet().split("[\r\n]"));
-		StaticValidator.validateDescription(theGame.getRules());
+		return StaticValidator.validateDescription(theGame.getRules());
 	}
 
 	//These are test cases for smooth handling of errors that often
@@ -639,7 +656,8 @@ public class StaticValidator implements GameValidator {
 
 			System.out.println("Testing " + gameKey);
 			try {
-				new StaticValidator().checkValidity(testGameRepo.getGame(gameKey));
+				List<ValidatorWarning> warnings = new StaticValidator().checkValidity(testGameRepo.getGame(gameKey));
+				System.out.println("Warnings for " + gameKey + ": " + warnings);
 			} catch (ValidatorException e) {
 				e.printStackTrace();
 				//Draw attention to the error
