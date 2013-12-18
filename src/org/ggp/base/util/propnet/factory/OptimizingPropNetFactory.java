@@ -5,7 +5,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -57,6 +56,7 @@ import org.ggp.base.util.propnet.architecture.components.Proposition;
 import org.ggp.base.util.propnet.architecture.components.Transition;
 import org.ggp.base.util.statemachine.Role;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 
 
@@ -76,13 +76,7 @@ import com.google.common.collect.Multimap;
  * - Currently runs some of the transformations multiple times. A Description
  *   object containing information about the description and its properties would
  *   alleviate this.
- * - Its current solution to the "unaffected piece rule" problem is somewhat
- *   clumsy and ungeneralized, relying on the combined behaviors of CrudeSplitter
- *   and CondensationIsolator.
- *   - The mutex finder in particular is very ungeneralized. It should be replaced
- *     with a more general mutex finder.
- *   - Actually, the referenced solution is not even enabled at the moment. It may
- *     not be working even with the proper options set.
+ * - It does not have a way of automatically solving the "unaffected piece rule" problem.
  * - Depending on the settings and the situation, the behavior of the
  *   CondensationIsolator can be either too aggressive or not aggressive enough.
  *   Both result in excessively large games. A more sophisticated version of the
@@ -404,15 +398,14 @@ public class OptimizingPropNetFactory {
 			Component falseComponent) {
         assert((components != null && negations != null) || pn != null);
         assert((components == null && negations == null) || pn == null);
-		while(hasNonessentialChildren(falseComponent)) {
-			Iterator<Component> outputItr = falseComponent.getOutputs().iterator();
-			Component output = outputItr.next();
-			while(isEssentialProposition(output) || output instanceof Transition) {
-			    if(outputItr.hasNext())
-			        output = outputItr.next();
-			    else
-			        return;
-			}
+        for (Component output : Lists.newArrayList(falseComponent.getOutputs())) {
+        	if (isEssentialProposition(output) || output instanceof Transition) {
+        		//Since this is the false constant, there are a few "essential" types
+        		//we don't actually want to keep around.
+        		if (!isLegalOrGoalProposition(output)) {
+        			continue;
+        		}
+	    	}
 			if(output instanceof Proposition) {
 				//Move its outputs to be outputs of false
 				for(Component child : output.getOutputs()) {
@@ -472,8 +465,13 @@ public class OptimizingPropNetFactory {
 						in.addOutput(out);
 					}
 					or.removeAllOutputs();
-					if(pn != null)
+					if (pn != null) {
 					    pn.removeComponent(or);
+					}
+				} else if (or.getInputs().size() == 0) {
+					if (pn != null) {
+						pn.removeComponent(or);
+					}
 				}
 			} else if(output instanceof Not) {
 				Not not = (Not) output;
@@ -500,19 +498,24 @@ public class OptimizingPropNetFactory {
 	}
 
 
+	private static boolean isLegalOrGoalProposition(Component comp) {
+		if (!(comp instanceof Proposition)) {
+			return false;
+		}
+
+		Proposition prop = (Proposition) comp;
+		GdlSentence name = prop.getName();
+		return name.getName() == GdlPool.LEGAL || name.getName() == GdlPool.GOAL;
+	}
+
 	private static void optimizeAwayTrue(
 			Map<GdlSentence, Component> components, Map<GdlSentence, Component> negations, PropNet pn, Component trueComponent,
 			Component falseComponent) {
 	    assert((components != null && negations != null) || pn != null);
-		while(hasNonessentialChildren(trueComponent)) {
-			Iterator<Component> outputItr = trueComponent.getOutputs().iterator();
-			Component output = outputItr.next();
-			while(isEssentialProposition(output) || output instanceof Transition) {
-				if (outputItr.hasNext())
-					output = outputItr.next();
-				else
-					return;
-			}
+	    for (Component output : Lists.newArrayList(trueComponent.getOutputs())) {
+	    	if (isEssentialProposition(output) || output instanceof Transition) {
+	    		continue;
+	    	}
 			if(output instanceof Proposition) {
 				//Move its outputs to be outputs of true
 				for(Component child : output.getOutputs()) {
@@ -572,8 +575,13 @@ public class OptimizingPropNetFactory {
 						in.addOutput(out);
 					}
 					and.removeAllOutputs();
-					if(pn != null)
+					if (pn != null) {
 					    pn.removeComponent(and);
+					}
+				} else if (and.getInputs().size() == 0) {
+					if (pn != null) {
+						pn.removeComponent(and);
+					}
 				}
 			} else if(output instanceof Not) {
 				Not not = (Not) output;
