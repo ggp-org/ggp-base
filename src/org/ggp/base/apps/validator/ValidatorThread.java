@@ -11,6 +11,7 @@ import org.ggp.base.util.observer.Observer;
 import org.ggp.base.util.observer.Subject;
 import org.ggp.base.validator.GameValidator;
 import org.ggp.base.validator.ValidatorException;
+import org.ggp.base.validator.ValidatorWarning;
 
 public final class ValidatorThread extends Thread implements Subject
 {
@@ -44,8 +45,8 @@ public final class ValidatorThread extends Thread implements Subject
 	public void run()
 	{
 		try {
-			theValidator.checkValidity(theGame);
-			notifyObservers(new ValidatorSuccessEvent(theValidator.getClass().getSimpleName()));
+			List<ValidatorWarning> warnings = theValidator.checkValidity(theGame);
+			notifyObservers(new ValidatorSuccessEvent(theValidator.getClass().getSimpleName(), warnings));
 		} catch (ValidatorException ve) {
 			notifyObservers(new ValidatorFailureEvent(theValidator.getClass().getSimpleName(), ve));
 		}

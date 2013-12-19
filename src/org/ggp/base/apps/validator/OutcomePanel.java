@@ -3,6 +3,7 @@ package org.ggp.base.apps.validator;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.util.List;
 
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
@@ -15,6 +16,7 @@ import org.ggp.base.apps.validator.event.ValidatorSuccessEvent;
 import org.ggp.base.util.observer.Event;
 import org.ggp.base.util.observer.Observer;
 import org.ggp.base.util.ui.table.JZebraTable;
+import org.ggp.base.validator.ValidatorWarning;
 
 @SuppressWarnings("serial")
 public final class OutcomePanel extends JPanel implements Observer
@@ -89,7 +91,12 @@ public final class OutcomePanel extends JPanel implements Observer
 		DefaultTableModel model = (DefaultTableModel) logTable.getModel();
 		int numRows = model.getRowCount() + 1;
 
-		model.addRow(new String[] { event.getName(), "Success!" });
+		List<ValidatorWarning> warnings = event.getWarnings();
+		if (warnings.isEmpty()) {
+			model.addRow(new String[] { event.getName(), "Success!" });
+		} else {
+			model.addRow(new String[] { event.getName(), wrapLine("Success, with warnings: " + warnings, 100) });
+		}
 		progressBar.setValue(numRows);
 	}
 
