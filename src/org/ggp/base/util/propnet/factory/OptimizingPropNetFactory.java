@@ -5,7 +5,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -14,6 +13,7 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.Stack;
 
+import org.ggp.base.util.Pair;
 import org.ggp.base.util.concurrency.ConcurrencyUtils;
 import org.ggp.base.util.gdl.GdlUtils;
 import org.ggp.base.util.gdl.grammar.Gdl;
@@ -26,7 +26,6 @@ import org.ggp.base.util.gdl.grammar.GdlProposition;
 import org.ggp.base.util.gdl.grammar.GdlRelation;
 import org.ggp.base.util.gdl.grammar.GdlRule;
 import org.ggp.base.util.gdl.grammar.GdlSentence;
-import org.ggp.base.util.gdl.grammar.GdlTerm;
 import org.ggp.base.util.gdl.grammar.GdlVariable;
 import org.ggp.base.util.gdl.model.SentenceDomainModel;
 import org.ggp.base.util.gdl.model.SentenceDomainModelFactory;
@@ -57,7 +56,12 @@ import org.ggp.base.util.propnet.architecture.components.Proposition;
 import org.ggp.base.util.propnet.architecture.components.Transition;
 import org.ggp.base.util.statemachine.Role;
 
+import com.google.common.collect.HashMultiset;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
+import com.google.common.collect.Multiset;
 
 
 /*
@@ -76,13 +80,7 @@ import com.google.common.collect.Multimap;
  * - Currently runs some of the transformations multiple times. A Description
  *   object containing information about the description and its properties would
  *   alleviate this.
- * - Its current solution to the "unaffected piece rule" problem is somewhat
- *   clumsy and ungeneralized, relying on the combined behaviors of CrudeSplitter
- *   and CondensationIsolator.
- *   - The mutex finder in particular is very ungeneralized. It should be replaced
- *     with a more general mutex finder.
- *   - Actually, the referenced solution is not even enabled at the moment. It may
- *     not be working even with the proper options set.
+ * - It does not have a way of automatically solving the "unaffected piece rule" problem.
  * - Depending on the settings and the situation, the behavior of the
  *   CondensationIsolator can be either too aggressive or not aggressive enough.
  *   Both result in excessively large games. A more sophisticated version of the
@@ -404,15 +402,14 @@ public class OptimizingPropNetFactory {
 			Component falseComponent) {
         assert((components != null && negations != null) || pn != null);
         assert((components == null && negations == null) || pn == null);
-		while(hasNonessentialChildren(falseComponent)) {
-			Iterator<Component> outputItr = falseComponent.getOutputs().iterator();
-			Component output = outputItr.next();
-			while(isEssentialProposition(output) || output instanceof Transition) {
-			    if(outputItr.hasNext())
-			        output = outputItr.next();
-			    else
-			        return;
-			}
+        for (Component output : Lists.newArrayList(falseComponent.getOutputs())) {
+        	if (isEssentialProposition(output) || output instanceof Transition) {
+        		//Since this is the false constant, there are a few "essential" types
+        		//we don't actually want to keep around.
+        		if (!isLegalOrGoalProposition(output)) {
+        			continue;
+        		}
+	    	}
 			if(output instanceof Proposition) {
 				//Move its outputs to be outputs of false
 				for(Component child : output.getOutputs()) {
@@ -472,8 +469,13 @@ public class OptimizingPropNetFactory {
 						in.addOutput(out);
 					}
 					or.removeAllOutputs();
-					if(pn != null)
+					if (pn != null) {
 					    pn.removeComponent(or);
+					}
+				} else if (or.getInputs().size() == 0) {
+					if (pn != null) {
+						pn.removeComponent(or);
+					}
 				}
 			} else if(output instanceof Not) {
 				Not not = (Not) output;
@@ -500,19 +502,24 @@ public class OptimizingPropNetFactory {
 	}
 
 
+	private static boolean isLegalOrGoalProposition(Component comp) {
+		if (!(comp instanceof Proposition)) {
+			return false;
+		}
+
+		Proposition prop = (Proposition) comp;
+		GdlSentence name = prop.getName();
+		return name.getName() == GdlPool.LEGAL || name.getName() == GdlPool.GOAL;
+	}
+
 	private static void optimizeAwayTrue(
 			Map<GdlSentence, Component> components, Map<GdlSentence, Component> negations, PropNet pn, Component trueComponent,
 			Component falseComponent) {
 	    assert((components != null && negations != null) || pn != null);
-		while(hasNonessentialChildren(trueComponent)) {
-			Iterator<Component> outputItr = trueComponent.getOutputs().iterator();
-			Component output = outputItr.next();
-			while(isEssentialProposition(output) || output instanceof Transition) {
-				if (outputItr.hasNext())
-					output = outputItr.next();
-				else
-					return;
-			}
+	    for (Component output : Lists.newArrayList(trueComponent.getOutputs())) {
+	    	if (isEssentialProposition(output) || output instanceof Transition) {
+	    		continue;
+	    	}
 			if(output instanceof Proposition) {
 				//Move its outputs to be outputs of true
 				for(Component child : output.getOutputs()) {
@@ -572,8 +579,13 @@ public class OptimizingPropNetFactory {
 						in.addOutput(out);
 					}
 					and.removeAllOutputs();
-					if(pn != null)
+					if (pn != null) {
 					    pn.removeComponent(and);
+					}
+				} else if (and.getInputs().size() == 0) {
+					if (pn != null) {
+						pn.removeComponent(and);
+					}
 				}
 			} else if(output instanceof Not) {
 				Not not = (Not) output;
@@ -1156,219 +1168,217 @@ public class OptimizingPropNetFactory {
 	}
 
 	/**
-	 * Currently requires the init propositions to be left in the graph.
-	 * @param pn
+	 * Represents the "type" of a node with respect to which truth
+	 * values it is capable of having: true, false, either value,
+	 * or neither value. Used by
+	 * {@link OptimizingPropNetFactory#removeUnreachableBasesAndInputs(PropNet, Set)}.
 	 */
-	static enum Type { STAR(false, false, "grey"),
-	    TRUE(true, false, "green"),
-	    FALSE(false, true, "red"),
-	    BOTH(true, true, "white");
-	private final boolean hasTrue;
-	private final boolean hasFalse;
-	private final String color;
+	private static enum Type { NEITHER(false, false),
+						TRUE(true, false),
+						FALSE(false, true),
+						BOTH(true, true);
+		private final boolean hasTrue;
+		private final boolean hasFalse;
 
-	Type(boolean hasTrue, boolean hasFalse, String color) {
-	    this.hasTrue = hasTrue;
-	    this.hasFalse = hasFalse;
-	    this.color = color;
+		Type(boolean hasTrue, boolean hasFalse) {
+			this.hasTrue = hasTrue;
+			this.hasFalse = hasFalse;
+		}
+
+		public boolean includes(Type other) {
+			switch (other) {
+			case BOTH:
+				return hasTrue && hasFalse;
+			case FALSE:
+				return hasFalse;
+			case NEITHER:
+				return true;
+			case TRUE:
+				return hasTrue;
+			}
+			throw new RuntimeException();
+		}
+
+		public Type with(Type otherType) {
+			if (otherType == null) {
+				otherType = NEITHER;
+			}
+			switch (otherType) {
+			case BOTH:
+				return BOTH;
+			case NEITHER:
+				return this;
+			case TRUE:
+				if (hasFalse) {
+					return BOTH;
+				} else {
+					return TRUE;
+				}
+			case FALSE:
+				if (hasTrue) {
+					return BOTH;
+				} else {
+					return FALSE;
+				}
+			}
+			throw new RuntimeException();
+		}
+
+		public Type minus(Type other) {
+			switch (other) {
+			case BOTH:
+				return NEITHER;
+			case TRUE:
+				return hasFalse ? FALSE : NEITHER;
+			case FALSE:
+				return hasTrue ? TRUE : NEITHER;
+			case NEITHER:
+				return this;
+			}
+			throw new RuntimeException();
+		}
+
+		public Type opposite() {
+			switch (this) {
+			case TRUE:
+				return FALSE;
+			case FALSE:
+				return TRUE;
+			case NEITHER:
+			case BOTH:
+				return this;
+			}
+			throw new RuntimeException();
+		}
 	}
 
-	public boolean hasTrue() {
-	    return hasTrue;
-	}
-	public boolean hasFalse() {
-	    return hasFalse;
-	}
+	/**
+	 * Removes from the propnet all components that are discovered through type
+	 * inference to only ever be true or false, replacing them with their values
+	 * appropriately. This method may remove base and input propositions that are
+	 * shown to be always false (or, in the case of base propositions, those that
+	 * are always true).
+	 *
+	 * @param basesTrueByInit The set of base propositions that are true on the
+	 * first turn of the game.
+	 */
+	public static void removeUnreachableBasesAndInputs(PropNet pn, Set<Proposition> basesTrueByInit) throws InterruptedException {
+		//If this doesn't contain a component, that's the equivalent of Type.NEITHER
+		Map<Component, Type> reachability = Maps.newHashMap();
+		//Keep track of the number of true inputs to AND gates and false inputs to
+		//OR gates.
+		Multiset<Component> numTrueInputs = HashMultiset.create();
+		Multiset<Component> numFalseInputs = HashMultiset.create();
+		Stack<Pair<Component, Type>> toAdd = new Stack<Pair<Component, Type>>();
 
-    public String getColor() {
-        return color;
-    }
-	}
-	public static void removeUnreachableBasesAndInputs(PropNet pn) {
-	    //This actually might remove more than bases and inputs
-	    //We flow through the game graph to see what can be true (and what can be false?)...
-	    Map<Component, Type> reachability = new HashMap<Component, Type>();
-	    Set<GdlTerm> initted = new HashSet<GdlTerm>();
-	    for(Component c : pn.getComponents()) {
-	        reachability.put(c, Type.STAR);
-	        if(c instanceof Proposition) {
-	            Proposition p = (Proposition) c;
-	            if(p.getName() instanceof GdlRelation) {
-	                GdlRelation r = (GdlRelation) p.getName();
-	                if(r.getName().equals(INIT)) {
-	                    //Add the base
-	                    initted.add(r.get(0));
-	                }
-	            }
-	        }
-	    }
+		//It's easier here if we get just the one-way version of the map
+		Map<Proposition, Proposition> legalsToInputs = Maps.newHashMap();
+		for (Proposition legalProp : Iterables.concat(pn.getLegalPropositions().values())) {
+			Proposition inputProp = pn.getLegalInputMap().get(legalProp);
+			if (inputProp != null) {
+				legalsToInputs.put(legalProp, inputProp);
+			}
+		}
 
-        Set<Component> toReevaluate = new HashSet<Component>();
-        //Every input can be false (we assume that no player will have just one move allowed all game)
+		//All constants have their values
+		for (Component c : pn.getComponents()) {
+			ConcurrencyUtils.checkForInterruption();
+			if (c instanceof Constant) {
+				if (c.getValue()) {
+					toAdd.add(Pair.of(c, Type.TRUE));
+				} else {
+					toAdd.add(Pair.of(c, Type.FALSE));
+				}
+			}
+		}
+
+		//Every input can be false (we assume that no player will have just one move allowed all game)
         for(Proposition p : pn.getInputPropositions().values()) {
-            reachability.put(p, Type.FALSE);
-            toReevaluate.addAll(p.getOutputs());
+        	toAdd.add(Pair.of((Component) p, Type.FALSE));
         }
 	    //Every base with "init" can be true, every base without "init" can be false
-	    for(Entry<GdlSentence, Proposition> entry : pn.getBasePropositions().entrySet()) {
-            Proposition p = entry.getValue();
-	        //So, does it have init?
-	        //TODO: Remove "true" dereferencing? Need "global" option for that
-	        //if(initted.contains(entry.getKey())) {
-	        if(entry.getKey() instanceof GdlRelation
-	                && initted.contains(((GdlRelation)entry.getKey()).get(0))) {
-	            reachability.put(p, Type.TRUE);
-	        } else {
-	            reachability.put(entry.getValue(), Type.FALSE);
-	        }
-            toReevaluate.addAll(p.getOutputs());
+	    for(Proposition baseProp : pn.getBasePropositions().values()) {
+            if (basesTrueByInit.contains(baseProp)) {
+            	toAdd.add(Pair.of((Component) baseProp, Type.TRUE));
+            } else {
+            	toAdd.add(Pair.of((Component) baseProp, Type.FALSE));
+            }
 	    }
-	    //Might as well add in INIT
+	    //Keep INIT, for those who use it
 	    Proposition initProposition = pn.getInitProposition();
-	    reachability.put(initProposition, Type.BOTH);
-	    toReevaluate.addAll(initProposition.getOutputs());
-	    //Now, propagate everything we know
-	    while(!toReevaluate.isEmpty()) {
-	        Component curComp = toReevaluate.iterator().next();
-	        toReevaluate.remove(curComp);
-	        //Can we upgrade its type?
-	        Type type = reachability.get(curComp);
-	        boolean checkTrue = true, checkFalse = true;
-	        if(type == Type.BOTH) { //Nope
-	            continue;
-	        } else if(type == Type.TRUE) {
-	            checkTrue = false;
-	        } else if(type == Type.FALSE) {
-	            checkFalse = false;
-	        }
-	        boolean upgradeTrue = false, upgradeFalse = false;
-	        boolean curCompIsLegalProposition = false;
+    	toAdd.add(Pair.of((Component) initProposition, Type.BOTH));
 
-	        //How we react to the parents (or pseudo-parents) depends on the type
-	        Set<Component> parents = curComp.getInputs();
-	        if(curComp instanceof And) {
-	            if(checkTrue) {
-	                //All parents must be capable of being true
-	                boolean allCanBeTrue = true;
-	                for(Component parent : parents) {
-	                    Type parentType = reachability.get(parent);
-	                    if(!parentType.hasTrue()) {
-	                        allCanBeTrue = false;
-	                        break;
-	                    }
-	                }
-	                upgradeTrue = allCanBeTrue;
-	            }
-	            if(checkFalse) {
-	                //Some parent must be capable of being false
-	                for(Component parent : parents) {
-	                    Type parentType = reachability.get(parent);
-	                    if(parentType.hasFalse()) {
-	                        upgradeFalse = true;
-	                        break;
-	                    }
-	                }
-	            }
-	        } else if(curComp instanceof Or) {
-	            if(checkTrue) {
-	                //Some parent must be capable of being true
-	                for(Component parent : parents) {
-	                    Type parentType = reachability.get(parent);
-                        if(parentType.hasTrue()) {
-                            upgradeTrue = true;
-                            break;
-                        }
-	                }
-	            }
-	            if(checkFalse) {
-	              //All parents must be capable of being false
-                    boolean allCanBeFalse = true;
-                    for(Component parent : parents) {
-                        Type parentType = reachability.get(parent);
-                        if(!parentType.hasFalse()) {
-                            allCanBeFalse = false;
-                            break;
-                        }
-                    }
-                    upgradeFalse = allCanBeFalse;
-	            }
-	        } else if(curComp instanceof Not) {
-	            Component parent = curComp.getSingleInput();
-	            Type parentType = reachability.get(parent);
-	            if(checkTrue && parentType.hasFalse())
-	                upgradeTrue = true;
-	            if(checkFalse && parentType.hasTrue())
-	                upgradeFalse = true;
-	        } else if(curComp instanceof Transition) {
-	            Component parent = curComp.getSingleInput();
-                Type parentType = reachability.get(parent);
-                if(checkTrue && parentType.hasTrue())
-                    upgradeTrue = true;
-                if(checkFalse && parentType.hasFalse())
-                    upgradeFalse = true;
-	        } else if(curComp instanceof Proposition) {
-	            //TODO: Special case: Inputs
-	            Proposition p = (Proposition) curComp;
-	            if(pn.getLegalInputMap().containsKey(curComp)) {
-	                GdlRelation r = (GdlRelation) p.getName();
-	                if(r.getName().equals(DOES)) {
-	                    //The legal prop. is a pseudo-parent
-	                    Component legal = pn.getLegalInputMap().get(curComp);
-	                    Type legalType = reachability.get(legal);
-	                    if(checkTrue && legalType.hasTrue())
-	                        upgradeTrue = true;
-	                    if(checkFalse && legalType.hasFalse())
-	                        upgradeFalse = true;
-	                } else {
-	                    curCompIsLegalProposition = true;
-	                }
-	            }
+    	while (!toAdd.isEmpty()) {
+			ConcurrencyUtils.checkForInterruption();
+    		Pair<Component, Type> curEntry = toAdd.pop();
+    		Component curComp = curEntry.left;
+    		Type newInputType = curEntry.right;
+    		Type oldType = reachability.get(curComp);
+    		if (oldType == null) {
+    			oldType = Type.NEITHER;
+    		}
 
-	            //Otherwise, just do same as Transition... easy
-	            if(curComp.getInputs().size() == 1) {
-	                Component parent = curComp.getSingleInput();
-	                Type parentType = reachability.get(parent);
-	                if(checkTrue && parentType.hasTrue())
-	                    upgradeTrue = true;
-	                if(checkFalse && parentType.hasFalse())
-	                    upgradeFalse = true;
-	            }
-	        } else {
-	            //Constants won't get added
-	            throw new RuntimeException("Unexpected node type " + curComp.getClass());
-	        }
+    		//We want to send only the new addition to our children,
+    		//for consistency in our parent-true and parent-false
+    		//counts.
+    		//Make sure we don't double-apply a type.
 
-	        //Deal with upgrades
-	        if(upgradeTrue) {
-	            type = addTrue(type);
-	            reachability.put(curComp, type);
-	        }
-	        if(upgradeFalse) {
-	            type = addFalse(type);
-	            reachability.put(curComp, type);
-	        }
-	        if(upgradeTrue || upgradeFalse) {
-	            toReevaluate.addAll(curComp.getOutputs());
-	            //Don't forget: if "legal", check "does"
-	            if(curCompIsLegalProposition) {
-	                toReevaluate.add(pn.getLegalInputMap().get(curComp));
-	            }
-	        }
+    		Type typeToAdd = Type.NEITHER; // Any new values that we discover we can have this iteration.
+    		if (curComp instanceof Proposition) {
+    			typeToAdd = newInputType;
+    		} else if (curComp instanceof Transition) {
+    			typeToAdd = newInputType;
+    		} else if (curComp instanceof Constant) {
+    			typeToAdd = newInputType;
+    		} else if (curComp instanceof Not) {
+    			typeToAdd = newInputType.opposite();
+    		} else if (curComp instanceof And) {
+    			if (newInputType.hasTrue) {
+    				numTrueInputs.add(curComp);
+    				if (numTrueInputs.count(curComp) == curComp.getInputs().size()) {
+    					typeToAdd = Type.TRUE;
+    				}
+    			}
+    			if (newInputType.hasFalse) {
+    				typeToAdd = typeToAdd.with(Type.FALSE);
+    			}
+    		} else if (curComp instanceof Or) {
+    			if (newInputType.hasFalse) {
+    				numFalseInputs.add(curComp);
+    				if (numFalseInputs.count(curComp) == curComp.getInputs().size()) {
+    					typeToAdd = Type.FALSE;
+    				}
+    			}
+    			if (newInputType.hasTrue) {
+    				typeToAdd = typeToAdd.with(Type.TRUE);
+    			}
+    		} else {
+    			throw new RuntimeException("Unhandled component type " + curComp.getClass());
+    		}
 
-	    }
+    		if (oldType.includes(typeToAdd)) {
+    			//We don't know anything new about curComp
+    			continue;
+    		}
+    		reachability.put(curComp, typeToAdd.with(oldType));
+    		typeToAdd = typeToAdd.minus(oldType);
+    		if (typeToAdd == Type.NEITHER) {
+    			throw new RuntimeException("Something's messed up here");
+    		}
 
-	    //We deliberately shouldn't remove the stuff attached to TRUE... or anything that's
-	    //always true...
-	    //But we should be able to remove bases and inputs (when it's justified)
+    		//Add all our children to the stack
+    		for (Component output : curComp.getOutputs()) {
+    			toAdd.add(Pair.of(output, typeToAdd));
+    		}
+			if (legalsToInputs.containsKey(curComp)) {
+				Proposition inputProp = legalsToInputs.get(curComp);
+				if (inputProp == null) {
+					throw new IllegalStateException();
+				}
+				toAdd.add(Pair.of((Component) inputProp, typeToAdd));
+			}
+    	}
 
-	    //What can we conclude? Let's dump here
-	    /*for(Entry<Component, Type> entry : reachability.entrySet()) {
-	        //System.out.println("  "+entry.getKey()+": "+entry.getValue());
-	        //We can actually dump a version of the PN with colored nodes in DOT form...
-	        System.out.println(entry.getKey().toString().replaceAll("fillcolor=[a-z]+,", "fillcolor="+entry.getValue().getColor()+","));
-	    }*/
-	    //TODO: Go through all the cases of everything I can dump
-	    //For now... how about inputs?
 	    Constant trueConst = new Constant(true);
 	    Constant falseConst = new Constant(false);
 	    pn.addComponent(trueConst);
@@ -1378,12 +1388,16 @@ public class OptimizingPropNetFactory {
 	        Type type = entry.getValue();
 	        if(type == Type.TRUE || type == Type.FALSE) {
 	            Component c = entry.getKey();
+	            if (c instanceof Constant) {
+	            	//Don't bother trying to remove this
+	            	continue;
+	            }
 	            //Disconnect from inputs
 	            for(Component input : c.getInputs()) {
 	                input.removeOutput(c);
 	            }
 	            c.removeAllInputs();
-	            if(type == Type.TRUE) {
+	            if(type == Type.TRUE ^ (c instanceof Not)) {
 	                c.addInput(trueConst);
 	                trueConst.addOutput(c);
 	            } else {
@@ -1392,39 +1406,8 @@ public class OptimizingPropNetFactory {
 	            }
 	        }
 	    }
-	    //then...
-	    //optimizeAwayTrueAndFalse(null, null, trueConst, falseConst);
+
 	    optimizeAwayTrueAndFalse(pn, trueConst, falseConst);
-	}
-
-	private static Type addTrue(Type type) {
-        switch(type) {
-        case STAR:
-            return Type.TRUE;
-        case TRUE:
-            return Type.TRUE;
-        case FALSE:
-            return Type.BOTH;
-        case BOTH:
-            return Type.BOTH;
-        default:
-            throw new RuntimeException("Unanticipated node type " + type);
-        }
-    }
-
-	private static Type addFalse(Type type) {
-	    switch(type) {
-	    case STAR:
-	        return Type.FALSE;
-	    case TRUE:
-	        return Type.BOTH;
-	    case FALSE:
-	        return Type.FALSE;
-	    case BOTH:
-	        return Type.BOTH;
-	    default:
-	        throw new RuntimeException("Unanticipated node type " + type);
-	    }
 	}
 
     /**
