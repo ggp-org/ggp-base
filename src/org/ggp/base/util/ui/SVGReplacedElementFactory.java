@@ -47,7 +47,8 @@ public class SVGReplacedElementFactory implements ReplacedElementFactory {
             svgDocument.appendChild(svgElement);
 
             try {
-                return new ImageReplacedElement(rasterize(svgDocument), 560, 560);
+                int width = box.getContentWidth() - 20;
+                return new ImageReplacedElement(rasterize(svgDocument, width), width, width);
             } catch (IOException e) {
                 return null;
             }
@@ -55,7 +56,7 @@ public class SVGReplacedElementFactory implements ReplacedElementFactory {
         return null;
     }
 
-    public static BufferedImage rasterize(Document dom) throws IOException {
+    public static BufferedImage rasterize(Document dom, int width) throws IOException {
 
         final BufferedImage[] imagePointer = new BufferedImage[1];
 
@@ -78,10 +79,10 @@ public class SVGReplacedElementFactory implements ReplacedElementFactory {
                 SVGConstants.SVG_NAMESPACE_URI);
         transcoderHints.put(ImageTranscoder.KEY_DOCUMENT_ELEMENT, "svg");
         transcoderHints.put(ImageTranscoder.KEY_USER_STYLESHEET_URI, cssFile.toURI().toString());
-        transcoderHints.put(ImageTranscoder.KEY_WIDTH, new Float(1120));
-        transcoderHints.put(ImageTranscoder.KEY_HEIGHT, new Float(1120));
-        transcoderHints.put(ImageTranscoder.KEY_MAX_HEIGHT, new Float(1120));
-        transcoderHints.put(ImageTranscoder.KEY_MAX_WIDTH, new Float(1120));
+        transcoderHints.put(ImageTranscoder.KEY_WIDTH, new Float(2 * width));
+        transcoderHints.put(ImageTranscoder.KEY_HEIGHT, new Float(2 * width));
+        transcoderHints.put(ImageTranscoder.KEY_MAX_HEIGHT, new Float(2 * width));
+        transcoderHints.put(ImageTranscoder.KEY_MAX_WIDTH, new Float(2 * width));
 
         try {
 
