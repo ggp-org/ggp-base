@@ -4,6 +4,7 @@ import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.StringReader;
@@ -13,11 +14,15 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
+import nu.validator.htmlparser.dom.HtmlDocumentBuilder;
+
 import org.w3c.dom.Document;
-import org.w3c.tidy.Tidy;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import org.xhtmlrenderer.resource.XMLResource;
 import org.xhtmlrenderer.simple.Graphics2DRenderer;
 import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
 /**
  * GameStateRenderer generates an image that represents the current state
@@ -47,13 +52,33 @@ public class GameStateRenderer {
    		Graphics2DRenderer r = new Graphics2DRenderer();
 
         String xhtml = getXHTMLfromGameXML(gameXML, XSL);
-        xhtml = xhtml.replace("<?xml version=\"1.0\" encoding=\"UTF-8\"?>", "");
-
-        xhtml = xhtml.replace("<body>", "<body><table width=\"560\" height=\"560\"><tr><td>");
-        xhtml = xhtml.replace("</body>", "</td></tr></table></body>");
-
         InputSource is = new InputSource(new BufferedReader(new StringReader(xhtml)));
-        Document dom = XMLResource.load(is).getDocument();
+        Document dom;
+        try {
+            dom = new HtmlDocumentBuilder().parse(is);
+
+            // Many existing visualization stylesheets have style elements
+            // deep within html body content, where compliant renderers interpret
+            // them as text, and not as styles. So we have to pull them out.
+            NodeList styles = dom.getElementsByTagName("style");
+            Node head = dom.getElementsByTagName("head").item(0);
+            for (int i = 0; i < styles.getLength(); i += 1) {
+                if (!styles.item(i).getParentNode().equals(head)) {
+                    head.appendChild(styles.item(i));
+                }
+            }
+
+            Node style = dom.createElement("style");
+            String bodyStyle = String.format("body { width: %dpx; height: %dpx; overflow:hidden; }",
+                    defaultSize.width, defaultSize.height);
+            style.appendChild(dom.createTextNode(bodyStyle));
+            head.appendChild(style);
+        } catch (SAXException | IOException ex) {
+            xhtml = "<html><head><title>Error</title></head><body><h1>Error parsing visualization</h1><pre id='pre'></pre></body></html>";
+            dom = XMLResource.load(new StringReader(xhtml)).getDocument();
+            dom.getElementById("pre").appendChild(dom.createTextNode(ex.toString()));
+            ex.printStackTrace();
+        }
 
         r.setDocument(dom, "http://www.ggp.org/");
         final Graphics2D g2 = backimage.createGraphics();
@@ -79,15 +104,7 @@ public class GameStateRenderer {
             ex.printStackTrace();
         }
 
-        Tidy tidy = new Tidy();
-        tidy.setXHTML(true);
-        tidy.setShowWarnings(false);
-        tidy.setQuiet(true);
-        tidy.setDropEmptyParas(false);
-
-        IOString tidied = new IOString("");
-        tidy.parse(content.getInputStream(), tidied.getOutputStream());
-        return tidied.getString();
+       return content.getString();
     }
 
     //========IOstring code========
