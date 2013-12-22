@@ -15,5 +15,7 @@
 	<classpathentry kind="lib" path="src/external/reflections/reflections-0.9.9-RC1.jar"/>
 	<classpathentry kind="lib" path="src/external/javassist/javassist.jar"/>
 	<classpathentry kind="lib" path="src/external/Htmlparser/htmlparser-1.4.jar"/>
+	<classpathentry kind="lib" path="src/external/Batik/xml-apis-ext.jar"/>
+	<classpathentry kind="lib" path="src/external/Batik/batik-1.7.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

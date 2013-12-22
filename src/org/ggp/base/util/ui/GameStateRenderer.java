@@ -1,7 +1,6 @@
 package org.ggp.base.util.ui;
 
 import java.awt.Dimension;
-import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -20,7 +19,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xhtmlrenderer.resource.XMLResource;
-import org.xhtmlrenderer.simple.Graphics2DRenderer;
+import org.xhtmlrenderer.swing.Java2DRenderer;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
@@ -49,7 +48,6 @@ public class GameStateRenderer {
 
     public static synchronized void renderImagefromGameXML(String gameXML, String XSL, BufferedImage backimage)
     {
-   		Graphics2DRenderer r = new Graphics2DRenderer();
 
         String xhtml = getXHTMLfromGameXML(gameXML, XSL);
         InputSource is = new InputSource(new BufferedReader(new StringReader(xhtml)));
@@ -63,7 +61,8 @@ public class GameStateRenderer {
             NodeList styles = dom.getElementsByTagName("style");
             Node head = dom.getElementsByTagName("head").item(0);
             for (int i = 0; i < styles.getLength(); i += 1) {
-                if (!styles.item(i).getParentNode().equals(head)) {
+                Node parent = styles.item(i).getParentNode();
+                if (!parent.equals(head) && parent.getNamespaceURI().contains("html")) {
                     head.appendChild(styles.item(i));
                 }
             }
@@ -80,10 +79,14 @@ public class GameStateRenderer {
             ex.printStackTrace();
         }
 
-        r.setDocument(dom, "http://www.ggp.org/");
-        final Graphics2D g2 = backimage.createGraphics();
-        r.layout(g2, defaultSize);
-        r.render(g2);
+        Java2DRenderer r = new Java2DRenderer(dom, backimage.getWidth(), backimage.getHeight());
+
+        ChainingReplacedElementFactory chainingReplacedElementFactory = new ChainingReplacedElementFactory();
+        chainingReplacedElementFactory.addReplacedElementFactory(r.getSharedContext().getReplacedElementFactory());
+        chainingReplacedElementFactory.addReplacedElementFactory(new SVGReplacedElementFactory());
+        r.getSharedContext().setReplacedElementFactory(chainingReplacedElementFactory);
+
+        backimage.setData(r.getImage().getData());
     }
 
     private static String getXHTMLfromGameXML(String gameXML, String XSL) {

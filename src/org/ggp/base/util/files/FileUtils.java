@@ -3,8 +3,10 @@ package org.ggp.base.util.files;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.PrintStream;
 
 public class FileUtils {
     /**
@@ -27,5 +29,14 @@ public class FileUtils {
 			e.printStackTrace();
 			return null;
 		}
+    }
+
+    public static void writeStringToFile(File file, String s) throws IOException {
+        PrintStream out = new PrintStream(new FileOutputStream(file, false));
+        try {
+            out.print(s);
+        } finally {
+            out.close();
+        }
     }
 }
