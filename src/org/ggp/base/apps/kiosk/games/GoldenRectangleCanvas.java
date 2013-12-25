@@ -23,8 +23,6 @@ public class GoldenRectangleCanvas extends GameCanvas_SimpleGrid {
 
     @Override
     protected void handleClickOnCell(int xCell, int yCell, int xWithin, int yWithin) {
-        yCell = 8 - yCell;
-
         for (int y = 0; y <= 7; y++) {
             if(gameStateHasLegalMove("( mark " + xCell + " " + y + " )")) {
                 selectedColumn = xCell;

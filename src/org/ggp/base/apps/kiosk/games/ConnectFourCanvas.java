@@ -23,8 +23,6 @@ public class ConnectFourCanvas extends GameCanvas_SimpleGrid {
 
     @Override
     protected void handleClickOnCell(int xCell, int yCell, int xWithin, int yWithin) {
-        yCell = 7 - yCell;
-
         if(gameStateHasLegalMove("( drop " + xCell + " )")) {
             selectedColumn = xCell;
             submitWorkingMove(stringToMove("( drop " + xCell + " )"));

@@ -3,6 +3,7 @@ package org.ggp.base.apps.tiltyard;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Random;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import junit.framework.TestCase;
 
@@ -65,7 +66,7 @@ public class TiltyardRequestFarm_Test extends TestCase {
         }
     }
 
-    Integer nSuccesses = new Integer(0);
+    AtomicInteger nSuccesses = new AtomicInteger(0);
 
     // Connections are run asynchronously in their own threads.
     class ReceiverThread extends Thread {
@@ -90,9 +91,7 @@ public class TiltyardRequestFarm_Test extends TestCase {
                 	long response = Long.parseLong(responseJSON.getString("response"));
                 	assertEquals(response, doMath(original));
                 }
-            	synchronized (nSuccesses) {
-            		nSuccesses++;
-            	}
+                nSuccesses.incrementAndGet();
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -176,12 +175,11 @@ public class TiltyardRequestFarm_Test extends TestCase {
 	    		assertEquals("okay", RemoteResourceLoader.postRawWithTimeout("http://127.0.0.1:" + TiltyardRequestFarm.SERVER_PORT, theRequest.toString(), 5000));
 	    		nRequests++;
 	    		Thread.sleep(10);
-	    		synchronized (nSuccesses) {
-	    			System.out.println("Successes so far: " + nSuccesses + " vs Requests: " + nRequests);
-	    			if (nSuccesses > 3000) {
-	    				assertTrue(nRequests > nSuccesses);
-	    				break;
-	    			}
+	    		int curNumSuccesses = nSuccesses.get();
+	    		System.out.println("Successes so far: " + curNumSuccesses + " vs Requests: " + nRequests);
+	    		if (curNumSuccesses > 3000) {
+	    			assertTrue(nRequests > curNumSuccesses);
+	    			break;
 	    		}
 	    	}
     	} catch (Exception e) {

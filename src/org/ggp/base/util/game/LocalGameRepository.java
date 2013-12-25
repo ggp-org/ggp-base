@@ -38,16 +38,18 @@ public final class LocalGameRepository extends GameRepository {
     private static RemoteGameRepository theRealRepo;
 
     public LocalGameRepository() {
-        if (theLocalRepoServer == null) {
-            try {
-                theLocalRepoServer = HttpServer.create(new InetSocketAddress(REPO_SERVER_PORT), 0);
-                theLocalRepoServer.createContext("/", new LocalRepoServer());
-                theLocalRepoServer.setExecutor(null); // creates a default executor
-                theLocalRepoServer.start();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        }
+    	synchronized (LocalGameRepository.class) {
+    		if (theLocalRepoServer == null) {
+    			try {
+    				theLocalRepoServer = HttpServer.create(new InetSocketAddress(REPO_SERVER_PORT), 0);
+    				theLocalRepoServer.createContext("/", new LocalRepoServer());
+    				theLocalRepoServer.setExecutor(null); // creates a default executor
+    				theLocalRepoServer.start();
+    			} catch (IOException e) {
+    				throw new RuntimeException(e);
+    			}
+    		}
+    	}
 
         theRealRepo = new RemoteGameRepository(theLocalRepoURL);
     }

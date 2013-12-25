@@ -45,7 +45,7 @@ public class KioskGamer extends StateMachineGamer implements Observer {
             throws TransitionDefinitionException, MoveDefinitionException,
             GoalDefinitionException {
         if(theCanvas == null)
-            System.err.println("KioskGamer did not receive a canvas.");
+            throw new IllegalStateException("KioskGamer did not receive a canvas.");
         theCanvas.setStateMachine(getStateMachine());
 
         theGUI = new GameGUI(theCanvas);

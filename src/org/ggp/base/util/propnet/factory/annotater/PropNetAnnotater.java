@@ -8,6 +8,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 import org.ggp.base.util.game.GameRepository;
@@ -74,7 +75,7 @@ public class PropNetAnnotater {
             if(!(other instanceof Location))
                 return false;
             Location rhs = (Location)other;
-            return idx==rhs.idx && name.toString().equals(rhs.name.toString());
+            return Objects.equals(idx, rhs.idx) && name.toString().equals(rhs.name.toString());
         }
 
         @Override

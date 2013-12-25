@@ -52,7 +52,8 @@ public final class TiltyardRequestFarm
     public static final int SERVER_PORT = 9125;
     private static final String registrationURL = "http://tiltyard.ggp.org/backends/register/farm";
 
-    private static Integer ongoingRequests = new Integer(0);
+    private static final Object ongoingRequestsLock = new Object();
+    private static int ongoingRequests = 0;
 
     public static boolean testMode = false;
 
@@ -134,9 +135,9 @@ public final class TiltyardRequestFarm
         @Override
         public void run() {
             if (originalRequest != null) {
-                synchronized (ongoingRequests) {
-                	ongoingRequests++;
-                }
+            	synchronized (ongoingRequestsLock) {
+            		ongoingRequests++;
+            	}
                 System.out.println("On " + new Date() + ", starting request. There are now " + ongoingRequests + " ongoing requests.");
                 long startTime = System.currentTimeMillis();
                 JSONObject responseJSON = new JSONObject();
@@ -179,7 +180,7 @@ public final class TiltyardRequestFarm
 						}
                 	}
                 }
-                synchronized (ongoingRequests) {
+                synchronized (ongoingRequestsLock) {
                 	ongoingRequests--;
                 	if (ongoingRequests == 0) {
                 		System.gc();

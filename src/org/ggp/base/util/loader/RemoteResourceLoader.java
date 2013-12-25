@@ -49,12 +49,13 @@ public class RemoteResourceLoader {
 		        if (urlConnection.getContentLength() == 0)
 		            throw new IOException("Could not load URL: " + theURL);
 		        StringBuilder theRawData = new StringBuilder();
-		        BufferedReader br = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
-		        do {
-		            String nextLine = br.readLine();
-		            if (nextLine == null) break;
-		            theRawData.append(nextLine + "\n");
-		        } while (true);
+		        try (BufferedReader br = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()))) {
+		        	do {
+		        		String nextLine = br.readLine();
+		        		if (nextLine == null) break;
+		        		theRawData.append(nextLine + "\n");
+		        	} while (true);
+		        }
 		        return theRawData.toString();
 	        } catch (IOException ie) {
 	        	if (nAttempt >= nMaxAttempts) {

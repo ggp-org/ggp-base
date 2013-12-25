@@ -229,9 +229,42 @@ public final class Kiosk extends JPanel implements ActionListener, ItemListener,
         }
 
         @Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + getOuterType().hashCode();
+			result = prime * result
+					+ ((gameName == null) ? 0 : gameName.hashCode());
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj)
+				return true;
+			if (obj == null)
+				return false;
+			if (getClass() != obj.getClass())
+				return false;
+			AvailableGame other = (AvailableGame) obj;
+			if (!getOuterType().equals(other.getOuterType()))
+				return false;
+			if (gameName == null) {
+				if (other.gameName != null)
+					return false;
+			} else if (!gameName.equals(other.gameName))
+				return false;
+			return true;
+		}
+
+		@Override
         public int compareTo(AvailableGame o) {
             return gameName.compareTo(o.gameName);
         }
+
+		private Kiosk getOuterType() {
+			return Kiosk.this;
+		}
     }
 
     private GamePlayer theComputerPlayer = null;
@@ -268,7 +301,7 @@ public final class Kiosk extends JPanel implements ActionListener, ItemListener,
                 GdlPool.drainPool();
                 SymbolPool.drainPool();
 
-                AvailableGame theGame = (AvailableGame) (selectedGame.getSelectedValue());
+                AvailableGame theGame = selectedGame.getSelectedValue();
                 Game game = theRepository.getGame(theGame.kifFile);
 
                 if (game == null) {

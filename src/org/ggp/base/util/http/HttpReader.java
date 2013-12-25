@@ -39,6 +39,9 @@ public final class HttpReader
 
 		// The first line of the HTTP request is the request line.
 		String requestLine = br.readLine();
+		if (requestLine == null) {
+			throw new IOException("The HTTP request was empty.");
+		}
 		String message;
 		if(requestLine.toUpperCase().startsWith("GET ")) {
 		    message = requestLine.substring(5, requestLine.lastIndexOf(' '));

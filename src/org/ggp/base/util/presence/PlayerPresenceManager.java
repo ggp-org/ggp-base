@@ -11,6 +11,7 @@ import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -30,9 +31,7 @@ public class PlayerPresenceManager implements Subject {
 	public class PlayerPresenceRemoved extends Event {}
 
 	public static boolean isDifferent(String a, String b) {
-		if (a == null && b == null) return false;
-		if (a == null && b != null) return true;
-		return !a.equals(b);
+		return !Objects.equals(a, b);
 	}
 
 	public static final int INFO_PING_PERIOD_IN_SECONDS = 1;

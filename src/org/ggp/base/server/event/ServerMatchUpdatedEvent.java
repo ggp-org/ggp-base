@@ -1,12 +1,9 @@
 package org.ggp.base.server.event;
 
-import java.io.Serializable;
-
 import org.ggp.base.util.match.Match;
 import org.ggp.base.util.observer.Event;
 
-@SuppressWarnings("serial")
-public final class ServerMatchUpdatedEvent extends Event implements Serializable {
+public final class ServerMatchUpdatedEvent extends Event {
 	private final Match match;
 	private final String externalPublicationKey;
 	private final String externalFilename;
