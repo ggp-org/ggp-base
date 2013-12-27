@@ -30,6 +30,10 @@ import org.xml.sax.SAXException;
  * state in HTML as a DOM, it renders that DOM into a BufferedImage which
  * can be displayed to the user.
  *
+ * TODO: Flying Saucer loads all referenced resources from the origin server
+ * for every visualization frame. Rendering can be made much faster by
+ * implementing resource caching.
+ *
  * TODO: This class is still pretty rough, and I suspect there's much room
  * for improvement. Furthermore, improving this class will yield immediate
  * visible benefits, in terms of better visualizations and such. For example,
