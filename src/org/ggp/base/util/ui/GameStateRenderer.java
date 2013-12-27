@@ -75,7 +75,7 @@ public class GameStateRenderer {
             }
 
             Node style = dom.createElement("style");
-            String bodyStyle = String.format("body { width: %dpx; height: %dpx; overflow:hidden; }",
+            String bodyStyle = String.format("body { width: %dpx; height: %dpx; overflow:hidden; margin:auto;}",
                     defaultSize.width, defaultSize.height);
             style.appendChild(dom.createTextNode(bodyStyle));
             head.appendChild(style);
