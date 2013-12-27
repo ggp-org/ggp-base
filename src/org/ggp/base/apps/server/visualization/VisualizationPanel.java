@@ -23,6 +23,7 @@ import org.ggp.base.util.statemachine.MachineState;
 import org.ggp.base.util.statemachine.StateMachine;
 import org.ggp.base.util.statemachine.cache.CachedStateMachine;
 import org.ggp.base.util.statemachine.implementation.prover.ProverStateMachine;
+import org.ggp.base.util.ui.GameStateRenderer;
 import org.ggp.base.util.ui.timer.JTimerBar;
 
 @SuppressWarnings("serial")
@@ -147,6 +148,7 @@ public final class VisualizationPanel extends JPanel implements Observer
 	                if (!job.stop()) {
 	                    job.render();
 	                } else {
+	                    GameStateRenderer.shrinkCache();
 	                    running = false;
 	                }
 	            } catch (InterruptedException e) {

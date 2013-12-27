@@ -20,6 +20,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xhtmlrenderer.resource.XMLResource;
 import org.xhtmlrenderer.swing.Java2DRenderer;
+import org.xhtmlrenderer.swing.NaiveUserAgent;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
@@ -29,10 +30,6 @@ import org.xml.sax.SAXException;
  * that converts that XML match state into HTML. After rendering the match
  * state in HTML as a DOM, it renders that DOM into a BufferedImage which
  * can be displayed to the user.
- *
- * TODO: Flying Saucer loads all referenced resources from the origin server
- * for every visualization frame. Rendering can be made much faster by
- * implementing resource caching.
  *
  * TODO: This class is still pretty rough, and I suspect there's much room
  * for improvement. Furthermore, improving this class will yield immediate
@@ -44,6 +41,12 @@ import org.xml.sax.SAXException;
  */
 public class GameStateRenderer {
     private static final Dimension defaultSize = new Dimension(600,600);
+
+    /* Note: NaiveUserAgent is not thread safe, so whenever the architecture
+     * of this class is modified in a way that enables concurrent rendering,
+     * this must be changed to another UserAgentCallback implementation that
+     * uses a thread safe image cache */
+    private static NaiveUserAgent userAgent = new NaiveUserAgent(128);
 
     public static Dimension getDefaultSize()
     {
@@ -84,6 +87,7 @@ public class GameStateRenderer {
         }
 
         Java2DRenderer r = new Java2DRenderer(dom, backimage.getWidth(), backimage.getHeight());
+        r.getSharedContext().setUserAgentCallback(userAgent);
 
         ChainingReplacedElementFactory chainingReplacedElementFactory = new ChainingReplacedElementFactory();
         chainingReplacedElementFactory.addReplacedElementFactory(r.getSharedContext().getReplacedElementFactory());
@@ -91,6 +95,10 @@ public class GameStateRenderer {
         r.getSharedContext().setReplacedElementFactory(chainingReplacedElementFactory);
 
         backimage.setData(r.getImage().getData());
+    }
+
+    public static synchronized void shrinkCache() {
+        userAgent.shrinkImageCache();
     }
 
     private static String getXHTMLfromGameXML(String gameXML, String XSL) {
