@@ -115,12 +115,6 @@
             <classpath refid="GGP_Base.classpath"/>
         </java>
     </target>
-    <target name="LoadPropnet">
-        <java classname="org.ggp.base.apps.examples.LoadPropnet" failonerror="true" fork="yes">
-            <jvmarg line="-mx1500m -Xss20m -server -XX:-DontCompileHugeMethods -XX:MinHeapFreeRatio=10 -XX:MaxHeapFreeRatio=10"/>
-            <classpath refid="GGP_Base.classpath"/>
-        </java>
-    </target>
     <target name="PythonConsole">
         <java classname="org.ggp.base.apps.consoles.PythonConsole" failonerror="true" fork="yes">
             <classpath refid="GGP_Base.classpath"/>
@@ -133,11 +127,6 @@
     </target>
     <target name="SimpleGameSim">
         <java classname="org.ggp.base.apps.utilities.SimpleGameSim" failonerror="true" fork="yes">
-            <classpath refid="GGP_Base.classpath"/>
-        </java>
-    </target>
-    <target name="TiltyardBackend">
-        <java classname="org.ggp.base.apps.tiltyard.TiltyardBackend" failonerror="true" fork="yes">
             <classpath refid="GGP_Base.classpath"/>
         </java>
     </target>
