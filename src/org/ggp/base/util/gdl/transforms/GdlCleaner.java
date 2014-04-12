@@ -193,7 +193,8 @@ public class GdlCleaner {
 			GdlTerm term2 = cleanParentheses(distinct.getArg2());
 			return GdlPool.getDistinct(term1, term2);
 		} else if(literal instanceof GdlNot) {
-			return GdlPool.getNot(((GdlNot) literal).getBody());
+			GdlLiteral body = ((GdlNot) literal).getBody();
+			return GdlPool.getNot(cleanParentheses(body));
 		} else if(literal instanceof GdlOr) {
 			GdlOr or = (GdlOr) literal;
 			List<GdlLiteral> disjuncts = new ArrayList<GdlLiteral>();
