@@ -4,7 +4,7 @@ import java.util.Set;
 
 import org.ggp.base.util.gdl.grammar.GdlSentence;
 
-public abstract class Prover
+public interface Prover
 {
 	public abstract Set<GdlSentence> askAll(GdlSentence query, Set<GdlSentence> context);
 	public abstract GdlSentence askOne(GdlSentence query, Set<GdlSentence> context);
