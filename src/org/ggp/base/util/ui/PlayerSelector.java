@@ -52,6 +52,8 @@ public class PlayerSelector {
 				setForeground(list.getForeground());
 			}
 
+			if (value == null) return this;
+
 			PlayerPresence presence = thePresenceManager.getPresence(value.toString());
 			String status = presence.getStatus();
 			if (status != null) status = status.toLowerCase();
