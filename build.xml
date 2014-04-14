@@ -27,6 +27,7 @@
 		<pathelement location="src/external/Batik/xml-apis-ext.jar"/>
 		<pathelement location="src/external/Batik/batik-1.7.jar"/>
 		<pathelement location="src/external/Htmlparser/htmlparser-1.4.jar"/>
+		<pathelement location="src/external/javassist/javassist.jar"/>
     </path>
     <target name="init">
         <mkdir dir="bin"/>
