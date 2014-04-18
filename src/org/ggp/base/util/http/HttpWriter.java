@@ -11,13 +11,13 @@ public final class HttpWriter
     {
         PrintWriter pw = new PrintWriter(socket.getOutputStream());
 
-        pw.println("GET /" + URLEncoder.encode(data, "UTF-8") + " HTTP/1.0");
-        pw.println("Accept: text/delim");
-        pw.println("Host: " + hostField);
-        pw.println("Sender: GAMESERVER");
-        pw.println("Receiver: "+playerName);
-        pw.println();
-        pw.println();
+        pw.print("GET /" + URLEncoder.encode(data, "UTF-8") + " HTTP/1.0\r\n");
+        pw.print("Accept: text/delim\r\n");
+        pw.print("Host: " + hostField + "\r\n");
+        pw.print("Sender: GAMESERVER\r\n");
+        pw.print("Receiver: "+playerName+"\r\n");
+        pw.print("\r\n");
+        pw.print("\r\n");
 
         pw.flush();
     }
@@ -26,14 +26,14 @@ public final class HttpWriter
 	{
 		PrintWriter pw = new PrintWriter(socket.getOutputStream());
 
-		pw.println("POST / HTTP/1.0");
-		pw.println("Accept: text/delim");
-		pw.println("Host: " + hostField);
-		pw.println("Sender: GAMESERVER");
-		pw.println("Receiver: "+playerName);
-		pw.println("Content-Type: text/acl");
-		pw.println("Content-Length: " + data.length());
-		pw.println();
+		pw.print("POST / HTTP/1.0\r\n");
+		pw.print("Accept: text/delim\r\n");
+		pw.print("Host: " + hostField + "\r\n");
+		pw.print("Sender: GAMESERVER\r\n");
+		pw.print("Receiver: "+playerName + "\r\n");
+		pw.print("Content-Type: text/acl\r\n");
+		pw.print("Content-Length: " + data.length() + "\r\n");
+		pw.print("\r\n");
 		pw.print(data);
 
 		pw.flush();
@@ -43,14 +43,14 @@ public final class HttpWriter
 	{
 		PrintWriter pw = new PrintWriter(socket.getOutputStream());
 
-		pw.println("HTTP/1.0 200 OK");
-		pw.println("Content-type: text/acl");
-		pw.println("Content-length: " + data.length());
-		pw.println("Access-Control-Allow-Origin: *");
-		pw.println("Access-Control-Allow-Methods: POST, GET, OPTIONS");
-		pw.println("Access-Control-Allow-Headers: Content-Type");
-		pw.println("Access-Control-Allow-Age: 86400");
-		pw.println();
+		pw.print("HTTP/1.0 200 OK\r\n");
+		pw.print("Content-type: text/acl\r\n");
+		pw.print("Content-length: " + data.length() + "\r\n");
+		pw.print("Access-Control-Allow-Origin: *\r\n");
+		pw.print("Access-Control-Allow-Methods: POST, GET, OPTIONS\r\n");
+		pw.print("Access-Control-Allow-Headers: Content-Type\r\n");
+		pw.print("Access-Control-Allow-Age: 86400\r\n");
+		pw.print("\r\n");
 		pw.print(data);
 
 		pw.flush();
