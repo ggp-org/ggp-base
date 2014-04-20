@@ -7,10 +7,12 @@ import java.util.List;
 import java.util.Set;
 
 import org.ggp.base.util.gdl.grammar.Gdl;
+import org.ggp.base.util.gdl.grammar.GdlConstant;
 import org.ggp.base.util.gdl.grammar.GdlDistinct;
 import org.ggp.base.util.gdl.grammar.GdlLiteral;
 import org.ggp.base.util.gdl.grammar.GdlNot;
 import org.ggp.base.util.gdl.grammar.GdlOr;
+import org.ggp.base.util.gdl.grammar.GdlPool;
 import org.ggp.base.util.gdl.grammar.GdlRule;
 import org.ggp.base.util.gdl.grammar.GdlSentence;
 import org.ggp.base.util.gdl.transforms.DistinctAndNotMover;
@@ -25,10 +27,12 @@ import org.ggp.base.util.prover.aima.unifier.Unifier;
 import com.google.common.collect.Sets;
 
 
-public final class AimaProver extends Prover
+public final class AimaProver implements Prover
 {
 
 	private final KnowledgeBase knowledgeBase;
+
+	private final ProverCache fixedAnswerCache = new ProverCache();
 
 	public AimaProver(List<Gdl> description)
 	{
@@ -54,39 +58,44 @@ public final class AimaProver extends Prover
 		return results;
 	}
 
-	private void ask(LinkedList<GdlLiteral> goals, KnowledgeBase context, Substitution theta, ProverCache cache, VariableRenamer renamer, boolean askOne, Set<Substitution> results, Set<GdlSentence> alreadyAsking)
+	// Returns true iff the result is constant across all possible states of the game.
+	private boolean ask(LinkedList<GdlLiteral> goals, KnowledgeBase context, Substitution theta, ProverCache cache, VariableRenamer renamer, boolean askOne, Set<Substitution> results, Set<GdlSentence> alreadyAsking)
 	{
 		if (goals.size() == 0)
 		{
 			results.add(theta);
+			return true;
 		}
 		else
 		{
 			GdlLiteral literal = goals.removeFirst();
 			GdlLiteral qPrime = Substituter.substitute(literal, theta);
 
+			boolean isConstant;
+
 			if (qPrime instanceof GdlDistinct)
 			{
 				GdlDistinct distinct = (GdlDistinct) qPrime;
-				askDistinct(distinct, goals, context, theta, cache, renamer, askOne, results, alreadyAsking);
+				isConstant = askDistinct(distinct, goals, context, theta, cache, renamer, askOne, results, alreadyAsking);
 			}
 			else if (qPrime instanceof GdlNot)
 			{
 				GdlNot not = (GdlNot) qPrime;
-				askNot(not, goals, context, theta, cache, renamer, askOne, results, alreadyAsking);
+				isConstant = askNot(not, goals, context, theta, cache, renamer, askOne, results, alreadyAsking);
 			}
 			else if (qPrime instanceof GdlOr)
 			{
 				GdlOr or = (GdlOr) qPrime;
-				askOr(or, goals, context, theta, cache, renamer, askOne, results, alreadyAsking);
+				isConstant = askOr(or, goals, context, theta, cache, renamer, askOne, results, alreadyAsking);
 			}
 			else
 			{
 				GdlSentence sentence = (GdlSentence) qPrime;
-				askSentence(sentence, goals, context, theta, cache, renamer, askOne, results, alreadyAsking);
+				isConstant = askSentence(sentence, goals, context, theta, cache, renamer, askOne, results, alreadyAsking);
 			}
 
 			goals.addFirst(literal);
+			return isConstant;
 		}
 	}
 
@@ -96,26 +105,31 @@ public final class AimaProver extends Prover
 		return ask(query, context, false);
 	}
 
-	private void askDistinct(GdlDistinct distinct, LinkedList<GdlLiteral> goals, KnowledgeBase context, Substitution theta, ProverCache cache, VariableRenamer renamer, boolean askOne, Set<Substitution> results, Set<GdlSentence> alreadyAsking)
+	// Returns true iff the result is constant across all possible states of the game.
+	private boolean askDistinct(GdlDistinct distinct, LinkedList<GdlLiteral> goals, KnowledgeBase context, Substitution theta, ProverCache cache, VariableRenamer renamer, boolean askOne, Set<Substitution> results, Set<GdlSentence> alreadyAsking)
 	{
 		if (!distinct.getArg1().equals(distinct.getArg2()))
 		{
-			ask(goals, context, theta, cache, renamer, askOne, results, alreadyAsking);
+			return ask(goals, context, theta, cache, renamer, askOne, results, alreadyAsking);
 		}
+		return true;
 	}
 
-	private void askNot(GdlNot not, LinkedList<GdlLiteral> goals, KnowledgeBase context, Substitution theta, ProverCache cache, VariableRenamer renamer, boolean askOne, Set<Substitution> results, Set<GdlSentence> alreadyAsking)
+	// Returns true iff the result is constant across all possible states of the game.
+	private boolean askNot(GdlNot not, LinkedList<GdlLiteral> goals, KnowledgeBase context, Substitution theta, ProverCache cache, VariableRenamer renamer, boolean askOne, Set<Substitution> results, Set<GdlSentence> alreadyAsking)
 	{
 		LinkedList<GdlLiteral> notGoals = new LinkedList<GdlLiteral>();
 		notGoals.add(not.getBody());
 
 		Set<Substitution> notResults = new HashSet<Substitution>();
-		ask(notGoals, context, theta, cache, renamer, true, notResults, alreadyAsking);
+		boolean isConstant = true;
+		isConstant &= ask(notGoals, context, theta, cache, renamer, true, notResults, alreadyAsking);
 
 		if (notResults.size() == 0)
 		{
-			ask(goals, context, theta, cache, renamer, askOne, results, alreadyAsking);
+			isConstant &= ask(goals, context, theta, cache, renamer, askOne, results, alreadyAsking);
 		}
+		return isConstant;
 	}
 
 	@Override
@@ -125,12 +139,14 @@ public final class AimaProver extends Prover
 		return (results.size() > 0) ? results.iterator().next() : null;
 	}
 
-	private void askOr(GdlOr or, LinkedList<GdlLiteral> goals, KnowledgeBase context, Substitution theta, ProverCache cache, VariableRenamer renamer, boolean askOne, Set<Substitution> results, Set<GdlSentence> alreadyAsking)
+	// Returns true iff the result is constant across all possible states of the game.
+	private boolean askOr(GdlOr or, LinkedList<GdlLiteral> goals, KnowledgeBase context, Substitution theta, ProverCache cache, VariableRenamer renamer, boolean askOne, Set<Substitution> results, Set<GdlSentence> alreadyAsking)
 	{
+		boolean isConstant = true;
 		for (int i = 0; i < or.arity(); i++)
 		{
 			goals.addFirst(or.get(i));
-			ask(goals, context, theta, cache, renamer, askOne, results, alreadyAsking);
+			isConstant &= ask(goals, context, theta, cache, renamer, askOne, results, alreadyAsking);
 			goals.removeFirst();
 
 			if (askOne && (results.size() > 0))
@@ -138,20 +154,24 @@ public final class AimaProver extends Prover
 				break;
 			}
 		}
+		return isConstant;
 	}
 
-	private void askSentence(GdlSentence sentence, LinkedList<GdlLiteral> goals, KnowledgeBase context, Substitution theta, ProverCache cache, VariableRenamer renamer, boolean askOne, Set<Substitution> results, Set<GdlSentence> alreadyAsking)
+	// Returns true iff the result is constant across all possible states of the game.
+	private boolean askSentence(GdlSentence sentence, LinkedList<GdlLiteral> goals, KnowledgeBase context, Substitution theta, ProverCache cache, VariableRenamer renamer, boolean askOne, Set<Substitution> results, Set<GdlSentence> alreadyAsking)
 	{
-		if (!cache.contains(sentence))
+		GdlSentence varRenamedSentence = new VariableRenamer().rename(sentence);
+		if (!fixedAnswerCache.contains(varRenamedSentence) && !cache.contains(varRenamedSentence))
 		{
 			//Prevent infinite loops on certain recursive queries.
 			if(alreadyAsking.contains(sentence)) {
-				return;
+				return false;
 			}
 			alreadyAsking.add(sentence);
 			List<GdlRule> candidates = new ArrayList<GdlRule>();
 			candidates.addAll(knowledgeBase.fetch(sentence));
 			candidates.addAll(context.fetch(sentence));
+			boolean isConstant = !isTrueOrDoesSentence(sentence);
 
 			Set<Substitution> sentenceResults = new HashSet<Substitution>();
 			for (GdlRule rule : candidates)
@@ -167,22 +187,38 @@ public final class AimaProver extends Prover
 						sentenceGoals.add(r.get(i));
 					}
 
-					ask(sentenceGoals, context, theta.compose(thetaPrime), cache, renamer, false, sentenceResults, alreadyAsking);
+					isConstant &= ask(sentenceGoals, context, theta.compose(thetaPrime), cache, renamer, false, sentenceResults, alreadyAsking);
 				}
 			}
 
-			cache.put(sentence, sentenceResults);
+			if (isConstant) {
+				fixedAnswerCache.put(sentence, varRenamedSentence, sentenceResults);
+			} else {
+				cache.put(sentence, varRenamedSentence, sentenceResults);
+			}
+
 			alreadyAsking.remove(sentence);
 		}
 
-		for (Substitution thetaPrime : cache.get(sentence))
+		List<Substitution> cachedResults = fixedAnswerCache.get(sentence, varRenamedSentence);
+		boolean isConstant = (cachedResults != null);
+		if (cachedResults == null) {
+			cachedResults = cache.get(sentence, varRenamedSentence);
+		}
+		for (Substitution thetaPrime : cachedResults)
 		{
-			ask(goals, context, theta.compose(thetaPrime), cache, renamer, askOne, results, alreadyAsking);
+			isConstant &= ask(goals, context, theta.compose(thetaPrime), cache, renamer, askOne, results, alreadyAsking);
 			if (askOne && (results.size() > 0))
 			{
 				break;
 			}
 		}
+		return isConstant;
+	}
+
+	private boolean isTrueOrDoesSentence(GdlSentence sentence) {
+		GdlConstant name = sentence.getName();
+		return name == GdlPool.TRUE || name == GdlPool.DOES;
 	}
 
 	@Override
