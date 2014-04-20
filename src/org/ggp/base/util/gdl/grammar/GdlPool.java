@@ -13,6 +13,18 @@ import java.util.concurrent.ConcurrentMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.MapMaker;
 
+/**
+ * The GdlPool manages the creation of {@link Gdl} objects. It is the only way Gdl
+ * objects may be created. It ensures that for each possible sentence, rule, or
+ * fragment of GDL, only one corresponding Gdl object is created. This means Gdl
+ * objects may be checked for equality with an instance-equality check (==) rather
+ * than a more expensive recursive equality check.
+ * <p>
+ * A long-lived game player may accumulate lots of objects in its pool. To remove
+ * them, it may call {@link #drainPool()} in between games. Note that if this
+ * method is called while references to Gdl objects other than keyword constants
+ * are held elsewhere, bad things will happen.
+ */
 public final class GdlPool
 {
 	private static final ConcurrentMap<GdlTerm, ConcurrentMap<GdlTerm, GdlDistinct>> distinctPool = new ConcurrentHashMap<GdlTerm, ConcurrentMap<GdlTerm, GdlDistinct>>();
@@ -24,11 +36,12 @@ public final class GdlPool
 	private static final ConcurrentMap<GdlSentence, ConcurrentMap<List<GdlLiteral>, GdlRule>> rulePool = new ConcurrentHashMap<GdlSentence, ConcurrentMap<List<GdlLiteral>, GdlRule>>();
 	private static final ConcurrentMap<String, GdlVariable> variablePool = new ConcurrentHashMap<String, GdlVariable>();
     private static final ConcurrentMap<String, GdlConstant> constantPool = new ConcurrentHashMap<String, GdlConstant>();
+    //Access to constantCases and variableCases should be synchronized using their monitor locks.
     private static final Map<String,String> constantCases = new TreeMap<String,String>(String.CASE_INSENSITIVE_ORDER);
     private static final Map<String,String> variableCases = new TreeMap<String,String>(String.CASE_INSENSITIVE_ORDER);
 
     // Controls whether we normalize the case of incoming constants and variables.
-    public static boolean caseSensitive = true;
+    public static volatile boolean caseSensitive = true;
 
     // Special keyword constants. These are never drained between games and are always
     // represented as lower-case so that they can easily be referred to internally and
@@ -55,11 +68,17 @@ public final class GdlPool
      */
     public static final GdlConstant UNDERSCORE = getConstant("_");
 
+    private GdlPool() {
+    	// Not instantiable
+    }
+
     /**
 	 * Drains the contents of the GdlPool. Useful to control memory usage
 	 * once you have finished playing a large game.
 	 *
-	 * WARNING: Should only be called *between games*.
+	 * WARNING: Should only be called *between games*, when there are no
+	 * references to Gdl objects (other than keyword constants) outside the
+	 * pool.
 	 */
 	public static void drainPool() {
 	    distinctPool.clear();
@@ -70,7 +89,9 @@ public final class GdlPool
 	    relationPool.clear();
 	    rulePool.clear();
 	    variablePool.clear();
-	    variableCases.clear();
+	    synchronized (variableCases) {
+	    	variableCases.clear();
+	    }
 
 	    // When draining the pool between matches, we still need to preserve the keywords
 	    // since there are global references to them. For example, the Prover state machine
@@ -83,11 +104,13 @@ public final class GdlPool
 	    for (String keyword : KEYWORDS) {
 	    	keywordConstants.put(keyword, GdlPool.getConstant(keyword));
 	    }
-	    constantPool.clear();
-	    constantCases.clear();
-	    for (Map.Entry<String,GdlConstant> keywordEntry : keywordConstants.entrySet()) {
-	    	constantCases.put(keywordEntry.getKey(), keywordEntry.getKey());
-	    	constantPool.put(keywordEntry.getKey(), keywordEntry.getValue());
+	    synchronized (constantCases) {
+	    	constantPool.clear();
+	    	constantCases.clear();
+	    	for (Map.Entry<String,GdlConstant> keywordEntry : keywordConstants.entrySet()) {
+	    		constantCases.put(keywordEntry.getKey(), keywordEntry.getKey());
+	    		constantPool.put(keywordEntry.getKey(), keywordEntry.getValue());
+	    	}
 	    }
 	}
 
@@ -115,11 +138,13 @@ public final class GdlPool
 			value = value.toLowerCase();
 		}
 	    if (!caseSensitive) {
-	        if (constantCases.containsKey(value)) {
-	            value = constantCases.get(value);
-	        } else {
-	            constantCases.put(value, value);
-	        }
+	    	synchronized (constantCases) {
+	    		if (constantCases.containsKey(value)) {
+	    			value = constantCases.get(value);
+	    		} else {
+	    			constantCases.put(value, value);
+	    		}
+	    	}
 	    }
 
 		GdlConstant ret = constantPool.get(value);
@@ -131,11 +156,13 @@ public final class GdlPool
     public static GdlVariable getVariable(String name)
     {
         if (!caseSensitive) {
-            if (variableCases.containsKey(name)) {
-                name = variableCases.get(name);
-            } else {
-                variableCases.put(name, name);
-            }
+        	synchronized (variableCases) {
+        		if (variableCases.containsKey(name)) {
+        			name = variableCases.get(name);
+        		} else {
+        			variableCases.put(name, name);
+        		}
+        	}
         }
 
         GdlVariable ret = variablePool.get(name);
