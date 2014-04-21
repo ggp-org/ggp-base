@@ -10,6 +10,7 @@ import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.MapMaker;
 
@@ -205,8 +206,8 @@ public final class GdlPool
 
 		GdlFunction ret = bucket.get(body);
 		if(ret == null) {
-		    body = getImmutableCopy(body);
-			ret = addToPool(body, new GdlFunction(name, body), bucket);
+		    ImmutableList<GdlTerm> immutableBody = ImmutableList.copyOf(body);
+			ret = addToPool(immutableBody, new GdlFunction(name, immutableBody), bucket);
 		}
 
 		return ret;
@@ -230,8 +231,8 @@ public final class GdlPool
 	{
 		GdlOr ret = orPool.get(disjuncts);
 		if(ret == null) {
-		    disjuncts = getImmutableCopy(disjuncts);
-			ret = addToPool(disjuncts, new GdlOr(disjuncts), orPool);
+		    ImmutableList<GdlLiteral> immutableDisjuncts = ImmutableList.copyOf(disjuncts);
+			ret = addToPool(immutableDisjuncts, new GdlOr(immutableDisjuncts), orPool);
 		}
 
 		return ret;
@@ -267,8 +268,8 @@ public final class GdlPool
 
 		GdlRelation ret = bucket.get(body);
 		if(ret == null) {
-		    body = getImmutableCopy(body);
-			ret = addToPool(body, new GdlRelation(name, body), bucket);
+		    ImmutableList<GdlTerm> immutableBody = ImmutableList.copyOf(body);
+			ret = addToPool(immutableBody, new GdlRelation(name, immutableBody), bucket);
 		}
 
 		return ret;
@@ -293,15 +294,11 @@ public final class GdlPool
 
 		GdlRule ret = bucket.get(body);
 		if(ret == null) {
-		    body = getImmutableCopy(body);
-			ret = addToPool(body, new GdlRule(head, body), bucket);
+		    ImmutableList<GdlLiteral> immutableBody = ImmutableList.copyOf(body);
+			ret = addToPool(immutableBody, new GdlRule(head, immutableBody), bucket);
 		}
 
 		return ret;
-	}
-
-	private static <T> List<T> getImmutableCopy(List<T> list) {
-	    return Collections.unmodifiableList(new ArrayList<T>(list));
 	}
 
 	/**

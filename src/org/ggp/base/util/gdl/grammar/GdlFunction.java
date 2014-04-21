@@ -2,15 +2,17 @@ package org.ggp.base.util.gdl.grammar;
 
 import java.util.List;
 
+import com.google.common.collect.ImmutableList;
+
 @SuppressWarnings("serial")
 public final class GdlFunction extends GdlTerm
 {
 
-	private final List<GdlTerm> body;
+	private final ImmutableList<GdlTerm> body;
 	private transient Boolean ground;
 	private final GdlConstant name;
 
-	GdlFunction(GdlConstant name, List<GdlTerm> body)
+	GdlFunction(GdlConstant name, ImmutableList<GdlTerm> body)
 	{
 		this.name = name;
 		this.body = body;

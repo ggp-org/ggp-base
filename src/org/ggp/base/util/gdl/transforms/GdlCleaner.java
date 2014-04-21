@@ -69,6 +69,8 @@ public class GdlCleaner {
 		}
 		//TODO: Get rid of GdlPropositions in the description
 
+		//TODO: Get rid of (not (or ...))
+
 		//Get rid of (not (distinct _ _)) literals in rules
 		//TODO: Expand to functions
 		description = newDescription;

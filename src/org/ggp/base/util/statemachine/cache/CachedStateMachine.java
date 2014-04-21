@@ -13,6 +13,8 @@ import org.ggp.base.util.statemachine.exceptions.GoalDefinitionException;
 import org.ggp.base.util.statemachine.exceptions.MoveDefinitionException;
 import org.ggp.base.util.statemachine.exceptions.TransitionDefinitionException;
 
+import com.google.common.collect.ImmutableList;
+
 public final class CachedStateMachine extends StateMachine
 {
 	private final StateMachine backingStateMachine;
@@ -73,7 +75,7 @@ public final class CachedStateMachine extends StateMachine
 		{
 			if (!entry.moves.containsKey(role))
 			{
-				entry.moves.put(role, backingStateMachine.getLegalMoves(state, role));
+				entry.moves.put(role, ImmutableList.copyOf(backingStateMachine.getLegalMoves(state, role)));
 			}
 
 			return entry.moves.get(role);

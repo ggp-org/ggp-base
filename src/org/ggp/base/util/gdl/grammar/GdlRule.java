@@ -2,15 +2,17 @@ package org.ggp.base.util.gdl.grammar;
 
 import java.util.List;
 
+import com.google.common.collect.ImmutableList;
+
 @SuppressWarnings("serial")
 public final class GdlRule extends Gdl
 {
 
-	private final List<GdlLiteral> body;
+	private final ImmutableList<GdlLiteral> body;
 	private transient Boolean ground;
 	private final GdlSentence head;
 
-	GdlRule(GdlSentence head, List<GdlLiteral> body)
+	GdlRule(GdlSentence head, ImmutableList<GdlLiteral> body)
 	{
 		this.head = head;
 		this.body = body;

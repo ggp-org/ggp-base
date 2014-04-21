@@ -2,14 +2,16 @@ package org.ggp.base.util.gdl.grammar;
 
 import java.util.List;
 
+import com.google.common.collect.ImmutableList;
+
 @SuppressWarnings("serial")
 public final class GdlOr extends GdlLiteral
 {
 
-	private final List<GdlLiteral> disjuncts;
+	private final ImmutableList<GdlLiteral> disjuncts;
 	private transient Boolean ground;
 
-	GdlOr(List<GdlLiteral> disjuncts)
+	GdlOr(ImmutableList<GdlLiteral> disjuncts)
 	{
 		this.disjuncts = disjuncts;
 		ground = null;
@@ -36,6 +38,10 @@ public final class GdlOr extends GdlLiteral
 	public GdlLiteral get(int index)
 	{
 		return disjuncts.get(index);
+	}
+
+	public List<GdlLiteral> getDisjuncts() {
+		return disjuncts;
 	}
 
 	@Override
