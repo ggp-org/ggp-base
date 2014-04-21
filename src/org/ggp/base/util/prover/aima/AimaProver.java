@@ -32,7 +32,7 @@ public final class AimaProver implements Prover
 
 	private final KnowledgeBase knowledgeBase;
 
-	private final ProverCache fixedAnswerCache = new ProverCache();
+	private final ProverCache fixedAnswerCache = ProverCache.createMultiThreadedCache();
 
 	public AimaProver(List<Gdl> description)
 	{
@@ -47,7 +47,8 @@ public final class AimaProver implements Prover
 
 		Set<Substitution> answers = new HashSet<Substitution>();
 		Set<GdlSentence> alreadyAsking = new HashSet<GdlSentence>();
-		ask(goals, new KnowledgeBase(context), new Substitution(), new ProverCache(), new VariableRenamer(), askOne, answers, alreadyAsking);
+		ask(goals, new KnowledgeBase(context), new Substitution(), ProverCache.createSingleThreadedCache(),
+				new VariableRenamer(), askOne, answers, alreadyAsking);
 
 		Set<GdlSentence> results = new HashSet<GdlSentence>();
 		for (Substitution theta : answers)
