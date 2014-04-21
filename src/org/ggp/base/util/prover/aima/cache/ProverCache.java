@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.ggp.base.util.gdl.grammar.GdlSentence;
 import org.ggp.base.util.prover.aima.substituter.Substituter;
@@ -18,9 +19,16 @@ public final class ProverCache
 
 	private final Map<GdlSentence, Set<GdlSentence>> contents;
 
-	public ProverCache()
-	{
-		contents = new HashMap<GdlSentence, Set<GdlSentence>>();
+	private ProverCache(Map<GdlSentence, Set<GdlSentence>> mapForContents) {
+		this.contents = mapForContents;
+	}
+
+	public static ProverCache createSingleThreadedCache() {
+		return new ProverCache(new HashMap<GdlSentence, Set<GdlSentence>>());
+	}
+
+	public static ProverCache createMultiThreadedCache() {
+		return new ProverCache(new ConcurrentHashMap<GdlSentence, Set<GdlSentence>>());
 	}
 
 	/**
