@@ -42,6 +42,14 @@ public class Test_Http extends TestCase {
         doClientEchoCheckOverPOST(testPair, "1234567890abcdefgijklmnopqrstuvwxyz!@#$%^&*()1234567890", "");
     }
 
+    public void testGenericPOSTsWithoutContentLength() throws IOException {
+        SocketPair testPair = new SocketPair();
+        doClientEchoCheckOverPOSTWithoutContentLength(testPair, "", "");
+        doClientEchoCheckOverPOSTWithoutContentLength(testPair, "Test String", "");
+        doClientEchoCheckOverPOSTWithoutContentLength(testPair, "Test String", "Accept: text/delim\nSender: GAMESERVER");
+        doClientEchoCheckOverPOSTWithoutContentLength(testPair, "1234567890abcdefgijklmnopqrstuvwxyz!@#$%^&*()1234567890", "");
+    }
+
     public void testGenericGETs() throws IOException {
         SocketPair testPair = new SocketPair();
         doClientEchoCheckOverGET(testPair, "", "");
@@ -63,7 +71,15 @@ public class Test_Http extends TestCase {
     }
 
     private void doClientEchoCheckOverPOST(SocketPair p, String data, String headers) throws IOException {
-        writeClientPostHTTP(p.client, headers, data);
+        writeClientPostHTTP(p.client, headers, data, true);
+        String readData = HttpReader.readAsServer(p.server);
+        assertEquals(readData.toUpperCase(), data.toUpperCase());
+    }
+
+    private void doClientEchoCheckOverPOSTWithoutContentLength(SocketPair p, String data, String headers) throws IOException {
+        writeClientPostHTTP(p.client, headers, data, false);
+        p.client.close();
+
         String readData = HttpReader.readAsServer(p.server);
         assertEquals(readData.toUpperCase(), data.toUpperCase());
     }
@@ -76,13 +92,13 @@ public class Test_Http extends TestCase {
 
     // Helper functions for testing different types of HTTP interactions.
 
-    private void writeClientPostHTTP(Socket writeOutTo, String headers, String data) throws IOException {
+    private void writeClientPostHTTP(Socket writeOutTo, String headers, String data, boolean includeContentLength) throws IOException {
         BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(writeOutTo.getOutputStream()));
         PrintWriter pw = new PrintWriter(bw);
 
         pw.println("POST / HTTP/1.0");
         if(headers.length() > 0) pw.println(headers);
-        pw.println("Content-length: " + data.length());
+        if(includeContentLength) pw.println("Content-length: " + data.length());
         pw.println();
         pw.println(data);
         pw.flush();

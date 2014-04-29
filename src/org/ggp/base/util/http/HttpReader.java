@@ -88,10 +88,16 @@ public final class HttpReader
                   for (int i = 0; i < theContentLength; i++) {
                       theContent.append((char)br.read());
                   }
-                  return theContent.toString().trim();
               } else {
-                  throw new IOException("Could not find Content-Length header.");
+                  // If there is no content-length header, read from the stream until
+                  // it is closed.
+                  String t;
+                  while ((t = br.readLine()) != null) {
+                      theContent.append(t);
+                  }
               }
+
+              return theContent.toString().trim();
             }
         }
         throw new IOException("Could not find content in POST request.");
