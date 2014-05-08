@@ -77,8 +77,8 @@ public final class MatchArchiveProcessor
 			String gameURL = matchJSON.getString("gameMetaURL");
 			// Add a data point to the histogram of how often games are used
 			data.gameHistogram.add(gameURL);
-			// And for completed matches...
-			if (matchJSON.has("isCompleted") && matchJSON.getBoolean("isCompleted")) {
+			// And for completed signed matches...
+			if (matchJSON.has("isCompleted") && matchJSON.getBoolean("isCompleted") && matchJSON.has("matchHostPK")) {
 				// Add a data point to the average length of 9xTTT matches, if it's a 9xTTT match
 				if (gameURL.startsWith("http://games.ggp.org/base/games/nineBoardTicTacToe/")) {
 					data.matchLengthsFor9xTTT.addValue(matchJSON.getJSONArray("states").length());
