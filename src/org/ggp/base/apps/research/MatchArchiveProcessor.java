@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 
+import external.JSON.JSONArray;
 import external.JSON.JSONException;
 import external.JSON.JSONObject;
 
@@ -15,16 +16,14 @@ import external.JSON.JSONObject;
  * match archives, like those available at GGP.org/researchers, and runs
  * some computation on every match in the archive.
  *
- * This can be used to do many useful tasks, including:
- *   - counting the number of matches run by different hosting systems
- *   - counting the number of match transcripts that are well-formed
- *   - computing simple statistics and player ratings
+ * This can be used to do many useful tasks, like counting the number of
+ * matches that satisfy certain properties, totaling up averages across the
+ * set of all matches, and computing statistics and player ratings.
  *
- * Currently it aggregates data into a histogram, and then displays that
- * histogram when all of the matches have been processed. This isn't the
- * only way in which match archives can be processed, but it works as an
- * example. Currently the data being aggregated is the number of matches
- * played of each distinct game.
+ * Currently this computes three interesting example aggregations:
+ *   - the frequency of wins for the second player, broken down by game
+ *   - a histogram of how often each game is played
+ *   - the average length of a nine-board tic-tac-toe match
  *
  * @author Sam Schreiber
  */
@@ -35,7 +34,7 @@ public final class MatchArchiveProcessor
 
 	public static void main(String[] args) throws IOException, JSONException
 	{
-		Histogram theAggregator = new Histogram();
+		AggregateData data = new AggregateData();
 
 		String line;
 		int nCount = 0;
@@ -44,7 +43,7 @@ public final class MatchArchiveProcessor
 			JSONObject entryJSON = new JSONObject(line);
 			String url = entryJSON.getString("url");
 			JSONObject matchJSON = entryJSON.getJSONObject("data");
-			processMatch(url, matchJSON, theAggregator);
+			processMatch(url, matchJSON, data);
 			nCount++;
 			if (nCount % 1000 == 0) {
 				System.out.println("Processed " + nCount + " matches.");
@@ -52,17 +51,52 @@ public final class MatchArchiveProcessor
 		}
 		br.close();
 
-		System.out.println(theAggregator.toString());
+		System.out.println("Second player win frequency:\n" + data.secondPlayerWinFrequency.toString());
+		System.out.println("Game histogram:\n" + data.gameHistogram.toString());
+		System.out.println("average matchLengthsFor9xTTT = " + data.matchLengthsFor9xTTT.toString());
+	}
+
+	// This class stores all of the data that needs to be aggregated between
+	// individual matches. It will include things like histograms, counters,
+	// weighted averages, etc. If you're adding a new aggregation, you'll likely
+	// want to add a new data structure here to keep track of the aggregate data
+	// between matches.
+	static class AggregateData {
+		public Histogram gameHistogram = new Histogram();
+		public WeightedAverage matchLengthsFor9xTTT = new WeightedAverage();
+		public FrequencyTable secondPlayerWinFrequency = new FrequencyTable();
 	}
 
 	// This method determines how each individual match is processed.
-	// Right now it just extracts the game URL and adds it to a histogram.
-	// If you want to perform some other type of processing, it should be
-	// implemented here.
-	private static void processMatch(String theURL, JSONObject matchJSON, Histogram theAggregator) {
+	// Right now it aggregates data about how often individual games are played,
+	// how often the second player wins a match, and how long the average match
+	// of nine-board tic-tac-toe takes. If you want to add more aggregations, this
+	// is the place to do it.
+	private static void processMatch(String theURL, JSONObject matchJSON, AggregateData data) {
 		try {
 			String gameURL = matchJSON.getString("gameMetaURL");
-			theAggregator.add(gameURL);
+			// Add a data point to the histogram of how often games are used
+			data.gameHistogram.add(gameURL);
+			// And for completed matches...
+			if (matchJSON.has("isCompleted") && matchJSON.getBoolean("isCompleted")) {
+				// Add a data point to the average length of 9xTTT matches, if it's a 9xTTT match
+				if (gameURL.startsWith("http://games.ggp.org/base/games/nineBoardTicTacToe/")) {
+					data.matchLengthsFor9xTTT.addValue(matchJSON.getJSONArray("states").length());
+				}
+				// Add a data point to the frequency of second player wins, if this is a match that
+				// has a second player and recorded goal values.
+				if (matchJSON.has("goalValues") && matchJSON.getJSONArray("goalValues").length() > 1) {
+					boolean secondPlayerWon = true;
+					JSONArray goalValues = matchJSON.getJSONArray("goalValues");
+					for (int i = 0; i < goalValues.length(); i++) {
+						if (i == 1) continue;
+						if (goalValues.getInt(i) >= goalValues.getInt(1)) {
+							secondPlayerWon = false;
+						}
+					}
+					data.secondPlayerWinFrequency.add(gameURL, secondPlayerWon ? 1 : 0);
+				}
+			}
 		} catch (JSONException je) {
 			je.printStackTrace();
 		}
