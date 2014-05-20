@@ -145,6 +145,7 @@ public final class TiltyardRequestFarm
                 	responseJSON.put("originalRequest", originalRequest);
 	                try {
 	                	String response = HttpRequest.issueRequest(targetHost, targetPort, forPlayerName, requestContent, timeoutClock);
+	                	response = response.replaceAll("\\P{InBasic_Latin}", "");
 	                	responseJSON.put("response", response);
 	                	responseJSON.put("responseType", "OK");
 	                } catch (SocketTimeoutException te) {
