@@ -75,7 +75,20 @@ public class VariableConstrainer {
         }
 
         List<Gdl> expandedRules = applyAmbiguitiesToRules(description, ambiguitiesByOriginalForm, model);
-        return cleanUpIrrelevantRules(expandedRules);
+        return removeDuplicates(cleanUpIrrelevantRules(expandedRules));
+    }
+
+    private static List<Gdl> removeDuplicates(List<Gdl> rules) {
+        Set<Gdl> alreadyInRules = Sets.newHashSet();
+        List<Gdl> newRules = Lists.newArrayList();
+        for (Gdl rule : rules) {
+            if (alreadyInRules.contains(rule)) {
+                continue;
+            }
+            newRules.add(rule);
+            alreadyInRules.add(rule);
+        }
+        return newRules;
     }
 
     /**
