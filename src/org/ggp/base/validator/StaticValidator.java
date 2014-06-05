@@ -43,6 +43,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.SetMultimap;
+import com.google.common.collect.Sets;
 
 public class StaticValidator implements GameValidator {
 	private static final GdlConstant ROLE = GdlPool.getConstant("role");
@@ -98,6 +99,7 @@ public class StaticValidator implements GameValidator {
 		 * - Goal values are integers between 0 and 100
 		 * Misc.:
 		 * + All objects are relations or rules
+		 * + (warning) Sentence names used in the bodies of rules are defined somewhere
 		 *
 		 * Things we can't really test here:
 		 * - In all cases, valid arguments to does, goal, legal
@@ -170,6 +172,9 @@ public class StaticValidator implements GameValidator {
 		for(GdlRule rule : rules) {
 			checkRecursionFunctionRestriction(rule, ancestorsGraph);
 		}
+
+		checkSentencesUsedInRuleBodiesAreDefinedSomewhere(rules, relations, warnings);
+
 		return warnings;
 	}
 
@@ -626,6 +631,33 @@ public class StaticValidator implements GameValidator {
 		}
 	}
 
+	private static void checkSentencesUsedInRuleBodiesAreDefinedSomewhere(
+			List<GdlRule> rules, List<GdlRelation> relations, List<ValidatorWarning> warnings) {
+		Set<GdlConstant> sentenceNamesDefined = Sets.newHashSet();
+		sentenceNamesDefined.add(GdlPool.TRUE);
+		sentenceNamesDefined.add(GdlPool.DOES);
+		for (GdlRelation relation : relations) {
+			sentenceNamesDefined.add(relation.getName());
+		}
+		for (GdlRule rule : rules) {
+			sentenceNamesDefined.add(rule.getHead().getName());
+		}
+		Set<GdlConstant> sentenceNamesReferenced = Sets.newHashSet();
+		for (GdlRule rule : rules) {
+			List<GdlSentence> ruleBodySentences = Lists.newArrayList();
+			for (GdlLiteral conjunct : rule.getBody()) {
+				getSentencesInLiteral(conjunct, ruleBodySentences);
+			}
+			for (GdlSentence sentence : ruleBodySentences) {
+				sentenceNamesReferenced.add(sentence.getName());
+			}
+		}
+		Set<GdlConstant> missingNames = Sets.difference(sentenceNamesReferenced, sentenceNamesDefined);
+		for (GdlConstant missingName : missingNames) {
+			warnings.add(new ValidatorWarning("A rule references the sentence name " + missingName + ", but no sentence with that name is defined"));
+		}
+	}
+
 	@Override
 	public List<ValidatorWarning> checkValidity(Game theGame) throws ValidatorException {
 		StaticValidator.matchParentheses(theGame.getRulesheet().split("[\r\n]"));
@@ -656,7 +688,9 @@ public class StaticValidator implements GameValidator {
 			System.out.println("Testing " + gameKey);
 			try {
 				List<ValidatorWarning> warnings = new StaticValidator().checkValidity(testGameRepo.getGame(gameKey));
-				System.out.println("Warnings for " + gameKey + ": " + warnings);
+				if (!warnings.isEmpty()) {
+					System.out.println("Warnings for " + gameKey + ": " + warnings);
+				}
 			} catch (ValidatorException e) {
 				e.printStackTrace();
 				//Draw attention to the error
