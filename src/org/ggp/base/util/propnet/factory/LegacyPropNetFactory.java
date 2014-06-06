@@ -12,10 +12,11 @@ import org.ggp.base.util.statemachine.Role;
 
 
 /**
- * The PropNetFactory class defines the creation of PropNets from game
- * descriptions.
+ * The LegacyPropNetFactory class defines the creation of PropNets from game
+ * descriptions. It has been superseded by the @OptimizingPropNetFactory
+ * which has a more sophisticated approach to creating PropNets.
  */
-public final class PropNetFactory
+public final class LegacyPropNetFactory
 {
 	/**
 	 * Creates a PropNet from a game description using the following process:
