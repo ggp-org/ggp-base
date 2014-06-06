@@ -14,7 +14,7 @@ import org.ggp.base.util.gdl.grammar.GdlSentence;
 import org.ggp.base.util.propnet.architecture.Component;
 import org.ggp.base.util.propnet.architecture.PropNet;
 import org.ggp.base.util.propnet.architecture.components.Proposition;
-import org.ggp.base.util.propnet.factory.LegacyPropNetFactory;
+import org.ggp.base.util.propnet.factory.OptimizingPropNetFactory;
 import org.ggp.base.util.statemachine.MachineState;
 import org.ggp.base.util.statemachine.Move;
 import org.ggp.base.util.statemachine.Role;
@@ -41,9 +41,13 @@ public class SamplePropNetStateMachine extends StateMachine {
      */
     @Override
     public void initialize(List<Gdl> description) {
-        propNet = LegacyPropNetFactory.create(description);
-        roles = propNet.getRoles();
-        ordering = getOrdering();
+        try {
+			propNet = OptimizingPropNetFactory.create(description);
+	        roles = propNet.getRoles();
+	        ordering = getOrdering();
+		} catch (InterruptedException e) {
+			throw new RuntimeException(e);
+		}
     }
 
 	/**
