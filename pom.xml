@@ -1,0 +1,110 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.basepom</groupId>
+    <artifactId>basepom-standard-oss</artifactId>
+    <version>2</version>
+  </parent>
+  <groupId>org.ggp</groupId>
+  <artifactId>ggp-base</artifactId>
+  <packaging>jar</packaging>
+  <version>0.1-SNAPSHOT</version>
+  <name>ggp-base</name>
+  <url>http://www.ggp.org/</url>
+  <licenses>
+    <license>
+      <name>BSD License</name>
+      <url>https://github.com/ggp-org/ggp-base/blob/master/licences/LICENSE</url>
+    </license>
+  </licenses>
+  <scm>
+    <url>https://github.com/ggp-base/ggp-base</url>
+    <connection>scm:git:git@github.com:ggp-base/ggp-base.git</connection>
+    <developerConnection>scm:git:git@github.com:ggp-base/ggp-base.git</developerConnection>
+    <tag>HEAD</tag>
+  </scm>
+  <developers>
+    <developer>
+      <id>samschreiber</id>
+      <name>Sam Schreiber</name>
+      <email>sam.schreiber@gmail.com</email>
+    </developer>
+    <developer>
+      <id>nitayj</id>
+      <name>Nitay Joffe</name>
+      <email>nitayjoffe+maven@gmail.com</email>
+    </developer>
+  </developers>
+
+  <properties>
+    <basepom.check.fail-duplicate-finder>false</basepom.check.fail-duplicate-finder>
+    <basepom.check.fail-findbugs>false</basepom.check.fail-findbugs>
+    <basepom.check.fail-license>false</basepom.check.fail-license>
+    <basepom.check.fail-pmd>false</basepom.check.fail-pmd>
+
+    <dep.clojure.version>1.5.1</dep.clojure.version>
+    <dep.flying-saucer-core.version>9.0.4</dep.flying-saucer-core.version>
+    <dep.guava.version>14.0.1</dep.guava.version>
+    <dep.jtidy.version>r938</dep.jtidy.version>
+    <dep.junit.version>4.11</dep.junit.version>
+    <dep.jython.version>2.7-b1</dep.jython.version>
+    <dep.reflections.version>0.9.9-RC1</dep.reflections.version>
+    <dep.xml-apis.version>1.3.04</dep.xml-apis.version>
+  </properties>
+
+  <build>
+    <defaultGoal>verify</defaultGoal>
+    <sourceDirectory>src</sourceDirectory>
+
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-release-plugin</artifactId>
+        <version>2.4.1</version>
+        <configuration>
+          <tagNameFormat>@{project.version}</tagNameFormat>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.clojure</groupId>
+      <artifactId>clojure</artifactId>
+      <version>${dep.clojure.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.xhtmlrenderer</groupId>
+      <artifactId>flying-saucer-core</artifactId>
+      <version>${dep.flying-saucer-core.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+      <version>${dep.guava.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>net.sf.jtidy</groupId>
+      <artifactId>jtidy</artifactId>
+      <version>${dep.jtidy.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.python</groupId>
+      <artifactId>jython</artifactId>
+      <version>${dep.jython.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.reflections</groupId>
+      <artifactId>reflections</artifactId>
+      <version>${dep.reflections.version}</version>
+    </dependency>
+
+    <!-- TODO: junit should really only be used for testing... -->
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>${dep.junit.version}</version>
+    </dependency>
+  </dependencies>
+</project>
