@@ -16,6 +16,8 @@ import org.ggp.base.util.statemachine.exceptions.GoalDefinitionException;
 import org.ggp.base.util.statemachine.exceptions.MoveDefinitionException;
 import org.ggp.base.util.statemachine.exceptions.TransitionDefinitionException;
 
+import com.google.common.collect.ImmutableMap;
+
 
 /**
  * Provides the base class for all state machine implementations.
@@ -253,12 +255,13 @@ public abstract class StateMachine
      */
     public Map<Role, Integer> getRoleIndices()
     {
-        if(roleIndices == null) {
-            roleIndices = new HashMap<Role, Integer>();
+        if (roleIndices == null) {
+        	ImmutableMap.Builder<Role, Integer> roleIndicesBuilder = ImmutableMap.builder();
             List<Role> roles = getRoles();
             for (int i = 0; i < roles.size(); i++) {
-                roleIndices.put(roles.get(i), i);
+                roleIndicesBuilder.put(roles.get(i), i);
             }
+            roleIndices = roleIndicesBuilder.build();
         }
 
         return roleIndices;

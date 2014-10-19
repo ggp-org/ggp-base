@@ -21,12 +21,14 @@ import org.ggp.base.util.statemachine.exceptions.TransitionDefinitionException;
 import org.ggp.base.util.statemachine.implementation.prover.query.ProverQueryBuilder;
 import org.ggp.base.util.statemachine.implementation.prover.result.ProverResultParser;
 
+import com.google.common.collect.ImmutableList;
+
 
 public class ProverStateMachine extends StateMachine
 {
 	private MachineState initialState;
 	private Prover prover;
-	private List<Role> roles;
+	private ImmutableList<Role> roles;
 
 	/**
 	 * Initialize must be called before using the StateMachine
@@ -40,7 +42,7 @@ public class ProverStateMachine extends StateMachine
 	public void initialize(List<Gdl> description)
 	{
 		prover = new AimaProver(description);
-		roles = Role.computeRoles(description);
+		roles = ImmutableList.copyOf(Role.computeRoles(description));
 		initialState = computeInitialState();
 	}
 

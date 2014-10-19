@@ -32,7 +32,7 @@ public class ConstantCheckerFactory {
 	 *
 	 * The implementation uses a forward-chaining reasoner.
 	 *
-	 * For accurate results, the rules used should have had the {@link NewVariableConstrainer}
+	 * For accurate results, the rules used should have had the {@link VariableConstrainer}
 	 * transformation applied to them.
 	 *
 	 * On average, this approach is more efficient than {@link #createWithProver(SentenceFormModel)}.
