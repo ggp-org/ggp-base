@@ -1,11 +1,9 @@
-package org.ggp.base.test;
-
+package org.ggp.base.util.gdl.transforms;
 
 import java.util.List;
 
 import org.ggp.base.util.game.TestGameRepository;
 import org.ggp.base.util.gdl.grammar.Gdl;
-import org.ggp.base.util.gdl.transforms.GdlCleaner;
 import org.ggp.base.util.statemachine.MachineState;
 import org.ggp.base.util.statemachine.Role;
 import org.ggp.base.util.statemachine.StateMachine;

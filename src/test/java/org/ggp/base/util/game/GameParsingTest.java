@@ -1,10 +1,7 @@
-package org.ggp.base.test;
+package org.ggp.base.util.game;
 
-
-import org.ggp.base.util.game.Game;
 import org.junit.Assert;
 import org.junit.Test;
-
 
 public class GameParsingTest extends Assert {
 

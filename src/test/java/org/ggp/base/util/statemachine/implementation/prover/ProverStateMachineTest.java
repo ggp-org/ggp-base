@@ -1,5 +1,4 @@
-package org.ggp.base.test;
-
+package org.ggp.base.util.statemachine.implementation.prover;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -14,10 +13,8 @@ import org.ggp.base.util.gdl.grammar.GdlTerm;
 import org.ggp.base.util.statemachine.MachineState;
 import org.ggp.base.util.statemachine.Move;
 import org.ggp.base.util.statemachine.Role;
-import org.ggp.base.util.statemachine.implementation.prover.ProverStateMachine;
 import org.junit.Assert;
 import org.junit.Test;
-
 
 public class ProverStateMachineTest extends Assert {
 

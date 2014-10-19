@@ -1,9 +1,6 @@
-package org.ggp.base.test;
-
+package org.ggp.base.validator;
 
 import org.ggp.base.util.game.TestGameRepository;
-import org.ggp.base.validator.StaticValidator;
-import org.ggp.base.validator.ValidatorException;
 import org.junit.Test;
 
 public class StaticValidationTest {

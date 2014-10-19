@@ -1,5 +1,4 @@
-package org.ggp.base.test;
-
+package org.ggp.base.util.gdl.model;
 
 import java.util.List;
 
@@ -8,7 +7,6 @@ import org.ggp.base.util.gdl.factory.GdlFactory;
 import org.ggp.base.util.gdl.grammar.GdlPool;
 import org.ggp.base.util.gdl.grammar.GdlSentence;
 import org.ggp.base.util.gdl.grammar.GdlTerm;
-import org.ggp.base.util.gdl.model.SimpleSentenceForm;
 import org.junit.Assert;
 import org.junit.Test;
 
