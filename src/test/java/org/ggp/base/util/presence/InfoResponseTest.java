@@ -1,6 +1,7 @@
 package org.ggp.base.util.presence;
 
-import junit.framework.TestCase;
+import org.junit.Assert;
+import org.junit.Test;
 
 /**
  * Unit tests for the BaseCryptography class, which implements
@@ -9,7 +10,8 @@ import junit.framework.TestCase;
  *
  * @author Sam
  */
-public class InfoResponseTest extends TestCase {
+public class InfoResponseTest extends Assert {
+	@Test
     public void testFormingInfoResponse() {
     	InfoResponse response = new InfoResponse();
     	assertEquals(response.toSymbol().toString(), "( )");
@@ -19,6 +21,7 @@ public class InfoResponseTest extends TestCase {
     	assertEquals(response.toSymbol().toString(), "( ( name PlayerName ) ( status available ) )");
     }
 
+	@Test
     public void testParsingInfoResponse() {
     	String input = "( ( name PlayerName ) ( status available ) )";
     	InfoResponse response = InfoResponse.create(input);
@@ -26,6 +29,7 @@ public class InfoResponseTest extends TestCase {
     	assertEquals(response.getStatus(), "available");
     }
 
+	@Test
     public void testParsingInfoResponseWithExtras() {
     	String input = "( whatsup ( name PlayerName ) ( ( foo bar ) baz ) ( status available ) zzq )";
     	InfoResponse response = InfoResponse.create(input);
@@ -33,6 +37,7 @@ public class InfoResponseTest extends TestCase {
     	assertEquals(response.getStatus(), "available");
     }
 
+	@Test
     public void testParsingInfoResponseWithNoStatus() {
     	String input = "( whatsup ( ) ( baz ) ( name PlayerName ) )";
     	InfoResponse response = InfoResponse.create(input);
@@ -40,6 +45,7 @@ public class InfoResponseTest extends TestCase {
     	assertEquals(response.getStatus(), null);
     }
 
+	@Test
     public void testParsingInfoResponseWithNoInfo() {
     	String input = "( )";
     	InfoResponse response = InfoResponse.create(input);
@@ -47,6 +53,7 @@ public class InfoResponseTest extends TestCase {
     	assertEquals(response.getStatus(), null);
     }
 
+	@Test
     public void testParsingBadlyFormedInfoResponse() {
     	String input = "(";
     	InfoResponse response = InfoResponse.create(input);
@@ -54,6 +61,7 @@ public class InfoResponseTest extends TestCase {
     	assertEquals(response.getStatus(), null);
     }
 
+	@Test
     public void testParsingStatusOnlyInfoResponse() {
     	String input = "busy";
     	InfoResponse response = InfoResponse.create(input);
@@ -61,6 +69,7 @@ public class InfoResponseTest extends TestCase {
     	assertEquals(response.getStatus(), "busy");
     }
 
+	@Test
     public void testParsingInfoResponseLegacyJSON() {
     	String input = "{\"name\":\"PlayerName\",\"status\":\"available\"}";
     	InfoResponse response = InfoResponse.create(input);

@@ -1,8 +1,8 @@
 package org.ggp.base.util.crypto;
 
-import junit.framework.TestCase;
-
 import org.ggp.base.util.crypto.BaseCryptography.EncodedKeyPair;
+import org.junit.Assert;
+import org.junit.Test;
 
 /**
  * Unit tests for the BaseCryptography class, which implements
@@ -11,7 +11,8 @@ import org.ggp.base.util.crypto.BaseCryptography.EncodedKeyPair;
  *
  * @author Sam
  */
-public class Test_BaseCryptography extends TestCase {
+public class BaseCryptographyTest extends Assert {
+	@Test
     public void testSimpleCryptography() throws Exception {
         // Not an ideal unit test because generating the key takes a while,
         // but it's useful to have test coverage at all so we'll make due.

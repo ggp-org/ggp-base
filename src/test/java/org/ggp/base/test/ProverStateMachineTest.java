@@ -19,7 +19,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 
-public class ProverStateMachineTests extends Assert {
+public class ProverStateMachineTest extends Assert {
 
     protected final ProverStateMachine sm = new ProverStateMachine();
     protected final GdlConstant C1 = GdlPool.getConstant("1");

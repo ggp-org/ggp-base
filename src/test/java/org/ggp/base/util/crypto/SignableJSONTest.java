@@ -1,8 +1,8 @@
 package org.ggp.base.util.crypto;
 
-import junit.framework.TestCase;
-
 import org.ggp.base.util.crypto.BaseCryptography.EncodedKeyPair;
+import org.junit.Assert;
+import org.junit.Test;
 
 import external.JSON.JSONException;
 import external.JSON.JSONObject;
@@ -14,7 +14,8 @@ import external.JSON.JSONObject;
  *
  * @author Sam
  */
-public class Test_SignableJSON extends TestCase {
+public class SignableJSONTest extends Assert {
+	@Test
     public void testSimpleSigning() throws JSONException {
         EncodedKeyPair p = BaseCryptography.generateKeys();
 

@@ -1,12 +1,12 @@
 package org.ggp.base.player.gamer.clojure;
 
-import junit.framework.TestCase;
-
 import org.ggp.base.player.gamer.Gamer;
 import org.ggp.base.player.gamer.clojure.stubs.SampleClojureGamerStub;
 import org.ggp.base.util.game.GameRepository;
 import org.ggp.base.util.gdl.grammar.GdlPool;
 import org.ggp.base.util.match.Match;
+import org.junit.Assert;
+import org.junit.Test;
 
 /**
  * Unit tests for the ClojureGamer class, to verify that we can actually
@@ -14,7 +14,8 @@ import org.ggp.base.util.match.Match;
  *
  * @author Sam
  */
-public class ClojureGamerTest extends TestCase {
+public class ClojureGamerTest extends Assert {
+	@Test
     public void testClojureGamer() {
         try {
             Gamer g = new SampleClojureGamerStub();

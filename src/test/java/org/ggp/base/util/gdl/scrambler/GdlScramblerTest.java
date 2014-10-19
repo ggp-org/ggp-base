@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import junit.framework.TestCase;
-
 import org.ggp.base.util.game.Game;
 import org.ggp.base.util.game.GameRepository;
 import org.ggp.base.util.gdl.factory.GdlFactory;
@@ -13,6 +11,8 @@ import org.ggp.base.util.gdl.factory.exceptions.GdlFormatException;
 import org.ggp.base.util.gdl.grammar.Gdl;
 import org.ggp.base.util.statemachine.implementation.prover.ProverStateMachine;
 import org.ggp.base.util.symbol.factory.exceptions.SymbolFormatException;
+import org.junit.Assert;
+import org.junit.Test;
 
 /**
  * Unit tests for the GdlScrambler class, which provides a way
@@ -21,12 +21,13 @@ import org.ggp.base.util.symbol.factory.exceptions.SymbolFormatException;
  *
  * @author Sam
  */
-public class GdlScramblerTest extends TestCase {
+public class GdlScramblerTest extends Assert {
     /**
      * When scrambling is disabled, the "NoOpGdlScrambler" is used. This class
      * simply renders the Gdl and parses it in the naive way, without doing any
      * special modification. This is the trivial case of "scrambling".
      */
+	@Test
     public void testNoOpScrambler() throws GdlFormatException, SymbolFormatException {
     	runScramblerTest(new NoOpGdlScrambler());
     }
@@ -37,6 +38,7 @@ public class GdlScramblerTest extends TestCase {
      * with scrambled versions, drawing new random tokens first from a list of
      * English words, and appending suffixes when the original list is exhausted.
 	 */
+	@Test
     public void testMappingScrambler() throws GdlFormatException, SymbolFormatException {
     	runScramblerTest(new MappingGdlScrambler(new Random()));
     }
@@ -47,6 +49,7 @@ public class GdlScramblerTest extends TestCase {
      * be used to scramble a specific match in the same way, even if it stored and
      * reloaded in the meantime.
      */
+	@Test
     public void testMappingScramblerConsistency() {
     	GdlScrambler aScrambler = new MappingGdlScrambler(new Random(123));
     	GdlScrambler bScrambler = new MappingGdlScrambler(new Random(123));

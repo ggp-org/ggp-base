@@ -5,20 +5,22 @@ import java.net.Socket;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import junit.framework.TestCase;
-
 import org.ggp.base.util.http.HttpReader;
 import org.ggp.base.util.http.HttpWriter;
 import org.ggp.base.util.loader.RemoteResourceLoader;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 import external.JSON.JSONObject;
 
-public class TiltyardRequestFarm_Test extends TestCase {
-	@Override
+public class TiltyardRequestFarmTest extends Assert {
+	@Before
 	public void setUp() {
 		new RequestFarmLoopThread().start();
 	}
 
+	@Test
 	public void testThroughput() {
     	new ResponderLoopThread(2000).start();
     	new ReceiverLoopThread("OK").start();

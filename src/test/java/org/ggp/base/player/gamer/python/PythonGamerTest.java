@@ -1,12 +1,12 @@
 package org.ggp.base.player.gamer.python;
 
-import junit.framework.TestCase;
-
 import org.ggp.base.player.gamer.Gamer;
 import org.ggp.base.player.gamer.python.stubs.SamplePythonGamerStub;
 import org.ggp.base.util.game.GameRepository;
 import org.ggp.base.util.gdl.grammar.GdlPool;
 import org.ggp.base.util.match.Match;
+import org.junit.Assert;
+import org.junit.Test;
 
 /**
  * Unit tests for the PythonGamer class, to verify that we can actually
@@ -14,7 +14,8 @@ import org.ggp.base.util.match.Match;
  *
  * @author Sam
  */
-public class PythonGamerTest extends TestCase {
+public class PythonGamerTest extends Assert {
+	@Test
     public void testPythonGamer() {
         try {
             Gamer g = new SamplePythonGamerStub();

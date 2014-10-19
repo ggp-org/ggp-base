@@ -1,14 +1,17 @@
 package org.ggp.base.util.gdl.model;
 
+import java.util.List;
 import java.util.Set;
 
+import org.junit.Assert;
 import org.junit.Test;
 
 import com.google.common.collect.HashMultimap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
 
-public class DependencyGraphsTest {
+public class DependencyGraphsTest extends Assert {
 	@Test
 	public void testSafeToposort() throws Exception {
 		Set<Integer> allElements = Sets.newHashSet(1, 2, 3, 4, 5, 6, 7, 8);
@@ -26,6 +29,11 @@ public class DependencyGraphsTest {
 		graph.put(7, 8);
 		graph.put(8, 3);
 
-		System.out.println(DependencyGraphs.toposortSafe(allElements, graph));
+		List<Set<Integer>> ordering = DependencyGraphs.toposortSafe(allElements, graph);
+		assertEquals(4, ordering.size());
+		assertEquals(ImmutableSet.of(1), ordering.get(0));
+		assertEquals(ImmutableSet.of(2), ordering.get(1));
+		assertEquals(ImmutableSet.of(3, 4, 6, 7, 8), ordering.get(2));
+		assertEquals(ImmutableSet.of(5), ordering.get(3));
 	}
 }

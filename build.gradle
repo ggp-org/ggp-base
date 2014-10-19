@@ -3,10 +3,6 @@ apply plugin: 'eclipse'
 
 sourceCompatibility = 1.7
 
-repositories {
-    mavenCentral()
-}
-
 dependencies {
     compile files(
         'lib/Guava/guava-14.0.1.jar',

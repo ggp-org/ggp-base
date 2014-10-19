@@ -1,16 +1,15 @@
 package org.ggp.base.test;
 
 
-import junit.framework.Assert;
-
 import org.ggp.base.util.game.Game;
+import org.junit.Assert;
 import org.junit.Test;
 
 
-public class GameParsingTests {
+public class GameParsingTest extends Assert {
 
     @Test
-    public void parseGame() throws Exception {
+    public void testParseGame() throws Exception {
         StringBuilder theRulesheet = new StringBuilder();
         theRulesheet.append("; comment\n");
         theRulesheet.append("(a b)\n");
@@ -18,7 +17,7 @@ public class GameParsingTests {
         theRulesheet.append("(c d e) ; comment three\n");
         theRulesheet.append("(f g)\n");
         theRulesheet.append("(h i j)\n");
-        Assert.assertEquals(4, Game.createEphemeralGame(Game.preprocessRulesheet(theRulesheet.toString())).getRules().size());
+        assertEquals(4, Game.createEphemeralGame(Game.preprocessRulesheet(theRulesheet.toString())).getRules().size());
     }
 
 }

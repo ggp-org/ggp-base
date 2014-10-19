@@ -6,7 +6,7 @@ import org.ggp.base.validator.StaticValidator;
 import org.ggp.base.validator.ValidatorException;
 import org.junit.Test;
 
-public class StaticValidationTests {
+public class StaticValidationTest {
 
     @Test
     public void testConn4Validation() throws Exception {
@@ -58,7 +58,7 @@ public class StaticValidationTests {
     }
     @Test(expected=ValidatorException.class)
     public void test3FValidation() throws Exception {
-            validate("test_case_3f");
+    	validate("test_case_3f");
     }
     @Test
     public void test4AValidation() throws Exception {

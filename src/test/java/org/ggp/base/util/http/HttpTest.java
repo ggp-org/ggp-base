@@ -8,7 +8,9 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.URLEncoder;
 
-import junit.framework.TestCase;
+import org.junit.Assert;
+import org.junit.Ignore;
+import org.junit.Test;
 
 /**
  * Unit tests for the HttpReader/HttpWriter pair, which are the way that
@@ -17,12 +19,14 @@ import junit.framework.TestCase;
  *
  * @author Sam
  */
-public class Test_Http extends TestCase {
+public class HttpTest extends Assert {
+	@Test
     public void testSimpleEcho() throws IOException {
         SocketPair testPair = new SocketPair();
         doSimpleEchoCheck(testPair, "Hello World", "SamplePlayer");
     }
 
+	@Test
     public void testPathologicalEchos() throws IOException {
         SocketPair testPair = new SocketPair();
         doSimpleEchoCheck(testPair, "", "");
@@ -34,6 +38,7 @@ public class Test_Http extends TestCase {
         doSimpleEchoCheck(testPair, "Test String", "abcdefgijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
     }
 
+	@Test
     public void testGenericPOSTs() throws IOException {
         SocketPair testPair = new SocketPair();
         doClientEchoCheckOverPOST(testPair, "", "");
@@ -42,7 +47,9 @@ public class Test_Http extends TestCase {
         doClientEchoCheckOverPOST(testPair, "1234567890abcdefgijklmnopqrstuvwxyz!@#$%^&*()1234567890", "");
     }
 
-    public void ignore_testGenericPOSTsWithoutContentLength() throws IOException {
+	@Ignore
+	@Test
+    public void testGenericPOSTsWithoutContentLength() throws IOException {
         SocketPair testPair = new SocketPair();
         doClientEchoCheckOverPOSTWithoutContentLength(testPair, "", "");
         doClientEchoCheckOverPOSTWithoutContentLength(testPair, "Test String", "");
@@ -50,6 +57,7 @@ public class Test_Http extends TestCase {
         doClientEchoCheckOverPOSTWithoutContentLength(testPair, "1234567890abcdefgijklmnopqrstuvwxyz!@#$%^&*()1234567890", "");
     }
 
+	@Test
     public void testGenericGETs() throws IOException {
         SocketPair testPair = new SocketPair();
         doClientEchoCheckOverGET(testPair, "", "");
