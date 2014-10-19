@@ -10,7 +10,7 @@ Application Suite for the General Game Playing Project;
 
 Support code for the above.
 
-                            == QUICK START GUIDE ===
+                           === QUICK START GUIDE ===
 
     Getting started is as simple as writing a new player that inherits from the
 StateMachineGamer class. StateMachineGamer is based on the state machine view
@@ -45,6 +45,25 @@ in their lists of available players right away.
 where two extremely simple "reflex-based" players are included: LegalGamer and
 RandomGamer. LegalGamer always chooses the first legal move available, and the
 RandomGamer always chooses a random legal move.
+
+                             === BUILD NOTES ===
+
+    The project must be built with Java 7 or later.
+
+    The project contains Eclipse project files that allow it to be imported
+directly into Eclipse as an "Existing Project" or "Project from Git". This is
+the easiest way to get started with building, running, and modifying the code.
+
+    For those who don't want to use Eclipse, there is also a Gradle-based build
+system. Gradle can generate project files for IntelliJ IDEA or build and test
+the codebase from the command line. The commands below use a Gradle wrapper
+included in the repository that automatically installs Gradle when run.
+
+Sample commands (use gradlew.bat instead if on Windows):
+
+Confirm Gradle version:       ./gradlew -v
+Show list of available tasks: ./gradlew tasks
+Compile and test code:        ./gradlew build
 
                               === MISC NOTES ===
 
