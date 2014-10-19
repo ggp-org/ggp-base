@@ -42,7 +42,7 @@ public class Test_Http extends TestCase {
         doClientEchoCheckOverPOST(testPair, "1234567890abcdefgijklmnopqrstuvwxyz!@#$%^&*()1234567890", "");
     }
 
-    public void testGenericPOSTsWithoutContentLength() throws IOException {
+    public void ignore_testGenericPOSTsWithoutContentLength() throws IOException {
         SocketPair testPair = new SocketPair();
         doClientEchoCheckOverPOSTWithoutContentLength(testPair, "", "");
         doClientEchoCheckOverPOSTWithoutContentLength(testPair, "Test String", "");

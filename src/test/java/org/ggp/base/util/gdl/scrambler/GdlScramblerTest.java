@@ -21,7 +21,7 @@ import org.ggp.base.util.symbol.factory.exceptions.SymbolFormatException;
  *
  * @author Sam
  */
-public class GdlScrambler_Test extends TestCase {
+public class GdlScramblerTest extends TestCase {
     /**
      * When scrambling is disabled, the "NoOpGdlScrambler" is used. This class
      * simply renders the Gdl and parses it in the naive way, without doing any

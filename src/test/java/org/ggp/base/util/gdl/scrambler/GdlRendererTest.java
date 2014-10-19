@@ -12,7 +12,7 @@ import org.ggp.base.util.gdl.grammar.Gdl;
  *
  * @author Sam
  */
-public class GdlRenderer_Test extends TestCase {
+public class GdlRendererTest extends TestCase {
 	/**
 	 * One important property for GdlRenderer is that it should generate
 	 * an identical rendering as if you had called the toString() method

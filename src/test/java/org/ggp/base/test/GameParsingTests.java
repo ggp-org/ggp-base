@@ -1,5 +1,6 @@
 package org.ggp.base.test;
 
+
 import junit.framework.Assert;
 
 import org.ggp.base.util.game.Game;

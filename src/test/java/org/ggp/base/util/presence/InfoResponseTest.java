@@ -9,7 +9,7 @@ import junit.framework.TestCase;
  *
  * @author Sam
  */
-public class Test_InfoResponse extends TestCase {
+public class InfoResponseTest extends TestCase {
     public void testFormingInfoResponse() {
     	InfoResponse response = new InfoResponse();
     	assertEquals(response.toSymbol().toString(), "( )");

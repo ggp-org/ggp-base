@@ -26,7 +26,6 @@ import org.ggp.base.util.gdl.model.SentenceForm;
 import org.ggp.base.util.gdl.model.SentenceFormModel;
 import org.ggp.base.util.gdl.model.SentenceFormModelFactory;
 import org.ggp.base.util.gdl.model.SimpleSentenceForm;
-import org.junit.Assert;
 
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
@@ -194,8 +193,8 @@ public class VariableConstrainer {
 
         Set<SentenceForm> allForms = ImmutableSet.copyOf(formsByName.values());
         for (Ambiguity ambiguity : result.values()) {
-            Assert.assertTrue(allForms.contains(ambiguity.getOriginal()));
-            Assert.assertTrue(allForms.contains(ambiguity.getReplacement()));
+            Preconditions.checkState(allForms.contains(ambiguity.getOriginal()));
+            Preconditions.checkState(allForms.contains(ambiguity.getReplacement()));
         }
 
         return result;

@@ -1,24 +1,24 @@
-package org.ggp.base.player.gamer.clojure;
+package org.ggp.base.player.gamer.python;
 
 import junit.framework.TestCase;
 
 import org.ggp.base.player.gamer.Gamer;
-import org.ggp.base.player.gamer.clojure.stubs.SampleClojureGamerStub;
+import org.ggp.base.player.gamer.python.stubs.SamplePythonGamerStub;
 import org.ggp.base.util.game.GameRepository;
 import org.ggp.base.util.gdl.grammar.GdlPool;
 import org.ggp.base.util.match.Match;
 
 /**
- * Unit tests for the ClojureGamer class, to verify that we can actually
- * instantiate a Clojure-based gamer and have it play moves in a game.
+ * Unit tests for the PythonGamer class, to verify that we can actually
+ * instantiate a Python-based gamer and have it play moves in a game.
  *
  * @author Sam
  */
-public class ClojureGamer_Test extends TestCase {
-    public void testClojureGamer() {
+public class PythonGamerTest extends TestCase {
+    public void testPythonGamer() {
         try {
-            Gamer g = new SampleClojureGamerStub();
-            assertEquals("SampleClojureGamer", g.getName());
+            Gamer g = new SamplePythonGamerStub();
+            assertEquals("SamplePythonGamer", g.getName());
 
             Match m = new Match("", -1, 1000, 1000, GameRepository.getDefaultRepository().getGame("ticTacToe"));
             g.setMatch(m);

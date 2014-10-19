@@ -1,0 +1,24 @@
+apply plugin: 'java'
+apply plugin: 'eclipse'
+
+sourceCompatibility = 1.7
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile files(
+        'lib/Guava/guava-14.0.1.jar',
+        'lib/Jython/jython.jar',
+        'lib/Clojure/clojure.jar',
+        'lib/Batik/batik-1.7.jar',
+        'lib/FlyingSaucer/core-renderer.jar',
+        'lib/reflections/reflections-0.9.9-RC1.jar',
+        'lib/Htmlparser/htmlparser-1.4.jar',
+    )
+    testCompile files(
+        'lib/JUnit/junit-4.11.jar',
+        'lib/JUnit/hamcrest-core-1.3.jar',
+    )
+}
