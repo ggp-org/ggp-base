@@ -1,0 +1,70 @@
+apply plugin: 'java'
+apply plugin: 'eclipse'
+
+// We compile using Java 7.
+sourceCompatibility = 1.7
+
+/*
+ * For now, instead of using an online library repository (e.g. Maven), we keep
+ * local versions of .jars to reduce the number of things that can go wrong
+ * during setup.
+ */
+dependencies {
+    compile files(
+        'lib/Guava/guava-14.0.1.jar',
+        'lib/Jython/jython.jar',
+        'lib/Clojure/clojure.jar',
+        'lib/Batik/batik-1.7.jar',
+        'lib/FlyingSaucer/core-renderer.jar',
+        'lib/reflections/reflections-0.9.9-RC1.jar',
+        'lib/Htmlparser/htmlparser-1.4.jar',
+    )
+    testCompile files(
+        'lib/JUnit/junit-4.11.jar',
+        'lib/JUnit/hamcrest-core-1.3.jar',
+    )
+}
+
+/*
+ * Unfortunately, the local-jar approach causes problems when generating a
+ * .classpath file for Eclipse. This will generate dependency entries that use
+ * absolute, rather than relative paths, and so can't be committed. To make sure
+ * committing contributions to the codebase also remains relatively easy, we
+ * apply a hack here to use relative addresses.
+ *
+ * This hasn't been tested in Windows yet; that might need special treatment if
+ * it tries to use absolute paths with backslashes.
+ */
+eclipse {
+    classpath {
+        file {
+            withXml {
+                def node = it.asNode()
+                for (classpathEntry in node) {
+                    if (classpathEntry.attribute('kind') == 'lib') {
+                        def absolutePath = classpathEntry.attribute('path')
+                        def startIndex = absolutePath.indexOf('/lib/') + 1
+                        def relativePath = absolutePath.substring(startIndex)
+                        classpathEntry.attributes().put('path', relativePath)
+                    }
+                }
+            }
+        }
+    }
+}
+
+/*
+ * It's convenient when working in Eclipse to have a test suite containing
+ * all available tests. However, Gradle normally runs every test it can find
+ * automatically, which would cause all tests to be run twice. This bit of
+ * configuration prevents that from happening; Gradle just runs the test suite
+ * instead.
+ */
+test {
+    include 'org/ggp/base/test/AllTests.class'
+}
+
+// This was used to generate the Gradle wrapper.
+task wrapper(type: Wrapper) {
+    gradleVersion = '2.1'
+}
