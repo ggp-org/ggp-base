@@ -216,7 +216,8 @@ public final class TiltyardRequestFarm
        }
     }
 
-    public static void main(String[] args) {
+    @SuppressWarnings("resource")
+	public static void main(String[] args) {
         ServerSocket listener = null;
         try {
              listener = new ServerSocket(SERVER_PORT);

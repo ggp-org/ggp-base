@@ -109,7 +109,8 @@ public class TiltyardRequestFarmTest extends Assert {
         @Override
         public void run() {
             try {
-            	ServerSocket listener = new ServerSocket(12345);
+            	@SuppressWarnings("resource")
+				ServerSocket listener = new ServerSocket(12345);
                 while (true) {
                     try {
                         Socket connection = listener.accept();
@@ -133,7 +134,8 @@ public class TiltyardRequestFarmTest extends Assert {
         @Override
         public void run() {
             try {
-            	ServerSocket listener = new ServerSocket(12346);
+            	@SuppressWarnings("resource")
+				ServerSocket listener = new ServerSocket(12346);
                 while (true) {
                     try {
                         Socket connection = listener.accept();

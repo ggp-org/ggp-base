@@ -22,7 +22,9 @@ public class BaseHashing {
             for (byte x : theHash) {
                 hexFormat.format("%02x", x);
             }
-            return hexFormat.toString();
+            String theHex = hexFormat.toString();
+            hexFormat.close();
+            return theHex;
         } catch (Exception e) {
             e.printStackTrace();
             return null;
