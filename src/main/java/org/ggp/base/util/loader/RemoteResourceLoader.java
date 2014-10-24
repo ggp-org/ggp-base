@@ -6,6 +6,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.Map;
 
 import external.JSON.JSONArray;
 import external.JSON.JSONException;
@@ -36,6 +37,9 @@ public class RemoteResourceLoader {
     	return loadRaw(theURL, 1);
     }
     public static String loadRaw(String theURL, int nMaxAttempts) throws IOException {
+    	return loadRaw(theURL, nMaxAttempts, null);
+    }
+    public static String loadRaw(String theURL, int nMaxAttempts, Map<String, String> requestProperties) throws IOException {
     	int nAttempt = 0;
     	while(true) {
     		nAttempt++;
@@ -46,6 +50,11 @@ public class RemoteResourceLoader {
 		        urlConnection.setDefaultUseCaches(false);
 		        urlConnection.addRequestProperty("Cache-Control", "no-cache,max-age=0");
 		        urlConnection.addRequestProperty("Pragma", "no-cache");
+		        if (requestProperties != null) {
+		        	for (String key : requestProperties.keySet()) {
+		        		urlConnection.addRequestProperty(key, requestProperties.get(key));
+		        	}
+		        }
 		        if (urlConnection.getContentLength() == 0)
 		            throw new IOException("Could not load URL: " + theURL);
 		        StringBuilder theRawData = new StringBuilder();
