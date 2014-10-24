@@ -12,6 +12,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import external.JSON.JSONArray;
 import external.JSON.JSONObject;
 
 public class TiltyardRequestFarmTest extends Assert {
@@ -29,16 +30,19 @@ public class TiltyardRequestFarmTest extends Assert {
 
 	/* TODO(schreib): Get all of these working at the same time.
 
+	@Test
 	public void testConnectionError() {
     	new ReceiverLoopThread("CE").start();
     	runTestingLoop();
 	}
 
+    @Test
 	public void testTimeout() {
     	new ResponderLoopThread(4000).start();
     	new ReceiverLoopThread("TO").start();
     	runTestingLoop();
 	}
+
 	*/
 
 	static long doMath(long a) {
@@ -86,7 +90,10 @@ public class TiltyardRequestFarmTest extends Assert {
                 String line = HttpReader.readAsServer(conn);
                 HttpWriter.writeAsServer(conn, "cool");
                 conn.close();
-                JSONObject responseJSON = new JSONObject(line);
+                JSONObject batchResponseJSON = new JSONObject(line);
+                assertTrue(batchResponseJSON.has("responses"));
+                assertEquals(2, batchResponseJSON.getJSONArray("responses").length());
+                JSONObject responseJSON = batchResponseJSON.getJSONArray("responses").getJSONObject(0);
                 assertEquals(response, responseJSON.getString("responseType"));
                 if (responseJSON.getString("responseType").equals("OK")) {
                     long original = Long.parseLong(new JSONObject(responseJSON.getString("originalRequest")).getString("requestContent"));
@@ -165,18 +172,23 @@ public class TiltyardRequestFarmTest extends Assert {
     public void runTestingLoop() {
     	try {
 	    	Random r = new Random();
+    		JSONObject theBatchRequest = new JSONObject();
+    		JSONArray theRequests = new JSONArray();
     		JSONObject theRequest = new JSONObject();
     		theRequest.put("targetPort", 12345);
     		theRequest.put("targetHost", "127.0.0.1");
     		theRequest.put("timeoutClock", 3000);
-    		theRequest.put("callbackURL", "http://127.0.0.1:12346");
     		theRequest.put("forPlayerName", "");
+    		theRequests.put(theRequest);
+    		theRequests.put(theRequest);
+    		theBatchRequest.put("requests", theRequests);
+    		theBatchRequest.put("callbackURL", "http://127.0.0.1:12346");
 
 	    	int nRequests = 0;
 	    	while (true) {
 	    		theRequest.put("requestContent", "" + r.nextLong());
 	    		theRequest.put("timestamp", System.currentTimeMillis());
-	    		assertEquals("okay", RemoteResourceLoader.postRawWithTimeout("http://127.0.0.1:" + TiltyardRequestFarm.SERVER_PORT, theRequest.toString(), 5000));
+	    		assertEquals("okay", RemoteResourceLoader.postRawWithTimeout("http://127.0.0.1:" + TiltyardRequestFarm.SERVER_PORT, theBatchRequest.toString(), 5000));
 	    		nRequests++;
 	    		Thread.sleep(10);
 	    		int curNumSuccesses = nSuccesses.get();

@@ -6,7 +6,9 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import org.ggp.base.util.crypto.BaseCryptography.EncodedKeyPair;
@@ -17,6 +19,7 @@ import org.ggp.base.util.http.HttpRequest;
 import org.ggp.base.util.http.HttpWriter;
 import org.ggp.base.util.loader.RemoteResourceLoader;
 
+import external.JSON.JSONArray;
 import external.JSON.JSONException;
 import external.JSON.JSONObject;
 
@@ -52,8 +55,10 @@ public final class TiltyardRequestFarm
     public static final int SERVER_PORT = 9125;
     private static final String registrationURL = "http://tiltyard.ggp.org/backends/register/farm";
 
-    private static final Object ongoingRequestsLock = new Object();
-    private static int ongoingRequests = 0;
+    private static final Object requestCountLock = new Object();
+    private static int activeBatches = 0;
+    private static int outgoingRequests = 0;
+    private static int returningRequests = 0;
 
     public static boolean testMode = false;
 
@@ -66,11 +71,13 @@ public final class TiltyardRequestFarm
             return null;
         }
     }
-    public static final EncodedKeyPair theBackendKeys = getKeyPair(FileUtils.readFileAsString(new File("src/org/ggp/base/apps/tiltyard/BackendKeys.json")));
+    public static final EncodedKeyPair theBackendKeys = getKeyPair(FileUtils.readFileAsString(new File("src/main/java/org/ggp/base/apps/tiltyard/BackendKeys.json")));
     public static String generateSignedPing() {
     	String zone = null;
    		try {
-			zone = RemoteResourceLoader.loadRaw("http://metadata/computeMetadata/v1beta1/instance/zone");
+   			Map<String, String> metadataRequestProperties = new HashMap<String, String>();
+   			metadataRequestProperties.put("Metadata-Flavor", "Google");
+			zone = RemoteResourceLoader.loadRaw("http://metadata/computeMetadata/v1/instance/zone", 1, metadataRequestProperties);
 		} catch (IOException e1) {
 			// If we can't acquire the request farm zone, just silently drop it.
 		}
@@ -87,16 +94,76 @@ public final class TiltyardRequestFarm
         return thePing.toString();
     }
 
-    // Connections are run asynchronously in their own threads.
-    static class RunRequestThread extends Thread {
-    	String targetHost, requestContent, forPlayerName, callbackURL, originalRequest;
+    static class RunSingleRequestThread extends Thread {
+    	String targetHost, requestContent, forPlayerName;
     	int targetPort, timeoutClock;
     	boolean fastReturn;
+    	JSONObject myResponse;
+
+    	public RunSingleRequestThread(JSONObject theJSON) throws JSONException {
+    		myResponse = new JSONObject();
+    		myResponse.put("originalRequest", theJSON);
+            targetPort = theJSON.getInt("targetPort");
+            targetHost = theJSON.getString("targetHost");
+            timeoutClock = theJSON.getInt("timeoutClock");
+            forPlayerName = theJSON.getString("forPlayerName");
+            requestContent = theJSON.getString("requestContent");
+            if (theJSON.has("fastReturn")) {
+            	fastReturn = theJSON.getBoolean("fastReturn");
+            } else {
+            	fastReturn = true;
+            }
+    	}
+
+    	@Override
+    	public void run() {
+        	synchronized (requestCountLock) {
+        		outgoingRequests++;
+        		System.out.println(new Date().getTime() + " [" + new Date() + "]: There are now " + activeBatches + " active batches, with " + outgoingRequests + " requests outgoing and " + returningRequests + " returning.");
+        	}
+            long startTime = System.currentTimeMillis();
+            try {
+                try {
+                	String response = HttpRequest.issueRequest(targetHost, targetPort, forPlayerName, requestContent, timeoutClock);
+                	response = response.replaceAll("\\P{InBasic_Latin}", "");
+                	myResponse.put("response", response);
+                	myResponse.put("responseType", "OK");
+                } catch (SocketTimeoutException te) {
+                	myResponse.put("responseType", "TO");
+                } catch (IOException ie) {
+                	myResponse.put("responseType", "CE");
+                }
+            } catch (JSONException je) {
+            	throw new RuntimeException(je);
+            }
+        	synchronized (requestCountLock) {
+        		outgoingRequests--;
+        		System.out.println(new Date().getTime() + " [" + new Date() + "]: There are now " + activeBatches + " active batches, with " + outgoingRequests + " requests outgoing and " + returningRequests + " returning.");
+        	}
+            long timeSpent = System.currentTimeMillis() - startTime;
+            if (!fastReturn && timeSpent < timeoutClock) {
+            	try {
+					Thread.sleep(timeoutClock - timeSpent);
+				} catch (InterruptedException e) {
+					;
+				}
+            }
+    	}
+
+    	public JSONObject getResponse() {
+    		return myResponse;
+    	}
+    }
+
+    // Connections are run asynchronously in their own threads.
+    static class RunBatchRequestThread extends Thread {
+    	String originalRequest, callbackURL;
+    	Set<RunSingleRequestThread> theRequestThreads;
     	Set<String> activeRequests;
 
-        public RunRequestThread(Socket connection, Set<String> activeRequests) throws IOException, JSONException {
+        public RunBatchRequestThread(Socket connection, Set<String> activeRequests) throws IOException, JSONException {
             String line = HttpReader.readAsServer(connection);
-            System.out.println("On " + new Date() + ", client has requested: " + line);
+            System.out.println(new Date().getTime() + " [" + new Date() + "] received batch request: " + line);
 
             String response = null;
             if (line.equals("ping")) {
@@ -110,19 +177,20 @@ public final class TiltyardRequestFarm
                 	}
                 	this.activeRequests = activeRequests;
                 }
+            	synchronized (requestCountLock) {
+            		activeBatches++;
+            		System.out.println(new Date().getTime() + " [" + new Date() + "]: There are now " + activeBatches + " active batches, with " + outgoingRequests + " requests outgoing and " + returningRequests + " returning.");
+            	}
 
-                JSONObject theJSON = new JSONObject(line);
-                targetPort = theJSON.getInt("targetPort");
-                targetHost = theJSON.getString("targetHost");
-                timeoutClock = theJSON.getInt("timeoutClock");
-                callbackURL = theJSON.getString("callbackURL");
-                forPlayerName = theJSON.getString("forPlayerName");
-                requestContent = theJSON.getString("requestContent");
-                if (theJSON.has("fastReturn")) {
-                	fastReturn = theJSON.getBoolean("fastReturn");
-                } else {
-                	fastReturn = true;
+                JSONObject theBatchJSON = new JSONObject(line);
+                JSONArray theRequests = theBatchJSON.getJSONArray("requests");
+                theRequestThreads = new HashSet<RunSingleRequestThread>();
+                for (int i = 0; i < theRequests.length(); i++) {
+                	JSONObject aRequest = theRequests.getJSONObject(i);
+                	RunSingleRequestThread aRequestThread = new RunSingleRequestThread(aRequest);
+                	theRequestThreads.add(aRequestThread);
                 }
+                callbackURL = theBatchJSON.getString("callbackURL");
 
                 originalRequest = line;
                 response = "okay";
@@ -135,38 +203,37 @@ public final class TiltyardRequestFarm
         @Override
         public void run() {
             if (originalRequest != null) {
-            	synchronized (ongoingRequestsLock) {
-            		ongoingRequests++;
-            	}
-                System.out.println("On " + new Date() + ", starting request. There are now " + ongoingRequests + " ongoing requests.");
-                long startTime = System.currentTimeMillis();
+            	// Start running all of the requests in the batch parallel.
+                for (RunSingleRequestThread aRequestThread : theRequestThreads) {
+                	aRequestThread.start();
+                }
+
+                // Wait for all of the requests to finish; aggregate them into a batch response.
                 JSONObject responseJSON = new JSONObject();
+                JSONArray responses = new JSONArray();
+                for (RunSingleRequestThread aRequestThread : theRequestThreads) {
+                	try {
+						aRequestThread.join();
+						responses.put(aRequestThread.getResponse());
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+                }
                 try {
-                	responseJSON.put("originalRequest", originalRequest);
-	                try {
-	                	String response = HttpRequest.issueRequest(targetHost, targetPort, forPlayerName, requestContent, timeoutClock);
-	                	response = response.replaceAll("\\P{InBasic_Latin}", "");
-	                	responseJSON.put("response", response);
-	                	responseJSON.put("responseType", "OK");
-	                } catch (SocketTimeoutException te) {
-	                	responseJSON.put("responseType", "TO");
-	                } catch (IOException ie) {
-	                	responseJSON.put("responseType", "CE");
-	                }
+	                responseJSON.put("responses", responses);
 	                if (!testMode) {
 	                	SignableJSON.signJSON(responseJSON, theBackendKeys.thePublicKey, theBackendKeys.thePrivateKey);
 	                }
                 } catch (JSONException je) {
+                	je.printStackTrace();
                 	throw new RuntimeException(je);
                 }
-                long timeSpent = System.currentTimeMillis() - startTime;
-                if (!fastReturn && timeSpent < timeoutClock) {
-                	try {
-						Thread.sleep(timeoutClock - timeSpent);
-					} catch (InterruptedException e) {
-						;
-					}
-                }
+
+                // Send the batch response back to the callback URL.
+            	synchronized (requestCountLock) {
+            		returningRequests++;
+            		System.out.println(new Date().getTime() + " [" + new Date() + "]: There are now " + activeBatches + " active batches, with " + outgoingRequests + " requests outgoing and " + returningRequests + " returning.");
+            	}
                 int nPostAttempts = 0;
                 while (true) {
                 	try {
@@ -181,15 +248,15 @@ public final class TiltyardRequestFarm
 						}
                 	}
                 }
-                synchronized (ongoingRequestsLock) {
-                	ongoingRequests--;
-                	if (ongoingRequests == 0) {
-                		System.gc();
-                		System.out.println("On " + new Date() + ", completed request. Garbage collecting since there are no ongoing requests.");
-                	} else {
-                		System.out.println("On " + new Date() + ", completed request. There are now " + ongoingRequests + " ongoing requests.");
-                	}
-                }
+            	synchronized (requestCountLock) {
+            		returningRequests--;
+            		activeBatches--;
+            		System.out.println(new Date().getTime() + " [" + new Date() + "]: There are now " + activeBatches + " active batches, with " + outgoingRequests + " requests outgoing and " + returningRequests + " returning.");
+            		if (activeBatches == 0) {
+            			System.gc();
+            			System.out.println("Garbage collecting since there are no active batches.");
+            		}
+            	}
                 synchronized (activeRequests) {
                 	activeRequests.remove(originalRequest);
                 }
@@ -238,7 +305,7 @@ public final class TiltyardRequestFarm
         while (true) {
             try {
                 Socket connection = listener.accept();
-                RunRequestThread handlerThread = new RunRequestThread(connection, activeRequests);
+                RunBatchRequestThread handlerThread = new RunBatchRequestThread(connection, activeRequests);
                 handlerThread.start();
             } catch (Exception e) {
                 System.err.println(e);
