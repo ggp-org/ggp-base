@@ -171,7 +171,9 @@ public final class TiltyardRequestFarm
             } else {
                 synchronized (activeRequests) {
                 	if (activeRequests.contains(line)) {
+                		System.out.println("Got duplicate request; ignoring.");
                 		connection.close();
+                		return;
                 	} else {
                 		activeRequests.add(line);
                 	}
