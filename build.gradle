@@ -163,6 +163,7 @@ task tiltyardRequestFarm(type: JavaExec) {
 task player(type: JavaExec) {
     main = 'org.ggp.base.apps.player.Player'
     classpath = sourceSets.main.runtimeClasspath
+    jvmArgs = playerJvmArgs
 }
 
 task propNetAnnotater(type: JavaExec) {
