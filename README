@@ -61,9 +61,13 @@ included in the repository that automatically installs Gradle when run.
 
 Sample commands (use gradlew.bat instead if on Windows):
 
-Confirm Gradle version:       ./gradlew -v
-Show list of available tasks: ./gradlew tasks
-Compile and test code:        ./gradlew build
+Confirm Gradle version:        ./gradlew -v
+Show list of available tasks:  ./gradlew tasks
+Compile code and run tests:    ./gradlew build
+Compile without running tests: ./gradlew assemble
+Run the Kiosk app:             ./gradlew kiosk
+Run the Player app:            ./gradlew player
+Run the Server app:            ./gradlew server
 
                               === MISC NOTES ===
 
