@@ -59,6 +59,10 @@ public final class TiltyardRequestFarm
     private static int activeBatches = 0;
     private static int outgoingRequests = 0;
     private static int returningRequests = 0;
+    private static int abandonedBatches = 0;
+    static void printBatchStats() {
+    	System.out.println(new Date().getTime() + " [" + new Date() + "]: now " + activeBatches + " active batches, with " + outgoingRequests + " requests outgoing, " + returningRequests + " returning; " + abandonedBatches + " batches abandoned.");
+    }
 
     public static boolean testMode = false;
 
@@ -119,7 +123,7 @@ public final class TiltyardRequestFarm
     	public void run() {
         	synchronized (requestCountLock) {
         		outgoingRequests++;
-        		System.out.println(new Date().getTime() + " [" + new Date() + "]: There are now " + activeBatches + " active batches, with " + outgoingRequests + " requests outgoing and " + returningRequests + " returning.");
+        		printBatchStats();
         	}
             long startTime = System.currentTimeMillis();
             try {
@@ -138,7 +142,7 @@ public final class TiltyardRequestFarm
             }
         	synchronized (requestCountLock) {
         		outgoingRequests--;
-        		System.out.println(new Date().getTime() + " [" + new Date() + "]: There are now " + activeBatches + " active batches, with " + outgoingRequests + " requests outgoing and " + returningRequests + " returning.");
+        		printBatchStats();
         	}
             long timeSpent = System.currentTimeMillis() - startTime;
             if (!fastReturn && timeSpent < timeoutClock) {
@@ -205,7 +209,7 @@ public final class TiltyardRequestFarm
 
         	synchronized (requestCountLock) {
         		activeBatches++;
-        		System.out.println(new Date().getTime() + " [" + new Date() + "]: There are now " + activeBatches + " active batches, with " + outgoingRequests + " requests outgoing and " + returningRequests + " returning.");
+        		printBatchStats();
         	}
 
         	// Start running all of the requests in the batch parallel.
@@ -231,13 +235,21 @@ public final class TiltyardRequestFarm
                 }
             } catch (JSONException je) {
             	je.printStackTrace();
-            	throw new RuntimeException(je);
+            	synchronized (requestCountLock) {
+            		abandonedBatches++;
+            		activeBatches--;
+            		printBatchStats();
+            	}
+                synchronized (activeRequests) {
+                	activeRequests.remove(originalRequest);
+                }
+            	return;
             }
 
             // Send the batch response back to the callback URL.
         	synchronized (requestCountLock) {
         		returningRequests++;
-        		System.out.println(new Date().getTime() + " [" + new Date() + "]: There are now " + activeBatches + " active batches, with " + outgoingRequests + " requests outgoing and " + returningRequests + " returning.");
+        		printBatchStats();
         	}
             int nPostAttempts = 0;
             while (true) {
@@ -256,7 +268,7 @@ public final class TiltyardRequestFarm
         	synchronized (requestCountLock) {
         		returningRequests--;
         		activeBatches--;
-        		System.out.println(new Date().getTime() + " [" + new Date() + "]: There are now " + activeBatches + " active batches, with " + outgoingRequests + " requests outgoing and " + returningRequests + " returning.");
+        		printBatchStats();
         		if (activeBatches == 0) {
         			System.gc();
         			System.out.println("Garbage collecting since there are no active batches.");
