@@ -179,10 +179,6 @@ public final class TiltyardRequestFarm
                 	}
                 	this.activeRequests = activeRequests;
                 }
-            	synchronized (requestCountLock) {
-            		activeBatches++;
-            		System.out.println(new Date().getTime() + " [" + new Date() + "]: There are now " + activeBatches + " active batches, with " + outgoingRequests + " requests outgoing and " + returningRequests + " returning.");
-            	}
 
                 JSONObject theBatchJSON = new JSONObject(line);
                 JSONArray theRequests = theBatchJSON.getJSONArray("requests");
@@ -204,64 +200,70 @@ public final class TiltyardRequestFarm
 
         @Override
         public void run() {
-            if (originalRequest != null) {
-            	// Start running all of the requests in the batch parallel.
-                for (RunSingleRequestThread aRequestThread : theRequestThreads) {
-                	aRequestThread.start();
-                }
+        	if (originalRequest == null)
+        		return;
 
-                // Wait for all of the requests to finish; aggregate them into a batch response.
-                JSONObject responseJSON = new JSONObject();
-                JSONArray responses = new JSONArray();
-                for (RunSingleRequestThread aRequestThread : theRequestThreads) {
-                	try {
-						aRequestThread.join();
-						responses.put(aRequestThread.getResponse());
+        	synchronized (requestCountLock) {
+        		activeBatches++;
+        		System.out.println(new Date().getTime() + " [" + new Date() + "]: There are now " + activeBatches + " active batches, with " + outgoingRequests + " requests outgoing and " + returningRequests + " returning.");
+        	}
+
+        	// Start running all of the requests in the batch parallel.
+            for (RunSingleRequestThread aRequestThread : theRequestThreads) {
+            	aRequestThread.start();
+            }
+
+            // Wait for all of the requests to finish; aggregate them into a batch response.
+            JSONObject responseJSON = new JSONObject();
+            JSONArray responses = new JSONArray();
+            for (RunSingleRequestThread aRequestThread : theRequestThreads) {
+            	try {
+					aRequestThread.join();
+					responses.put(aRequestThread.getResponse());
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+            }
+            try {
+                responseJSON.put("responses", responses);
+                if (!testMode) {
+                	SignableJSON.signJSON(responseJSON, theBackendKeys.thePublicKey, theBackendKeys.thePrivateKey);
+                }
+            } catch (JSONException je) {
+            	je.printStackTrace();
+            	throw new RuntimeException(je);
+            }
+
+            // Send the batch response back to the callback URL.
+        	synchronized (requestCountLock) {
+        		returningRequests++;
+        		System.out.println(new Date().getTime() + " [" + new Date() + "]: There are now " + activeBatches + " active batches, with " + outgoingRequests + " requests outgoing and " + returningRequests + " returning.");
+        	}
+            int nPostAttempts = 0;
+            while (true) {
+            	try {
+            		RemoteResourceLoader.postRawWithTimeout(callbackURL, responseJSON.toString(), Integer.MAX_VALUE);
+            		break;
+            	} catch (IOException ie) {
+            		nPostAttempts++;
+            		try {
+						Thread.sleep(nPostAttempts < 10 ? 1000 : 15000);
 					} catch (InterruptedException e) {
-						e.printStackTrace();
+						;
 					}
-                }
-                try {
-	                responseJSON.put("responses", responses);
-	                if (!testMode) {
-	                	SignableJSON.signJSON(responseJSON, theBackendKeys.thePublicKey, theBackendKeys.thePrivateKey);
-	                }
-                } catch (JSONException je) {
-                	je.printStackTrace();
-                	throw new RuntimeException(je);
-                }
-
-                // Send the batch response back to the callback URL.
-            	synchronized (requestCountLock) {
-            		returningRequests++;
-            		System.out.println(new Date().getTime() + " [" + new Date() + "]: There are now " + activeBatches + " active batches, with " + outgoingRequests + " requests outgoing and " + returningRequests + " returning.");
             	}
-                int nPostAttempts = 0;
-                while (true) {
-                	try {
-                		RemoteResourceLoader.postRawWithTimeout(callbackURL, responseJSON.toString(), Integer.MAX_VALUE);
-                		break;
-                	} catch (IOException ie) {
-                		nPostAttempts++;
-                		try {
-							Thread.sleep(nPostAttempts < 10 ? 1000 : 15000);
-						} catch (InterruptedException e) {
-							;
-						}
-                	}
-                }
-            	synchronized (requestCountLock) {
-            		returningRequests--;
-            		activeBatches--;
-            		System.out.println(new Date().getTime() + " [" + new Date() + "]: There are now " + activeBatches + " active batches, with " + outgoingRequests + " requests outgoing and " + returningRequests + " returning.");
-            		if (activeBatches == 0) {
-            			System.gc();
-            			System.out.println("Garbage collecting since there are no active batches.");
-            		}
-            	}
-                synchronized (activeRequests) {
-                	activeRequests.remove(originalRequest);
-                }
+            }
+        	synchronized (requestCountLock) {
+        		returningRequests--;
+        		activeBatches--;
+        		System.out.println(new Date().getTime() + " [" + new Date() + "]: There are now " + activeBatches + " active batches, with " + outgoingRequests + " requests outgoing and " + returningRequests + " returning.");
+        		if (activeBatches == 0) {
+        			System.gc();
+        			System.out.println("Garbage collecting since there are no active batches.");
+        		}
+        	}
+            synchronized (activeRequests) {
+            	activeRequests.remove(originalRequest);
             }
         }
     }
