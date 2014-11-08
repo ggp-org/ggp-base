@@ -1,14 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="src" path="src_py"/>
-	<classpathentry kind="src" path="src_clj"/>
 	<classpathentry kind="src" path="src/main/java"/>
 	<classpathentry kind="src" path="src/test/java"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER" exported="true"/>
 	<classpathentry kind="output" path="bin"/>
+	<classpathentry kind="src" path="src/main/resources"/>
 	<classpathentry kind="lib" path="lib/JUnit/junit-4.11.jar" exported="true"/>
 	<classpathentry kind="lib" path="lib/JUnit/hamcrest-core-1.3.jar" exported="true"/>
-	<classpathentry kind="lib" path="bin" exported="true"/>
 	<classpathentry kind="lib" path="lib/Guava/guava-14.0.1.jar" exported="true"/>
 	<classpathentry kind="lib" path="lib/Jython/jython.jar" exported="true"/>
 	<classpathentry kind="lib" path="lib/Clojure/clojure.jar" exported="true"/>
