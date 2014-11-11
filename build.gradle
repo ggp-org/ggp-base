@@ -11,7 +11,6 @@ sourceCompatibility = 1.7
  */
 dependencies {
     compile files(
-        'bin/',
         'lib/Guava/guava-14.0.1.jar',
         'lib/Jython/jython.jar',
         'lib/Clojure/clojure.jar',
@@ -49,8 +48,6 @@ eclipse {
                             def startIndex = absolutePath.indexOf('/lib/') + 1
                             def relativePath = absolutePath.substring(startIndex)
                             classpathEntry.attributes().put('path', relativePath)
-                        } else if (absolutePath.endsWith('/bin')) {
-                            classpathEntry.attributes().put('path', 'bin')
                         }
                     }
                 }
@@ -69,31 +66,6 @@ eclipse {
 test {
     include 'org/ggp/base/test/AllTests.class'
 }
-
-//TODO: Figure out how to make this more idiomatic, probably using src/main/resources.
-//Copy src_py, src_clj contents to bin/ folder during build
-def binDir = new File('bin')
-task createBin {
-    doLast {
-        binDir.mkdirs()
-    }
-    outputs.file binDir
-}
-task copyNonJavaSources(dependsOn: createBin, type: Copy) {
-    from 'src/main/java'
-    from 'src_py'
-    from 'src_clj'
-    into binDir
-    exclude '**/*.launch'
-    exclude '**/*.java'
-    includeEmptyDirs = false
-}
-processResources.dependsOn copyNonJavaSources
-//Also clean up the bin/ folder during 'gradle clean'
-task cleanBin(type: Delete) {
-    delete binDir
-}
-clean.dependsOn cleanBin
 
 
 //Various applications that can be run from Gradle:
