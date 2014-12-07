@@ -201,7 +201,6 @@ public final class GameServer extends Thread implements Subject
     public void abort() {
     	try {
     		match.markAborted();
-    		interrupt();
     		sendAbortRequests();
     		saveWhenNecessary();
     		publishWhenNecessary();
