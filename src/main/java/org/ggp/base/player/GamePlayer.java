@@ -70,13 +70,20 @@ public final class GamePlayer extends Thread implements Subject
 	    return gamer;
 	}
 
+	public void shutdown() {
+		try {
+			listener.close();
+			listener = null;
+		} catch (IOException e) {
+			;
+		}
+	}
+
 	@Override
 	public void run()
 	{
-		while (!isInterrupted())
-		{
-			try
-			{
+		while (listener != null) {
+			try {
 				Socket connection = listener.accept();
 				String in = HttpReader.readAsServer(connection);
 				if (in.length() == 0) {
@@ -93,9 +100,8 @@ public final class GamePlayer extends Thread implements Subject
 				connection.close();
 				notifyObservers(new PlayerSentMessageEvent(out));
 				GamerLogger.log("GamePlayer", "[Sent at " + System.currentTimeMillis() + "] " + out, GamerLogger.LOG_LEVEL_DATA_DUMP);
-			}
-			catch (Exception e)
-			{
+			} catch (Exception e) {
+				GamerLogger.log("GamePlayer", "[Dropped data at " + System.currentTimeMillis() + "] Due to " + e, GamerLogger.LOG_LEVEL_DATA_DUMP);
 				notifyObservers(new PlayerDroppedPacketEvent());
 			}
 		}
