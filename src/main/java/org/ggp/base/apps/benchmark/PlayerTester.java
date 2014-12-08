@@ -94,9 +94,9 @@ public class PlayerTester {
     	return Game.createEphemeralGame("( " + newRulesheet.toString() + " )");
     }
 
-    public static boolean passesTest(String hostport, String gameKey, int nRole, String theState, String[] goodMovesArr) throws SymbolFormatException, InvalidHostportException {
+    public static boolean passesTest(String hostport, String gameKey, int nRole, int nStartClock, int nPlayClock, String theState, String[] goodMovesArr) throws SymbolFormatException, InvalidHostportException {
     	final Game theGame = getMediasResGame(gameKey, theState);
-    	final Match theMatch = new Match("playerTester." + Match.getRandomString(5), -1, 5, 5, theGame);
+    	final Match theMatch = new Match("playerTester." + Match.getRandomString(5), -1, nStartClock, nPlayClock, theGame);
 
         // Set up fake players to pretend to play the game alongside the real player
         List<String> theHosts = new ArrayList<String>();
@@ -152,7 +152,7 @@ public class PlayerTester {
     public static void main(String[] args) throws InterruptedException, SymbolFormatException, IOException, InvalidHostportException {
     	GamePlayer player = new GamePlayer(3141, new RandomGamer());
     	player.start();
-   		passesTest("127.0.0.1:3141", "ticTacToe", 0, "( ( cell 2 1 b ) ( control xplayer ) ( cell 1 3 b ) ( cell 1 2 b ) ( cell 2 3 b ) ( cell 3 3 b ) ( cell 3 1 b ) ( cell 2 2 b ) ( cell 1 1 b ) ( cell 3 2 b ) )", new String[] { "( mark 2 2 )" });
+   		passesTest("127.0.0.1:3141", "ticTacToe", 0, 5, 5, "( ( cell 2 1 b ) ( control xplayer ) ( cell 1 3 b ) ( cell 1 2 b ) ( cell 2 3 b ) ( cell 3 3 b ) ( cell 3 1 b ) ( cell 2 2 b ) ( cell 1 1 b ) ( cell 3 2 b ) )", new String[] { "( mark 2 2 )" });
    		player.shutdown();
     }
 }
