@@ -186,7 +186,7 @@ public class PlayerTester {
     		}
     	}
 
-    	return (double)nPasses / (double)nTests;
+    	return Math.floor(100 * (double)nPasses / (double)nTests);
     }
 
     public static double getBenchmarkScore(Gamer aGamer) throws IOException, SymbolFormatException {
