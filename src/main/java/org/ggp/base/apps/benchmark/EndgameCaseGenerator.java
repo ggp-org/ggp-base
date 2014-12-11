@@ -112,7 +112,7 @@ public class EndgameCaseGenerator {
 	        theStateSymbols.append(")");
 
 	        // And finally, output the code for the new test.
-	        System.out.println("passesTest(\"127.0.0.1:3141\", \"" + gameKey + "\", 0, 15, 5, \"" + theStateSymbols + "\", new String[] {" + goodMoveStrings + "});");
+	        System.out.println("new PlayerTester.TestCase(\"" + gameKey + "\", 0, 15, 5, \"" + theStateSymbols + "\", new String[] {" + goodMoveStrings + "}),");
 	        return;
         }
     }

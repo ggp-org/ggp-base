@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.ggp.base.player.GamePlayer;
+import org.ggp.base.player.gamer.Gamer;
 import org.ggp.base.player.gamer.statemachine.random.RandomGamer;
 import org.ggp.base.server.GameServer;
 import org.ggp.base.server.event.ServerNewMovesEvent;
@@ -20,7 +21,6 @@ import org.ggp.base.util.gdl.grammar.GdlRule;
 import org.ggp.base.util.match.Match;
 import org.ggp.base.util.observer.Event;
 import org.ggp.base.util.observer.Observer;
-import org.ggp.base.util.presence.PlayerPresenceManager.InvalidHostportException;
 import org.ggp.base.util.statemachine.Move;
 import org.ggp.base.util.statemachine.Role;
 import org.ggp.base.util.symbol.factory.SymbolFactory;
@@ -53,6 +53,32 @@ import org.ggp.base.util.symbol.grammar.SymbolList;
  * @author Sam Schreiber
  */
 public class PlayerTester {
+	/**
+	 * TestCase is a test case for the PlayerTester.
+	 *
+	 * Each test case contains a game, a game state, a role, and a set of "good"
+	 * moves for that role to take in that game state when playing that game. The
+	 * PlayerTester will simulate this with an actual player, and determine if the
+	 * move the player chooses is one of the "good" moves.
+	 */
+	public static class TestCase {
+		public final String gameKey;
+		public final int nRole;
+		public final int nStartClock;
+		public final int nPlayClock;
+		public final String theState;
+		public final String[] goodMovesArr;
+
+		public TestCase(String gameKey, int nRole, int nStartClock, int nPlayClock, String theState, String[] goodMovesArr) {
+			this.gameKey = gameKey;
+			this.nRole = nRole;
+			this.nStartClock = nStartClock;
+			this.nPlayClock = nPlayClock;
+			this.theState = theState;
+			this.goodMovesArr = goodMovesArr;
+		}
+	}
+
     /**
      * getMediasResGame takes a game and a desired initial state, and rewrites
      * the game rules so that the game begins in that initial state. To do this
@@ -94,9 +120,9 @@ public class PlayerTester {
     	return Game.createEphemeralGame("( " + newRulesheet.toString() + " )");
     }
 
-    public static boolean passesTest(String hostport, String gameKey, int nRole, int nStartClock, int nPlayClock, String theState, String[] goodMovesArr) throws SymbolFormatException, InvalidHostportException {
-    	final Game theGame = getMediasResGame(gameKey, theState);
-    	final Match theMatch = new Match("playerTester." + Match.getRandomString(5), -1, nStartClock, nPlayClock, theGame);
+    public static boolean passesTest(String hostport, TestCase theCase) throws SymbolFormatException {
+    	final Game theGame = getMediasResGame(theCase.gameKey, theCase.theState);
+    	final Match theMatch = new Match("playerTester." + Match.getRandomString(5), -1, theCase.nStartClock, theCase.nPlayClock, theGame);
 
         // Set up fake players to pretend to play the game alongside the real player
         List<String> theHosts = new ArrayList<String>();
@@ -105,19 +131,19 @@ public class PlayerTester {
         	theHosts.add("SamplePlayer" + i);
         	thePorts.add(9147+i);
         }
-        theHosts.set(nRole, hostport.split(":")[0]);
-        thePorts.set(nRole, Integer.parseInt(hostport.split(":")[1]));
+        theHosts.set(theCase.nRole, hostport.split(":")[0]);
+        thePorts.set(theCase.nRole, Integer.parseInt(hostport.split(":")[1]));
 
         // Set up a game server to play through the game, with all players playing randomly
         // except the real player that we're testing
         final GameServer theServer = new GameServer(theMatch, theHosts, thePorts);
         for (int i = 0; i < theHosts.size(); i++) {
-        	if (i != nRole) {
+        	if (i != theCase.nRole) {
         		theServer.makePlayerPlayRandomly(i);
         	}
         }
 
-        final int theRole = nRole;
+        final int theRole = theCase.nRole;
         final Move[] theChosenMoveArr = new Move[1];
         theServer.addObserver(new Observer() {
 			@Override
@@ -137,7 +163,7 @@ public class PlayerTester {
 		}
 
         final String theChosenMove = theChosenMoveArr[0].toString().toLowerCase();
-        Set<String> goodMoves = new HashSet<String>(Arrays.asList(goodMovesArr));
+        Set<String> goodMoves = new HashSet<String>(Arrays.asList(theCase.goodMovesArr));
         boolean passes = goodMoves.contains(theChosenMove);
 
         if (!passes) {
@@ -149,10 +175,29 @@ public class PlayerTester {
         return passes;
     }
 
-    public static void main(String[] args) throws InterruptedException, SymbolFormatException, IOException, InvalidHostportException {
-    	GamePlayer player = new GamePlayer(3141, new RandomGamer());
+    public static double getBenchmarkScore(String hostport) throws SymbolFormatException {
+    	int nTests = 0;
+    	int nPasses = 0;
+
+    	for (TestCase aCase : PlayerTesterCases.TEST_CASES) {
+    		nTests++;
+    		if (passesTest(hostport, aCase)) {
+    			nPasses++;
+    		}
+    	}
+
+    	return (double)nPasses / (double)nTests;
+    }
+
+    public static double getBenchmarkScore(Gamer aGamer) throws IOException, SymbolFormatException {
+    	GamePlayer player = new GamePlayer(3141, aGamer);
     	player.start();
-   		passesTest("127.0.0.1:3141", "ticTacToe", 0, 5, 5, "( ( cell 2 1 b ) ( control xplayer ) ( cell 1 3 b ) ( cell 1 2 b ) ( cell 2 3 b ) ( cell 3 3 b ) ( cell 3 1 b ) ( cell 2 2 b ) ( cell 1 1 b ) ( cell 3 2 b ) )", new String[] { "( mark 2 2 )" });
+    	double theScore = getBenchmarkScore("127.0.0.1:3141");
    		player.shutdown();
+   		return theScore;
+    }
+
+    public static void main(String[] args) throws InterruptedException, SymbolFormatException, IOException {
+    	System.out.println("Benchmark score for random player: " + getBenchmarkScore(new RandomGamer()));
     }
 }
