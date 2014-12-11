@@ -55,7 +55,7 @@ public class EndgameCaseGenerator {
 	        	theStates.add(theChargeState);
 	        	theChargeState = theMachine.getRandomNextState(theChargeState);
 	        }
-	        MachineState theState = theStates.get(theStates.size() - nBackoff);
+	        MachineState theState = theStates.get(Math.max(theStates.size() - nBackoff, 0));
 
 	        // Solve the game from the backoff state. For moves that return
 	        // definite scores, track the best and worst scores. For moves that
