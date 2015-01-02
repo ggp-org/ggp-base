@@ -3,8 +3,10 @@ package org.ggp.base.apps.benchmark;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.ggp.base.player.GamePlayer;
@@ -62,6 +64,7 @@ public class PlayerTester {
 	 * move the player chooses is one of the "good" moves.
 	 */
 	public static class TestCase {
+		public final String suiteName;
 		public final String gameKey;
 		public final int nRole;
 		public final int nStartClock;
@@ -69,7 +72,8 @@ public class PlayerTester {
 		public final String theState;
 		public final String[] goodMovesArr;
 
-		public TestCase(String gameKey, int nRole, int nStartClock, int nPlayClock, String theState, String[] goodMovesArr) {
+		public TestCase(String suiteName, String gameKey, int nRole, int nStartClock, int nPlayClock, String theState, String[] goodMovesArr) {
+			this.suiteName = suiteName;
 			this.gameKey = gameKey;
 			this.nRole = nRole;
 			this.nStartClock = nStartClock;
@@ -85,7 +89,7 @@ public class PlayerTester {
      * it removes all of the "init" rules and substitutes in its own set.
      * @throws SymbolFormatException
      */
-    private static Game getMediasResGame(String gameKey, String theState) throws SymbolFormatException {
+    static Game getMediasResGame(String gameKey, String theState) throws SymbolFormatException {
     	StringBuilder newRulesheet = new StringBuilder();
     	List<Gdl> theRules = GameRepository.getDefaultRepository().getGame(gameKey).getRules();
     	for (Gdl gdl : theRules) {
@@ -175,29 +179,37 @@ public class PlayerTester {
         return passes;
     }
 
-    public static double getBenchmarkScore(String hostport) throws SymbolFormatException {
-    	int nTests = 0;
-    	int nPasses = 0;
+    public static Map<String, Double> getBenchmarkScores(String hostport) throws SymbolFormatException {
+    	Map<String, Integer> nTestsBySuite = new HashMap<String, Integer>();
+    	Map<String, Integer> nPassesBySuite = new HashMap<String, Integer>();
 
     	for (TestCase aCase : PlayerTesterCases.TEST_CASES) {
-    		nTests++;
+    		if (!nTestsBySuite.containsKey(aCase.suiteName)) nTestsBySuite.put(aCase.suiteName, 0);
+    		if (!nPassesBySuite.containsKey(aCase.suiteName)) nPassesBySuite.put(aCase.suiteName, 0);
+
+    		nTestsBySuite.put(aCase.suiteName, nTestsBySuite.get(aCase.suiteName) + 1);
     		if (passesTest(hostport, aCase)) {
-    			nPasses++;
+    			nPassesBySuite.put(aCase.suiteName, nPassesBySuite.get(aCase.suiteName) + 1);
     		}
     	}
 
-    	return Math.floor(100 * (double)nPasses / (double)nTests);
+    	Map<String, Double> benchmarkScores = new HashMap<String, Double>();
+    	for (String key : nTestsBySuite.keySet()) {
+    		benchmarkScores.put(key, Math.floor(100 * (double)nPassesBySuite.get(key) / (double)nTestsBySuite.get(key)));
+    	}
+
+    	return benchmarkScores;
     }
 
-    public static double getBenchmarkScore(Gamer aGamer) throws IOException, SymbolFormatException {
+    public static Map<String, Double> getBenchmarkScores(Gamer aGamer) throws IOException, SymbolFormatException {
     	GamePlayer player = new GamePlayer(3141, aGamer);
     	player.start();
-    	double theScore = getBenchmarkScore("127.0.0.1:3141");
+    	Map<String, Double> theScores = getBenchmarkScores("127.0.0.1:3141");
    		player.shutdown();
-   		return theScore;
+   		return theScores;
     }
 
     public static void main(String[] args) throws InterruptedException, SymbolFormatException, IOException {
-    	System.out.println("Benchmark score for random player: " + getBenchmarkScore(new RandomGamer()));
+    	System.out.println("Benchmark score for random player: " + getBenchmarkScores(new RandomGamer()));
     }
 }
