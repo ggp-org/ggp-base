@@ -40,6 +40,17 @@ public class GdlUtils {
 		return variablesList;
 	}
 
+	public static Set<GdlVariable> getVariablesSet(Gdl gdl) {
+		final Set<GdlVariable> variables = new HashSet<GdlVariable>();
+		GdlVisitors.visitAll(gdl, new GdlVisitor() {
+			@Override
+			public void visitVariable(GdlVariable variable) {
+				variables.add(variable);
+			}
+		});
+		return variables;
+	}
+
 	public static List<String> getVariableNames(Gdl gdl) {
 		List<GdlVariable> variables = getVariables(gdl);
 		List<String> variableNames = new ArrayList<String>();
