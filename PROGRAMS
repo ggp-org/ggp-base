@@ -28,6 +28,13 @@ Command-line player runner
  - Description: Runs the given gamer on the given port.
  - Note: A Windows script needs to be added for this.
 
+Command-line server runner
+ - Main class: org.ggp.base.apps.utilities.GameServerRunner
+ - How to run: ./gameServerRunner <results directory> <game key> <start clock> <play clock> <player host 1> <player port 1> <player name 1> <player host 2> <player port 2> <player name 2> etc.
+ - Example: ./gameServerRunner myTournament ticTacToe 60 15 127.0.0.1 9147 PlayerOne 127.0.0.1 9148 PlayerTwo
+ - Description: Runs a match with the given game and player(s). Stores the
+results in a directory with the given name.
+
 Clojure console
  - Main class: org.ggp.base.apps.consoles.ClojureConsole
  - How to run: ./gradlew -q clojureConsole

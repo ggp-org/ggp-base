@@ -142,6 +142,15 @@ task propNetAnnotater(type: JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
 }
 
+//See gameServerRunner.sh
+task gameServerRunner(type: JavaExec) {
+    main = 'org.ggp.base.apps.utilities.GameServerRunner'
+    classpath = sourceSets.main.runtimeClasspath
+    doFirst {
+        args = myargs.split().toList()
+    }
+}
+
 // This was used to generate the Gradle wrapper.
 task wrapper(type: Wrapper) {
     gradleVersion = '2.1'
