@@ -121,7 +121,6 @@ task server(type: JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
 }
 
-//This currently fails with an exception
 task simpleGameSim(type: JavaExec) {
     main = 'org.ggp.base.apps.utilities.SimpleGameSim'
     classpath = sourceSets.main.runtimeClasspath

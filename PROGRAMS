@@ -39,3 +39,9 @@ Python console
  - How to run: ./gradlew pythonConsole
  - Description: A console for interactively running Python code via Jython.
    Jython is a Python implementation that runs in the JVM.
+
+Simple game simulation
+ - Main class: org.ggp.base.apps.utilities.SimpleGameSim
+ - How to run: ./gradlew simpleGameSim
+ - Description: Runs a play-through of a single match, to illustrate how the
+   game server code works. See the source code for details.
