@@ -1,0 +1,41 @@
+This is a reference to the various programs that can be run out-of-the-box from
+GGP Base.
+
+The commands given are run using Gradle, which will automatically compile any
+necessary code before running.
+
+If using Windows, use gradlew.bat in place of gradlew in the commands below.
+
+Player application
+ - Main class: org.ggp.base.apps.player.Player
+ - How to run: ./gradlew player
+ - Description: A GUI for running general game players.
+
+Kiosk application
+ - Main class: org.ggp.base.apps.kiosk.Kiosk
+ - How to run: ./gradlew kiosk
+ - Description: A GUI for playing games against a general game player.
+
+Server application
+ - Main class: org.ggp.base.apps.server.Server
+ - How to run: ./gradlew server
+ - Description: A GUI for hosting matches among general game players.
+
+Command-line player runner
+ - Main class: org.ggp.base.apps.player.PlayerRunner
+ - How to run: ./playerRunner.sh <port> <gamer class simple name>
+ - Example: ./playerRunner.sh 9147 RandomGamer
+ - Description: Runs the given gamer on the given port.
+ - Note: A Windows script needs to be added for this.
+
+Clojure console
+ - Main class: org.ggp.base.apps.consoles.ClojureConsole
+ - How to run: ./gradlew -q clojureConsole
+ - Description: A console for interactively running Clojure code. Clojure is a
+   dialect of Lisp that runs in the JVM.
+
+Python console
+ - Main class: org.ggp.base.apps.consoles.PythonConsole
+ - How to run: ./gradlew pythonConsole
+ - Description: A console for interactively running Python code via Jython.
+   Jython is a Python implementation that runs in the JVM.
