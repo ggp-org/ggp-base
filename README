@@ -69,6 +69,8 @@ Run the Kiosk app:             ./gradlew kiosk
 Run the Player app:            ./gradlew player
 Run the Server app:            ./gradlew server
 
+See the PROGRAMS file for additional programs that can be run.
+
                               === MISC NOTES ===
 
 * This is the 4/1/2010 release of GGP code for CS227B, compiled and maintained

@@ -121,7 +121,6 @@ task server(type: JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
 }
 
-//This currently fails with an exception
 task simpleGameSim(type: JavaExec) {
     main = 'org.ggp.base.apps.utilities.SimpleGameSim'
     classpath = sourceSets.main.runtimeClasspath
@@ -141,6 +140,15 @@ task player(type: JavaExec) {
 task propNetAnnotater(type: JavaExec) {
     main = 'org.ggp.base.util.propnet.factory.annotater.PropNetAnnotater'
     classpath = sourceSets.main.runtimeClasspath
+}
+
+//See gameServerRunner.sh
+task gameServerRunner(type: JavaExec) {
+    main = 'org.ggp.base.apps.utilities.GameServerRunner'
+    classpath = sourceSets.main.runtimeClasspath
+    doFirst {
+        args = myargs.split().toList()
+    }
 }
 
 // This was used to generate the Gradle wrapper.
