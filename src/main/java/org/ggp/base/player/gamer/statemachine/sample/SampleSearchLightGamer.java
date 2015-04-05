@@ -1,6 +1,7 @@
 package org.ggp.base.player.gamer.statemachine.sample;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
@@ -72,17 +73,13 @@ public final class SampleSearchLightGamer extends StateMachineGamer
 		long finishBy = timeout - 1000;
 
 		List<Move> moves = theMachine.getLegalMoves(getCurrentState(), getRole());
-		Move selection = (moves.get(new Random().nextInt(moves.size())));
+		Move selection = (moves.get(theRandom.nextInt(moves.size())));
 
 		// Shuffle the moves into a random order, so that when we find the first
 		// move that doesn't give our opponent a forced win, we aren't always choosing
 		// the first legal move over and over (which is visibly repetitive).
-		List<Move> movesInRandomOrder = new ArrayList<Move>();
-		while(!moves.isEmpty()) {
-		    Move aMove = moves.get(theRandom.nextInt(moves.size()));
-		    movesInRandomOrder.add(aMove);
-		    moves.remove(aMove);
-		}
+		moves = new ArrayList<Move>(moves);
+		Collections.shuffle(moves);
 
 		// Go through all of the legal moves in a random over, and consider each one.
 		// For each move, we want to determine whether taking that move will give our
@@ -95,7 +92,7 @@ public final class SampleSearchLightGamer extends StateMachineGamer
 		// immediately take it.
 		boolean reasonableMoveFound = false;
 		int maxGoal = 0;
-		for(Move moveUnderConsideration : movesInRandomOrder) {
+		for(Move moveUnderConsideration : moves) {
 		    // Check to see if there's time to continue.
 		    if(System.currentTimeMillis() > finishBy) break;
 
