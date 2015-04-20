@@ -133,7 +133,9 @@ public class KioskGamer extends StateMachineGamer implements Observer {
 		// finish it up as quickly as possible so we can display the next match
 		// when it arrives.
 		theQueue.add(new Move(GdlPool.getConstant("ABORT")));
-		theGUI.showFinalMessage("Aborted");
+		if (theGUI != null) {
+			theGUI.showFinalMessage("Aborted");
+		}
 	}
 
 	@Override
