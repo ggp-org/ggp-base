@@ -16,6 +16,8 @@ import org.ggp.base.util.statemachine.Role;
 import org.junit.Assert;
 import org.junit.Test;
 
+import com.google.common.collect.ImmutableSet;
+
 public class ProverStateMachineTest extends Assert {
 
     protected final ProverStateMachine sm = new ProverStateMachine();
@@ -168,6 +170,26 @@ public class ProverStateMachineTest extends Assert {
         assertTrue(sm.isTerminal(state));
         assertEquals(100, sm.getGoal(state, you));
         assertEquals(Collections.singletonList(100), sm.getGoals(state));
+    }
+
+    @Test
+    public void testCase5E() throws Exception {
+        List<Gdl> desc = new TestGameRepository().getGame("test_case_5e").getRules();
+        sm.initialize(desc);
+        MachineState state = sm.getInitialState();
+        Role robot = new Role(GdlPool.getConstant("robot"));
+        assertFalse(sm.isTerminal(state));
+        System.out.println(sm.getLegalMoves(state, robot));
+        assertEquals(7, sm.getLegalMoves(state, robot).size());
+        assertEquals(ImmutableSet.of(
+				move("reduce a 0"),
+				move("reduce a 1"),
+				move("reduce c 0"),
+				move("reduce c 1"),
+				move("reduce c 2"),
+				move("reduce c 3"),
+				move("reduce c 4")),
+				ImmutableSet.copyOf(sm.getLegalMoves(state, robot)));
     }
 
     @Test
