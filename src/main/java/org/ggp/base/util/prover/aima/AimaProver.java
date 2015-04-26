@@ -246,6 +246,10 @@ public final class AimaProver implements Prover
 							isConstant &= isConstantRet.value;
 						}
 					}
+					sentencesFromResults = Sets.newHashSet();
+					for (Substitution result : sentenceResults) {
+						sentencesFromResults.add(Substituter.substitute(sentence, result));
+					}
 				}
 				recursionHandler.calledRecursively.remove(varRenamedSentence);
 			}
