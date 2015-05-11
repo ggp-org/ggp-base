@@ -114,9 +114,11 @@ public final class TiltyardRequestFarm
             forPlayerName = theJSON.getString("forPlayerName");
             requestContent = theJSON.getString("requestContent");
             extraHeaders = new HashMap<String, String>();
-            JSONObject theExtraHeaders = theJSON.getJSONObject("extraHeaders");
-            for (String key : JSONObject.getNames(theExtraHeaders)) {
-            	extraHeaders.put(key, theExtraHeaders.get(key).toString());
+            if (theJSON.has("extraHeaders")) {
+	            JSONObject theExtraHeaders = theJSON.getJSONObject("extraHeaders");
+	            for (String key : JSONObject.getNames(theExtraHeaders)) {
+	            	extraHeaders.put(key, theExtraHeaders.get(key).toString());
+	            }
             }
             if (theJSON.has("fastReturn")) {
             	fastReturn = theJSON.getBoolean("fastReturn");
