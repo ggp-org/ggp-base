@@ -57,10 +57,10 @@ public final class HttpReader
 		    // a blank response (which will include the headers that the browser
 		    // is interested in) and throw an exception so the player ignores the
 		    // rest of this request.
-		    HttpWriter.writeAsServer(socket, "");
+		    HttpWriter.writeAsServer(socket, "", null);
 		    throw new IOException("Drop this message at the network layer.");
 		} else {
-		    HttpWriter.writeAsServer(socket, "");
+		    HttpWriter.writeAsServer(socket, "", null);
             throw new IOException("Unexpected request type: " + requestLine);
 		}
 

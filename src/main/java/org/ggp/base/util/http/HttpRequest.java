@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.util.Map;
 
 /**
  * HttpRequest is a helper class that encapsulates all of the code necessary
@@ -14,13 +15,17 @@ import java.net.Socket;
  */
 public final class HttpRequest
 {
-	public static String issueRequest(String targetHost, int targetPort, String forPlayerName, String requestContent, int timeoutClock) throws IOException {
+	public static String issueRequest(String targetHost, int targetPort, String forPlayerName, String requestContent, int timeoutClock, Map<String, String> extraHeaders) throws IOException {
 		Socket socket = new Socket();
     	InetAddress theHost = InetAddress.getByName(targetHost);
     	socket.connect(new InetSocketAddress(theHost.getHostAddress(), targetPort), 5000);
-    	HttpWriter.writeAsClient(socket, theHost.getHostName(), requestContent, forPlayerName);
+    	HttpWriter.writeAsClient(socket, theHost.getHostName(), requestContent, forPlayerName, extraHeaders);
     	String response = (timeoutClock < 0) ? HttpReader.readAsClient(socket) : HttpReader.readAsClient(socket, timeoutClock);
     	socket.close();
     	return response;
+	}
+
+	public static String issueRequest(String targetHost, int targetPort, String forPlayerName, String requestContent, int timeoutClock) throws IOException {
+		return issueRequest(targetHost, targetPort, forPlayerName, requestContent, timeoutClock);
 	}
 }

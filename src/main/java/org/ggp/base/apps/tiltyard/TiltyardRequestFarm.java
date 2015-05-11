@@ -103,6 +103,7 @@ public final class TiltyardRequestFarm
     	int targetPort, timeoutClock;
     	boolean fastReturn;
     	JSONObject myResponse;
+    	Map<String, String> extraHeaders;
 
     	public RunSingleRequestThread(JSONObject theJSON) throws JSONException {
     		myResponse = new JSONObject();
@@ -112,6 +113,11 @@ public final class TiltyardRequestFarm
             timeoutClock = theJSON.getInt("timeoutClock");
             forPlayerName = theJSON.getString("forPlayerName");
             requestContent = theJSON.getString("requestContent");
+            extraHeaders = new HashMap<String, String>();
+            JSONObject theExtraHeaders = theJSON.getJSONObject("extraHeaders");
+            for (String key : JSONObject.getNames(theExtraHeaders)) {
+            	extraHeaders.put(key, theExtraHeaders.get(key).toString());
+            }
             if (theJSON.has("fastReturn")) {
             	fastReturn = theJSON.getBoolean("fastReturn");
             } else {
@@ -128,7 +134,7 @@ public final class TiltyardRequestFarm
             long startTime = System.currentTimeMillis();
             try {
                 try {
-                	String response = HttpRequest.issueRequest(targetHost, targetPort, forPlayerName, requestContent, timeoutClock);
+                	String response = HttpRequest.issueRequest(targetHost, targetPort, forPlayerName, requestContent, timeoutClock, extraHeaders);
                 	response = response.replaceAll("\\P{InBasic_Latin}", "");
                 	myResponse.put("response", response);
                 	myResponse.put("responseType", "OK");
@@ -198,7 +204,7 @@ public final class TiltyardRequestFarm
                 response = "okay";
             }
 
-            HttpWriter.writeAsServer(connection, response);
+            HttpWriter.writeAsServer(connection, response, null);
             connection.close();
         }
 

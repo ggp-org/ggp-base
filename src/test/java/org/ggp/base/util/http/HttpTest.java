@@ -7,6 +7,8 @@ import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.URLEncoder;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.junit.Assert;
 import org.junit.Ignore;
@@ -25,6 +27,16 @@ public class HttpTest extends Assert {
         SocketPair testPair = new SocketPair();
         doSimpleEchoCheck(testPair, "Hello World", "SamplePlayer");
     }
+
+	@SuppressWarnings("serial")
+	@Test
+	public void testSimpleEchoWithHeaders() throws IOException {
+		SocketPair testPair = new SocketPair();
+		doSimpleEchoCheckPlusHeaders(testPair, "Hello World", "SamplePlayer",
+		    	new HashMap<String, String>() {{
+		    	    put("Foo", "Que"); put("Bar", "Quux"); put("Baz", "Quuu");
+		    	}});
+	}
 
 	@Test
     public void testPathologicalEchos() throws IOException {
@@ -69,7 +81,17 @@ public class HttpTest extends Assert {
     // Helper functions for running specific checks.
 
     private void doSimpleEchoCheck(SocketPair p, String data, String playerName) throws IOException {
-        HttpWriter.writeAsClient(p.client, "", data, playerName);
+        HttpWriter.writeAsClient(p.client, "", data, playerName, null);
+        String readData = HttpReader.readAsServer(p.server);
+        assertEquals(readData.toUpperCase(), data.toUpperCase());
+
+        HttpWriter.writeAsServer(p.server, data);
+        readData = HttpReader.readAsClient(p.client);
+        assertEquals(readData.toUpperCase(), data.toUpperCase());
+    }
+
+    private void doSimpleEchoCheckPlusHeaders(SocketPair p, String data, String playerName, Map<String, String> extraHeaders) throws IOException {
+        HttpWriter.writeAsClient(p.client, "", data, playerName, extraHeaders);
         String readData = HttpReader.readAsServer(p.server);
         assertEquals(readData.toUpperCase(), data.toUpperCase());
 
