@@ -53,7 +53,7 @@ public class SimpleGameSim {
             // keep them secure and hidden, and pass them to "setCryptographicKeys" in Match.
             // The match will then be signed using those keys. Do not use the sample keys if you
             // want to actually prove anything.
-            theMatch.setCryptographicKeys(new EncodedKeyPair(FileUtils.readFileAsString(new File("src/org/ggp/base/apps/utilities/SampleKeys.json"))));
+            theMatch.setCryptographicKeys(new EncodedKeyPair(FileUtils.readFileAsString(new File("src/main/resources/org/ggp/base/apps/utilities/SampleKeys.json"))));
         } catch (JSONException e) {
             System.err.println("Could not load sample cryptograhic keys: " + e);
         }

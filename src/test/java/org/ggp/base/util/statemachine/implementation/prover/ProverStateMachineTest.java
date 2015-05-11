@@ -16,6 +16,8 @@ import org.ggp.base.util.statemachine.Role;
 import org.junit.Assert;
 import org.junit.Test;
 
+import com.google.common.collect.ImmutableSet;
+
 public class ProverStateMachineTest extends Assert {
 
     protected final ProverStateMachine sm = new ProverStateMachine();
@@ -150,6 +152,55 @@ public class ProverStateMachineTest extends Assert {
         assertEquals(1, sm.getLegalMoves(state, you).size());
         assertEquals(move("proceed"), sm.getLegalMoves(state, you).get(0));
         state = sm.getNextState(state, Collections.singletonList(move("proceed")));
+        assertTrue(sm.isTerminal(state));
+        assertEquals(100, sm.getGoal(state, you));
+        assertEquals(Collections.singletonList(100), sm.getGoals(state));
+    }
+
+    @Test
+    public void testCase5D() throws Exception {
+        List<Gdl> desc = new TestGameRepository().getGame("test_case_5d").getRules();
+        sm.initialize(desc);
+        MachineState state = sm.getInitialState();
+        Role you = new Role(GdlPool.getConstant("you"));
+        assertFalse(sm.isTerminal(state));
+        assertEquals(1, sm.getLegalMoves(state, you).size());
+        assertEquals(move("proceed"), sm.getLegalMoves(state, you).get(0));
+        state = sm.getNextState(state, Collections.singletonList(move("proceed")));
+        assertTrue(sm.isTerminal(state));
+        assertEquals(100, sm.getGoal(state, you));
+        assertEquals(Collections.singletonList(100), sm.getGoals(state));
+    }
+
+    @Test
+    public void testCase5E() throws Exception {
+        List<Gdl> desc = new TestGameRepository().getGame("test_case_5e").getRules();
+        sm.initialize(desc);
+        MachineState state = sm.getInitialState();
+        Role robot = new Role(GdlPool.getConstant("robot"));
+        assertFalse(sm.isTerminal(state));
+        System.out.println(sm.getLegalMoves(state, robot));
+        assertEquals(7, sm.getLegalMoves(state, robot).size());
+        assertEquals(ImmutableSet.of(
+				move("reduce a 0"),
+				move("reduce a 1"),
+				move("reduce c 0"),
+				move("reduce c 1"),
+				move("reduce c 2"),
+				move("reduce c 3"),
+				move("reduce c 4")),
+				ImmutableSet.copyOf(sm.getLegalMoves(state, robot)));
+    }
+
+    @Test
+    public void testDistinctAtBeginningOfRule() throws Exception {
+        List<Gdl> desc = new TestGameRepository().getGame("test_distinct_beginning_rule").getRules();
+        sm.initialize(desc);
+        MachineState state = sm.getInitialState();
+        Role you = new Role(GdlPool.getConstant("you"));
+        assertFalse(sm.isTerminal(state));
+        assertEquals(2, sm.getLegalMoves(state, you).size());
+        state = sm.getNextState(state, Collections.singletonList(move("do a b")));
         assertTrue(sm.isTerminal(state));
         assertEquals(100, sm.getGoal(state, you));
         assertEquals(Collections.singletonList(100), sm.getGoals(state));

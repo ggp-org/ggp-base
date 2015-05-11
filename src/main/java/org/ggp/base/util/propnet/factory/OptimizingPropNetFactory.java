@@ -184,7 +184,9 @@ public class OptimizingPropNetFactory {
 				//Only add it if it's important
 				if(form.getName().equals(LEGAL)
 						|| form.getName().equals(GOAL)
-						|| form.getName().equals(INIT)) {
+						|| form.getName().equals(INIT)
+						|| form.getName().equals(NEXT)
+						|| form.getName().equals(TERMINAL)) {
 					//Add it
 					for (GdlSentence trueSentence : constantChecker.getTrueSentences(form)) {
 						Proposition trueProp = new Proposition(trueSentence);

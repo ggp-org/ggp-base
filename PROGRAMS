@@ -1,0 +1,54 @@
+This is a reference to the various programs that can be run out-of-the-box from
+GGP Base.
+
+The commands given are run using Gradle, which will automatically compile any
+necessary code before running.
+
+If using Windows, use gradlew.bat in place of gradlew in the commands below.
+
+Player application
+ - Main class: org.ggp.base.apps.player.Player
+ - How to run: ./gradlew player
+ - Description: A GUI for running general game players.
+
+Kiosk application
+ - Main class: org.ggp.base.apps.kiosk.Kiosk
+ - How to run: ./gradlew kiosk
+ - Description: A GUI for playing games against a general game player.
+
+Server application
+ - Main class: org.ggp.base.apps.server.Server
+ - How to run: ./gradlew server
+ - Description: A GUI for hosting matches among general game players.
+
+Command-line player runner
+ - Main class: org.ggp.base.apps.player.PlayerRunner
+ - How to run: ./playerRunner.sh <port> <gamer class simple name>
+ - Example: ./playerRunner.sh 9147 RandomGamer
+ - Description: Runs the given gamer on the given port.
+ - Note: A Windows script needs to be added for this.
+
+Command-line server runner
+ - Main class: org.ggp.base.apps.utilities.GameServerRunner
+ - How to run: ./gameServerRunner <results directory> <game key> <start clock> <play clock> <player host 1> <player port 1> <player name 1> <player host 2> <player port 2> <player name 2> etc.
+ - Example: ./gameServerRunner myTournament ticTacToe 60 15 127.0.0.1 9147 PlayerOne 127.0.0.1 9148 PlayerTwo
+ - Description: Runs a match with the given game and player(s). Stores the
+results in a directory with the given name.
+
+Clojure console
+ - Main class: org.ggp.base.apps.consoles.ClojureConsole
+ - How to run: ./gradlew -q clojureConsole
+ - Description: A console for interactively running Clojure code. Clojure is a
+   dialect of Lisp that runs in the JVM.
+
+Python console
+ - Main class: org.ggp.base.apps.consoles.PythonConsole
+ - How to run: ./gradlew pythonConsole
+ - Description: A console for interactively running Python code via Jython.
+   Jython is a Python implementation that runs in the JVM.
+
+Simple game simulation
+ - Main class: org.ggp.base.apps.utilities.SimpleGameSim
+ - How to run: ./gradlew simpleGameSim
+ - Description: Runs a play-through of a single match, to illustrate how the
+   game server code works. See the source code for details.

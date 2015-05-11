@@ -7,7 +7,6 @@ import java.util.Set;
 
 import org.ggp.base.util.gdl.GdlUtils;
 import org.ggp.base.util.gdl.grammar.Gdl;
-import org.ggp.base.util.gdl.grammar.GdlConstant;
 import org.ggp.base.util.gdl.grammar.GdlDistinct;
 import org.ggp.base.util.gdl.grammar.GdlLiteral;
 import org.ggp.base.util.gdl.grammar.GdlNot;
@@ -38,12 +37,11 @@ public class Relationizer {
 	 */
 	public static List<Gdl> run(List<Gdl> description) throws InterruptedException {
 		SentenceFormModel model = SentenceFormModelFactory.create(description);
-		GdlConstant NEXT = GdlPool.getConstant("next");
 
 		List<SentenceForm> nextFormsToReplace = new ArrayList<SentenceForm>();
 		//Find the update rules for each "true" statement
 		for(SentenceForm nextForm : model.getSentenceForms()) {
-			if(nextForm.getName().equals(NEXT)) {
+			if(nextForm.getName().equals(GdlPool.NEXT)) {
 				//See if there is exactly one update rule, and it is the persistence rule
 				Set<GdlRule> rules = model.getRules(nextForm);
 				if(rules.size() == 1) {
@@ -53,7 +51,7 @@ public class Relationizer {
 						GdlLiteral literal = rule.get(0);
 						if(literal instanceof GdlRelation) {
 							//Check that it really is the true form
-							SentenceForm trueForm = nextForm.withName(GdlPool.getConstant("true"));
+							SentenceForm trueForm = nextForm.withName(GdlPool.TRUE);
 							if(trueForm.matches((GdlRelation) literal)) {
 								GdlSentence head = rule.getHead();
 								GdlSentence body = (GdlSentence) literal;
@@ -77,33 +75,41 @@ public class Relationizer {
 
 		List<Gdl> newDescription = new ArrayList<Gdl>(description);
 		//Now, replace the next forms
-		for(SentenceForm nextForm : nextFormsToReplace) {
-			SentenceForm initForm = nextForm.withName(GdlPool.getConstant("init"));
-			SentenceForm trueForm = nextForm.withName(GdlPool.getConstant("true"));
+		for (SentenceForm nextForm : nextFormsToReplace) {
+			SentenceForm initForm = nextForm.withName(GdlPool.INIT);
+			SentenceForm trueForm = nextForm.withName(GdlPool.TRUE);
+			SentenceForm baseForm = nextForm.withName(GdlPool.BASE);
 
 			//Go through the rules and relations, making replacements as needed
-			for(int i = 0; i < newDescription.size(); i++) {
+			for (int i = 0; i < newDescription.size(); i++) {
 				Gdl gdl = newDescription.get(i);
-				if(gdl instanceof GdlRelation) {
+				if (gdl instanceof GdlRelation) {
 					//Replace initForm
 					GdlRelation relation = (GdlRelation) gdl;
-					if(initForm.matches(relation)) {
+					if (initForm.matches(relation)) {
 						GdlSentence newSentence = relation.get(0).toSentence();
 						newDescription.set(i, newSentence);
+					} else if (baseForm.matches(relation)) {
+						newDescription.remove(i);
+						i--;
 					}
-				} else if(gdl instanceof GdlRule) {
+				} else if (gdl instanceof GdlRule) {
 					GdlRule rule = (GdlRule) gdl;
 					//Remove persistence rule (i.e. rule with next form as head)
 					GdlSentence head = rule.getHead();
-					if(nextForm.matches(head)) {
+					if (nextForm.matches(head) || baseForm.matches(head)) {
 						newDescription.remove(i);
 						i--;
 					} else {
 						//Replace true in bodies of rules with relation-only form
 						List<GdlLiteral> body = rule.getBody();
 						List<GdlLiteral> newBody = replaceRelationInBody(body, trueForm);
-						if(!body.equals(newBody)) {
-							GdlRule newRule = GdlPool.getRule(head, newBody);
+						GdlSentence newHead = head;
+						if (initForm.matches(head)) {
+							newHead = head.get(0).toSentence();
+						}
+						if (!body.equals(newBody) || !head.equals(newHead)) {
+							GdlRule newRule = GdlPool.getRule(newHead, newBody);
 							newDescription.set(i, newRule);
 						}
 					}

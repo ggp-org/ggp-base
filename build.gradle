@@ -27,6 +27,14 @@ dependencies {
 }
 
 /*
+ * Source jars can be specified here so the sources for these libraries will
+ * appear in Eclipse.
+ */
+def sourceJars = [
+    'lib/Guava/guava-14.0.1.jar' : 'lib/Guava/guava-14.0.1-sources.jar'
+];
+
+/*
  * Unfortunately, the local-jar approach causes problems when generating a
  * .classpath file for Eclipse. This will generate dependency entries that use
  * absolute, rather than relative paths, and so can't be committed. To make sure
@@ -48,6 +56,13 @@ eclipse {
                             def startIndex = absolutePath.indexOf('/lib/') + 1
                             def relativePath = absolutePath.substring(startIndex)
                             classpathEntry.attributes().put('path', relativePath)
+                        }
+
+			//Add source jars to .classpath
+                        def path = classpathEntry.attribute('path')
+                        if (sourceJars.containsKey(path)) {
+                            def sourceJarPath = sourceJars.get(path)
+                            classpathEntry.attributes().put('sourcepath', sourceJarPath)
                         }
                     }
                 }
@@ -121,7 +136,6 @@ task server(type: JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
 }
 
-//This currently fails with an exception
 task simpleGameSim(type: JavaExec) {
     main = 'org.ggp.base.apps.utilities.SimpleGameSim'
     classpath = sourceSets.main.runtimeClasspath
@@ -141,6 +155,15 @@ task player(type: JavaExec) {
 task propNetAnnotater(type: JavaExec) {
     main = 'org.ggp.base.util.propnet.factory.annotater.PropNetAnnotater'
     classpath = sourceSets.main.runtimeClasspath
+}
+
+//See gameServerRunner.sh
+task gameServerRunner(type: JavaExec) {
+    main = 'org.ggp.base.apps.utilities.GameServerRunner'
+    classpath = sourceSets.main.runtimeClasspath
+    doFirst {
+        args = myargs.split().toList()
+    }
 }
 
 // This was used to generate the Gradle wrapper.
