@@ -267,7 +267,7 @@ public final class Server extends JPanel implements ActionListener
 					Game testGame = GameRepository.getDefaultRepository().getGame("maze");
 					String playerName = playerSelectorList.getSelectedValue().toString();
 					List<PlayerPresence> thePlayers = Arrays.asList(new PlayerPresence[]{playerSelector.getPlayerPresence(playerName)});
-					scheduler.addPendingMatch(new PendingMatch("Test", testGame, thePlayers, -1, 10, 5, false, false, true, false, false));
+					scheduler.addPendingMatch(new PendingMatch("Test", testGame, thePlayers, -1, 10, 5, shouldScramble.isSelected(), false, shouldDetail.isSelected(), false, false));
 				}
 			}
 		};
