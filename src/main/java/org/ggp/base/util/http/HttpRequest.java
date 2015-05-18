@@ -26,6 +26,6 @@ public final class HttpRequest
 	}
 
 	public static String issueRequest(String targetHost, int targetPort, String forPlayerName, String requestContent, int timeoutClock) throws IOException {
-		return issueRequest(targetHost, targetPort, forPlayerName, requestContent, timeoutClock);
+		return issueRequest(targetHost, targetPort, forPlayerName, requestContent, timeoutClock, null);
 	}
 }
