@@ -94,7 +94,7 @@
     </target>
     <target name="PlayerRunner">
         <java classname="org.ggp.base.apps.player.PlayerRunner" failonerror="true" fork="yes">
-            <jvmarg line="-mx1500m -server -XX:-DontCompileHugeMethods -XX:MinHeapFreeRatio=10 -XX:MaxHeapFreeRatio=10"/>
+            <jvmarg line="-Xmx1500m -server -XX:-DontCompileHugeMethods -XX:MinHeapFreeRatio=10 -XX:MaxHeapFreeRatio=10"/>
             <arg value="${arg0}"/>
             <arg value="${arg1}"/>
             <classpath refid="GGP_Base.classpath"/>
@@ -102,7 +102,7 @@
     </target>
     <target name="Kiosk">
         <java classname="org.ggp.base.apps.kiosk.Kiosk" failonerror="true" fork="yes">
-            <jvmarg line="-mx1500m -server -XX:-DontCompileHugeMethods -XX:MinHeapFreeRatio=10 -XX:MaxHeapFreeRatio=10"/>
+            <jvmarg line="-Xmx1500m -server -XX:-DontCompileHugeMethods -XX:MinHeapFreeRatio=10 -XX:MaxHeapFreeRatio=10"/>
             <classpath refid="GGP_Base.classpath"/>
         </java>
     </target>

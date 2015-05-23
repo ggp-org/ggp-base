@@ -107,7 +107,9 @@ task clojureGamer(type: JavaExec) {
 }
 */
 
-def playerJvmArgs = ['-mx1500m',
+//You can tweak these JVM arguments for players run through Gradle.
+def playerJvmArgs = [
+        '-Xmx1500m', //Gives players a max heap size of 1500 MB
         '-server',
         '-XX:-DontCompileHugeMethods',
         '-XX:MinHeapFreeRatio=10',
