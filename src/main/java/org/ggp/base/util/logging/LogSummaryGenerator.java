@@ -14,7 +14,9 @@ public abstract class LogSummaryGenerator {
             }
         };
         String[] theMatchingMatches = logsDirectory.list(logsFilter);
-        if (theMatchingMatches.length > 1) {
+        if (theMatchingMatches == null) {
+        	System.err.println("Log summary retrieval for " + matchId + " yielded an error.");
+        } else if (theMatchingMatches.length > 1) {
             System.err.println("Log summary retrieval for " + matchId + " matched multiple matches.");
         } else if (theMatchingMatches.length == 0) {
             System.err.println("Log summary retrieval for " + matchId + " matched zero matches.");
