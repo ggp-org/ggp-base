@@ -4,6 +4,10 @@ apply plugin: 'eclipse'
 // We compile using Java 7.
 sourceCompatibility = 1.7
 
+repositories {
+    mavenCentral()
+}
+
 /*
  * For now, instead of using an online library repository (e.g. Maven), we keep
  * local versions of .jars to reduce the number of things that can go wrong
