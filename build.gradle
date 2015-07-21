@@ -10,7 +10,10 @@ sourceCompatibility = 1.7
  * during setup.
  */
 dependencies {
+    compile group: 'org.mongodb', name: 'mongodb-driver', version: '3.0.0'
     compile files(
+        'lib/commons-io-2.4/commons-io-2.4.jar',
+        'lib/zip4j/zip4j_1.3.2.jar',
         'lib/Guava/guava-14.0.1.jar',
         'lib/Jython/jython.jar',
         'lib/Clojure/clojure.jar',
@@ -156,6 +159,21 @@ task player(type: JavaExec) {
 
 task propNetAnnotater(type: JavaExec) {
     main = 'org.ggp.base.util.propnet.factory.annotater.PropNetAnnotater'
+    classpath = sourceSets.main.runtimeClasspath
+}
+
+task mongoConnector(type: JavaExec) {
+    main = 'org.ggp.base.tournament.MongoConnector'
+    classpath = sourceSets.main.runtimeClasspath
+}
+
+task submission(type: JavaExec) {
+    main = 'org.ggp.base.tournament.Submission'
+    classpath = sourceSets.main.runtimeClasspath
+}
+
+task mongotest(type: JavaExec) {
+    main = 'org.ggp.base.tournament.MongoTest'
     classpath = sourceSets.main.runtimeClasspath
 }
 
