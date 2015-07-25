@@ -102,17 +102,6 @@ public class GameStateRenderer {
     }
 
     private static String getXHTMLfromGameXML(String gameXML, String XSL) {
-        final String rootPrefix = "<!DOCTYPE stylesheet [<!ENTITY ROOT \"";
-        final String rootSuffix = "\">]>";
-        int rootIndex = XSL.indexOf(rootPrefix);
-        if (rootIndex != -1) {
-        	rootIndex += rootPrefix.length();
-        	int rootEndIndex = XSL.indexOf(rootSuffix, rootIndex);
-        	String root = XSL.substring(rootIndex, rootEndIndex);
-        	XSL = XSL.replace(rootPrefix + root + rootSuffix, "");
-        	XSL = XSL.replace("&ROOT;", root).trim();
-        }
-
         IOString game = new IOString(gameXML);
         IOString xslIOString = new IOString(XSL);
         IOString content = new IOString("");
