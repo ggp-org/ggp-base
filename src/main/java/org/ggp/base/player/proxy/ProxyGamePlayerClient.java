@@ -75,7 +75,7 @@ public final class ProxyGamePlayerClient extends Thread implements Subject, Obse
         }
 
         try {
-            gamer = (Gamer)(gamers.get(idx).newInstance());
+            gamer = gamers.get(idx).newInstance();
         } catch(Exception ex) {
             GamerLogger.logError("Proxy", "Cannot create instance of " + args[0]);
             return;

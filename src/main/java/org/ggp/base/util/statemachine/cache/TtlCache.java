@@ -30,7 +30,7 @@ public final class TtlCache<K, V> implements Map<K,V>
 	private final class Entry
 	{
 		public int ttl;
-		public V value;
+		public final V value;
 
 		public Entry(V value, int ttl)
 		{
@@ -45,6 +45,11 @@ public final class TtlCache<K, V> implements Map<K,V>
 		        return ((Entry)o).value.equals(value);
 		    }
 		    return false;
+		}
+
+		@Override
+		public int hashCode() {
+			return value.hashCode();
 		}
 	}
 

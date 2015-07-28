@@ -33,6 +33,6 @@ public final class WeightedAverage implements Comparable<WeightedAverage>
 
 	@Override
 	public int compareTo(WeightedAverage arg0) {
-		return (int)Math.signum(getValue() - ((WeightedAverage)arg0).getValue());
+		return (int)Math.signum(getValue() - arg0.getValue());
 	}
 }

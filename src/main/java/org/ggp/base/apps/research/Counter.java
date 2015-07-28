@@ -24,6 +24,6 @@ public final class Counter implements Comparable<Counter>
 
 	@Override
 	public int compareTo(Counter arg0) {
-		return (int)Math.signum(getValue() - ((Counter)arg0).getValue());
+		return (int)Math.signum(getValue() - arg0.getValue());
 	}
 }
