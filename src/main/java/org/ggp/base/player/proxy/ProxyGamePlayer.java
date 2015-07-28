@@ -94,7 +94,7 @@ public final class ProxyGamePlayer extends Thread implements Subject
 	        String command = GamerConfiguration.getCommandForJava();
 	        List<String> processArgs = new ArrayList<String>();
 	        processArgs.add(command);
-	        processArgs.add("-mx" + GamerConfiguration.getMemoryForGamer() + "m");
+	        processArgs.add("-Xmx" + GamerConfiguration.getMemoryForGamer() + "m");
 	        processArgs.add("-server");
 	        processArgs.add("-XX:-DontCompileHugeMethods");
 	        processArgs.add("-XX:MinHeapFreeRatio=10");
