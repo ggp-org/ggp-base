@@ -38,6 +38,9 @@ import java.net.URL;
 import java.net.URLClassLoader;
 
 import java.io.IOException;
+import java.lang.IllegalStateException;
+import java.lang.RuntimeException;
+
 
 /*
 *   Some printlns to be removed
@@ -47,62 +50,52 @@ class Submission  {
     static final String uploadDir = home + "/.ggp-server/uploads/";
     static final String compileDir = home + "/.ggp-server/compiled/";
 
-    public static void unzip(String fileName) {
+    public static void unzip(String fileName) throws ZipException, IOException {
         String base = fileName.split("\\.(?=[^\\.]+$)")[0];
         String destination = compileDir + base;
         String password = "password";
         String source = uploadDir + fileName;
+        ZipFile zipFile = new ZipFile(source);
 
-        try {
-            ZipFile zipFile = new ZipFile(source);
-            if (zipFile.isEncrypted()) {
-                zipFile.setPassword(password);
-            }
-            File uncompressed = new File(destination);
-            uncompressed.mkdirs();
-            zipFile.extractAll(destination);
+        if (zipFile.isEncrypted())
+            zipFile.setPassword(password);
+        
+        File uncompressed = new File(destination);
+        uncompressed.mkdirs();
+        zipFile.extractAll(destination);
 
-            // delete __MACOSX folder
-            File[] thingsInDir = uncompressed.listFiles();
-            for (File f : thingsInDir) {
-                if (f.isDirectory() && f.getName().equals("__MACOSX")) {
-                    FileUtils.deleteDirectory(f);
-                }
+        // delete __MACOSX folder
+        File[] thingsInDir = uncompressed.listFiles();
+        for (File f : thingsInDir) {
+            if (f.isDirectory() && f.getName().equals("__MACOSX")) {
+                FileUtils.deleteDirectory(f);
             }
-        } catch (ZipException zipe) {
-            zipe.printStackTrace();
-        } catch (Exception e) {
-            e.printStackTrace();
         }
     }
 
-    public static void compile(String playerPackage) {
-        try {
-            JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-            StandardJavaFileManager fileManager = compiler.getStandardFileManager(null, null, null);
+    public static void compile(String playerPackage) throws RuntimeException, IOException {
+        JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+        StandardJavaFileManager fileManager = compiler.getStandardFileManager(null, null, null);
 
-            String[] extensions = {"java"};
-            Collection<File> allJavaFiles = FileUtils.listFiles(new File(playerPackage), extensions, true);
-            Iterable<? extends JavaFileObject> compilationUnits2 =
-               fileManager.getJavaFileObjects(allJavaFiles.toArray( new File[allJavaFiles.size()]) ); // use alternative method
+        String[] extensions = {"java"};
+        Collection<File> allJavaFiles = FileUtils.listFiles(new File(playerPackage), extensions, true);
+        Iterable<? extends JavaFileObject> compilationUnits2 =
+           fileManager.getJavaFileObjects(allJavaFiles.toArray( new File[allJavaFiles.size()]) ); // use alternative method
 
-            // reuse the same file manager to allow caching of jar files
-            compiler.getTask(null, fileManager, null, null, null, compilationUnits2).call();
-
-            fileManager.close();
-        } catch(IOException ioe) {
-            ioe.printStackTrace();
-        }
+        // reuse the same file manager to allow caching of jar files
+        compiler.getTask(null, fileManager, null, null, null, compilationUnits2).call();
+        fileManager.close();
     }
 
-    public static String compilePlayer(String compressedFileName) {
+    public static String compilePlayer(String pathToZip) throws Exception {
         // compile unzipped files, Need only one root package
-        String base = compressedFileName.split("\\.(?=[^\\.]+$)")[0];
+        String base = pathToZip.split("\\.(?=[^\\.]+$)")[0];
         String playerDir = compileDir + base;
         int numdir = 0;
         String packageName = "";
         File[] thingsInDir = new File(playerDir).listFiles();
         
+        // Prevent multiple packages in a zip file.
         for (File f : thingsInDir) {
             if (f.isDirectory()) {
                 numdir++;
@@ -149,7 +142,7 @@ class Submission  {
 
     public static void updatePlayer(MongoCollection<Document> players, 
                                         MongoCollection<Document> tournaments,
-                                        String compressedFileName, 
+                                        String pathToZip, 
                                         String pathToClasses) {
         // Player status: 'Compiled', 'no Gamer class', 'Compile failed'
         try {
@@ -176,7 +169,7 @@ class Submission  {
                     System.out.println( f.getName() + " is a player!!");
                     
                     // Set status to 'compiled'
-                    players.updateOne(eq("compressedFileName", compressedFileName),
+                    players.updateOne(eq("pathToZip", pathToZip),
                             new Document("$set", new Document("status", "compiled")
                                                     .append("name", playerName)
                                                     .append("pathToClasses", pathToClasses)));
@@ -186,7 +179,7 @@ class Submission  {
                     Document playerToAdd = 
                         players.find(
                             and(
-                                eq("compressedFileName", compressedFileName),
+                                eq("pathToZip", pathToZip),
                                 exists("latestTourName")
                                 )).sort(descending("createdAt")).first();
                     
@@ -222,37 +215,32 @@ class Submission  {
             // Gamer gamer = (Gamer) chosenGamerClass.newInstance();
             // new GamePlayer(port, gamer).start();
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
         MongoClient mongoClient = new MongoClient( "localhost" , 3001 );
         MongoDatabase database = mongoClient.getDatabase("meteor");
         MongoCollection<Document> players = database.getCollection("players");
         MongoCollection<Document> tournaments = database.getCollection("tournaments");
 
-        try {
-            while (true) {
-                for (Document thePlayer : 
-                    players.find(eq("status", "not compiled")).sort(descending("createdAt"))) {
-                               
-                    String compressedFileName = thePlayer.get("compressedFileName").toString();
-                    // System.out.println("--- unzip and compile ---");
-                    // System.out.println(compressedFileName);
-                    unzip(compressedFileName);
-
-                    String pathToClasses = compilePlayer(compressedFileName);
-                    if (pathToClasses != null) {
-                        updatePlayer(players, tournaments, compressedFileName, pathToClasses);
-                    }
+        while (true) {
+            for (Document thePlayer : players.find(eq("status", "uploaded")).sort(descending("createdAt"))) {
+                String pathToZip = thePlayer.get("pathToZip").toString();
+                try {
+                    unzip(pathToZip);
+                    String pathToClasses = compilePlayer(pathToZip);
+                    players.updateOne(eq("pathToZip", pathToZip), 
+                        new Document("$set", new Document("pathToClasses", pathToClasses).append("status", "compiled")));
+                } 
+                catch(Exception e) {
+                    System.out.println("--------- Failed to unzip and compile a player ---------");
+                    e.printStackTrace();
+                    continue;
                 }
-
-                Thread.sleep(5 * 1000);
-                System.out.println("--- 20 seconds passed ---");
             }
-        } catch (InterruptedException interruptE) {
-            interruptE.printStackTrace();
-        } catch (Exception e) {
-            e.printStackTrace();
+
+            Thread.sleep(5 * 1000);
+            System.out.println("--- 20 seconds passed ---");
         }
-        
-        // runPlayer(playerDir);
+
+        // System.out.println("--- Exit Program! ---");
     }
 }

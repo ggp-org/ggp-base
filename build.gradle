@@ -181,6 +181,11 @@ task mongotest(type: JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
 }
 
+task matchmaking(type: JavaExec) {
+    main = 'org.ggp.base.tournament.MatchMaking'
+    classpath = sourceSets.main.runtimeClasspath
+}
+
 //See gameServerRunner.sh
 task gameServerRunner(type: JavaExec) {
     main = 'org.ggp.base.apps.utilities.GameServerRunner'

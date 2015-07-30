@@ -59,16 +59,33 @@ class MongoTest {
     }
 
     public static void main(String[] args) {
-        // MongoClient mongoClient = new MongoClient( "localhost" , 3001 );
-        // MongoDatabase database = mongoClient.getDatabase("meteor");
+        MongoClient mongoClient = new MongoClient( "localhost" , 3001 );
+        MongoClient anotherMongoClient = new MongoClient( "localhost" , 3001 );
         
-        Document doc = new Document("name", "MongoDB")
-               .append("type", "database")
-               .append("count", 1)
-               .append("info", new Document("x", 203).append("y", 102))
-               .append("myArray", Arrays.asList(new Document("x", 203).append("y", 102),
-                                                new Document("x", 33).append("y", 222)));
-        System.out.println("=================>  " + doc.toJson());
-        // mongoClient.close();
+        MongoDatabase database = mongoClient.getDatabase("meteor");
+        MongoDatabase anotherDatabase = anotherMongoClient.getDatabase("meteor");
+
+        // Document doc = new Document("name", "MongoDB")
+        //        .append("type", "database")
+        //        .append("count", 1)
+        //        .append("info", new Document("x", 203).append("y", 102))
+        //        .append("myArray", Arrays.asList(new Document("x", 203).append("y", 102),
+        //                                         new Document("x", 33).append("y", 222)));
+        // System.out.println("=================>  " + doc.toJson());
+
+        MongoCollection<Document> tournaments = database.getCollection("tournaments");
+        Document tournament = tournaments.find(eq("name", "Money")).first();
+        
+        MongoCollection<Document> anotherTournaments = anotherDatabase.getCollection("tournaments");
+        Document anotherTournament = tournaments.find(eq("name", "Money")).first();
+        
+        System.out.println("Before Update: Money = " 
+            + tournament.get("game") + ", " + tournament.get("status"));
+
+        tournaments.updateOne(eq("name", "Money"), 
+            new Document("$set", new Document("game", "Doo").append("status", "See")));
+
+        System.out.println("After Update: Money = " + anotherTournament.get("game") + ", " + anotherTournament.get("status"));
+        mongoClient.close();
     }
 }
