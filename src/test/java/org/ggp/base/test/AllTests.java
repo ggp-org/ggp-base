@@ -5,7 +5,6 @@ import org.ggp.base.apps.tiltyard.TiltyardRequestFarmTest;
 import org.ggp.base.player.gamer.clojure.ClojureGamerTest;
 import org.ggp.base.player.gamer.python.PythonGamerTest;
 import org.ggp.base.util.crypto.BaseCryptographyTest;
-import org.ggp.base.util.crypto.BaseHashing;
 import org.ggp.base.util.crypto.BaseHashingTest;
 import org.ggp.base.util.crypto.CanonicalJSONTest;
 import org.ggp.base.util.crypto.SignableJSONTest;
