@@ -114,89 +114,89 @@ class Submission  {
     }
 
     // Add the latest compiled player to the tournament.
-    public static void updateTournament(MongoCollection<Document> tournaments, 
-                                        String latestTourName,
-                                        String playerName) {
-        // Check if the player is already added to the tournament
-        Document isPlayerAdded = 
-            tournaments.find(
-                and( 
-                    eq("name", latestTourName),
-                    elemMatch("players", eq("name", playerName))
-                    )).first();
+    // public static void updateTournament(MongoCollection<Document> tournaments, 
+    //                                     String latestTourName,
+    //                                     String playerName) {
+    //     // Check if the player is already added to the tournament
+    //     Document isPlayerAdded = 
+    //         tournaments.find(
+    //             and( 
+    //                 eq("name", latestTourName),
+    //                 elemMatch("players", eq("name", playerName))
+    //                 )).first();
 
-        if (isPlayerAdded != null) {
-            System.out.println("This player is already in the tournament!");
-        } else {
-            System.out.println("Ready to add new player");
-            System.out.println("tournament name = " + latestTourName);
-            System.out.println("Player to add = " + playerName);
+    //     if (isPlayerAdded != null) {
+    //         System.out.println("This player is already in the tournament!");
+    //     } else {
+    //         System.out.println("Ready to add new player");
+    //         System.out.println("tournament name = " + latestTourName);
+    //         System.out.println("Player to add = " + playerName);
             
-            // Add new player to the tournament(An array of players).
-            Document newPlayer = new Document("name", playerName);
-            tournaments.updateOne(
-                eq("name", latestTourName), 
-                new Document("$push", new Document("players", newPlayer)));
-        }
-    }
+    //         // Add new player to the tournament(An array of players).
+    //         Document newPlayer = new Document("name", playerName);
+    //         tournaments.updateOne(
+    //             eq("name", latestTourName), 
+    //             new Document("$push", new Document("players", newPlayer)));
+    //     }
+    // }
 
-    public static void updatePlayer(MongoCollection<Document> players, 
-                                        MongoCollection<Document> tournaments,
-                                        String pathToZip, 
-                                        String pathToClasses) {
-        // Player status: 'Compiled', 'no Gamer class', 'Compile failed'
-        try {
+    // public static void updatePlayer(MongoCollection<Document> players, 
+    //                                     MongoCollection<Document> tournaments,
+    //                                     String pathToZip, 
+    //                                     String pathToClasses) {
+    //     // Player status: 'Compiled', 'no Gamer class', 'Compile failed'
+    //     try {
             
-            URL url = new File(pathToClasses).toURL();
-            URL[] urls = new URL[]{url};
-            ClassLoader cl = new URLClassLoader(urls);
-            String[] extensions = {"class"};
-            String packageName = new File(pathToClasses).listFiles()[0].getName();
-            String pathToPackage = pathToClasses + "/" + packageName;
-            Collection<File> allClassFiles = 
-                FileUtils.listFiles(new File(pathToPackage), extensions, false);
+    //         URL url = new File(pathToClasses).toURL();
+    //         URL[] urls = new URL[]{url};
+    //         ClassLoader cl = new URLClassLoader(urls);
+    //         String[] extensions = {"class"};
+    //         String packageName = new File(pathToClasses).listFiles()[0].getName();
+    //         String pathToPackage = pathToClasses + "/" + packageName;
+    //         Collection<File> allClassFiles = 
+    //             FileUtils.listFiles(new File(pathToPackage), extensions, false);
             
-            // Loop through all class files to find Gamer class.
-            for (Iterator<File> it = allClassFiles.iterator(); it.hasNext();) {
-                File f = it.next();
-                System.out.println("File name = " + f.getName());
-                String playerName = f.getName().split("\\.(?=[^\\.]+$)")[0];
-                String playerPackage = packageName + "." + playerName;
-                Class aClass = cl.loadClass(playerPackage);
+    //         // Loop through all class files to find Gamer class.
+    //         for (Iterator<File> it = allClassFiles.iterator(); it.hasNext();) {
+    //             File f = it.next();
+    //             System.out.println("File name = " + f.getName());
+    //             String playerName = f.getName().split("\\.(?=[^\\.]+$)")[0];
+    //             String playerPackage = packageName + "." + playerName;
+    //             Class aClass = cl.loadClass(playerPackage);
                 
-                // found one and update player name, status and path to classes.
-                if (Gamer.class.isAssignableFrom(aClass)) {
-                    System.out.println( f.getName() + " is a player!!");
+    //             // found one and update player name, status and path to classes.
+    //             if (Gamer.class.isAssignableFrom(aClass)) {
+    //                 System.out.println( f.getName() + " is a player!!");
                     
-                    // Set status to 'compiled'
-                    players.updateOne(eq("pathToZip", pathToZip),
-                            new Document("$set", new Document("status", "compiled")
-                                                    .append("name", playerName)
-                                                    .append("pathToClasses", pathToClasses)));
+    //                 // Set status to 'compiled'
+    //                 players.updateOne(eq("pathToZip", pathToZip),
+    //                         new Document("$set", new Document("status", "compiled")
+    //                                                 .append("name", playerName)
+    //                                                 .append("pathToClasses", pathToClasses)));
 
-                    // Get compiled player and make sure it has field 'latestTourName'.
-                    // * Need to check this field because there was no "lastestTourName" ealier.
-                    Document playerToAdd = 
-                        players.find(
-                            and(
-                                eq("pathToZip", pathToZip),
-                                exists("latestTourName")
-                                )).sort(descending("createdAt")).first();
+    //                 // Get compiled player and make sure it has field 'latestTourName'.
+    //                 // * Need to check this field because there was no "lastestTourName" ealier.
+    //                 Document playerToAdd = 
+    //                     players.find(
+    //                         and(
+    //                             eq("pathToZip", pathToZip),
+    //                             exists("latestTourName")
+    //                             )).sort(descending("createdAt")).first();
                     
-                    if (playerToAdd != null) {
-                        updateTournament(tournaments, 
-                                        playerToAdd.get("latestTourName").toString(), 
-                                        playerName);
-                    }
+    //                 if (playerToAdd != null) {
+    //                     updateTournament(tournaments, 
+    //                                     playerToAdd.get("latestTourName").toString(), 
+    //                                     playerName);
+    //                 }
 
-                    return;
-                }
-            }
+    //                 return;
+    //             }
+    //         }
 
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
+    //     } catch (Exception e) {
+    //         e.printStackTrace();
+    //     }
+    // }
 
             // URL url = new File(playerDir).toURL();
             // URL[] urls = new URL[]{url};
