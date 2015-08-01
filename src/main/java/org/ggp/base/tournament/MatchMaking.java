@@ -83,8 +83,8 @@ class MatchMaking {
             System.out.println("user = " + aUser);
         }
 
-        String tour = tour.get("name").toString();
-        List<String> users = latestRanksInTournament(database, tour);
+        String tourName = tour.get("name").toString();
+        List<String> users = latestRanksInTournament(database, tourName);
          // = matchMaking(tour, users)
         // while (true) {
             // get users

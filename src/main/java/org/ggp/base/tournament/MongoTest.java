@@ -8,7 +8,21 @@ import static com.mongodb.client.model.Sorts.descending;
 import static com.mongodb.client.model.Sorts.ascending;
 import static com.mongodb.client.model.Filters.*;
 import org.bson.Document;
+
 import java.util.Arrays;
+
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
+
+import org.apache.commons.io.FileUtils;
+import java.io.File;
+import java.nio.file.Files;
+import java.util.Collection;
+import java.util.Iterator;
+
+import org.ggp.base.player.GamePlayer;
+import org.ggp.base.player.gamer.Gamer;
 
 class MongoTest {
 
@@ -73,19 +87,64 @@ class MongoTest {
         //                                         new Document("x", 33).append("y", 222)));
         // System.out.println("=================>  " + doc.toJson());
 
-        MongoCollection<Document> tournaments = database.getCollection("tournaments");
-        Document tournament = tournaments.find(eq("name", "Money")).first();
+        // MongoCollection<Document> tournaments = database.getCollection("tournaments");
+        // Document tournament = tournaments.find(eq("name", "Money")).first();
         
-        MongoCollection<Document> anotherTournaments = anotherDatabase.getCollection("tournaments");
-        Document anotherTournament = tournaments.find(eq("name", "Money")).first();
+        // MongoCollection<Document> anotherTournaments = anotherDatabase.getCollection("tournaments");
+        // Document anotherTournament = tournaments.find(eq("name", "Money")).first();
         
-        System.out.println("Before Update: Money = " 
-            + tournament.get("game") + ", " + tournament.get("status"));
+        // System.out.println("Before Update: Money = " 
+        //     + tournament.get("game") + ", " + tournament.get("status"));
 
-        tournaments.updateOne(eq("name", "Money"), 
-            new Document("$set", new Document("game", "Doo").append("status", "See")));
+        // tournaments.updateOne(eq("name", "Money"), 
+        //     new Document("$set", new Document("game", "Doo").append("status", "See")));
 
-        System.out.println("After Update: Money = " + anotherTournament.get("game") + ", " + anotherTournament.get("status"));
+        // System.out.println("After Update: Money = " + anotherTournament.get("game") + ", " + anotherTournament.get("status"));
+
+
+        MongoCollection<Document> players = database.getCollection("players");
+        Document aPlayer = players.find(eq("status", "compiled")).first();
+        String pathToClasses = aPlayer.get("pathToClasses").toString();
+
+        try {
+            
+            URL url = new File(pathToClasses).toURL();
+            URL[] urls = new URL[]{url};
+            ClassLoader cl = new URLClassLoader(urls);
+            String[] extensions = {"class"};
+            String packageName = new File(pathToClasses).listFiles()[0].getName();
+            String pathToPackage = pathToClasses + "/" + packageName;
+            Collection<File> allClassFiles = 
+                FileUtils.listFiles(new File(pathToPackage), extensions, false);
+            
+            // Loop through all class files to find Gamer class.
+            for (Iterator<File> it = allClassFiles.iterator(); it.hasNext();) {
+                File f = it.next();
+                System.out.println("File name = " + f.getName());
+                String playerName = f.getName().split("\\.(?=[^\\.]+$)")[0];
+                String playerPackage = packageName + "." + playerName;
+                Class aClass = cl.loadClass(playerPackage);
+                
+                System.out.println("...........detecting gamer");
+                // found one and update player name, status and path to classes.
+                if (Gamer.class.isAssignableFrom(aClass)) {
+                    System.out.println( f.getName() 
+                        + " is a player!!, and it is " + aClass.getSimpleName());
+                    Gamer gamer = (Gamer) aClass.newInstance();
+                    int port = 9147;
+                    GamePlayer aGamePlayer = new GamePlayer(port, gamer);
+                    aGamePlayer.start();
+                    // aGamePlayer.shutdown();
+                    return;
+                }
+            }
+
+            
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         mongoClient.close();
     }
 }

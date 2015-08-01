@@ -238,7 +238,7 @@ class Submission  {
             }
 
             Thread.sleep(5 * 1000);
-            System.out.println("--- 20 seconds passed ---");
+            System.out.println("--- 5 seconds passed ---");
         }
 
         // System.out.println("--- Exit Program! ---");
