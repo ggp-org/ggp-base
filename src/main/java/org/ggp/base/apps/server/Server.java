@@ -244,10 +244,38 @@ public final class Server extends JPanel implements ActionListener
                 	thePlayers.add(playerSelector.getPlayerPresence(name));
 				}
 
+				StateMachine stateMachine = new ProverStateMachine();
+				stateMachine.initialize(theGame.getRules());
+				List<Role> roles = stateMachine.getRoles();
+				int randomPlayerIndex = -1;
+				PlayerPresence randomPlayer = null;
+				for (int i = 0; i < roles.size(); i++) {
+					if (roles.get(i).getName().toString().toLowerCase().equals("random")) {
+						randomPlayerIndex = i;
+						randomPlayer = thePlayers.get(i);
+						break;
+					}
+				}
+
 				synchronized (scheduler) {
 					for (int i = 0; i < (Integer)repetitionsSpinner.getValue(); i++) {
-						scheduler.addPendingMatch(new PendingMatch("Base", theGame, new ArrayList<PlayerPresence>(thePlayers), -1, startClock, playClock, shouldScramble.isSelected(), shouldQueue.isSelected(), shouldDetail.isSelected(), shouldSave.isSelected(), shouldPublish.isSelected()));
-						thePlayers.add(thePlayers.remove(0));  // rotate player roster for repeated matches
+						scheduler.addPendingMatch(
+								new PendingMatch("Base", theGame, new ArrayList<PlayerPresence>(thePlayers), -1,
+												 startClock, playClock, shouldScramble.isSelected(),
+												 shouldQueue.isSelected(), shouldDetail.isSelected(),
+												 shouldSave.isSelected(), shouldPublish.isSelected()));
+
+						if (randomPlayerIndex == -1) {
+							// there is no random player
+							thePlayers.add(thePlayers.remove(0));  // rotate player roster for repeated matches
+						}
+						else {
+							// there is a player assigned to the 'random' role so don't rotate that player when you rotate the other players for repeated matches
+							thePlayers.remove(randomPlayerIndex);
+							thePlayers.add(thePlayers.remove(0));  // rotate non-random player roster for repeated matches
+							thePlayers.add(randomPlayerIndex, randomPlayer);	// put the random player back in
+						}
+
 						try {
 							Thread.sleep(10);
 						} catch (InterruptedException ie) {
