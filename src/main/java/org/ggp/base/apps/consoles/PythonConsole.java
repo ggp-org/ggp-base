@@ -11,7 +11,7 @@ import org.python.util.PythonInterpreter;
  *
  * For example, try out:
  *
- * >> display_random_walk(load_game('ticTacToe'))
+ * {@code >> display_random_walk(load_game('ticTacToe'))}
  *
  * This will load the game Tic-Tac-Toe and play through it randomly.
  *

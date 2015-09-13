@@ -31,10 +31,12 @@ import org.ggp.base.util.logging.GamerLogger;
  * analysis of the rules. This flattener works on many small and medium-sized
  * games, but can fail on very large games.
  *
- * To use this class:
- *      PropNetFlattener PF = new PropNetFlattener(description);
- *      List<GdlRule> flatDescription = PF.flatten();
- *      return converter.convert(flatDescription);
+ * <p>To use this class:
+ * <pre>
+ * {@code     PropNetFlattener PF = new PropNetFlattener(description); }
+ * {@code     List<GdlRule> flatDescription = PF.flatten();            }
+ * {@code     return converter.convert(flatDescription);               }
+ * </pre>
  *
  * @author Ethan Dreyfuss
  * @author Sam Schreiber (comments)

@@ -51,24 +51,28 @@ import com.google.common.collect.Sets;
  * rules in a way that results in smaller propnets. For example, we may
  * have a rule as follows:
  *
- * (<= (foo ?x ?y)
+ * <pre>
+ * (&lt;= (foo ?x ?y)
  *     (bar ?x ?y)
  *     (baz ?y ?z))
+ * </pre>
  *
- * In the propnet, this will result in one AND node for each combination
+ * <p>In the propnet, this will result in one AND node for each combination
  * of ?x, ?y, and ?z. The CondensationIsolator would split it up as follows:
  *
- * (<= (foo ?x ?y)
+ * <pre>
+ * (&lt;= (foo ?x ?y)
  *     (bar ?x ?y)
  *     (baz_tmp0 ?y))
- * (<= (baz_tmp0 ?y)
+ * (&lt;= (baz_tmp0 ?y)
  *     (baz ?y ?z))
+ * </pre>
  *
- * In the propnet, there will now be one AND node for each combination of
+ * <p>In the propnet, there will now be one AND node for each combination of
  * ?x and ?y and one new link for each combination of ?y and ?z, but there
  * will not be a cross-product of the domains of all three.
  *
- * "Condensation" refers to the type of rule generated, in which we simply
+ * <p>"Condensation" refers to the type of rule generated, in which we simply
  * ignore certain variables.
  *
  * @author Alex Landau

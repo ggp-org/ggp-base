@@ -18,21 +18,21 @@ import external.JSON.JSONObject;
  * stylesheet, and maybe a human-readable description, and also any available
  * metadata, like the game's name and its associated game repository URL.
  *
- * Games do not necessarily have all of these fields. Games loaded from local
+ * <p>Games do not necessarily have all of these fields. Games loaded from local
  * storage will not have a repository URL, and probably will be missing other
  * metadata as well. Games sent over the wire from a game server rather than
  * loaded from a repository are called "ephemeral" games, and contain only
  * their rulesheet; they have no metadata, and do not even have unique keys.
  *
- * Aside from ephemeral games, all games have a key that is unique within their
+ * <p>Aside from ephemeral games, all games have a key that is unique within their
  * containing repository (either local storage or a remote repository). Games
  * can be indexed internally using this key. Whenever possible, the user should
  * be shown the game's name (if available) rather than the internal key, since
  * the game's name is more readable/informative than the key.
  *
- * (e.g. A game with the name "Three-Player Free-For-All" but the key "3pffa".)
+ * <p>(e.g. A game with the name "Three-Player Free-For-All" but the key "3pffa".)
  *
- * NOTE: Games are different from matches. Games represent the actual game
+ * <p>NOTE: Games are different from matches. Games represent the actual game
  * being played, whereas matches are particular instances in which players
  * played through the game. For example, you might have a Game object that
  * contains information about chess: it would contain the rules for chess,
@@ -44,7 +44,7 @@ import external.JSON.JSONObject;
  * can be many Match objects all associated with a single Game object, just
  * as there can be many matches played of a particular game.
  *
- * NOTE: Games operate only on "processed" rulesheets, which have been stripped
+ * <p>NOTE: Games operate only on "processed" rulesheets, which have been stripped
  * of comments and are properly formatted as SymbolLists. Rulesheets which have
  * not been processed in this fashion will break the Game object. This processing
  * can be done by calling "Game.preprocessRulesheet" on the raw rulesheet. Note
@@ -106,7 +106,6 @@ public final class Game {
      * before they're stored in Game objects or sent over the network as part
      * of a START request.
      *
-     * @param raw rulesheet
      * @return processed rulesheet
      */
     public static String preprocessRulesheet(String rawRulesheet) {

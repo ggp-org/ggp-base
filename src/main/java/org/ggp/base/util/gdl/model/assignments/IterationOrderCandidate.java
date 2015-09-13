@@ -38,13 +38,6 @@ public class IterationOrderCandidate implements Comparable<IterationOrderCandida
 		/**
 		 * This constructor is for creating the start node of the
 		 * search. No part of the ordering is specified.
-		 *
-		 * @param sourceConjunctCandidates
-		 * @param sourceConjunctSizes
-		 * @param functionalSentences
-		 * @param functionalSentencesInfo
-		 * @param allVars
-		 * @param varDomainSizes
 		 */
 		public IterationOrderCandidate(
 				List<GdlVariable> varsToAssign,

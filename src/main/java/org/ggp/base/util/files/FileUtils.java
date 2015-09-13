@@ -9,19 +9,14 @@ import java.io.IOException;
 import java.io.PrintStream;
 
 public class FileUtils {
-    /**
-     * @param filePath the name of the file to open.
-     */
     public static String readFileAsString(File file) {
-        try {
-        	BufferedReader reader = new BufferedReader(new FileReader(file));
+        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
             StringBuilder fileData = new StringBuilder(10000);
             char[] buf = new char[1024];
             int numRead=0;
             while((numRead=reader.read(buf)) != -1){
                 fileData.append(buf, 0, numRead);
             }
-            reader.close();
             return fileData.toString();
         } catch (FileNotFoundException e) {
             return null;
@@ -32,11 +27,8 @@ public class FileUtils {
     }
 
     public static void writeStringToFile(File file, String s) throws IOException {
-        PrintStream out = new PrintStream(new FileOutputStream(file, false));
-        try {
+        try (PrintStream out = new PrintStream(new FileOutputStream(file, false))) {
             out.print(s);
-        } finally {
-            out.close();
         }
     }
 }

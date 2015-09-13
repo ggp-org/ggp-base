@@ -41,8 +41,6 @@ public final class Proposition extends Component
      *
      * This should only be rarely used; the name of a proposition
      * is usually constant over its entire lifetime.
-     *
-     * @return The name of the Proposition.
      */
     public void setName(GdlSentence newName)
     {

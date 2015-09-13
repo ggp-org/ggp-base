@@ -3,6 +3,7 @@ apply plugin: 'eclipse'
 
 // We compile using Java 7.
 sourceCompatibility = 1.7
+targetCompatibility = 1.7
 
 /*
  * For now, instead of using an online library repository (e.g. Maven), we keep
