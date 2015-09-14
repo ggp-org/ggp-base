@@ -1,5 +1,6 @@
 apply plugin: 'java'
 apply plugin: 'eclipse'
+apply plugin: 'checkstyle'
 
 // We compile using Java 7.
 sourceCompatibility = 1.7
@@ -25,6 +26,13 @@ dependencies {
         'lib/JUnit/junit-4.11.jar',
         'lib/JUnit/hamcrest-core-1.3.jar',
     )
+}
+
+//Checkstyle does need a repository to be defined to work. This is only
+//required to check that the code works from the command line, not to run
+//applications from the command line.
+repositories {
+    mavenCentral()
 }
 
 /*
@@ -171,5 +179,5 @@ task gameServerRunner(type: JavaExec) {
 
 // This was used to generate the Gradle wrapper.
 task wrapper(type: Wrapper) {
-    gradleVersion = '2.1'
+    gradleVersion = '2.5'
 }
