@@ -1,1 +1,1 @@
-include 'legacy', 'apps'
+include 'gdl-core', 'legacy', 'apps'
