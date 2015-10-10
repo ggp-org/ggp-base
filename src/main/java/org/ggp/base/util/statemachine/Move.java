@@ -2,7 +2,9 @@ package org.ggp.base.util.statemachine;
 
 import java.io.Serializable;
 
+import org.ggp.base.util.gdl.factory.GdlFactory;
 import org.ggp.base.util.gdl.grammar.GdlTerm;
+import org.ggp.base.util.symbol.factory.exceptions.SymbolFormatException;
 
 /**
  * A Move represents a possible move that can be made by a role. Each
@@ -20,6 +22,14 @@ public class Move implements Serializable
     public Move(GdlTerm contents)
     {
         this.contents = contents;
+    }
+
+    public static Move create(String contents) {
+        try {
+            return new Move(GdlFactory.createTerm(contents));
+        } catch (SymbolFormatException e) {
+            throw new IllegalArgumentException("Could not parse as move: " + contents, e);
+        }
     }
 
     @Override
