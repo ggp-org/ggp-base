@@ -10,6 +10,6 @@ import org.ggp.base.util.gdl.grammar.GdlVariable;
 //Or, just remake into AssignmentIterationPlan
 public interface Assignments extends Iterable<Map<GdlVariable, GdlConstant>> {
 
-	AssignmentIterator getIterator();
+    AssignmentIterator getIterator();
 
 }

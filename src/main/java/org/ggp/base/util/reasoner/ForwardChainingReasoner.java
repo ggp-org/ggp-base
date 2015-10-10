@@ -14,35 +14,35 @@ import org.ggp.base.util.reasoner.gdl.GdlChainingReasoner;
  * See {@link GdlChainingReasoner} for one such implementation.
  */
 public interface ForwardChainingReasoner<Rule, Sentences> {
-	/**
-	 * Returns a set of sentences that are always true, which can be
-	 * used as a basis and added to via getUnion. This includes all
-	 * constant values defined explicitly in the game description. It
-	 * may include other sentences that are always true based on game
-	 * rules, depending on the implementation and how it is
-	 * instantiated.
-	 */
-	Sentences getConstantSentences();
+    /**
+     * Returns a set of sentences that are always true, which can be
+     * used as a basis and added to via getUnion. This includes all
+     * constant values defined explicitly in the game description. It
+     * may include other sentences that are always true based on game
+     * rules, depending on the implementation and how it is
+     * instantiated.
+     */
+    Sentences getConstantSentences();
 
-	/**
-	 * Given a rule and all sentences known to be true so far, returns
-	 * all new results of applying the rule.
-	 *
-	 * For the outputs of this method to be valid, the GDL that the rule
-	 * is derived from should have had the {@link VariableConstrainer}
-	 * transformation applied to it.
-	 */
-	Sentences getRuleResults(Rule rule, SentenceDomainModel domainModel,
-			Sentences sentencesSoFar) throws InterruptedException;
+    /**
+     * Given a rule and all sentences known to be true so far, returns
+     * all new results of applying the rule.
+     *
+     * For the outputs of this method to be valid, the GDL that the rule
+     * is derived from should have had the {@link VariableConstrainer}
+     * transformation applied to it.
+     */
+    Sentences getRuleResults(Rule rule, SentenceDomainModel domainModel,
+            Sentences sentencesSoFar) throws InterruptedException;
 
-	/**
-	 * Returns the union of the two sets of sentences. Calling this
-	 * method invalidates oldSentences.
-	 */
-	Sentences getUnion(Sentences oldSentences, Sentences newSentences);
+    /**
+     * Returns the union of the two sets of sentences. Calling this
+     * method invalidates oldSentences.
+     */
+    Sentences getUnion(Sentences oldSentences, Sentences newSentences);
 
-	/**
-	 * Returns true iff newSentences is a subset of oldSentences.
-	 */
-	boolean isSubsetOf(Sentences oldSentences, Sentences newSentences);
+    /**
+     * Returns true iff newSentences is a subset of oldSentences.
+     */
+    boolean isSubsetOf(Sentences oldSentences, Sentences newSentences);
 }

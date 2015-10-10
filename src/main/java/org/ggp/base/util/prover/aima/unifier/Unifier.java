@@ -23,8 +23,8 @@ public final class Unifier
 
     private static boolean unifyTerm(GdlTerm x, GdlTerm y, Substitution theta)
     {
-    	if(x.equals(y))
-    		return true;
+        if(x.equals(y))
+            return true;
         if ((x instanceof GdlConstant) && (y instanceof GdlConstant))
         {
             if (!x.equals(y))

@@ -16,17 +16,17 @@ public abstract class GameCanvas_Chessboard extends GameCanvas_FancyGrid {
     private static final long serialVersionUID = 1L;
 
     @Override
-	protected int getGridHeight() { return 8; }
+    protected int getGridHeight() { return 8; }
     @Override
-	protected int getGridWidth() { return 8; }
+    protected int getGridWidth() { return 8; }
 
     @Override
-	protected final boolean useGridVisualization() { return true; }
+    protected final boolean useGridVisualization() { return true; }
     @Override
-	protected final boolean coordinatesStartAtOne() { return true; }
+    protected final boolean coordinatesStartAtOne() { return true; }
 
     @Override
-	protected final void renderCellBackground(Graphics g, int xCell, int yCell) {
+    protected final void renderCellBackground(Graphics g, int xCell, int yCell) {
         int width = g.getClipBounds().width;
         int height = g.getClipBounds().height;
 

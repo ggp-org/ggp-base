@@ -41,7 +41,7 @@ public abstract class GameCanvas_SimpleGrid extends GameCanvas {
 
     private Graphics mostRecentG;
     @Override
-	protected final void paintGame(Graphics g) {
+    protected final void paintGame(Graphics g) {
         int width = g.getClipBounds().width;
         int height = g.getClipBounds().height;
 
@@ -72,7 +72,7 @@ public abstract class GameCanvas_SimpleGrid extends GameCanvas {
     }
 
     @Override
-	protected final void handleClickEvent(int x, int y) {
+    protected final void handleClickEvent(int x, int y) {
         int width = mostRecentG.getClipBounds().width;
         int height = mostRecentG.getClipBounds().height;
 

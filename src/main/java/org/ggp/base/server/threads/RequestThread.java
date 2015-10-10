@@ -24,39 +24,39 @@ import org.ggp.base.util.statemachine.Role;
  */
 public abstract class RequestThread extends Thread
 {
-	private final GameServer gameServer;
-	private final String host;
-	private final int port;
-	private final String playerName;
-	private final int timeout;
-	private final Role role;
-	private final String request;
+    private final GameServer gameServer;
+    private final String host;
+    private final int port;
+    private final String playerName;
+    private final int timeout;
+    private final Role role;
+    private final String request;
 
-	public RequestThread(GameServer gameServer, Role role, String host, int port, String playerName, int timeout, String request)
-	{
-		this.gameServer = gameServer;
-		this.role = role;
-		this.host = host;
-		this.port = port;
-		this.playerName = playerName;
-		this.timeout = timeout;
-		this.request = request;
-	}
+    public RequestThread(GameServer gameServer, Role role, String host, int port, String playerName, int timeout, String request)
+    {
+        this.gameServer = gameServer;
+        this.role = role;
+        this.host = host;
+        this.port = port;
+        this.playerName = playerName;
+        this.timeout = timeout;
+        this.request = request;
+    }
 
-	protected abstract void handleResponse(String response);
+    protected abstract void handleResponse(String response);
 
-	@Override
-	public void run()
-	{
-		try {
-			String response = HttpRequest.issueRequest(host, port, playerName, request, timeout);
-			handleResponse(response);
-		} catch (SocketTimeoutException e) {
-			gameServer.notifyObservers(new ServerTimeoutEvent(role));
-		} catch (UnknownHostException e) {
-			gameServer.notifyObservers(new ServerConnectionErrorEvent(role));
-		} catch (IOException e) {
-			gameServer.notifyObservers(new ServerConnectionErrorEvent(role));
-		}
-	}
+    @Override
+    public void run()
+    {
+        try {
+            String response = HttpRequest.issueRequest(host, port, playerName, request, timeout);
+            handleResponse(response);
+        } catch (SocketTimeoutException e) {
+            gameServer.notifyObservers(new ServerTimeoutEvent(role));
+        } catch (UnknownHostException e) {
+            gameServer.notifyObservers(new ServerConnectionErrorEvent(role));
+        } catch (IOException e) {
+            gameServer.notifyObservers(new ServerConnectionErrorEvent(role));
+        }
+    }
 }

@@ -10,37 +10,37 @@ import org.ggp.base.util.gdl.grammar.GdlTerm;
 import org.ggp.base.util.gdl.grammar.GdlVariable;
 
 public class FunctionInfos {
-	public static Set<GdlVariable> getProducibleVars(FunctionInfo functionInfo, GdlSentence sentence) {
-		if (!functionInfo.getSentenceForm().matches(sentence)) {
-			throw new RuntimeException("Sentence "+sentence+" does not match constant form");
-		}
+    public static Set<GdlVariable> getProducibleVars(FunctionInfo functionInfo, GdlSentence sentence) {
+        if (!functionInfo.getSentenceForm().matches(sentence)) {
+            throw new RuntimeException("Sentence "+sentence+" does not match constant form");
+        }
 
-		List<GdlTerm> tuple = GdlUtils.getTupleFromSentence(sentence);
-		List<Boolean> dependentSlots = functionInfo.getDependentSlots();
+        List<GdlTerm> tuple = GdlUtils.getTupleFromSentence(sentence);
+        List<Boolean> dependentSlots = functionInfo.getDependentSlots();
 
-		Set<GdlVariable> candidateVars = new HashSet<GdlVariable>();
-		//Variables that appear multiple times go into multipleVars
-		Set<GdlVariable> multipleVars = new HashSet<GdlVariable>();
-		//...which, of course, means we have to spot non-candidate vars
-		Set<GdlVariable> nonCandidateVars = new HashSet<GdlVariable>();
+        Set<GdlVariable> candidateVars = new HashSet<GdlVariable>();
+        //Variables that appear multiple times go into multipleVars
+        Set<GdlVariable> multipleVars = new HashSet<GdlVariable>();
+        //...which, of course, means we have to spot non-candidate vars
+        Set<GdlVariable> nonCandidateVars = new HashSet<GdlVariable>();
 
-		for(int i = 0; i < tuple.size(); i++) {
-			GdlTerm term = tuple.get(i);
-			if(term instanceof GdlVariable
-					&& !multipleVars.contains(term)) {
-				GdlVariable var = (GdlVariable) term;
-				if(candidateVars.contains(var)
-						|| nonCandidateVars.contains(var)) {
-					multipleVars.add(var);
-					candidateVars.remove(var);
-				} else if(dependentSlots.get(i)) {
-					candidateVars.add(var);
-				} else {
-					nonCandidateVars.add(var);
-				}
-			}
-		}
+        for(int i = 0; i < tuple.size(); i++) {
+            GdlTerm term = tuple.get(i);
+            if(term instanceof GdlVariable
+                    && !multipleVars.contains(term)) {
+                GdlVariable var = (GdlVariable) term;
+                if(candidateVars.contains(var)
+                        || nonCandidateVars.contains(var)) {
+                    multipleVars.add(var);
+                    candidateVars.remove(var);
+                } else if(dependentSlots.get(i)) {
+                    candidateVars.add(var);
+                } else {
+                    nonCandidateVars.add(var);
+                }
+            }
+        }
 
-		return candidateVars;
-	}
+        return candidateVars;
+    }
 }

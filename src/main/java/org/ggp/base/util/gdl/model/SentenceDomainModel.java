@@ -11,10 +11,10 @@ package org.ggp.base.util.gdl.model;
  * via {@link SentenceDomainModelFactory#createWithCartesianDomains(java.util.List)}.
  */
 public interface SentenceDomainModel extends SentenceFormModel {
-	/**
-	 * Gets the domain of a particular sentence form, which has
-	 * information about which particular sentences of the given
-	 * sentence form are possible.
-	 */
-	SentenceFormDomain getDomain(SentenceForm form);
+    /**
+     * Gets the domain of a particular sentence form, which has
+     * information about which particular sentences of the given
+     * sentence form are possible.
+     */
+    SentenceFormDomain getDomain(SentenceForm form);
 }

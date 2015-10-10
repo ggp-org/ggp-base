@@ -8,80 +8,80 @@ import com.google.common.collect.ImmutableList;
 public final class GdlFunction extends GdlTerm
 {
 
-	private final ImmutableList<GdlTerm> body;
-	private transient Boolean ground;
-	private final GdlConstant name;
+    private final ImmutableList<GdlTerm> body;
+    private transient Boolean ground;
+    private final GdlConstant name;
 
-	GdlFunction(GdlConstant name, ImmutableList<GdlTerm> body)
-	{
-		this.name = name;
-		this.body = body;
-		ground = null;
-	}
+    GdlFunction(GdlConstant name, ImmutableList<GdlTerm> body)
+    {
+        this.name = name;
+        this.body = body;
+        ground = null;
+    }
 
-	public int arity()
-	{
-		return body.size();
-	}
+    public int arity()
+    {
+        return body.size();
+    }
 
-	private boolean computeGround()
-	{
-		for (GdlTerm term : body)
-		{
-			if (!term.isGround())
-			{
-				return false;
-			}
-		}
+    private boolean computeGround()
+    {
+        for (GdlTerm term : body)
+        {
+            if (!term.isGround())
+            {
+                return false;
+            }
+        }
 
-		return true;
-	}
+        return true;
+    }
 
-	public GdlTerm get(int index)
-	{
-		return body.get(index);
-	}
+    public GdlTerm get(int index)
+    {
+        return body.get(index);
+    }
 
-	public GdlConstant getName()
-	{
-		return name;
-	}
+    public GdlConstant getName()
+    {
+        return name;
+    }
 
-	public List<GdlTerm> getBody()
-	{
-		return body;
-	}
+    public List<GdlTerm> getBody()
+    {
+        return body;
+    }
 
-	@Override
-	public boolean isGround()
-	{
-		if (ground == null)
-		{
-			ground = computeGround();
-		}
+    @Override
+    public boolean isGround()
+    {
+        if (ground == null)
+        {
+            ground = computeGround();
+        }
 
-		return ground;
-	}
+        return ground;
+    }
 
-	@Override
-	public GdlSentence toSentence()
-	{
-		return GdlPool.getRelation(name, body);
-	}
+    @Override
+    public GdlSentence toSentence()
+    {
+        return GdlPool.getRelation(name, body);
+    }
 
-	@Override
-	public String toString()
-	{
-		StringBuilder sb = new StringBuilder();
+    @Override
+    public String toString()
+    {
+        StringBuilder sb = new StringBuilder();
 
-		sb.append("( " + name + " ");
-		for (GdlTerm term : body)
-		{
-			sb.append(term + " ");
-		}
-		sb.append(")");
+        sb.append("( " + name + " ");
+        for (GdlTerm term : body)
+        {
+            sb.append(term + " ");
+        }
+        sb.append(")");
 
-		return sb.toString();
-	}
+        return sb.toString();
+    }
 
 }

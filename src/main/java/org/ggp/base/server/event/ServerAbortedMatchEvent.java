@@ -7,8 +7,8 @@ import org.ggp.base.util.observer.Event;
 @SuppressWarnings("serial")
 public final class ServerAbortedMatchEvent extends Event implements Serializable
 {
-	public ServerAbortedMatchEvent()
-	{
-		;
-	}
+    public ServerAbortedMatchEvent()
+    {
+        ;
+    }
 }

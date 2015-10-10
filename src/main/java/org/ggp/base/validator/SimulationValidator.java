@@ -14,41 +14,41 @@ import com.google.common.collect.ImmutableList;
 
 public final class SimulationValidator implements GameValidator
 {
-	private final int maxDepth;
-	private final int numSimulations;
+    private final int maxDepth;
+    private final int numSimulations;
 
-	public SimulationValidator(int maxDepth, int numSimulations)
-	{
-		this.maxDepth = maxDepth;
-		this.numSimulations = numSimulations;
-	}
+    public SimulationValidator(int maxDepth, int numSimulations)
+    {
+        this.maxDepth = maxDepth;
+        this.numSimulations = numSimulations;
+    }
 
-	@Override
-	public List<ValidatorWarning> checkValidity(Game theGame) throws ValidatorException {
-		for (int i = 0; i < numSimulations; i++) {
-			StateMachine stateMachine = new ProverStateMachine();
-			stateMachine.initialize(theGame.getRules());
+    @Override
+    public List<ValidatorWarning> checkValidity(Game theGame) throws ValidatorException {
+        for (int i = 0; i < numSimulations; i++) {
+            StateMachine stateMachine = new ProverStateMachine();
+            stateMachine.initialize(theGame.getRules());
 
-			MachineState state = stateMachine.getInitialState();
-			for (int depth = 0; !stateMachine.isTerminal(state); depth++) {
-				if (depth == maxDepth) {
-					throw new ValidatorException("Hit max depth while simulating: " + maxDepth);
-				}
-				try {
-					state = stateMachine.getRandomNextState(state);
-				} catch (MoveDefinitionException mde) {
-					throw new ValidatorException("Could not find legal moves while simulating: " + mde);
-				} catch (TransitionDefinitionException tde) {
-					throw new ValidatorException("Could not find transition definition while simulating: " + tde);
-				}
-			}
+            MachineState state = stateMachine.getInitialState();
+            for (int depth = 0; !stateMachine.isTerminal(state); depth++) {
+                if (depth == maxDepth) {
+                    throw new ValidatorException("Hit max depth while simulating: " + maxDepth);
+                }
+                try {
+                    state = stateMachine.getRandomNextState(state);
+                } catch (MoveDefinitionException mde) {
+                    throw new ValidatorException("Could not find legal moves while simulating: " + mde);
+                } catch (TransitionDefinitionException tde) {
+                    throw new ValidatorException("Could not find transition definition while simulating: " + tde);
+                }
+            }
 
-			try {
-				stateMachine.getGoals(state);
-			} catch (GoalDefinitionException gde) {
-				throw new ValidatorException("Could not find goals while simulating: " + gde);
-			}
-		}
-		return ImmutableList.of();
-	}
+            try {
+                stateMachine.getGoals(state);
+            } catch (GoalDefinitionException gde) {
+                throw new ValidatorException("Could not find goals while simulating: " + gde);
+            }
+        }
+        return ImmutableList.of();
+    }
 }

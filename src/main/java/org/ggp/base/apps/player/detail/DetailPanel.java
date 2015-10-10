@@ -16,8 +16,8 @@ import org.ggp.base.util.observer.Observer;
 @SuppressWarnings("serial")
 public abstract class DetailPanel extends JPanel implements Observer
 {
-	public DetailPanel(LayoutManager layoutManager)
-	{
-		super(layoutManager);
-	}
+    public DetailPanel(LayoutManager layoutManager)
+    {
+        super(layoutManager);
+    }
 }

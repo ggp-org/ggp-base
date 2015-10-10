@@ -55,7 +55,7 @@ public class StaticValidationTest {
     }
     @Test(expected=ValidatorException.class)
     public void test3FValidation() throws Exception {
-    	validate("test_case_3f");
+        validate("test_case_3f");
     }
     @Test
     public void test4AValidation() throws Exception {
@@ -79,11 +79,11 @@ public class StaticValidationTest {
     }
     @Test(expected=ValidatorException.class)
     public void testFunctionAritiesDiffer() throws Exception {
-    	validate("test_invalid_function_arities_differ");
+        validate("test_invalid_function_arities_differ");
     }
     @Test(expected=ValidatorException.class)
     public void testSentenceAritiesDiffer() throws Exception {
-    	validate("test_invalid_sentence_arities_differ");
+        validate("test_invalid_sentence_arities_differ");
     }
 
     @Test

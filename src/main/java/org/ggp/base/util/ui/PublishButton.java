@@ -52,9 +52,9 @@ public class PublishButton extends JButton implements ActionListener {
                     }
                 } else {
                     JOptionPane.showMessageDialog(this,
-                        "Could not publish a game that is only stored locally.",
-                        "Publishing Match Online",
-                        JOptionPane.ERROR_MESSAGE);
+                            "Could not publish a game that is only stored locally.",
+                            "Publishing Match Online",
+                            JOptionPane.ERROR_MESSAGE);
                 }
                 setEnabled(false);
             }

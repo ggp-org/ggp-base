@@ -8,10 +8,13 @@
 
     <property name="severity" value="warning"/>
 
+    <!-- Prevent unused or redundant imports -->
     <module name="TreeWalker">
         <module name="RedundantImport"/>
         <module name="UnusedImports">
             <property name="processJavadoc" value="true"/>
         </module>
     </module>
+    <!-- Use spaces, not tabs for indentation -->
+    <module name="FileTabCharacter"/>
 </module>

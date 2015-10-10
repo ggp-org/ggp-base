@@ -10,11 +10,11 @@ import javax.swing.JLabel;
 public final class EmptyConfigPanel extends ConfigPanel
 {
 
-	public EmptyConfigPanel()
-	{
-		super(new GridBagLayout());
+    public EmptyConfigPanel()
+    {
+        super(new GridBagLayout());
 
-		this.add(new JLabel("No options available."), new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 5, 5));
-	}
+        this.add(new JLabel("No options available."), new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 5, 5));
+    }
 
 }

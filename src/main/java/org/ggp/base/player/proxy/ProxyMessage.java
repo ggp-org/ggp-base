@@ -22,7 +22,7 @@ public class ProxyMessage implements Serializable {
     }
 
     @Override
-	public String toString() {
+    public String toString() {
         return "ProxyMessage<" + messageCode + ", " + receptionTime + ">[\"" + theMessage + "\"]";
     }
 
@@ -52,10 +52,10 @@ public class ProxyMessage implements Serializable {
     }
 
     public void writeTo(PrintStream theOutput) {
-    	synchronized (theOutput) {
-    		theOutput.println(messageCode);
-    		theOutput.println(receptionTime);
-    		theOutput.println(theMessage);
-    	}
+        synchronized (theOutput) {
+            theOutput.println(messageCode);
+            theOutput.println(receptionTime);
+            theOutput.println(theMessage);
+        }
     }
 }

@@ -14,16 +14,16 @@ import org.ggp.base.util.logging.LogSummaryGenerator;
 // This is the custom-written log summary generator. You should write one
 // of these that produces meaningful log summaries for your player.
 class ExampleLogSummaryGenerator extends LogSummaryGenerator {
-	@Override
-	public String getSummaryFromLogsDirectory(String theLogsDirectory) {
-		return "example log for " + theLogsDirectory;
-	}
+    @Override
+    public String getSummaryFromLogsDirectory(String theLogsDirectory) {
+        return "example log for " + theLogsDirectory;
+    }
 }
 
 // This starts the log summarizer server using the custom-written log summary
 // generator written above.
 public class ExampleLogSummarizer {
-	public static void main(String[] args) {
-		new LogSummarizer(new ExampleLogSummaryGenerator()).runSummarizer();
-	}
+    public static void main(String[] args) {
+        new LogSummarizer(new ExampleLogSummaryGenerator()).runSummarizer();
+    }
 }

@@ -12,11 +12,11 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 
 public class ProjectSearcher {
-	public static void main(String[] args)
-	{
-		System.out.println(GAMERS);
+    public static void main(String[] args)
+    {
+        System.out.println(GAMERS);
         System.out.println(GAME_CANVASES);
-	}
+    }
 
     private static final Reflections REFLECTIONS = new Reflections();
 
@@ -24,7 +24,7 @@ public class ProjectSearcher {
     public static final LoadedClasses<GameCanvas> GAME_CANVASES = new LoadedClasses<GameCanvas>(GameCanvas.class);
 
     public static final <T> ImmutableSet<Class<? extends T>> getAllClassesThatAre(Class<T> klass) {
-    	return new LoadedClasses<T>(klass).getConcreteClasses();
+        return new LoadedClasses<T>(klass).getConcreteClasses();
     }
 
     public static class LoadedClasses<T> {

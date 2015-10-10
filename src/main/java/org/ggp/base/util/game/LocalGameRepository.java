@@ -38,18 +38,18 @@ public final class LocalGameRepository extends GameRepository {
     private static RemoteGameRepository theRealRepo;
 
     public LocalGameRepository() {
-    	synchronized (LocalGameRepository.class) {
-    		if (theLocalRepoServer == null) {
-    			try {
-    				theLocalRepoServer = HttpServer.create(new InetSocketAddress(REPO_SERVER_PORT), 0);
-    				theLocalRepoServer.createContext("/", new LocalRepoServer());
-    				theLocalRepoServer.setExecutor(null); // creates a default executor
-    				theLocalRepoServer.start();
-    			} catch (IOException e) {
-    				throw new RuntimeException(e);
-    			}
-    		}
-    	}
+        synchronized (LocalGameRepository.class) {
+            if (theLocalRepoServer == null) {
+                try {
+                    theLocalRepoServer = HttpServer.create(new InetSocketAddress(REPO_SERVER_PORT), 0);
+                    theLocalRepoServer.createContext("/", new LocalRepoServer());
+                    theLocalRepoServer.setExecutor(null); // creates a default executor
+                    theLocalRepoServer.start();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }
 
         theRealRepo = new RemoteGameRepository(theLocalRepoURL);
     }
@@ -57,7 +57,7 @@ public final class LocalGameRepository extends GameRepository {
     public void cleanUp()
     {
         if (theLocalRepoServer != null) {
-        	theLocalRepoServer.stop(0);
+            theLocalRepoServer.stop(0);
         }
     }
 
@@ -75,7 +75,7 @@ public final class LocalGameRepository extends GameRepository {
 
     class LocalRepoServer implements HttpHandler {
         @Override
-		public void handle(HttpExchange t) throws IOException {
+        public void handle(HttpExchange t) throws IOException {
             String theURI = t.getRequestURI().toString();
             byte[] response = BaseRepository.getResponseBytesForURI(theURI);
             if (response == null) {
@@ -95,9 +95,9 @@ public final class LocalGameRepository extends GameRepository {
         public static final String repositoryRootDirectory = theLocalRepoURL;
 
         public static boolean shouldIgnoreFile(String fileName) {
-        	if (fileName.startsWith(".")) return true;
-        	if (fileName.contains(" ")) return true;
-        	return false;
+            if (fileName.startsWith(".")) return true;
+            if (fileName.contains(" ")) return true;
+            return false;
         }
 
         public static byte[] getResponseBytesForURI(String reqURI) throws IOException {
@@ -112,7 +112,7 @@ public final class LocalGameRepository extends GameRepository {
             if (reqURI.equals("/games/metadata")) {
                 JSONObject theGameMetaMap = new JSONObject();
                 for (String gameName : new File("games", "games").list()) {
-                	if (shouldIgnoreFile(gameName)) continue;
+                    if (shouldIgnoreFile(gameName)) continue;
                     try {
                         theGameMetaMap.put(gameName, new JSONObject(new String(getResponseBytesForURI("/games/" + gameName + "/"))));
                     } catch (JSONException e) {
@@ -198,7 +198,7 @@ public final class LocalGameRepository extends GameRepository {
             int maxVersion = 0;
             String[] children = theDir.list();
             for (String s : children) {
-            	if (shouldIgnoreFile(s)) continue;
+                if (shouldIgnoreFile(s)) continue;
                 if (s.startsWith("v")) {
                     int nVersion = Integer.parseInt(s.substring(1));
                     if (nVersion > maxVersion) {
@@ -264,7 +264,7 @@ public final class LocalGameRepository extends GameRepository {
 
             String[] children = theDirectory.list();
             for (int i=0; i<children.length; i++) {
-            	if (shouldIgnoreFile(children[i])) continue;
+                if (shouldIgnoreFile(children[i])) continue;
                 // Get filename of file or directory
                 response.append("\"");
                 response.append(children[i]);
@@ -280,16 +280,16 @@ public final class LocalGameRepository extends GameRepository {
             // Show contents of the file.
             FileReader fr = new FileReader(rootFile);
             BufferedReader br = new BufferedReader(fr);
-        	try {
-        		String response = "";
-        		String line;
-        		while( (line = br.readLine()) != null ) {
-        			response += line + "\n";
-        		}
+            try {
+                String response = "";
+                String line;
+                while( (line = br.readLine()) != null ) {
+                    response += line + "\n";
+                }
 
-        		return response;
-        	} finally {
-            	br.close();
+                return response;
+            } finally {
+                br.close();
             }
         }
 
@@ -309,20 +309,20 @@ public final class LocalGameRepository extends GameRepository {
     }
 
     static class MetadataCompleter {
-    	/**
-    	 * Complete fields in the metadata procedurally, based on the game rulesheet.
-    	 * This is used to fill in the number of roles, and create a list containing
-    	 * the names of all of the roles. Applications which read the game metadata
-    	 * can use these without also having to process the rulesheet.
-    	 *
-    	 * @param theMetaJSON
-    	 * @param theRulesheet
-    	 * @throws JSONException
-    	 */
-    	public static void completeMetadataFromRulesheet(JSONObject theMetaJSON, String theRulesheet) throws JSONException {
-    		List<Role> theRoles = Role.computeRoles(Game.createEphemeralGame(Game.preprocessRulesheet(theRulesheet)).getRules());
+        /**
+         * Complete fields in the metadata procedurally, based on the game rulesheet.
+         * This is used to fill in the number of roles, and create a list containing
+         * the names of all of the roles. Applications which read the game metadata
+         * can use these without also having to process the rulesheet.
+         *
+         * @param theMetaJSON
+         * @param theRulesheet
+         * @throws JSONException
+         */
+        public static void completeMetadataFromRulesheet(JSONObject theMetaJSON, String theRulesheet) throws JSONException {
+            List<Role> theRoles = Role.computeRoles(Game.createEphemeralGame(Game.preprocessRulesheet(theRulesheet)).getRules());
             theMetaJSON.put("roleNames", theRoles);
             theMetaJSON.put("numRoles", theRoles.size());
-    	}
+        }
     }
 }

@@ -12,14 +12,14 @@ public class CheckersSmallCanvas extends GameCanvas_Chessboard {
     private static final long serialVersionUID = 1L;
 
     @Override
-	public String getGameName() { return "Checkers (Small)"; }
+    public String getGameName() { return "Checkers (Small)"; }
     @Override
-	protected String getGameKey() { return "checkersSmall"; }
+    protected String getGameKey() { return "checkersSmall"; }
 
     @Override
-	protected int getGridHeight() { return 8; }
+    protected int getGridHeight() { return 8; }
     @Override
-	protected int getGridWidth() { return 8; }
+    protected int getGridWidth() { return 8; }
 
     @Override
     protected void renderCellForeground(Graphics g, int xCell, int yCell) {

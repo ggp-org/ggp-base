@@ -31,7 +31,7 @@ public class LogSummarizer
     public static final int SERVER_PORT = 9199;
 
     public LogSummarizer(LogSummaryGenerator theGenerator) {
-    	this.theGenerator = theGenerator;
+        this.theGenerator = theGenerator;
     }
 
     class SummarizeLogThread extends Thread {
@@ -62,16 +62,16 @@ public class LogSummarizer
     private ServerSocket listener = null;
 
     public void stopAbruptly() throws IOException {
-    	shouldStop = true;
-    	if (listener != null) {
-    		listener.close();
-    		listener = null;
-    	}
+        shouldStop = true;
+        if (listener != null) {
+            listener.close();
+            listener = null;
+        }
     }
 
-	public void runSummarizer() {
+    public void runSummarizer() {
         try {
-             listener = new ServerSocket(SERVER_PORT);
+            listener = new ServerSocket(SERVER_PORT);
         } catch (IOException e) {
             System.err.println("Could not open server on port " + SERVER_PORT + ": " + e);
             e.printStackTrace();
@@ -89,7 +89,7 @@ public class LogSummarizer
         }
     }
 
-	public static void main(String[] args) {
-    	new LogSummarizer(null).runSummarizer();
+    public static void main(String[] args) {
+        new LogSummarizer(null).runSummarizer();
     }
 }

@@ -13,7 +13,7 @@ import java.util.Set;
 public abstract class Component implements Serializable
 {
 
-	private static final long serialVersionUID = 352524175700224447L;
+    private static final long serialVersionUID = 352524175700224447L;
     /** The inputs to the component. */
     private final Set<Component> inputs;
     /** The outputs of the component. */
@@ -41,23 +41,23 @@ public abstract class Component implements Serializable
 
     public void removeInput(Component input)
     {
-    	inputs.remove(input);
+        inputs.remove(input);
     }
 
     public void removeOutput(Component output)
     {
-    	outputs.remove(output);
+        outputs.remove(output);
     }
 
     public void removeAllInputs()
     {
-		inputs.clear();
-	}
+        inputs.clear();
+    }
 
-	public void removeAllOutputs()
-	{
-		outputs.clear();
-	}
+    public void removeAllOutputs()
+    {
+        outputs.clear();
+    }
 
     /**
      * Adds a new output.

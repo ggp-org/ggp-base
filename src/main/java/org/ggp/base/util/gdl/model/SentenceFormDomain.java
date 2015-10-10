@@ -12,14 +12,14 @@ import org.ggp.base.util.gdl.grammar.GdlSentence;
  * in which positions in the SentenceForm.
  */
 public interface SentenceFormDomain extends Iterable<GdlSentence> {
-	/**
-	 * Returns the SentenceForm associated with this domain.
-	 */
-	SentenceForm getForm();
+    /**
+     * Returns the SentenceForm associated with this domain.
+     */
+    SentenceForm getForm();
 
-	/**
-	 * Returns a set containing every constant that can appear in
-	 * the given slot index in the sentence form.
-	 */
-	Set<GdlConstant> getDomainForSlot(int slotIndex);
+    /**
+     * Returns a set containing every constant that can appear in
+     * the given slot index in the sentence form.
+     */
+    Set<GdlConstant> getDomainForSlot(int slotIndex);
 }

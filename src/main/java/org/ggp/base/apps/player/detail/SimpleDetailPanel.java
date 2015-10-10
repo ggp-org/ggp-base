@@ -20,48 +20,48 @@ import org.ggp.base.util.ui.table.JZebraTable;
  */
 @SuppressWarnings("serial")
 public class SimpleDetailPanel extends DetailPanel {
-	private final JZebraTable moveTable;
+    private final JZebraTable moveTable;
 
-	public SimpleDetailPanel() {
-		super(new GridBagLayout());
+    public SimpleDetailPanel() {
+        super(new GridBagLayout());
 
-		DefaultTableModel model = new DefaultTableModel();
-		model.addColumn("Available Moves");
-		model.addColumn("Computation Time");
-		model.addColumn("Selected Move");
+        DefaultTableModel model = new DefaultTableModel();
+        model.addColumn("Available Moves");
+        model.addColumn("Computation Time");
+        model.addColumn("Selected Move");
 
-		moveTable = new JZebraTable(model) {
-			@Override
-			public boolean isCellEditable(int rowIndex, int colIndex) {
-				return false;
-			}
-		};
-		moveTable.setShowHorizontalLines(true);
-		moveTable.setShowVerticalLines(true);
+        moveTable = new JZebraTable(model) {
+            @Override
+            public boolean isCellEditable(int rowIndex, int colIndex) {
+                return false;
+            }
+        };
+        moveTable.setShowHorizontalLines(true);
+        moveTable.setShowVerticalLines(true);
 
-		this.add(new JScrollPane(moveTable, ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED), new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 5, 5));
-	}
+        this.add(new JScrollPane(moveTable, ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED), new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 5, 5));
+    }
 
-	@Override
-	public void observe(Event event) {
-		if (event instanceof GamerNewMatchEvent) {
-			observe((GamerNewMatchEvent) event);
-		} else if (event instanceof GamerSelectedMoveEvent) {
-			observe((GamerSelectedMoveEvent) event);
-		}
-	}
+    @Override
+    public void observe(Event event) {
+        if (event instanceof GamerNewMatchEvent) {
+            observe((GamerNewMatchEvent) event);
+        } else if (event instanceof GamerSelectedMoveEvent) {
+            observe((GamerSelectedMoveEvent) event);
+        }
+    }
 
-	private void observe(GamerNewMatchEvent event) {
-		DefaultTableModel model = (DefaultTableModel) moveTable.getModel();
-		model.setRowCount(0);
-	}
+    private void observe(GamerNewMatchEvent event) {
+        DefaultTableModel model = (DefaultTableModel) moveTable.getModel();
+        model.setRowCount(0);
+    }
 
-	private void observe(GamerSelectedMoveEvent event) {
-		String availableMoves = Integer.toString(event.getMoves().size());
-		String computationTime = Long.toString(event.getTime()) + " ms";
-		String move = event.getSelection().toString();
+    private void observe(GamerSelectedMoveEvent event) {
+        String availableMoves = Integer.toString(event.getMoves().size());
+        String computationTime = Long.toString(event.getTime()) + " ms";
+        String move = event.getSelection().toString();
 
-		DefaultTableModel model = (DefaultTableModel) moveTable.getModel();
-		model.addRow(new String[] { availableMoves, computationTime, move });
-	}
+        DefaultTableModel model = (DefaultTableModel) moveTable.getModel();
+        model.addRow(new String[] { availableMoves, computationTime, move });
+    }
 }

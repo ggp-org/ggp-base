@@ -12,23 +12,23 @@ public class TTTxNineCanvas extends GameCanvas_SimpleGrid {
     private static final long serialVersionUID = 1L;
 
     @Override
-	public String getGameName() { return "Nine Board Tic Tac Toe"; }
+    public String getGameName() { return "Nine Board Tic Tac Toe"; }
     @Override
-	protected String getGameKey() { return "nineBoardTicTacToe"; }
+    protected String getGameKey() { return "nineBoardTicTacToe"; }
     @Override
-	protected int getGridHeight() { return 9; }
+    protected int getGridHeight() { return 9; }
     @Override
-	protected int getGridWidth() { return 9; }
+    protected int getGridWidth() { return 9; }
 
     @Override
-	protected boolean coordinatesStartAtOne() { return false; }
+    protected boolean coordinatesStartAtOne() { return false; }
 
     private int xSelectedBoard = 0;
     private int ySelectedBoard = 0;
     private int xSelectedSpot = 0;
     private int ySelectedSpot = 0;
     @Override
-	protected void handleClickOnCell(int xCell, int yCell, int xWithin, int yWithin) {
+    protected void handleClickOnCell(int xCell, int yCell, int xWithin, int yWithin) {
         int xBoard = 1 + (xCell / 3);
         int yBoard = 1 + (yCell / 3);
         int xSpot = 1 + (xCell % 3);
@@ -58,7 +58,7 @@ public class TTTxNineCanvas extends GameCanvas_SimpleGrid {
         g.drawRect(7, 7, width-14, height-14);
 
         if(gameStateHasFact("( currentBoard " + xBoard + " " + yBoard + " )") ||
-           gameStateHasFactsMatching("\\( currentBoard (.*) (.*) \\)").size() == 0) {
+                gameStateHasFactsMatching("\\( currentBoard (.*) (.*) \\)").size() == 0) {
             g.setColor(Color.BLUE);
         }
         if(xSpot == 1) g.fillRect(0, 0, 5, height);
@@ -88,7 +88,7 @@ public class TTTxNineCanvas extends GameCanvas_SimpleGrid {
         }
 
         if(xSelectedSpot == xSpot && ySelectedSpot == ySpot &&
-           xSelectedBoard == xBoard && ySelectedBoard == yBoard) {
+                xSelectedBoard == xBoard && ySelectedBoard == yBoard) {
             g.setColor(Color.GREEN);
             g.fillRect(10, 10, width-19, height-19);
         }

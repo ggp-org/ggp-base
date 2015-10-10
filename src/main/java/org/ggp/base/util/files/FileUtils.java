@@ -21,9 +21,9 @@ public class FileUtils {
         } catch (FileNotFoundException e) {
             return null;
         } catch (IOException e) {
-			e.printStackTrace();
-			return null;
-		}
+            e.printStackTrace();
+            return null;
+        }
     }
 
     public static void writeStringToFile(File file, String s) throws IOException {

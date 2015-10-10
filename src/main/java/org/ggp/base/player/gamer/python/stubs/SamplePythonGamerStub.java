@@ -12,7 +12,7 @@ import org.ggp.base.player.gamer.python.PythonGamer;
 public final class SamplePythonGamerStub extends PythonGamer
 {
     @Override
-	protected String getPythonGamerModule() { return "sample_gamer"; }
+    protected String getPythonGamerModule() { return "sample_gamer"; }
     @Override
-	protected String getPythonGamerName() { return "SamplePythonGamer"; }
+    protected String getPythonGamerName() { return "SamplePythonGamer"; }
 }

@@ -14,9 +14,9 @@ import org.ggp.base.util.statemachine.verifier.StateMachineVerifier;
  *
  */
 public class TransformTester {
-	public static void main(String args[]) throws InterruptedException {
+    public static void main(String args[]) throws InterruptedException {
 
-	    final boolean showDiffs = false;
+        final boolean showDiffs = false;
         final ProverStateMachine theReference = new ProverStateMachine();
         final ProverStateMachine theMachine = new ProverStateMachine();
 
@@ -48,5 +48,5 @@ public class TransformTester {
                 }
             }
         }
-	}
+    }
 }

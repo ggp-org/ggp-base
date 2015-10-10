@@ -12,9 +12,9 @@ public class ConnectFiveCanvas extends GameCanvas_Chessboard {
     public static final long serialVersionUID = 0x1;
 
     @Override
-	public String getGameName() { return "Connect Five"; }
+    public String getGameName() { return "Connect Five"; }
     @Override
-	protected String getGameKey() { return "connect5"; }
+    protected String getGameKey() { return "connect5"; }
 
     @Override
     protected Set<String> getFactsAboutCell(int xCell, int yCell) {

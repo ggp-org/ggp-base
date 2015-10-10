@@ -58,47 +58,47 @@ public final class Match
     private final int startClock;
     private final int previewClock;
     private final Date startTime;
-	private final Game theGame;
-	private final List<List<GdlTerm>> moveHistory;
-	private final List<Set<GdlSentence>> stateHistory;
-	private final List<List<String>> errorHistory;
-	private final List<Date> stateTimeHistory;
-	private boolean isCompleted;
-	private boolean isAborted;
-	private final List<Integer> goalValues;
-	private final int numRoles;
+    private final Game theGame;
+    private final List<List<GdlTerm>> moveHistory;
+    private final List<Set<GdlSentence>> stateHistory;
+    private final List<List<String>> errorHistory;
+    private final List<Date> stateTimeHistory;
+    private boolean isCompleted;
+    private boolean isAborted;
+    private final List<Integer> goalValues;
+    private final int numRoles;
 
-	private EncodedKeyPair theCryptographicKeys;
-	private List<String> thePlayerNamesFromHost;
-	private List<Boolean> isPlayerHuman;
+    private EncodedKeyPair theCryptographicKeys;
+    private List<String> thePlayerNamesFromHost;
+    private List<Boolean> isPlayerHuman;
 
-	private GdlScrambler theGdlScrambler = new NoOpGdlScrambler();
+    private GdlScrambler theGdlScrambler = new NoOpGdlScrambler();
 
-	public Match(String matchId, int previewClock, int startClock, int playClock, Game theGame)
-	{
-		this.matchId = matchId;
-		this.previewClock = previewClock;
-		this.startClock = startClock;
-		this.playClock = playClock;
-		this.theGame = theGame;
+    public Match(String matchId, int previewClock, int startClock, int playClock, Game theGame)
+    {
+        this.matchId = matchId;
+        this.previewClock = previewClock;
+        this.startClock = startClock;
+        this.playClock = playClock;
+        this.theGame = theGame;
 
-		this.startTime = new Date();
-		this.randomToken = getRandomString(32);
-		this.spectatorAuthToken = getRandomString(12);
-		this.isCompleted = false;
-		this.isAborted = false;
+        this.startTime = new Date();
+        this.randomToken = getRandomString(32);
+        this.spectatorAuthToken = getRandomString(12);
+        this.isCompleted = false;
+        this.isAborted = false;
 
-		this.numRoles = Role.computeRoles(theGame.getRules()).size();
+        this.numRoles = Role.computeRoles(theGame.getRules()).size();
 
-		this.moveHistory = new ArrayList<List<GdlTerm>>();
-		this.stateHistory = new ArrayList<Set<GdlSentence>>();
-		this.stateTimeHistory = new ArrayList<Date>();
-		this.errorHistory = new ArrayList<List<String>>();
+        this.moveHistory = new ArrayList<List<GdlTerm>>();
+        this.stateHistory = new ArrayList<Set<GdlSentence>>();
+        this.stateTimeHistory = new ArrayList<Date>();
+        this.errorHistory = new ArrayList<List<String>>();
 
-		this.goalValues = new ArrayList<Integer>();
-	}
+        this.goalValues = new ArrayList<Integer>();
+    }
 
-	public Match(String theJSON, Game theGame, String authToken) throws JSONException, SymbolFormatException, GdlFormatException {
+    public Match(String theJSON, Game theGame, String authToken) throws JSONException, SymbolFormatException, GdlFormatException {
         JSONObject theMatchObject = new JSONObject(theJSON);
 
         this.matchId = theMatchObject.getString("matchId");
@@ -114,9 +114,9 @@ public final class Match
         }
 
         if (theMatchObject.has("previewClock")) {
-        	this.previewClock = theMatchObject.getInt("previewClock");
+            this.previewClock = theMatchObject.getInt("previewClock");
         } else {
-        	this.previewClock = -1;
+            this.previewClock = -1;
         }
 
         this.startTime = new Date(theMatchObject.getLong("startTime"));
@@ -124,9 +124,9 @@ public final class Match
         this.spectatorAuthToken = authToken;
         this.isCompleted = theMatchObject.getBoolean("isCompleted");
         if (theMatchObject.has("isAborted")) {
-        	this.isAborted = theMatchObject.getBoolean("isAborted");
+            this.isAborted = theMatchObject.getBoolean("isAborted");
         } else {
-        	this.isAborted = false;
+            this.isAborted = false;
         }
 
         this.numRoles = Role.computeRoles(this.theGame.getRules()).size();
@@ -191,62 +191,62 @@ public final class Match
             }
         }
         if (theMatchObject.has("isPlayerHuman")) {
-        	isPlayerHuman = new ArrayList<Boolean>();
+            isPlayerHuman = new ArrayList<Boolean>();
             JSONArray isPlayerHumanArray = theMatchObject.getJSONArray("isPlayerHuman");
             for (int i = 0; i < isPlayerHumanArray.length(); i++) {
-            	isPlayerHuman.add(isPlayerHumanArray.getBoolean(i));
+                isPlayerHuman.add(isPlayerHumanArray.getBoolean(i));
             }
         }
-	}
+    }
 
-	/* Mutators */
+    /* Mutators */
 
-	public void setCryptographicKeys(EncodedKeyPair k) {
-	    this.theCryptographicKeys = k;
-	}
+    public void setCryptographicKeys(EncodedKeyPair k) {
+        this.theCryptographicKeys = k;
+    }
 
-	public void enableScrambling() {
-		theGdlScrambler = new MappingGdlScrambler(new Random(startTime.getTime()));
-		for (Gdl rule : theGame.getRules()) {
-			theGdlScrambler.scramble(rule);
-		}
-	}
+    public void enableScrambling() {
+        theGdlScrambler = new MappingGdlScrambler(new Random(startTime.getTime()));
+        for (Gdl rule : theGame.getRules()) {
+            theGdlScrambler.scramble(rule);
+        }
+    }
 
-	public void setPlayerNamesFromHost(List<String> thePlayerNames) {
-	    this.thePlayerNamesFromHost = thePlayerNames;
-	}
+    public void setPlayerNamesFromHost(List<String> thePlayerNames) {
+        this.thePlayerNamesFromHost = thePlayerNames;
+    }
 
-	public List<String> getPlayerNamesFromHost() {
-		return thePlayerNamesFromHost;
-	}
+    public List<String> getPlayerNamesFromHost() {
+        return thePlayerNamesFromHost;
+    }
 
-	public void setWhichPlayersAreHuman(List<Boolean> isPlayerHuman) {
-		this.isPlayerHuman = isPlayerHuman;
-	}
+    public void setWhichPlayersAreHuman(List<Boolean> isPlayerHuman) {
+        this.isPlayerHuman = isPlayerHuman;
+    }
 
-	public void appendMoves(List<GdlTerm> moves) {
-		moveHistory.add(moves);
-	}
+    public void appendMoves(List<GdlTerm> moves) {
+        moveHistory.add(moves);
+    }
 
-	public void appendMoves2(List<Move> moves) {
-	    // NOTE: This is appendMoves2 because it Java can't handle two
-	    // appendMove methods that both take List objects with different
-	    // templatized parameters.
-		List<GdlTerm> theMoves = new ArrayList<GdlTerm>();
-		for(Move m : moves) {
-			theMoves.add(m.getContents());
-		}
-		appendMoves(theMoves);
-	}
+    public void appendMoves2(List<Move> moves) {
+        // NOTE: This is appendMoves2 because it Java can't handle two
+        // appendMove methods that both take List objects with different
+        // templatized parameters.
+        List<GdlTerm> theMoves = new ArrayList<GdlTerm>();
+        for(Move m : moves) {
+            theMoves.add(m.getContents());
+        }
+        appendMoves(theMoves);
+    }
 
-	public void appendState(Set<GdlSentence> state) {
-	    stateHistory.add(state);
-	    stateTimeHistory.add(new Date());
-	}
+    public void appendState(Set<GdlSentence> state) {
+        stateHistory.add(state);
+        stateTimeHistory.add(new Date());
+    }
 
-	public void appendErrors(List<String> errors) {
-	    errorHistory.add(errors);
-	}
+    public void appendErrors(List<String> errors) {
+        errorHistory.add(errors);
+    }
 
     public void appendNoErrors() {
         List<String> theNoErrors = new ArrayList<String>();
@@ -256,18 +256,18 @@ public final class Match
         errorHistory.add(theNoErrors);
     }
 
-	public void markCompleted(List<Integer> theGoalValues) {
-	    this.isCompleted = true;
-	    if (theGoalValues != null) {
-	        this.goalValues.addAll(theGoalValues);
-	    }
-	}
+    public void markCompleted(List<Integer> theGoalValues) {
+        this.isCompleted = true;
+        if (theGoalValues != null) {
+            this.goalValues.addAll(theGoalValues);
+        }
+    }
 
-	public void markAborted() {
-		this.isAborted = true;
-	}
+    public void markAborted() {
+        this.isAborted = true;
+    }
 
-	/* Complex accessors */
+    /* Complex accessors */
 
     public String toJSON() {
         JSONObject theJSON = new JSONObject();
@@ -295,7 +295,7 @@ public final class Match
                 theJSON.put("playerNamesFromHost", thePlayerNamesFromHost);
             }
             if (isPlayerHuman != null) {
-            	theJSON.put("isPlayerHuman", isPlayerHuman);
+                theJSON.put("isPlayerHuman", isPlayerHuman);
             }
             theJSON.put("scrambled", theGdlScrambler != null ? theGdlScrambler.scrambles() : false);
         } catch (JSONException e) {
@@ -322,33 +322,33 @@ public final class Match
     }
 
     public String toXML() {
-    	try {
-    		JSONObject theJSON = new JSONObject(toJSON());
+        try {
+            JSONObject theJSON = new JSONObject(toJSON());
 
-    		StringBuilder theXML = new StringBuilder();
-    		theXML.append("<match>");
-    		for (String key : JSONObject.getNames(theJSON)) {
-    			Object value = theJSON.get(key);
-    			if (value instanceof JSONObject) {
-    				throw new RuntimeException("Unexpected embedded JSONObject in match JSON with tag " + key + "; could not convert to XML.");
-    			} else if (!(value instanceof JSONArray)) {
-    				theXML.append(renderLeafXML(key, theJSON.get(key)));
-    			} else if (key.equals("states")) {
-    				theXML.append(renderStateHistoryXML(stateHistory));
-    			} else if (key.equals("moves")) {
-    				theXML.append(renderMoveHistoryXML(moveHistory));
-    			} else if (key.equals("errors")) {
-    				theXML.append(renderErrorHistoryXML(errorHistory));
-    			} else {
-    				theXML.append(renderArrayXML(key, (JSONArray)value));
-    			}
-    		}
-    		theXML.append("</match>");
+            StringBuilder theXML = new StringBuilder();
+            theXML.append("<match>");
+            for (String key : JSONObject.getNames(theJSON)) {
+                Object value = theJSON.get(key);
+                if (value instanceof JSONObject) {
+                    throw new RuntimeException("Unexpected embedded JSONObject in match JSON with tag " + key + "; could not convert to XML.");
+                } else if (!(value instanceof JSONArray)) {
+                    theXML.append(renderLeafXML(key, theJSON.get(key)));
+                } else if (key.equals("states")) {
+                    theXML.append(renderStateHistoryXML(stateHistory));
+                } else if (key.equals("moves")) {
+                    theXML.append(renderMoveHistoryXML(moveHistory));
+                } else if (key.equals("errors")) {
+                    theXML.append(renderErrorHistoryXML(errorHistory));
+                } else {
+                    theXML.append(renderArrayXML(key, (JSONArray)value));
+                }
+            }
+            theXML.append("</match>");
 
-    		return theXML.toString();
-    	} catch (JSONException je) {
-    		return null;
-    	}
+            return theXML.toString();
+        } catch (JSONException je) {
+            return null;
+        }
     }
 
     public List<GdlTerm> getMostRecentMoves() {
@@ -368,11 +368,11 @@ public final class Match
     }
 
     @Override
-	public String toString() {
+    public String toString() {
         return toJSON();
     }
 
-	/* Simple accessors */
+    /* Simple accessors */
 
     public String getMatchId() {
         return matchId;
@@ -386,13 +386,13 @@ public final class Match
         return spectatorAuthToken;
     }
 
-	public Game getGame() {
-		return theGame;
-	}
+    public Game getGame() {
+        return theGame;
+    }
 
-	public List<List<GdlTerm>> getMoveHistory() {
-		return moveHistory;
-	}
+    public List<List<GdlTerm>> getMoveHistory() {
+        return moveHistory;
+    }
 
     public List<Set<GdlSentence>> getStateHistory() {
         return stateHistory;
@@ -407,38 +407,38 @@ public final class Match
     }
 
     public int getPreviewClock() {
-    	return previewClock;
+        return previewClock;
     }
 
-	public int getPlayClock() {
-		return playClock;
-	}
+    public int getPlayClock() {
+        return playClock;
+    }
 
-	public int getStartClock() {
-		return startClock;
-	}
+    public int getStartClock() {
+        return startClock;
+    }
 
-	public Date getStartTime() {
-	    return startTime;
-	}
+    public Date getStartTime() {
+        return startTime;
+    }
 
-	public boolean isCompleted() {
-	    return isCompleted;
-	}
+    public boolean isCompleted() {
+        return isCompleted;
+    }
 
-	public boolean isAborted() {
-	    return isAborted;
-	}
+    public boolean isAborted() {
+        return isAborted;
+    }
 
-	public List<Integer> getGoalValues() {
-	    return goalValues;
-	}
+    public List<Integer> getGoalValues() {
+        return goalValues;
+    }
 
-	public GdlScrambler getGdlScrambler() {
-		return theGdlScrambler;
-	}
+    public GdlScrambler getGdlScrambler() {
+        return theGdlScrambler;
+    }
 
-	/* Static methods */
+    /* Static methods */
 
     public static final String getRandomString(int nLength) {
         Random theGenerator = new Random();
@@ -508,63 +508,63 @@ public final class Match
     /* XML Rendering methods -- these are horribly inefficient and are included only for legacy/standards compatibility */
 
     private static final String renderLeafXML(String tagName, Object value) {
-    	return "<" + tagName + ">" + value.toString() + "</" + tagName + ">";
+        return "<" + tagName + ">" + value.toString() + "</" + tagName + ">";
     }
 
     private static final String renderMoveHistoryXML(List<List<GdlTerm>> moveHistory) {
-    	StringBuilder theXML = new StringBuilder();
-		theXML.append("<history>");
-		for (List<GdlTerm> move : moveHistory) {
-			theXML.append("<move>");
-			for (GdlTerm action : move) {
-				theXML.append(renderLeafXML("action", renderGdlToXML(action)));
-			}
-			theXML.append("</move>");
-		}
-		theXML.append("</history>");
-		return theXML.toString();
+        StringBuilder theXML = new StringBuilder();
+        theXML.append("<history>");
+        for (List<GdlTerm> move : moveHistory) {
+            theXML.append("<move>");
+            for (GdlTerm action : move) {
+                theXML.append(renderLeafXML("action", renderGdlToXML(action)));
+            }
+            theXML.append("</move>");
+        }
+        theXML.append("</history>");
+        return theXML.toString();
     }
 
     private static final String renderErrorHistoryXML(List<List<String>> errorHistory) {
-    	StringBuilder theXML = new StringBuilder();
-		theXML.append("<errorHistory>");
-		for (List<String> errors : errorHistory) {
-			theXML.append("<errors>");
-			for (String error : errors) {
-				theXML.append(renderLeafXML("error", error));
-			}
-			theXML.append("</errors>");
-		}
-		theXML.append("</errorHistory>");
-		return theXML.toString();
+        StringBuilder theXML = new StringBuilder();
+        theXML.append("<errorHistory>");
+        for (List<String> errors : errorHistory) {
+            theXML.append("<errors>");
+            for (String error : errors) {
+                theXML.append(renderLeafXML("error", error));
+            }
+            theXML.append("</errors>");
+        }
+        theXML.append("</errorHistory>");
+        return theXML.toString();
     }
 
     private static final String renderStateHistoryXML(List<Set<GdlSentence>> stateHistory) {
-    	StringBuilder theXML = new StringBuilder();
-		theXML.append("<herstory>");
-		for (Set<GdlSentence> state : stateHistory) {
-			theXML.append(renderStateXML(state));
-		}
-		theXML.append("</herstory>");
-		return theXML.toString();
+        StringBuilder theXML = new StringBuilder();
+        theXML.append("<herstory>");
+        for (Set<GdlSentence> state : stateHistory) {
+            theXML.append(renderStateXML(state));
+        }
+        theXML.append("</herstory>");
+        return theXML.toString();
     }
 
     public static final String renderStateXML(Set<GdlSentence> state) {
-    	StringBuilder theXML = new StringBuilder();
-		theXML.append("<state>");
-		for (GdlSentence sentence : state) {
-			theXML.append(renderGdlToXML(sentence));
-		}
-		theXML.append("</state>");
-		return theXML.toString();
+        StringBuilder theXML = new StringBuilder();
+        theXML.append("<state>");
+        for (GdlSentence sentence : state) {
+            theXML.append(renderGdlToXML(sentence));
+        }
+        theXML.append("</state>");
+        return theXML.toString();
     }
 
     private static final String renderArrayXML(String tag, JSONArray arr) throws JSONException {
-    	StringBuilder theXML = new StringBuilder();
-    	for (int i = 0; i < arr.length(); i++) {
-    		theXML.append(renderLeafXML(tag, arr.get(i)));
-    	}
-		return theXML.toString();
+        StringBuilder theXML = new StringBuilder();
+        for (int i = 0; i < arr.length(); i++) {
+            theXML.append(renderLeafXML(tag, arr.get(i)));
+        }
+        return theXML.toString();
     }
 
     private static final String renderGdlToXML(Gdl gdl) {

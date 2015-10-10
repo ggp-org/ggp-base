@@ -22,18 +22,18 @@ public class TicTacToeCanvas_Reference extends GameCanvas {
     public static final long serialVersionUID = 0x1;
 
     @Override
-	public String getGameName() {
+    public String getGameName() {
         return "Tic-Tac-Toe (Old Version)";
     }
 
     @Override
-	protected String getGameKey() {
+    protected String getGameKey() {
         return "ticTacToe";
     }
 
     private Graphics mostRecentG;
     @Override
-	protected void paintGame(Graphics g) {
+    protected void paintGame(Graphics g) {
         int width = g.getClipBounds().width;
         int height = g.getClipBounds().height;
 
@@ -85,7 +85,7 @@ public class TicTacToeCanvas_Reference extends GameCanvas {
                     continue;
 
                 GdlFunction moveContents = (GdlFunction) legalMove.getContents();
-				int xCell = Integer.parseInt(moveContents.getBody().get(0).toString());
+                int xCell = Integer.parseInt(moveContents.getBody().get(0).toString());
                 int yCell = Integer.parseInt(moveContents.getBody().get(1).toString());
 
                 int xSpot = (xCell-1)*width/3 + 2;
@@ -110,13 +110,13 @@ public class TicTacToeCanvas_Reference extends GameCanvas {
     }
 
     @Override
-	protected void handleDragEvent(int dx, int dy) {
+    protected void handleDragEvent(int dx, int dy) {
         ;
     }
 
     private int xSelectedCell, ySelectedCell;
     @Override
-	protected void handleClickEvent(int x, int y) {
+    protected void handleClickEvent(int x, int y) {
         int width = mostRecentG.getClipBounds().width;
         int height = mostRecentG.getClipBounds().height;
 
@@ -143,7 +143,7 @@ public class TicTacToeCanvas_Reference extends GameCanvas {
     }
 
     @Override
-	public void clearMoveSelection() {
+    public void clearMoveSelection() {
         xSelectedCell = ySelectedCell = 0;
         submitWorkingMove(null);
 

@@ -23,26 +23,26 @@ import org.junit.runners.Suite;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
-	BaseCryptographyTest.class,
-	BaseHashingTest.class,
-	CanonicalJSONTest.class,
-	ClojureGamerTest.class,
-	DependencyGraphsTest.class,
-	GameParsingTest.class,
-	GdlCleanerTest.class,
-	GdlRendererTest.class,
-	GdlScramblerTest.class,
-	HttpTest.class,
-	InfoResponseTest.class,
-	LogSummarizerTest.class,
-	NoTabsInRulesheetsTest.class,
-	ProverStateMachineTest.class,
-	PythonGamerTest.class,
-	SignableJSONTest.class,
-	SimpleSentenceFormTest.class,
-	StaticValidationTest.class,
-	TiltyardRequestFarmTest.class,
-                     })
+    BaseCryptographyTest.class,
+    BaseHashingTest.class,
+    CanonicalJSONTest.class,
+    ClojureGamerTest.class,
+    DependencyGraphsTest.class,
+    GameParsingTest.class,
+    GdlCleanerTest.class,
+    GdlRendererTest.class,
+    GdlScramblerTest.class,
+    HttpTest.class,
+    InfoResponseTest.class,
+    LogSummarizerTest.class,
+    NoTabsInRulesheetsTest.class,
+    ProverStateMachineTest.class,
+    PythonGamerTest.class,
+    SignableJSONTest.class,
+    SimpleSentenceFormTest.class,
+    StaticValidationTest.class,
+    TiltyardRequestFarmTest.class,
+})
 public class AllTests {
 
 }

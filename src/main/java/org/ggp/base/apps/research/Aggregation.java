@@ -15,40 +15,40 @@ import java.util.TreeSet;
  */
 public abstract class Aggregation<T extends Comparable<T>>
 {
-	final private Map<String, T> entryData = new HashMap<String, T>();
+    final private Map<String, T> entryData = new HashMap<String, T>();
 
-	boolean containsEntry(String key) {
-		return entryData.containsKey(key);
-	}
+    boolean containsEntry(String key) {
+        return entryData.containsKey(key);
+    }
 
-	void createEntry(String key, T data) {
-		entryData.put(key, data);
-	}
+    void createEntry(String key, T data) {
+        entryData.put(key, data);
+    }
 
-	T getEntryData(String key) {
-		return entryData.get(key);
-	}
+    T getEntryData(String key) {
+        return entryData.get(key);
+    }
 
-	private final class EntryComparator implements Comparator<Map.Entry<String,T>> {
-		@Override
-		public int compare(Map.Entry<String,T> a, Map.Entry<String,T> b) {
-			return a.getValue().compareTo(b.getValue());
-		}
+    private final class EntryComparator implements Comparator<Map.Entry<String,T>> {
+        @Override
+        public int compare(Map.Entry<String,T> a, Map.Entry<String,T> b) {
+            return a.getValue().compareTo(b.getValue());
+        }
 
-	}
+    }
 
-	@Override
-	public String toString() {
-		int nMaxLength = 0;
-		StringBuilder theStringRep = new StringBuilder();
-		TreeSet<Map.Entry<String,T>> theEntries = new TreeSet<Map.Entry<String,T>>(new EntryComparator());
-		theEntries.addAll(entryData.entrySet());
-		for (Map.Entry<String,T> entry : theEntries) {
-			nMaxLength = Math.max(nMaxLength, entry.getKey().length());
-		}
-		for (Map.Entry<String,T> entry : theEntries) {
-			theStringRep.append(String.format("%1$-" + (nMaxLength + 5) + "s", entry.getKey()) + entry.getValue() + "\n");
-		}
-		return theStringRep.toString();
-	}
+    @Override
+    public String toString() {
+        int nMaxLength = 0;
+        StringBuilder theStringRep = new StringBuilder();
+        TreeSet<Map.Entry<String,T>> theEntries = new TreeSet<Map.Entry<String,T>>(new EntryComparator());
+        theEntries.addAll(entryData.entrySet());
+        for (Map.Entry<String,T> entry : theEntries) {
+            nMaxLength = Math.max(nMaxLength, entry.getKey().length());
+        }
+        for (Map.Entry<String,T> entry : theEntries) {
+            theStringRep.append(String.format("%1$-" + (nMaxLength + 5) + "s", entry.getKey()) + entry.getValue() + "\n");
+        }
+        return theStringRep.toString();
+    }
 }

@@ -78,12 +78,12 @@ public class GameGUI extends JPanel implements Subject, Observer, ActionListener
     }
 
     public void beginPlay() {
-    	stillMetagaming = false;
-    	updateControls();
+        stillMetagaming = false;
+        updateControls();
     }
 
     public void updateGameState(MachineState gameState) {
-    	moveBeingSubmitted = false;
+        moveBeingSubmitted = false;
         theCanvas.updateGameState(gameState);
         updateControls();
     }
@@ -97,9 +97,9 @@ public class GameGUI extends JPanel implements Subject, Observer, ActionListener
         if(event instanceof MoveSelectedEvent) {
             workingMove = ((MoveSelectedEvent)event).getMove();
             if(((MoveSelectedEvent)event).isFinal()) {
-            	moveBeingSubmitted = true;
-            	updateControls();
-            	notifyObservers(new MoveSelectedEvent(workingMove));
+                moveBeingSubmitted = true;
+                updateControls();
+                notifyObservers(new MoveSelectedEvent(workingMove));
             }
             updateControls();
         }

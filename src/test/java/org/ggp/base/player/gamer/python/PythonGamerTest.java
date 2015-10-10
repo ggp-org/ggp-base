@@ -15,7 +15,7 @@ import org.junit.Test;
  * @author Sam
  */
 public class PythonGamerTest extends Assert {
-	@Test
+    @Test
     public void testPythonGamer() {
         try {
             Gamer g = new SamplePythonGamerStub();

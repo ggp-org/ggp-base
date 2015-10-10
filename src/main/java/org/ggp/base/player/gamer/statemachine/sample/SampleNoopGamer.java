@@ -14,14 +14,14 @@ import org.ggp.base.util.statemachine.exceptions.TransitionDefinitionException;
  */
 public final class SampleNoopGamer extends SampleGamer
 {
-	@Override
-	public Move stateMachineSelectMove(long timeout) throws TransitionDefinitionException, MoveDefinitionException, GoalDefinitionException
-	{
-		return new Move(GdlPool.getConstant("NOOP"));
-	}
+    @Override
+    public Move stateMachineSelectMove(long timeout) throws TransitionDefinitionException, MoveDefinitionException, GoalDefinitionException
+    {
+        return new Move(GdlPool.getConstant("NOOP"));
+    }
 
-	@Override
-	public DetailPanel getDetailPanel() {
-		return new EmptyDetailPanel();
-	}
+    @Override
+    public DetailPanel getDetailPanel() {
+        return new EmptyDetailPanel();
+    }
 }

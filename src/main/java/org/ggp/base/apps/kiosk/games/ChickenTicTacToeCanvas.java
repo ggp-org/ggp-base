@@ -13,13 +13,13 @@ public class ChickenTicTacToeCanvas extends GameCanvas_FancyGrid {
     public static final long serialVersionUID = 0x1;
 
     @Override
-	public String getGameName() { return "Tic-Tac-Toe (Chicken)"; }
+    public String getGameName() { return "Tic-Tac-Toe (Chicken)"; }
     @Override
-	protected String getGameKey() { return "chickentictactoe"; }
+    protected String getGameKey() { return "chickentictactoe"; }
     @Override
-	protected int getGridHeight() { return 3; }
+    protected int getGridHeight() { return 3; }
     @Override
-	protected int getGridWidth() { return 3; }
+    protected int getGridWidth() { return 3; }
 
     @Override
     protected Set<String> getFactsAboutCell(int xCell, int yCell) {

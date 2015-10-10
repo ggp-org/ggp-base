@@ -14,53 +14,53 @@ import com.google.common.collect.Multimap;
  * to an existing SentenceFormModel.
  */
 public abstract class AbstractSentenceDomainModel implements SentenceDomainModel {
-	private final SentenceFormModel formModel;
+    private final SentenceFormModel formModel;
 
-	protected AbstractSentenceDomainModel(SentenceFormModel formModel) {
-		this.formModel = formModel;
-	}
+    protected AbstractSentenceDomainModel(SentenceFormModel formModel) {
+        this.formModel = formModel;
+    }
 
-	/*package-private*/ SentenceFormModel getFormModel() {
-		return formModel;
-	}
+    /*package-private*/ SentenceFormModel getFormModel() {
+        return formModel;
+    }
 
-	@Override
-	public Set<SentenceForm> getIndependentSentenceForms() {
-		return formModel.getIndependentSentenceForms();
-	}
+    @Override
+    public Set<SentenceForm> getIndependentSentenceForms() {
+        return formModel.getIndependentSentenceForms();
+    }
 
-	@Override
-	public Set<SentenceForm> getConstantSentenceForms() {
-		return formModel.getConstantSentenceForms();
-	}
+    @Override
+    public Set<SentenceForm> getConstantSentenceForms() {
+        return formModel.getConstantSentenceForms();
+    }
 
-	@Override
-	public Multimap<SentenceForm, SentenceForm> getDependencyGraph() {
-		return formModel.getDependencyGraph();
-	}
+    @Override
+    public Multimap<SentenceForm, SentenceForm> getDependencyGraph() {
+        return formModel.getDependencyGraph();
+    }
 
-	@Override
-	public Set<GdlSentence> getSentencesListedAsTrue(SentenceForm form) {
-		return formModel.getSentencesListedAsTrue(form);
-	}
+    @Override
+    public Set<GdlSentence> getSentencesListedAsTrue(SentenceForm form) {
+        return formModel.getSentencesListedAsTrue(form);
+    }
 
-	@Override
-	public Set<GdlRule> getRules(SentenceForm form) {
-		return formModel.getRules(form);
-	}
+    @Override
+    public Set<GdlRule> getRules(SentenceForm form) {
+        return formModel.getRules(form);
+    }
 
-	@Override
-	public Set<SentenceForm> getSentenceForms() {
-		return formModel.getSentenceForms();
-	}
+    @Override
+    public Set<SentenceForm> getSentenceForms() {
+        return formModel.getSentenceForms();
+    }
 
-	@Override
-	public List<Gdl> getDescription() {
-		return formModel.getDescription();
-	}
+    @Override
+    public List<Gdl> getDescription() {
+        return formModel.getDescription();
+    }
 
-	@Override
-	public SentenceForm getSentenceForm(GdlSentence sentence) {
-		return formModel.getSentenceForm(sentence);
-	}
+    @Override
+    public SentenceForm getSentenceForm(GdlSentence sentence) {
+        return formModel.getSentenceForm(sentence);
+    }
 }

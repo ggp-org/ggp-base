@@ -4,35 +4,35 @@ package org.ggp.base.util.gdl.grammar;
 public final class GdlNot extends GdlLiteral
 {
 
-	private final GdlLiteral body;
-	private transient Boolean ground;
+    private final GdlLiteral body;
+    private transient Boolean ground;
 
-	GdlNot(GdlLiteral body)
-	{
-		this.body = body;
-		ground = null;
-	}
+    GdlNot(GdlLiteral body)
+    {
+        this.body = body;
+        ground = null;
+    }
 
-	public GdlLiteral getBody()
-	{
-		return body;
-	}
+    public GdlLiteral getBody()
+    {
+        return body;
+    }
 
-	@Override
-	public boolean isGround()
-	{
-		if (ground == null)
-		{
-			ground = body.isGround();
-		}
+    @Override
+    public boolean isGround()
+    {
+        if (ground == null)
+        {
+            ground = body.isGround();
+        }
 
-		return ground;
-	}
+        return ground;
+    }
 
-	@Override
-	public String toString()
-	{
-		return "( not " + body + " )";
-	}
+    @Override
+    public String toString()
+    {
+        return "( not " + body + " )";
+    }
 
 }

@@ -12,9 +12,9 @@ public class CheckersCanvas extends GameCanvas_Chessboard {
     private static final long serialVersionUID = 1L;
 
     @Override
-	public String getGameName() { return "Checkers"; }
+    public String getGameName() { return "Checkers"; }
     @Override
-	protected String getGameKey() { return "checkers"; }
+    protected String getGameKey() { return "checkers"; }
 
     @Override
     protected Set<String> getLegalMovesForCell(int xCell, int yCell) {

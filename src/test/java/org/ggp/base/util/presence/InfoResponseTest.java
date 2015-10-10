@@ -11,69 +11,69 @@ import org.junit.Test;
  * @author Sam
  */
 public class InfoResponseTest extends Assert {
-	@Test
+    @Test
     public void testFormingInfoResponse() {
-    	InfoResponse response = new InfoResponse();
-    	assertEquals(response.toSymbol().toString(), "( )");
-    	response.setName("PlayerName");
-    	assertEquals(response.toSymbol().toString(), "( ( name PlayerName ) )");
-    	response.setStatus("available");
-    	assertEquals(response.toSymbol().toString(), "( ( name PlayerName ) ( status available ) )");
+        InfoResponse response = new InfoResponse();
+        assertEquals(response.toSymbol().toString(), "( )");
+        response.setName("PlayerName");
+        assertEquals(response.toSymbol().toString(), "( ( name PlayerName ) )");
+        response.setStatus("available");
+        assertEquals(response.toSymbol().toString(), "( ( name PlayerName ) ( status available ) )");
     }
 
-	@Test
+    @Test
     public void testParsingInfoResponse() {
-    	String input = "( ( name PlayerName ) ( status available ) )";
-    	InfoResponse response = InfoResponse.create(input);
-    	assertEquals(response.getName(), "PlayerName");
-    	assertEquals(response.getStatus(), "available");
+        String input = "( ( name PlayerName ) ( status available ) )";
+        InfoResponse response = InfoResponse.create(input);
+        assertEquals(response.getName(), "PlayerName");
+        assertEquals(response.getStatus(), "available");
     }
 
-	@Test
+    @Test
     public void testParsingInfoResponseWithExtras() {
-    	String input = "( whatsup ( name PlayerName ) ( ( foo bar ) baz ) ( status available ) zzq )";
-    	InfoResponse response = InfoResponse.create(input);
-    	assertEquals(response.getName(), "PlayerName");
-    	assertEquals(response.getStatus(), "available");
+        String input = "( whatsup ( name PlayerName ) ( ( foo bar ) baz ) ( status available ) zzq )";
+        InfoResponse response = InfoResponse.create(input);
+        assertEquals(response.getName(), "PlayerName");
+        assertEquals(response.getStatus(), "available");
     }
 
-	@Test
+    @Test
     public void testParsingInfoResponseWithNoStatus() {
-    	String input = "( whatsup ( ) ( baz ) ( name PlayerName ) )";
-    	InfoResponse response = InfoResponse.create(input);
-    	assertEquals(response.getName(), "PlayerName");
-    	assertEquals(response.getStatus(), null);
+        String input = "( whatsup ( ) ( baz ) ( name PlayerName ) )";
+        InfoResponse response = InfoResponse.create(input);
+        assertEquals(response.getName(), "PlayerName");
+        assertEquals(response.getStatus(), null);
     }
 
-	@Test
+    @Test
     public void testParsingInfoResponseWithNoInfo() {
-    	String input = "( )";
-    	InfoResponse response = InfoResponse.create(input);
-    	assertEquals(response.getName(), null);
-    	assertEquals(response.getStatus(), null);
+        String input = "( )";
+        InfoResponse response = InfoResponse.create(input);
+        assertEquals(response.getName(), null);
+        assertEquals(response.getStatus(), null);
     }
 
-	@Test
+    @Test
     public void testParsingBadlyFormedInfoResponse() {
-    	String input = "(";
-    	InfoResponse response = InfoResponse.create(input);
-    	assertEquals(response.getName(), null);
-    	assertEquals(response.getStatus(), null);
+        String input = "(";
+        InfoResponse response = InfoResponse.create(input);
+        assertEquals(response.getName(), null);
+        assertEquals(response.getStatus(), null);
     }
 
-	@Test
+    @Test
     public void testParsingStatusOnlyInfoResponse() {
-    	String input = "busy";
-    	InfoResponse response = InfoResponse.create(input);
-    	assertEquals(response.getName(), null);
-    	assertEquals(response.getStatus(), "busy");
+        String input = "busy";
+        InfoResponse response = InfoResponse.create(input);
+        assertEquals(response.getName(), null);
+        assertEquals(response.getStatus(), "busy");
     }
 
-	@Test
+    @Test
     public void testParsingInfoResponseLegacyJSON() {
-    	String input = "{\"name\":\"PlayerName\",\"status\":\"available\"}";
-    	InfoResponse response = InfoResponse.create(input);
-    	assertEquals(response.getName(), null);
-    	assertEquals(response.getStatus(), input);
+        String input = "{\"name\":\"PlayerName\",\"status\":\"available\"}";
+        InfoResponse response = InfoResponse.create(input);
+        assertEquals(response.getName(), null);
+        assertEquals(response.getStatus(), input);
     }
 }

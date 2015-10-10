@@ -24,8 +24,8 @@ public final class RemoteGameRepository extends GameRepository {
     }
 
     @Override
-	protected Set<String> getUncachedGameKeys() {
-    	Set<String> theGameKeys = new HashSet<String>();
+    protected Set<String> getUncachedGameKeys() {
+        Set<String> theGameKeys = new HashSet<String>();
         try {
             JSONArray theArray = RemoteResourceLoader.loadJSONArray(theRepoURL + "/games/");
             for(int i = 0; i < theArray.length(); i++) {
@@ -38,7 +38,7 @@ public final class RemoteGameRepository extends GameRepository {
     }
 
     @Override
-	protected Game getUncachedGame(String theKey) {
+    protected Game getUncachedGame(String theKey) {
         return loadSingleGame(getGameURL(theKey));
     }
 
@@ -63,7 +63,7 @@ public final class RemoteGameRepository extends GameRepository {
         try {
             int theVersion = theMetadata.getInt("version");
             if (!isVersioned(theGameURL, theVersion)) {
-              theGameURL = addVersionToGameURL(theGameURL, theVersion);
+                theGameURL = addVersionToGameURL(theGameURL, theVersion);
             }
         } catch(JSONException e) {
             e.printStackTrace();
@@ -87,7 +87,7 @@ public final class RemoteGameRepository extends GameRepository {
         try {
             return RemoteResourceLoader.loadJSON(theRepoURL + "/games/metadata");
         } catch (JSONException e) {
-        	return null;
+            return null;
         } catch (IOException e) {
             return null;
         }

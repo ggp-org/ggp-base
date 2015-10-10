@@ -42,19 +42,19 @@ public abstract class PythonGamer extends Gamer
     // time to initialize, so we only want to load it when necessary, and
     // not for light-weight things like returning the player name.
     private void lazilyLoadGamerStub() {
-    	if (thePythonGamer == null) {
-	        try {
-	            // Load in the Python gamer, using a Jython intepreter.
-	            PythonInterpreter interpreter = new PythonInterpreter();
-	            interpreter.exec("from " + getPythonGamerModule() + " import " + getPythonGamerName());
-	            PyObject thePyClass = interpreter.get(getPythonGamerName());
-	            PyObject PyGamerObject = thePyClass.__call__();
-	            thePythonGamer = (Gamer)PyGamerObject.__tojava__(Gamer.class);
-	        } catch(Exception e) {
-	            GamerLogger.logError("GamePlayer", "Caught exception in Python initialization:");
-	            GamerLogger.logStackTrace("GamePlayer", e);
-	        }
-    	}
+        if (thePythonGamer == null) {
+            try {
+                // Load in the Python gamer, using a Jython intepreter.
+                PythonInterpreter interpreter = new PythonInterpreter();
+                interpreter.exec("from " + getPythonGamerModule() + " import " + getPythonGamerName());
+                PyObject thePyClass = interpreter.get(getPythonGamerName());
+                PyObject PyGamerObject = thePyClass.__call__();
+                thePythonGamer = (Gamer)PyGamerObject.__tojava__(Gamer.class);
+            } catch(Exception e) {
+                GamerLogger.logError("GamePlayer", "Caught exception in Python initialization:");
+                GamerLogger.logStackTrace("GamePlayer", e);
+            }
+        }
     }
 
     // The following methods are overriden as 'final' because they should not
@@ -66,7 +66,7 @@ public abstract class PythonGamer extends Gamer
 
     @Override
     public final void preview(Game game, long timeout) throws GamePreviewException {
-    	lazilyLoadGamerStub();
+        lazilyLoadGamerStub();
         try {
             thePythonGamer.preview(game, timeout);
         } catch(GamePreviewException e) {
@@ -77,7 +77,7 @@ public abstract class PythonGamer extends Gamer
 
     @Override
     public final void metaGame(long timeout) throws MetaGamingException {
-    	lazilyLoadGamerStub();
+        lazilyLoadGamerStub();
         thePythonGamer.setMatch(getMatch());
         thePythonGamer.setRoleName(getRoleName());
         try {
@@ -90,7 +90,7 @@ public abstract class PythonGamer extends Gamer
 
     @Override
     public final GdlTerm selectMove(long timeout) throws MoveSelectionException {
-    	lazilyLoadGamerStub();
+        lazilyLoadGamerStub();
         thePythonGamer.setMatch(getMatch());
         thePythonGamer.setRoleName(getRoleName());
         try {
@@ -104,8 +104,8 @@ public abstract class PythonGamer extends Gamer
 
     @Override
     public final void stop() {
-    	lazilyLoadGamerStub();
-    	thePythonGamer.setMatch(getMatch());
+        lazilyLoadGamerStub();
+        thePythonGamer.setMatch(getMatch());
         thePythonGamer.setRoleName(getRoleName());
         try {
             thePythonGamer.stop();
@@ -117,8 +117,8 @@ public abstract class PythonGamer extends Gamer
 
     @Override
     public final void abort() {
-    	lazilyLoadGamerStub();
-    	thePythonGamer.setMatch(getMatch());
+        lazilyLoadGamerStub();
+        thePythonGamer.setMatch(getMatch());
         thePythonGamer.setRoleName(getRoleName());
         try {
             thePythonGamer.abort();
@@ -130,6 +130,6 @@ public abstract class PythonGamer extends Gamer
 
     @Override
     public final String getName() {
-    	return getPythonGamerName();
+        return getPythonGamerName();
     }
 }

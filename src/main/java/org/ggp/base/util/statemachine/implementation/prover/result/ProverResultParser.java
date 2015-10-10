@@ -17,38 +17,38 @@ import org.ggp.base.util.statemachine.Role;
 public final class ProverResultParser
 {
 
-	private final static GdlConstant TRUE = GdlPool.getConstant("true");
+    private final static GdlConstant TRUE = GdlPool.getConstant("true");
 
-	public List<Move> toMoves(Set<GdlSentence> results)
-	{
-		List<Move> moves = new ArrayList<Move>();
-		for (GdlSentence result : results)
-		{
-			moves.add(new Move(result.get(1)));
-		}
+    public List<Move> toMoves(Set<GdlSentence> results)
+    {
+        List<Move> moves = new ArrayList<Move>();
+        for (GdlSentence result : results)
+        {
+            moves.add(new Move(result.get(1)));
+        }
 
-		return moves;
-	}
+        return moves;
+    }
 
-	public List<Role> toRoles(List<GdlSentence> results)
-	{
-		List<Role> roles = new ArrayList<Role>();
-		for (GdlSentence result : results)
-		{
-			GdlConstant name = (GdlConstant) result.get(0);
-			roles.add(new Role(name));
-		}
+    public List<Role> toRoles(List<GdlSentence> results)
+    {
+        List<Role> roles = new ArrayList<Role>();
+        for (GdlSentence result : results)
+        {
+            GdlConstant name = (GdlConstant) result.get(0);
+            roles.add(new Role(name));
+        }
 
-		return roles;
-	}
+        return roles;
+    }
 
-	public MachineState toState(Set<GdlSentence> results)
-	{
-		Set<GdlSentence> trues = new HashSet<GdlSentence>();
-		for (GdlSentence result : results)
-		{
-			trues.add(GdlPool.getRelation(TRUE, new GdlTerm[] { result.get(0) }));
-		}
-		return new MachineState(trues);
-	}
+    public MachineState toState(Set<GdlSentence> results)
+    {
+        Set<GdlSentence> trues = new HashSet<GdlSentence>();
+        for (GdlSentence result : results)
+        {
+            trues.add(GdlPool.getRelation(TRUE, new GdlTerm[] { result.get(0) }));
+        }
+        return new MachineState(trues);
+    }
 }
