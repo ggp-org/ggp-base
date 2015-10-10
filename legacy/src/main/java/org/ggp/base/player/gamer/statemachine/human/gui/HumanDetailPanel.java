@@ -12,10 +12,10 @@ import javax.swing.JTextField;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.table.DefaultTableModel;
 
-import org.ggp.base.apps.player.detail.DetailPanel;
 import org.ggp.base.player.event.PlayerTimeEvent;
 import org.ggp.base.player.gamer.statemachine.human.event.HumanNewMovesEvent;
 import org.ggp.base.player.gamer.statemachine.human.event.HumanTimeoutEvent;
+import org.ggp.base.player.ui.detail.DetailPanel;
 import org.ggp.base.util.observer.Event;
 import org.ggp.base.util.statemachine.Move;
 import org.ggp.base.util.ui.table.JZebraTable;

@@ -1,4 +1,4 @@
-package org.ggp.base.apps.player.config;
+package org.ggp.base.player.ui.config;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
