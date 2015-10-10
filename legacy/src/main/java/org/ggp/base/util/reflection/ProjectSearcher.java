@@ -2,12 +2,14 @@ package org.ggp.base.util.reflection;
 
 import java.lang.reflect.Modifier;
 
-import org.ggp.base.apps.kiosk.GameCanvas;
 import org.ggp.base.player.gamer.Gamer;
 import org.reflections.Reflections;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Predicate;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 
@@ -15,16 +17,23 @@ public class ProjectSearcher {
     public static void main(String[] args)
     {
         System.out.println(GAMERS);
-        System.out.println(GAME_CANVASES);
     }
 
     private static final Reflections REFLECTIONS = new Reflections();
 
     public static final LoadedClasses<Gamer> GAMERS = new LoadedClasses<Gamer>(Gamer.class);
-    public static final LoadedClasses<GameCanvas> GAME_CANVASES = new LoadedClasses<GameCanvas>(GameCanvas.class);
 
+    private static final LoadingCache<Class<?>, LoadedClasses<?>> CACHE = CacheBuilder.newBuilder()
+            .build(new CacheLoader<Class<?>, LoadedClasses<?>>() {
+                @Override
+                public LoadedClasses<?> load(Class<?> key) throws Exception {
+                    return new LoadedClasses<>(key);
+                }
+            });
+
+    @SuppressWarnings("unchecked")
     public static final <T> ImmutableSet<Class<? extends T>> getAllClassesThatAre(Class<T> klass) {
-        return new LoadedClasses<T>(klass).getConcreteClasses();
+        return ((LoadedClasses<T>) CACHE.getUnchecked(klass)).getConcreteClasses();
     }
 
     public static class LoadedClasses<T> {

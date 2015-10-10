@@ -1,7 +1,7 @@
 package org.ggp.base.player.gamer.statemachine.sample;
 
-import org.ggp.base.apps.player.detail.DetailPanel;
-import org.ggp.base.apps.player.detail.EmptyDetailPanel;
+import org.ggp.base.player.ui.detail.DetailPanel;
+import org.ggp.base.player.ui.detail.EmptyDetailPanel;
 import org.ggp.base.util.gdl.grammar.GdlPool;
 import org.ggp.base.util.statemachine.Move;
 import org.ggp.base.util.statemachine.exceptions.GoalDefinitionException;

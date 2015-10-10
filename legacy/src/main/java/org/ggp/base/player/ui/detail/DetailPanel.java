@@ -1,4 +1,4 @@
-package org.ggp.base.apps.player.detail;
+package org.ggp.base.player.ui.detail;
 
 import java.awt.LayoutManager;
 
