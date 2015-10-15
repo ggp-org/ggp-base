@@ -1,6 +1,7 @@
 apply plugin: 'java'
 apply plugin: 'eclipse'
 apply plugin: 'checkstyle'
+apply plugin: 'idea'
 
 // We compile using Java 7.
 sourceCompatibility = 1.7

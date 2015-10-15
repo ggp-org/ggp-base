@@ -68,8 +68,10 @@ Compile without running tests: ./gradlew assemble
 Run the Kiosk app:             ./gradlew kiosk
 Run the Player app:            ./gradlew player
 Run the Server app:            ./gradlew server
+Create IntelliJ IDEA files:    ./gradlew idea
 
-See the PROGRAMS file for additional programs that can be run.
+See the PROGRAMS file for additional programs that can be run, including
+non-GUI player and server applications.
 
                               === MISC NOTES ===
 
