@@ -12,7 +12,7 @@ import org.ggp.base.player.gamer.clojure.ClojureGamer;
 public final class SampleClojureGamerStub extends ClojureGamer
 {
     @Override
-	protected String getClojureGamerFile() { return "sample_gamer"; }
+    protected String getClojureGamerFile() { return "sample_gamer"; }
     @Override
-	protected String getClojureGamerName() { return "SampleClojureGamer"; }
+    protected String getClojureGamerName() { return "SampleClojureGamer"; }
 }

@@ -23,50 +23,50 @@ import org.ggp.base.util.statemachine.exceptions.TransitionDefinitionException;
  */
 public final class SampleAlphabetGamer extends SampleGamer
 {
-	/**
-	 * This function is called at the start of each round
-	 * You are required to return the Move your player will play
-	 * before the timeout.
-	 *
-	 */
-	@Override
-	public Move stateMachineSelectMove(long timeout) throws TransitionDefinitionException, MoveDefinitionException, GoalDefinitionException
-	{
-		// We get the current start time
-		long start = System.currentTimeMillis();
+    /**
+     * This function is called at the start of each round
+     * You are required to return the Move your player will play
+     * before the timeout.
+     *
+     */
+    @Override
+    public Move stateMachineSelectMove(long timeout) throws TransitionDefinitionException, MoveDefinitionException, GoalDefinitionException
+    {
+        // We get the current start time
+        long start = System.currentTimeMillis();
 
-		/**
-		 * We put in memory the list of legal moves from the
-		 * current state. The goal of every stateMachineSelectMove()
-		 * is to return one of these moves. Choosing the best
-		 * Move to play is the goal of GGP.
-		 */
-		List<Move> moves = getStateMachine().getLegalMoves(getCurrentState(), getRole());
+        /**
+         * We put in memory the list of legal moves from the
+         * current state. The goal of every stateMachineSelectMove()
+         * is to return one of these moves. Choosing the best
+         * Move to play is the goal of GGP.
+         */
+        List<Move> moves = getStateMachine().getLegalMoves(getCurrentState(), getRole());
 
-		// Create a copy of the list of legal moves, so we can modify it.
-		moves = new ArrayList<Move>(moves);
+        // Create a copy of the list of legal moves, so we can modify it.
+        moves = new ArrayList<Move>(moves);
 
-		// Sort the list of moves alphabetically.
-		Collections.sort(moves, new Comparator<Move>(){
+        // Sort the list of moves alphabetically.
+        Collections.sort(moves, new Comparator<Move>(){
             @Override public int compare(Move m1, Move m2) {
                 return m1.toString().compareTo(m2.toString());
             }
         });
 
-		// Pick the move that comes first alphabetically.
-		Move selection = moves.get(0);
+        // Pick the move that comes first alphabetically.
+        Move selection = moves.get(0);
 
-		// Get the time when we finished.
-		// It is mandatory that "stop" be less than "timeout".
-		long stop = System.currentTimeMillis();
+        // Get the time when we finished.
+        // It is mandatory that "stop" be less than "timeout".
+        long stop = System.currentTimeMillis();
 
-		/**
-		 * These are functions used by other parts of the GGP codebase
-		 * You shouldn't worry about them, just make sure that you have
-		 * moves, selection, stop and start defined in the same way as
-		 * this example, and copy-paste these two lines in your player
-		 */
-		notifyObservers(new GamerSelectedMoveEvent(moves, selection, stop - start));
-		return selection;
-	}
+        /**
+         * These are functions used by other parts of the GGP codebase
+         * You shouldn't worry about them, just make sure that you have
+         * moves, selection, stop and start defined in the same way as
+         * this example, and copy-paste these two lines in your player
+         */
+        notifyObservers(new GamerSelectedMoveEvent(moves, selection, stop - start));
+        return selection;
+    }
 }

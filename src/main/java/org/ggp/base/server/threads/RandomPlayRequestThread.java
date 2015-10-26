@@ -9,23 +9,23 @@ import org.ggp.base.util.statemachine.Move;
 
 public final class RandomPlayRequestThread extends PlayRequestThread
 {
-	private Move move;
+    private Move move;
 
-	public RandomPlayRequestThread(Match match, List<Move> legalMoves)
-	{
-		super(null, match, null, legalMoves, null, null, 0, null, true);
-		move = legalMoves.get(new Random().nextInt(legalMoves.size()));
-	}
+    public RandomPlayRequestThread(Match match, List<Move> legalMoves)
+    {
+        super(null, match, null, legalMoves, null, null, 0, null, true);
+        move = legalMoves.get(new Random().nextInt(legalMoves.size()));
+    }
 
-	@Override
-	public Move getMove()
-	{
-		return move;
-	}
+    @Override
+    public Move getMove()
+    {
+        return move;
+    }
 
-	@Override
-	public void run()
-	{
-		;
-	}
+    @Override
+    public void run()
+    {
+        ;
+    }
 }

@@ -41,7 +41,7 @@ public class GamerLogger {
     }
 
     public static void setSpilloverLogfile(String spilloverFilename) {
-    	spilloverLogfile = spilloverFilename;
+        spilloverLogfile = spilloverFilename;
     }
 
     public static void startFileLogging(Match m, String roleName) {
@@ -132,7 +132,7 @@ public class GamerLogger {
             // go directly to the spillover file if one exists.
             String myFilename = myDirectory + "/" + toFile;
             if(!writeLogsToFile && spilloverLogfile != null) {
-            	myFilename = spilloverLogfile;
+                myFilename = spilloverLogfile;
             }
 
             // Periodically check to make sure we're not writing TOO MUCH to this file.

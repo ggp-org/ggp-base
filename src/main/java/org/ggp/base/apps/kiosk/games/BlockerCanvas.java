@@ -12,16 +12,16 @@ public class BlockerCanvas extends GameCanvas_FancyGrid {
     private static final long serialVersionUID = 1L;
 
     @Override
-	public String getGameName() { return "Blocker"; }
+    public String getGameName() { return "Blocker"; }
     @Override
-	protected String getGameKey() { return "blocker"; }
+    protected String getGameKey() { return "blocker"; }
     @Override
-	protected int getGridHeight() { return 6; }
+    protected int getGridHeight() { return 6; }
     @Override
-	protected int getGridWidth() { return 6; }
+    protected int getGridWidth() { return 6; }
 
     @Override
-	protected boolean coordinatesStartAtOne() { return false; }
+    protected boolean coordinatesStartAtOne() { return false; }
 
     @Override
     protected void renderCellBackground(Graphics g, int xCell, int yCell) {

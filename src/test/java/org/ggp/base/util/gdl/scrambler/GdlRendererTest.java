@@ -13,20 +13,20 @@ import org.junit.Test;
  * @author Sam
  */
 public class GdlRendererTest extends Assert {
-	/**
-	 * One important property for GdlRenderer is that it should generate
-	 * an identical rendering as if you had called the toString() method
-	 * on a Gdl object.
-	 */
-	@Test
+    /**
+     * One important property for GdlRenderer is that it should generate
+     * an identical rendering as if you had called the toString() method
+     * on a Gdl object.
+     */
+    @Test
     public void testSimpleRendering() {
-    	GdlRenderer renderer = new GdlRenderer();
-    	GameRepository repo = GameRepository.getDefaultRepository();
-    	for (String gameKey : repo.getGameKeys()) {
-    		Game game = repo.getGame(gameKey);
-    		for(Gdl rule : game.getRules()) {
-    			assertEquals(rule.toString(), renderer.renderGdl(rule));
-    		}
-    	}
+        GdlRenderer renderer = new GdlRenderer();
+        GameRepository repo = GameRepository.getDefaultRepository();
+        for (String gameKey : repo.getGameKeys()) {
+            Game game = repo.getGame(gameKey);
+            for(Gdl rule : game.getRules()) {
+                assertEquals(rule.toString(), renderer.renderGdl(rule));
+            }
+        }
     }
 }

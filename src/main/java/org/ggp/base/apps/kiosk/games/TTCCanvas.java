@@ -12,21 +12,21 @@ public class TTCCanvas extends GameCanvas_FancyGrid {
     private static final long serialVersionUID = 1L;
 
     @Override
-	public String getGameName() { return "Tic-Tac-Chess"; }
+    public String getGameName() { return "Tic-Tac-Chess"; }
     @Override
-	protected String getGameKey() { return "2pttc"; }
+    protected String getGameKey() { return "2pttc"; }
     @Override
-	protected int getGridHeight() { return 7; }
+    protected int getGridHeight() { return 7; }
     @Override
-	protected int getGridWidth() { return 7; }
+    protected int getGridWidth() { return 7; }
 
     @Override
-	protected final boolean useGridVisualization() { return false; }
+    protected final boolean useGridVisualization() { return false; }
     @Override
-	protected final boolean coordinatesStartAtOne() { return true; }
+    protected final boolean coordinatesStartAtOne() { return true; }
 
     @Override
-	protected final void renderCellBackground(Graphics g, int xCell, int yCell) {
+    protected final void renderCellBackground(Graphics g, int xCell, int yCell) {
         int width = g.getClipBounds().width;
         int height = g.getClipBounds().height;
 

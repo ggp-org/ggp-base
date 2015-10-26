@@ -15,7 +15,7 @@ import external.JSON.JSONObject;
  * @author Sam
  */
 public class SignableJSONTest extends Assert {
-	@Test
+    @Test
     public void testSimpleSigning() throws JSONException {
         EncodedKeyPair p = BaseCryptography.generateKeys();
 

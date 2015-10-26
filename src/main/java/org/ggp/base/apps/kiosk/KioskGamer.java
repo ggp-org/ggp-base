@@ -68,7 +68,7 @@ public class KioskGamer extends StateMachineGamer implements Observer {
     public Move stateMachineSelectMove(long timeout)
             throws TransitionDefinitionException, MoveDefinitionException,
             GoalDefinitionException {
-    	theGUI.beginPlay();
+        theGUI.beginPlay();
         theQueue.clear();
         theGUI.updateGameState(getCurrentState());
         try {
@@ -121,30 +121,30 @@ public class KioskGamer extends StateMachineGamer implements Observer {
         }
     }
 
-	@Override
-	public void stateMachineStop() {
-		// Do nothing
-	}
+    @Override
+    public void stateMachineStop() {
+        // Do nothing
+    }
 
-	@Override
-	public void stateMachineAbort() {
-		// Add an "ABORT" move to the queue so that we don't wait indefinitely
-		// for a human to submit a move for the aborted match; instead we should
-		// finish it up as quickly as possible so we can display the next match
-		// when it arrives.
-		theQueue.add(new Move(GdlPool.getConstant("ABORT")));
-		if (theGUI != null) {
-			theGUI.showFinalMessage("Aborted");
-		}
-	}
+    @Override
+    public void stateMachineAbort() {
+        // Add an "ABORT" move to the queue so that we don't wait indefinitely
+        // for a human to submit a move for the aborted match; instead we should
+        // finish it up as quickly as possible so we can display the next match
+        // when it arrives.
+        theQueue.add(new Move(GdlPool.getConstant("ABORT")));
+        if (theGUI != null) {
+            theGUI.showFinalMessage("Aborted");
+        }
+    }
 
-	@Override
-	public boolean isComputerPlayer() {
-		return false;
-	}
+    @Override
+    public boolean isComputerPlayer() {
+        return false;
+    }
 
-	@Override
-	public void preview(Game g, long timeout) throws GamePreviewException {
-		;
-	}
+    @Override
+    public void preview(Game g, long timeout) throws GamePreviewException {
+        ;
+    }
 }

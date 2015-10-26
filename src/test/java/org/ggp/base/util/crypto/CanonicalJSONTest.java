@@ -12,7 +12,7 @@ import org.junit.Test;
  * @author Sam
  */
 public class CanonicalJSONTest extends Assert {
-	@Test
+    @Test
     public void testSimpleCanonicalization() {
         CanonicalizationStrategy theStrategy = CanonicalizationStrategy.SIMPLE;
 

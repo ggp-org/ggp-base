@@ -11,13 +11,13 @@ public class ConnectFourCanvas extends GameCanvas_SimpleGrid {
     private static final long serialVersionUID = 1L;
 
     @Override
-	public String getGameName() { return "Connect Four"; }
+    public String getGameName() { return "Connect Four"; }
     @Override
-	protected String getGameKey() { return "connectFour"; }
+    protected String getGameKey() { return "connectFour"; }
     @Override
-	protected int getGridHeight() { return 6; }
+    protected int getGridHeight() { return 6; }
     @Override
-	protected int getGridWidth() { return 8; }
+    protected int getGridWidth() { return 8; }
 
     private int selectedColumn = 0;
 

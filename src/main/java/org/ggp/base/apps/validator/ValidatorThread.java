@@ -15,40 +15,40 @@ import org.ggp.base.validator.ValidatorWarning;
 
 public final class ValidatorThread extends Thread implements Subject
 {
-	private final Game theGame;
-	private final GameValidator theValidator;
-	private final List<Observer> observers;
+    private final Game theGame;
+    private final GameValidator theValidator;
+    private final List<Observer> observers;
 
-	public ValidatorThread(Game theGame, GameValidator theValidator)
-	{
-		this.theGame = theGame;
-		this.theValidator = theValidator;
-		this.observers = new ArrayList<Observer>();
-	}
+    public ValidatorThread(Game theGame, GameValidator theValidator)
+    {
+        this.theGame = theGame;
+        this.theValidator = theValidator;
+        this.observers = new ArrayList<Observer>();
+    }
 
-	@Override
-	public void addObserver(Observer observer)
-	{
-		observers.add(observer);
-	}
+    @Override
+    public void addObserver(Observer observer)
+    {
+        observers.add(observer);
+    }
 
-	@Override
-	public void notifyObservers(Event event)
-	{
-		for (Observer observer : observers)
-		{
-			observer.observe(event);
-		}
-	}
+    @Override
+    public void notifyObservers(Event event)
+    {
+        for (Observer observer : observers)
+        {
+            observer.observe(event);
+        }
+    }
 
-	@Override
-	public void run()
-	{
-		try {
-			List<ValidatorWarning> warnings = theValidator.checkValidity(theGame);
-			notifyObservers(new ValidatorSuccessEvent(theValidator.getClass().getSimpleName(), warnings));
-		} catch (ValidatorException ve) {
-			notifyObservers(new ValidatorFailureEvent(theValidator.getClass().getSimpleName(), ve));
-		}
-	}
+    @Override
+    public void run()
+    {
+        try {
+            List<ValidatorWarning> warnings = theValidator.checkValidity(theGame);
+            notifyObservers(new ValidatorSuccessEvent(theValidator.getClass().getSimpleName(), warnings));
+        } catch (ValidatorException ve) {
+            notifyObservers(new ValidatorFailureEvent(theValidator.getClass().getSimpleName(), ve));
+        }
+    }
 }

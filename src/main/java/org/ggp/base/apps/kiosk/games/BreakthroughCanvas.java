@@ -12,9 +12,9 @@ public class BreakthroughCanvas extends GameCanvas_Chessboard {
     private static final long serialVersionUID = 1L;
 
     @Override
-	public String getGameName() { return "Breakthrough"; }
+    public String getGameName() { return "Breakthrough"; }
     @Override
-	protected String getGameKey() { return "breakthrough"; }
+    protected String getGameKey() { return "breakthrough"; }
 
     @Override
     protected Set<String> getFactsAboutCell(int xCell, int yCell) {
@@ -28,7 +28,7 @@ public class BreakthroughCanvas extends GameCanvas_Chessboard {
 
 
     @Override
-	protected void renderCellContent(Graphics g, String theFact) {
+    protected void renderCellContent(Graphics g, String theFact) {
         String[] cellFacts = theFact.split(" ");
         String cellType = cellFacts[4];
         if(cellType.equals("b")) return;

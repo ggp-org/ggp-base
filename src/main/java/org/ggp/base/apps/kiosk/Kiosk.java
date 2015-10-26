@@ -77,7 +77,7 @@ public final class Kiosk extends JPanel implements ActionListener, ItemListener,
         final Kiosk serverPanel = new Kiosk();
         javax.swing.SwingUtilities.invokeLater(new Runnable() {
             @Override
-			public void run() {
+            public void run() {
                 createAndShowGUI(serverPanel);
             }
         });
@@ -139,7 +139,7 @@ public final class Kiosk extends JPanel implements ActionListener, ItemListener,
             try {
                 Gamer g = (Gamer) gamer.newInstance();
                 if (!g.isComputerPlayer()) {
-                	throw new Exception("Kiosk only considers computer players");
+                    throw new Exception("Kiosk only considers computer players");
                 }
                 playerComboBox.addItem(g.getName());
             } catch(Exception ex) {
@@ -213,7 +213,7 @@ public final class Kiosk extends JPanel implements ActionListener, ItemListener,
         }
 
         @Override
-		public String toString() {
+        public String toString() {
             return gameName;
         }
 
@@ -229,42 +229,42 @@ public final class Kiosk extends JPanel implements ActionListener, ItemListener,
         }
 
         @Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + getOuterType().hashCode();
-			result = prime * result
-					+ ((gameName == null) ? 0 : gameName.hashCode());
-			return result;
-		}
+        public int hashCode() {
+            final int prime = 31;
+            int result = 1;
+            result = prime * result + getOuterType().hashCode();
+            result = prime * result
+                    + ((gameName == null) ? 0 : gameName.hashCode());
+            return result;
+        }
 
-		@Override
-		public boolean equals(Object obj) {
-			if (this == obj)
-				return true;
-			if (obj == null)
-				return false;
-			if (getClass() != obj.getClass())
-				return false;
-			AvailableGame other = (AvailableGame) obj;
-			if (!getOuterType().equals(other.getOuterType()))
-				return false;
-			if (gameName == null) {
-				if (other.gameName != null)
-					return false;
-			} else if (!gameName.equals(other.gameName))
-				return false;
-			return true;
-		}
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj)
+                return true;
+            if (obj == null)
+                return false;
+            if (getClass() != obj.getClass())
+                return false;
+            AvailableGame other = (AvailableGame) obj;
+            if (!getOuterType().equals(other.getOuterType()))
+                return false;
+            if (gameName == null) {
+                if (other.gameName != null)
+                    return false;
+            } else if (!gameName.equals(other.gameName))
+                return false;
+            return true;
+        }
 
-		@Override
+        @Override
         public int compareTo(AvailableGame o) {
             return gameName.compareTo(o.gameName);
         }
 
-		private Kiosk getOuterType() {
-			return Kiosk.this;
-		}
+        private Kiosk getOuterType() {
+            return Kiosk.this;
+        }
     }
 
     private GamePlayer theComputerPlayer = null;
@@ -280,21 +280,21 @@ public final class Kiosk extends JPanel implements ActionListener, ItemListener,
     public void actionPerformed(ActionEvent e) {
         if(e.getSource() == runButton) {
             if (kioskServer != null && !kioskServer.getMatch().isCompleted()) {
-            	// When a match is started while another match is still running,
-            	// abort the ongoing match so that the new one can start. This
-            	// also directly tells the human gamer to abort, since otherwise
-            	// it will wait indefinitely for the human to submit their last
-            	// move before it processes the abort message from the server,
-            	// since messages are processed serially, and the human gamer
-            	// has no time limits for processing play messages.
-            	kioskServer.abort();
-            	kioskServer = null;
-            	try {
-            		theHumanGamer.abort();
-            	} catch (AbortingException ae) {
-            		ae.printStackTrace();
-            	}
-            	System.gc();
+                // When a match is started while another match is still running,
+                // abort the ongoing match so that the new one can start. This
+                // also directly tells the human gamer to abort, since otherwise
+                // it will wait indefinitely for the human to submit their last
+                // move before it processes the abort message from the server,
+                // since messages are processed serially, and the human gamer
+                // has no time limits for processing play messages.
+                kioskServer.abort();
+                kioskServer = null;
+                try {
+                    theHumanGamer.abort();
+                } catch (AbortingException ae) {
+                    ae.printStackTrace();
+                }
+                System.gc();
             }
 
             try {
@@ -305,8 +305,8 @@ public final class Kiosk extends JPanel implements ActionListener, ItemListener,
                 Game game = theRepository.getGame(theGame.kifFile);
 
                 if (game == null) {
-                	JOptionPane.showMessageDialog(this, "Cannot load game data for " + theGame.kifFile, "Error", JOptionPane.ERROR_MESSAGE);
-                	return;
+                    JOptionPane.showMessageDialog(this, "Cannot load game data for " + theGame.kifFile, "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
                 }
 
                 String matchId = "kiosk." + theGame.kifFile + "-" + System.currentTimeMillis();

@@ -47,7 +47,7 @@ public abstract class GameCanvas extends JPanel implements Subject {
         // Fiddle with Mouse Settings
         addMouseListener( new MouseAdapter() {
             @Override
-			public void mousePressed(MouseEvent e) {
+            public void mousePressed(MouseEvent e) {
                 requestFocusInWindow();
 
                 // Update the click point cache
@@ -59,7 +59,7 @@ public abstract class GameCanvas extends JPanel implements Subject {
             }
 
             @Override
-			public void mouseReleased(MouseEvent e){
+            public void mouseReleased(MouseEvent e){
                 lastClickX = -1;
                 lastClickY = -1;
             }
@@ -67,7 +67,7 @@ public abstract class GameCanvas extends JPanel implements Subject {
 
         addMouseMotionListener( new MouseMotionAdapter() {
             @Override
-			public void mouseDragged(MouseEvent e) {
+            public void mouseDragged(MouseEvent e) {
                 if(lastClickX == -1)
                     return;
 
@@ -84,7 +84,7 @@ public abstract class GameCanvas extends JPanel implements Subject {
     }
 
     public void setStateMachine(StateMachine s) {
-    	stateMachine = s;
+        stateMachine = s;
     }
 
     public void setRole(Role r) {
@@ -92,7 +92,7 @@ public abstract class GameCanvas extends JPanel implements Subject {
     }
 
     @Override
-	public void paintComponent(Graphics g){
+    public void paintComponent(Graphics g){
         super.paintComponent(g);
 
         g.setColor(Color.BLACK);
@@ -100,8 +100,8 @@ public abstract class GameCanvas extends JPanel implements Subject {
         g.drawRect(6, 6, getWidth() - 12, getHeight() - 12);
 
         if(!isEnabled()) {
-        	g.setColor(Color.red);
-        	g.drawRect(5, 5, getWidth() - 10, getHeight() - 10);
+            g.setColor(Color.red);
+            g.drawRect(5, 5, getWidth() - 10, getHeight() - 10);
         }
 
         Graphics newG = g.create(BORDER_SIZE, BORDER_SIZE, getWidth() - 2*BORDER_SIZE, getHeight() - 2*BORDER_SIZE);
@@ -144,7 +144,7 @@ public abstract class GameCanvas extends JPanel implements Subject {
                 submitWorkingMove(null);
             } else {
                 //submitWorkingMove(legalMoves.get(0));
-            	submitFinalMove(legalMoves.get(0));
+                submitFinalMove(legalMoves.get(0));
             }
         } catch (MoveDefinitionException e) {
             submitWorkingMove(null);
@@ -234,13 +234,13 @@ public abstract class GameCanvas extends JPanel implements Subject {
     /* ---------- Enabling wrappers ------------ */
 
     private void handleDragEventWrapper(int dx, int dy) {
-    	if(!isEnabled()) return;
-    	handleDragEvent(dx, dy);
+        if(!isEnabled()) return;
+        handleDragEvent(dx, dy);
     }
 
     private void handleClickEventWrapper(int x, int y) {
-    	if(!isEnabled()) return;
-    	handleClickEvent(x, y);
+        if(!isEnabled()) return;
+        handleClickEvent(x, y);
     }
 
     /* ---------- For overriding! -------------- */

@@ -95,7 +95,7 @@ public final class Game {
     }
 
     public String getRulesheet() {
-    	return theRulesheet;
+        return theRulesheet;
     }
 
     /**
@@ -109,22 +109,22 @@ public final class Game {
      * @return processed rulesheet
      */
     public static String preprocessRulesheet(String rawRulesheet) {
-		// First, strip all of the comments from the rulesheet.
-		StringBuilder rulesheetBuilder = new StringBuilder();
-		String[] rulesheetLines = rawRulesheet.split("[\n\r]");
-		for (int i = 0; i < rulesheetLines.length; i++) {
-			String line = rulesheetLines[i];
-			int comment = line.indexOf(';');
-			int cutoff = (comment == -1) ? line.length() : comment;
-			rulesheetBuilder.append(line.substring(0, cutoff));
-			rulesheetBuilder.append(" ");
-		}
-		String processedRulesheet = rulesheetBuilder.toString();
+        // First, strip all of the comments from the rulesheet.
+        StringBuilder rulesheetBuilder = new StringBuilder();
+        String[] rulesheetLines = rawRulesheet.split("[\n\r]");
+        for (int i = 0; i < rulesheetLines.length; i++) {
+            String line = rulesheetLines[i];
+            int comment = line.indexOf(';');
+            int cutoff = (comment == -1) ? line.length() : comment;
+            rulesheetBuilder.append(line.substring(0, cutoff));
+            rulesheetBuilder.append(" ");
+        }
+        String processedRulesheet = rulesheetBuilder.toString();
 
-		// Add opening and closing parens for parsing as symbol list.
-		processedRulesheet = "( " + processedRulesheet + " )";
+        // Add opening and closing parens for parsing as symbol list.
+        processedRulesheet = "( " + processedRulesheet + " )";
 
-		return processedRulesheet;
+        return processedRulesheet;
     }
 
     /**
@@ -140,21 +140,21 @@ public final class Game {
      * @return
      */
     public List<Gdl> getRules() {
-    	try {
-	        List<Gdl> rules = new ArrayList<Gdl>();
-	        SymbolList list = (SymbolList) SymbolFactory.create(theRulesheet);
-	        for (int i = 0; i < list.size(); i++)
-	        {
-	            rules.add(GdlFactory.create(list.get(i)));
-	        }
-	        return rules;
-    	} catch (GdlFormatException e) {
-    		e.printStackTrace();
-    		return null;
-    	} catch (SymbolFormatException e) {
-    		e.printStackTrace();
-    		return null;
-    	}
+        try {
+            List<Gdl> rules = new ArrayList<Gdl>();
+            SymbolList list = (SymbolList) SymbolFactory.create(theRulesheet);
+            for (int i = 0; i < list.size(); i++)
+            {
+                rules.add(GdlFactory.create(list.get(i)));
+            }
+            return rules;
+        } catch (GdlFormatException e) {
+            e.printStackTrace();
+            return null;
+        } catch (SymbolFormatException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     public String serializeToJSON() {
@@ -205,7 +205,7 @@ public final class Game {
 
             String theRulesheet = null;
             try {
-            	theRulesheet = theGameObject.getString("theRulesheet");
+                theRulesheet = theGameObject.getString("theRulesheet");
             } catch (Exception e) {}
 
             return new Game(theKey, theName, theDescription, theRepositoryURL, theStylesheet, theRulesheet);

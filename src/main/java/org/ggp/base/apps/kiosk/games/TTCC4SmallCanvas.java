@@ -12,21 +12,21 @@ public class TTCC4SmallCanvas extends GameCanvas_FancyGrid {
     private static final long serialVersionUID = 1L;
 
     @Override
-	public String getGameName() { return "TTCC4 (Small)"; }
+    public String getGameName() { return "TTCC4 (Small)"; }
     @Override
-	protected String getGameKey() { return "ttcc4_2player_small"; }
+    protected String getGameKey() { return "ttcc4_2player_small"; }
     @Override
-	protected int getGridHeight() { return 5; }
+    protected int getGridHeight() { return 5; }
     @Override
-	protected int getGridWidth() { return 5; }
+    protected int getGridWidth() { return 5; }
 
     @Override
-	protected final boolean useGridVisualization() { return false; }
+    protected final boolean useGridVisualization() { return false; }
     @Override
-	protected final boolean coordinatesStartAtOne() { return true; }
+    protected final boolean coordinatesStartAtOne() { return true; }
 
     @Override
-	protected final void renderCellBackground(Graphics g, int xCell, int yCell) {
+    protected final void renderCellBackground(Graphics g, int xCell, int yCell) {
         int width = g.getClipBounds().width;
         int height = g.getClipBounds().height;
 

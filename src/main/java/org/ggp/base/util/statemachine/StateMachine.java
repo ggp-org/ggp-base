@@ -29,12 +29,12 @@ public abstract class StateMachine
     // ============================================
     //  The following methods are required for a valid
     // state machine implementation.
-	/**
-	 * Initializes the StateMachine to describe the given game rules.
-	 * <p>
-	 * This method should only be called once, and it should be called before any
-	 * other methods on the StateMachine.
-	 */
+    /**
+     * Initializes the StateMachine to describe the given game rules.
+     * <p>
+     * This method should only be called once, and it should be called before any
+     * other methods on the StateMachine.
+     */
     public abstract void initialize(List<Gdl> description);
     /**
      * Returns the goal value for the given role in the given state. Goal values
@@ -256,7 +256,7 @@ public abstract class StateMachine
     public Map<Role, Integer> getRoleIndices()
     {
         if (roleIndices == null) {
-        	ImmutableMap.Builder<Role, Integer> roleIndicesBuilder = ImmutableMap.builder();
+            ImmutableMap.Builder<Role, Integer> roleIndicesBuilder = ImmutableMap.builder();
             List<Role> roles = getRoles();
             for (int i = 0; i < roles.size(); i++) {
                 roleIndicesBuilder.put(roles.get(i), i);
@@ -377,23 +377,23 @@ public abstract class StateMachine
     }
 
     public void getAverageDiscountedScoresFromRepeatedDepthCharges(final MachineState state, final double[] avgScores, final double[] avgDepth, final double discountFactor, final int repetitions) throws TransitionDefinitionException, MoveDefinitionException, GoalDefinitionException {
-    	avgDepth[0] = 0;
-    	for (int j = 0; j < avgScores.length; j++) {
-    		avgScores[j] = 0;
-    	}
-    	final int[] depth = new int[1];
-    	for (int i = 0; i < repetitions; i++) {
-    		MachineState stateForCharge = state.clone();
-    		stateForCharge = performDepthCharge(stateForCharge, depth);
-    		avgDepth[0] += depth[0];
-    		final double accumulatedDiscountFactor = Math.pow(discountFactor, depth[0]);
-    		for (int j = 0; j < avgScores.length; j++) {
-    			avgScores[j] += getGoal(stateForCharge, getRoles().get(j)) * accumulatedDiscountFactor;
-    		}
-    	}
-    	avgDepth[0] /= repetitions;
-    	for (int j = 0; j < avgScores.length; j++) {
-    		avgScores[j] /= repetitions;
-    	}
+        avgDepth[0] = 0;
+        for (int j = 0; j < avgScores.length; j++) {
+            avgScores[j] = 0;
+        }
+        final int[] depth = new int[1];
+        for (int i = 0; i < repetitions; i++) {
+            MachineState stateForCharge = state.clone();
+            stateForCharge = performDepthCharge(stateForCharge, depth);
+            avgDepth[0] += depth[0];
+            final double accumulatedDiscountFactor = Math.pow(discountFactor, depth[0]);
+            for (int j = 0; j < avgScores.length; j++) {
+                avgScores[j] += getGoal(stateForCharge, getRoles().get(j)) * accumulatedDiscountFactor;
+            }
+        }
+        avgDepth[0] /= repetitions;
+        for (int j = 0; j < avgScores.length; j++) {
+            avgScores[j] /= repetitions;
+        }
     }
 }

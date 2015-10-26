@@ -61,14 +61,14 @@ public final class TiltyardRequestFarm
     private static int returningRequests = 0;
     private static int abandonedBatches = 0;
     static void printBatchStats() {
-    	System.out.println(new Date().getTime() + " [" + new Date() + "]: now " + activeBatches + " active batches, with " + outgoingRequests + " requests outgoing, " + returningRequests + " returning; " + abandonedBatches + " batches abandoned.");
+        System.out.println(new Date().getTime() + " [" + new Date() + "]: now " + activeBatches + " active batches, with " + outgoingRequests + " requests outgoing, " + returningRequests + " returning; " + abandonedBatches + " batches abandoned.");
     }
 
     public static boolean testMode = false;
 
     static EncodedKeyPair getKeyPair(String keyPairString) {
-    	if (keyPairString == null)
-    		return null;
+        if (keyPairString == null)
+            return null;
         try {
             return new EncodedKeyPair(keyPairString);
         } catch (JSONException e) {
@@ -77,18 +77,18 @@ public final class TiltyardRequestFarm
     }
     public static final EncodedKeyPair theBackendKeys = getKeyPair(FileUtils.readFileAsString(new File("src/main/java/org/ggp/base/apps/tiltyard/BackendKeys.json")));
     public static String generateSignedPing() {
-    	String zone = null;
-   		try {
-   			Map<String, String> metadataRequestProperties = new HashMap<String, String>();
-   			metadataRequestProperties.put("Metadata-Flavor", "Google");
-			zone = RemoteResourceLoader.loadRaw("http://metadata/computeMetadata/v1/instance/zone", 1, metadataRequestProperties);
-		} catch (IOException e1) {
-			// If we can't acquire the request farm zone, just silently drop it.
-		}
+        String zone = null;
+        try {
+            Map<String, String> metadataRequestProperties = new HashMap<String, String>();
+            metadataRequestProperties.put("Metadata-Flavor", "Google");
+            zone = RemoteResourceLoader.loadRaw("http://metadata/computeMetadata/v1/instance/zone", 1, metadataRequestProperties);
+        } catch (IOException e1) {
+            // If we can't acquire the request farm zone, just silently drop it.
+        }
 
         JSONObject thePing = new JSONObject();
         try {
-        	if (zone != null) thePing.put("zone", zone);
+            if (zone != null) thePing.put("zone", zone);
             thePing.put("lastTimeBlock", (System.currentTimeMillis() / 3600000));
             thePing.put("nextTimeBlock", (System.currentTimeMillis() / 3600000)+1);
             SignableJSON.signJSON(thePing, theBackendKeys.thePublicKey, theBackendKeys.thePrivateKey);
@@ -99,15 +99,15 @@ public final class TiltyardRequestFarm
     }
 
     static class RunSingleRequestThread extends Thread {
-    	String targetHost, requestContent, forPlayerName;
-    	int targetPort, timeoutClock;
-    	boolean fastReturn;
-    	JSONObject myResponse;
-    	Map<String, String> extraHeaders;
+        String targetHost, requestContent, forPlayerName;
+        int targetPort, timeoutClock;
+        boolean fastReturn;
+        JSONObject myResponse;
+        Map<String, String> extraHeaders;
 
-    	public RunSingleRequestThread(JSONObject theJSON) throws JSONException {
-    		myResponse = new JSONObject();
-    		myResponse.put("originalRequest", theJSON);
+        public RunSingleRequestThread(JSONObject theJSON) throws JSONException {
+            myResponse = new JSONObject();
+            myResponse.put("originalRequest", theJSON);
             targetPort = theJSON.getInt("targetPort");
             targetHost = theJSON.getString("targetHost");
             timeoutClock = theJSON.getInt("timeoutClock");
@@ -115,63 +115,63 @@ public final class TiltyardRequestFarm
             requestContent = theJSON.getString("requestContent");
             extraHeaders = new HashMap<String, String>();
             if (theJSON.has("extraHeaders")) {
-	            JSONObject theExtraHeaders = theJSON.getJSONObject("extraHeaders");
-	            for (String key : JSONObject.getNames(theExtraHeaders)) {
-	            	extraHeaders.put(key, theExtraHeaders.get(key).toString());
-	            }
+                JSONObject theExtraHeaders = theJSON.getJSONObject("extraHeaders");
+                for (String key : JSONObject.getNames(theExtraHeaders)) {
+                    extraHeaders.put(key, theExtraHeaders.get(key).toString());
+                }
             }
             if (theJSON.has("fastReturn")) {
-            	fastReturn = theJSON.getBoolean("fastReturn");
+                fastReturn = theJSON.getBoolean("fastReturn");
             } else {
-            	fastReturn = true;
+                fastReturn = true;
             }
-    	}
+        }
 
-    	@Override
-    	public void run() {
-        	synchronized (requestCountLock) {
-        		outgoingRequests++;
-        		printBatchStats();
-        	}
+        @Override
+        public void run() {
+            synchronized (requestCountLock) {
+                outgoingRequests++;
+                printBatchStats();
+            }
             long startTime = System.currentTimeMillis();
             try {
                 try {
-                	String response = HttpRequest.issueRequest(targetHost, targetPort, forPlayerName, requestContent, timeoutClock, extraHeaders);
-                	response = response.replaceAll("\\P{InBasic_Latin}", "");
-                	myResponse.put("response", response);
-                	myResponse.put("responseType", "OK");
+                    String response = HttpRequest.issueRequest(targetHost, targetPort, forPlayerName, requestContent, timeoutClock, extraHeaders);
+                    response = response.replaceAll("\\P{InBasic_Latin}", "");
+                    myResponse.put("response", response);
+                    myResponse.put("responseType", "OK");
                 } catch (SocketTimeoutException te) {
-                	myResponse.put("responseType", "TO");
+                    myResponse.put("responseType", "TO");
                 } catch (IOException ie) {
-                	myResponse.put("responseType", "CE");
+                    myResponse.put("responseType", "CE");
                 }
             } catch (JSONException je) {
-            	throw new RuntimeException(je);
+                throw new RuntimeException(je);
             }
-        	synchronized (requestCountLock) {
-        		outgoingRequests--;
-        		printBatchStats();
-        	}
+            synchronized (requestCountLock) {
+                outgoingRequests--;
+                printBatchStats();
+            }
             long timeSpent = System.currentTimeMillis() - startTime;
             if (!fastReturn && timeSpent < timeoutClock) {
-            	try {
-					Thread.sleep(timeoutClock - timeSpent);
-				} catch (InterruptedException e) {
-					;
-				}
+                try {
+                    Thread.sleep(timeoutClock - timeSpent);
+                } catch (InterruptedException e) {
+                    ;
+                }
             }
-    	}
+        }
 
-    	public JSONObject getResponse() {
-    		return myResponse;
-    	}
+        public JSONObject getResponse() {
+            return myResponse;
+        }
     }
 
     // Connections are run asynchronously in their own threads.
     static class RunBatchRequestThread extends Thread {
-    	String originalRequest, callbackURL;
-    	Set<RunSingleRequestThread> theRequestThreads;
-    	Set<String> activeRequests;
+        String originalRequest, callbackURL;
+        Set<RunSingleRequestThread> theRequestThreads;
+        Set<String> activeRequests;
 
         public RunBatchRequestThread(Socket connection, Set<String> activeRequests) throws IOException, JSONException {
             String line = HttpReader.readAsServer(connection);
@@ -182,23 +182,23 @@ public final class TiltyardRequestFarm
                 response = generateSignedPing();
             } else {
                 synchronized (activeRequests) {
-                	if (activeRequests.contains(line)) {
-                		System.out.println("Got duplicate request; ignoring.");
-                		connection.close();
-                		return;
-                	} else {
-                		activeRequests.add(line);
-                	}
-                	this.activeRequests = activeRequests;
+                    if (activeRequests.contains(line)) {
+                        System.out.println("Got duplicate request; ignoring.");
+                        connection.close();
+                        return;
+                    } else {
+                        activeRequests.add(line);
+                    }
+                    this.activeRequests = activeRequests;
                 }
 
                 JSONObject theBatchJSON = new JSONObject(line);
                 JSONArray theRequests = theBatchJSON.getJSONArray("requests");
                 theRequestThreads = new HashSet<RunSingleRequestThread>();
                 for (int i = 0; i < theRequests.length(); i++) {
-                	JSONObject aRequest = theRequests.getJSONObject(i);
-                	RunSingleRequestThread aRequestThread = new RunSingleRequestThread(aRequest);
-                	theRequestThreads.add(aRequestThread);
+                    JSONObject aRequest = theRequests.getJSONObject(i);
+                    RunSingleRequestThread aRequestThread = new RunSingleRequestThread(aRequest);
+                    theRequestThreads.add(aRequestThread);
                 }
                 callbackURL = theBatchJSON.getString("callbackURL");
 
@@ -212,78 +212,78 @@ public final class TiltyardRequestFarm
 
         @Override
         public void run() {
-        	if (originalRequest == null)
-        		return;
+            if (originalRequest == null)
+                return;
 
-        	synchronized (requestCountLock) {
-        		activeBatches++;
-        		printBatchStats();
-        	}
+            synchronized (requestCountLock) {
+                activeBatches++;
+                printBatchStats();
+            }
 
-        	// Start running all of the requests in the batch parallel.
+            // Start running all of the requests in the batch parallel.
             for (RunSingleRequestThread aRequestThread : theRequestThreads) {
-            	aRequestThread.start();
+                aRequestThread.start();
             }
 
             // Wait for all of the requests to finish; aggregate them into a batch response.
             JSONObject responseJSON = new JSONObject();
             JSONArray responses = new JSONArray();
             for (RunSingleRequestThread aRequestThread : theRequestThreads) {
-            	try {
-					aRequestThread.join();
-					responses.put(aRequestThread.getResponse());
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
+                try {
+                    aRequestThread.join();
+                    responses.put(aRequestThread.getResponse());
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
             try {
                 responseJSON.put("responses", responses);
                 if (!testMode) {
-                	SignableJSON.signJSON(responseJSON, theBackendKeys.thePublicKey, theBackendKeys.thePrivateKey);
+                    SignableJSON.signJSON(responseJSON, theBackendKeys.thePublicKey, theBackendKeys.thePrivateKey);
                 }
             } catch (JSONException je) {
-            	je.printStackTrace();
-            	synchronized (requestCountLock) {
-            		abandonedBatches++;
-            		activeBatches--;
-            		printBatchStats();
-            	}
-                synchronized (activeRequests) {
-                	activeRequests.remove(originalRequest);
+                je.printStackTrace();
+                synchronized (requestCountLock) {
+                    abandonedBatches++;
+                    activeBatches--;
+                    printBatchStats();
                 }
-            	return;
+                synchronized (activeRequests) {
+                    activeRequests.remove(originalRequest);
+                }
+                return;
             }
 
             // Send the batch response back to the callback URL.
-        	synchronized (requestCountLock) {
-        		returningRequests++;
-        		printBatchStats();
-        	}
+            synchronized (requestCountLock) {
+                returningRequests++;
+                printBatchStats();
+            }
             int nPostAttempts = 0;
             while (true) {
-            	try {
-            		RemoteResourceLoader.postRawWithTimeout(callbackURL, responseJSON.toString(), Integer.MAX_VALUE);
-            		break;
-            	} catch (IOException ie) {
-            		nPostAttempts++;
-            		try {
-						Thread.sleep(nPostAttempts < 10 ? 1000 : 15000);
-					} catch (InterruptedException e) {
-						;
-					}
-            	}
+                try {
+                    RemoteResourceLoader.postRawWithTimeout(callbackURL, responseJSON.toString(), Integer.MAX_VALUE);
+                    break;
+                } catch (IOException ie) {
+                    nPostAttempts++;
+                    try {
+                        Thread.sleep(nPostAttempts < 10 ? 1000 : 15000);
+                    } catch (InterruptedException e) {
+                        ;
+                    }
+                }
             }
-        	synchronized (requestCountLock) {
-        		returningRequests--;
-        		activeBatches--;
-        		printBatchStats();
-        		if (activeBatches == 0) {
-        			System.gc();
-        			System.out.println("Garbage collecting since there are no active batches.");
-        		}
-        	}
+            synchronized (requestCountLock) {
+                returningRequests--;
+                activeBatches--;
+                printBatchStats();
+                if (activeBatches == 0) {
+                    System.gc();
+                    System.out.println("Garbage collecting since there are no active batches.");
+                }
+            }
             synchronized (activeRequests) {
-            	activeRequests.remove(originalRequest);
+                activeRequests.remove(originalRequest);
             }
         }
     }
@@ -304,25 +304,25 @@ public final class TiltyardRequestFarm
                     e.printStackTrace();
                 }
             }
-       }
+        }
     }
 
     @SuppressWarnings("resource")
-	public static void main(String[] args) {
+    public static void main(String[] args) {
         ServerSocket listener = null;
         try {
-             listener = new ServerSocket(SERVER_PORT);
+            listener = new ServerSocket(SERVER_PORT);
         } catch (IOException e) {
             System.err.println("Could not open server on port " + SERVER_PORT + ": " + e);
             e.printStackTrace();
             return;
         }
         if (!testMode) {
-	        if (theBackendKeys == null) {
-	            System.err.println("Could not load cryptographic keys for signing request responses.");
-	            return;
-	        }
-	        new TiltyardRegistration().start();
+            if (theBackendKeys == null) {
+                System.err.println("Could not load cryptographic keys for signing request responses.");
+                return;
+            }
+            new TiltyardRegistration().start();
         }
 
         Set<String> activeRequests = new HashSet<String>();

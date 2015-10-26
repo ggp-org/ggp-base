@@ -27,42 +27,42 @@ import org.ggp.base.validator.ValidatorException;
  */
 public class StandaloneVariableConstrainer {
 
-	public static void main(String[] args) throws InterruptedException {
-		if(args.length < 1 || !args[0].endsWith(".kif")) {
-			System.out.println("Please enter the path of a .kif file as an argument.");
-			return;
-		}
+    public static void main(String[] args) throws InterruptedException {
+        if(args.length < 1 || !args[0].endsWith(".kif")) {
+            System.out.println("Please enter the path of a .kif file as an argument.");
+            return;
+        }
 
-		String filename = args[0];
-		Game theGame = Game.createEphemeralGame(Game.preprocessRulesheet(FileUtils.readFileAsString(new File(filename))));
-		if (theGame.getRules() == null || theGame.getRules().size() == 0) {
-			System.err.println("Problem reading the file " + filename + " or parsing the GDL.");
-			return;
-		}
+        String filename = args[0];
+        Game theGame = Game.createEphemeralGame(Game.preprocessRulesheet(FileUtils.readFileAsString(new File(filename))));
+        if (theGame.getRules() == null || theGame.getRules().size() == 0) {
+            System.err.println("Problem reading the file " + filename + " or parsing the GDL.");
+            return;
+        }
 
-		try {
-			new StaticValidator().checkValidity(theGame);
-		} catch (ValidatorException e) {
-			System.err.println("GDL validation error: " + e.toString());
-			return;
-		}
+        try {
+            new StaticValidator().checkValidity(theGame);
+        } catch (ValidatorException e) {
+            System.err.println("GDL validation error: " + e.toString());
+            return;
+        }
 
-		List<Gdl> transformedDescription = VariableConstrainer.replaceFunctionValuedVariables(theGame.getRules());
+        List<Gdl> transformedDescription = VariableConstrainer.replaceFunctionValuedVariables(theGame.getRules());
 
-		String newFilename = filename.substring(0, filename.lastIndexOf(".kif")) + "_VARCONST.kif";
+        String newFilename = filename.substring(0, filename.lastIndexOf(".kif")) + "_VARCONST.kif";
 
-		try {
-			BufferedWriter out = new BufferedWriter(new FileWriter(new File(newFilename)));
+        try {
+            BufferedWriter out = new BufferedWriter(new FileWriter(new File(newFilename)));
 
-			for(Gdl gdl : transformedDescription) {
-				out.write(gdl.toString());
-				out.newLine();
-			}
-			out.close();
-		} catch (IOException e) {
-			System.err.println("There was an error writing the translated GDL file " + newFilename + ".");
-			e.printStackTrace();
-		}
-	}
+            for(Gdl gdl : transformedDescription) {
+                out.write(gdl.toString());
+                out.newLine();
+            }
+            out.close();
+        } catch (IOException e) {
+            System.err.println("There was an error writing the translated GDL file " + newFilename + ".");
+            e.printStackTrace();
+        }
+    }
 
 }

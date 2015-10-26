@@ -19,9 +19,9 @@ public class BlokboxSimpleCanvas extends GameCanvas_SimpleGrid {
     private static final long serialVersionUID = 1L;
 
     @Override
-	public String getGameName() { return "Blokbox Simple"; }
+    public String getGameName() { return "Blokbox Simple"; }
     @Override
-	protected String getGameKey() { return "blokbox_simple"; }
+    protected String getGameKey() { return "blokbox_simple"; }
 
     protected Set<String> getLegalMovesForCell(int xCell, int yCell) {
         if(selectedPiece == -1) return new HashSet<String>();
@@ -30,9 +30,9 @@ public class BlokboxSimpleCanvas extends GameCanvas_SimpleGrid {
 
     // ========================================================================
     @Override
-	protected int getGridHeight() { return 20; }
+    protected int getGridHeight() { return 20; }
     @Override
-	protected int getGridWidth() { return 20; }
+    protected int getGridWidth() { return 20; }
 
     protected Set<String> getFactsAboutCell(int xCell, int yCell) {
         Set<String> theFacts = gameStateHasFactsMatching("\\( cell " + xCell + " " + yCell + " (.*) \\)");
@@ -44,26 +44,26 @@ public class BlokboxSimpleCanvas extends GameCanvas_SimpleGrid {
     }
 
     private int[][] pieceGrid = new int[][] {
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 21, 0, 8, 8, 8},
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 21,21, 0, 8, 0},
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 21, 0,18, 0,18},
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 21, 0,18,18,18},
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  0, 6, 0, 0, 0},
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  6, 6, 0, 5, 5},
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  0, 0,20, 0, 0},
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  0,20,20,20, 0},
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 0,20, 0, 7},
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10,10, 0, 0, 7},
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  0,10, 0, 0, 7},
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  0, 0, 1, 1, 0},
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  0, 0, 1, 1, 0},
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 14,14, 0, 0,15},
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 14, 0, 2, 0,15},
-            { 0, 0, 0,12,12,12, 0,13,13, 0,11,11,11, 0,14,14, 0, 2, 0,15},
-            { 0, 0, 0,12, 0, 0,17, 0,13,13, 0,11, 0, 4, 0, 0, 2, 2, 0,15},
-            { 0, 0, 0,12, 0, 0,17,17, 0,13, 0,11, 0, 0,19,19, 0, 0, 0,15},
-            { 0, 0, 0, 0,16,16, 0,17, 0, 0, 0, 0, 0,19,19, 0, 3, 0, 0, 0},
-            { 0, 0, 0,16,16,16, 0,17, 0, 9, 9, 9, 9, 0,19, 0, 3, 3, 3, 3}
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 21, 0, 8, 8, 8},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 21,21, 0, 8, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 21, 0,18, 0,18},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 21, 0,18,18,18},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  0, 6, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  6, 6, 0, 5, 5},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  0, 0,20, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  0,20,20,20, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 0,20, 0, 7},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10,10, 0, 0, 7},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  0,10, 0, 0, 7},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  0, 0, 1, 1, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  0, 0, 1, 1, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 14,14, 0, 0,15},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 14, 0, 2, 0,15},
+        { 0, 0, 0,12,12,12, 0,13,13, 0,11,11,11, 0,14,14, 0, 2, 0,15},
+        { 0, 0, 0,12, 0, 0,17, 0,13,13, 0,11, 0, 4, 0, 0, 2, 2, 0,15},
+        { 0, 0, 0,12, 0, 0,17,17, 0,13, 0,11, 0, 0,19,19, 0, 0, 0,15},
+        { 0, 0, 0, 0,16,16, 0,17, 0, 0, 0, 0, 0,19,19, 0, 3, 0, 0, 0},
+        { 0, 0, 0,16,16,16, 0,17, 0, 9, 9, 9, 9, 0,19, 0, 3, 3, 3, 3}
     };
 
     protected void renderCellBackground(Graphics g, int xCell, int yCell) {
@@ -80,7 +80,7 @@ public class BlokboxSimpleCanvas extends GameCanvas_SimpleGrid {
             if (xCell == 15 || yCell == 0) xStart++;
             if (yCell == 15 || xCell == 0) yStart++;
             if (xCell == 15 && yCell == 15)
-                { xStart--; yStart--; width++; height++; }
+            { xStart--; yStart--; width++; height++; }
 
             g.setColor(Color.black);
             g.fillRect(xStart, yStart, width, height);
@@ -105,7 +105,7 @@ public class BlokboxSimpleCanvas extends GameCanvas_SimpleGrid {
         String[] cellFacts = theFact.split(" ");
         if(cellFacts[1].equals("owns")) {
             if (myRole.toString().contains("orange"))
-                 g.setColor(Color.orange);
+                g.setColor(Color.orange);
             else g.setColor(Color.magenta);
 
             int width = g.getClipBounds().width;
@@ -165,7 +165,7 @@ public class BlokboxSimpleCanvas extends GameCanvas_SimpleGrid {
     private String currentSelectedMove;
     private Iterator<String> possibleSelectedMoves = null;
     @Override
-	protected final void handleClickOnCell(int xCell, int yCell, int xWithin, int yWithin) {
+    protected final void handleClickOnCell(int xCell, int yCell, int xWithin, int yWithin) {
         if(xCell > 20 || yCell > 20) return;
 
         if(xCell > 15 || yCell > 15) {
@@ -212,20 +212,20 @@ public class BlokboxSimpleCanvas extends GameCanvas_SimpleGrid {
 
     // When the game state changes, clear our cache of known facts.
     @Override
-	public void updateGameState(MachineState gameState) {
+    public void updateGameState(MachineState gameState) {
         factsCache.clear();
         super.updateGameState(gameState);
     }
 
     @Override
-	protected final void renderCell(Graphics g, int xCell, int yCell) {
+    protected final void renderCell(Graphics g, int xCell, int yCell) {
         renderCellBackground(g, xCell, yCell);
         renderCellContent(g, getCachedFactsAboutCell(xCell, yCell));
         renderMoveSelectionForCell(g, xCell, yCell, currentSelectedMove);
     }
 
     @Override
-	public final void clearMoveSelection() {
+    public final void clearMoveSelection() {
         submitWorkingMove(null);
 
         selectedPiece = -1;

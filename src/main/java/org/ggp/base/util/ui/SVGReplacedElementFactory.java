@@ -110,7 +110,7 @@ public class SVGReplacedElementFactory implements ReplacedElementFactory {
                     g.dispose();
                     imagePointer[0] = resizedImage;
                 }
-              };
+            };
             t.setTranscodingHints(transcoderHints);
             t.transcode(input, null);
         }

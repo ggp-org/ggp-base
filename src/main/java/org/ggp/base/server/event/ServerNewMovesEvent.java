@@ -11,16 +11,16 @@ import org.ggp.base.util.statemachine.Move;
 public final class ServerNewMovesEvent extends Event implements Serializable
 {
 
-	private final List<Move> moves;
+    private final List<Move> moves;
 
-	public ServerNewMovesEvent(List<Move> moves)
-	{
-		this.moves = moves;
-	}
+    public ServerNewMovesEvent(List<Move> moves)
+    {
+        this.moves = moves;
+    }
 
-	public List<Move> getMoves()
-	{
-		return moves;
-	}
+    public List<Move> getMoves()
+    {
+        return moves;
+    }
 
 }

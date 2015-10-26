@@ -12,9 +12,9 @@ public class PawnWhoppingCanvas extends GameCanvas_Chessboard {
     private static final long serialVersionUID = 1L;
 
     @Override
-	public String getGameName() { return "Pawn Whopping"; }
+    public String getGameName() { return "Pawn Whopping"; }
     @Override
-	protected String getGameKey() { return "pawnWhopping"; }
+    protected String getGameKey() { return "pawnWhopping"; }
 
     @Override
     protected Set<String> getLegalMovesForCell(int xCell, int yCell) {

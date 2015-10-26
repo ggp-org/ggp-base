@@ -7,18 +7,18 @@ import java.io.Serializable;
 public abstract class Gdl implements Serializable
 {
 
-	public abstract boolean isGround();
+    public abstract boolean isGround();
 
-	@Override
-	public abstract String toString();
+    @Override
+    public abstract String toString();
 
-	/**
-	 * This method is used by deserialization to ensure that Gdl objects
-	 * loaded from an ObjectInputStream or a remote method invocation
-	 * are the versions that exist in the GdlPool.
-	 */
-	protected Object readResolve() throws ObjectStreamException {
-		return GdlPool.immerse(this);
-	}
+    /**
+     * This method is used by deserialization to ensure that Gdl objects
+     * loaded from an ObjectInputStream or a remote method invocation
+     * are the versions that exist in the GdlPool.
+     */
+    protected Object readResolve() throws ObjectStreamException {
+        return GdlPool.immerse(this);
+    }
 
 }

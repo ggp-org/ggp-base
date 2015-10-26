@@ -17,53 +17,53 @@ import org.ggp.base.util.prover.aima.unifier.Unifier;
 public final class ProverCache
 {
 
-	private final Map<GdlSentence, Set<GdlSentence>> contents;
+    private final Map<GdlSentence, Set<GdlSentence>> contents;
 
-	private ProverCache(Map<GdlSentence, Set<GdlSentence>> mapForContents) {
-		this.contents = mapForContents;
-	}
+    private ProverCache(Map<GdlSentence, Set<GdlSentence>> mapForContents) {
+        this.contents = mapForContents;
+    }
 
-	public static ProverCache createSingleThreadedCache() {
-		return new ProverCache(new HashMap<GdlSentence, Set<GdlSentence>>());
-	}
+    public static ProverCache createSingleThreadedCache() {
+        return new ProverCache(new HashMap<GdlSentence, Set<GdlSentence>>());
+    }
 
-	public static ProverCache createMultiThreadedCache() {
-		return new ProverCache(new ConcurrentHashMap<GdlSentence, Set<GdlSentence>>());
-	}
+    public static ProverCache createMultiThreadedCache() {
+        return new ProverCache(new ConcurrentHashMap<GdlSentence, Set<GdlSentence>>());
+    }
 
-	/**
-	 * NOTE: The given sentence must have been renamed with a VariableRenamer.
-	 */
-	public boolean contains(GdlSentence renamedSentence)
-	{
-		return contents.containsKey(renamedSentence);
-	}
+    /**
+     * NOTE: The given sentence must have been renamed with a VariableRenamer.
+     */
+    public boolean contains(GdlSentence renamedSentence)
+    {
+        return contents.containsKey(renamedSentence);
+    }
 
-	public List<Substitution> get(GdlSentence sentence, GdlSentence varRenamedSentence)
-	{
-		Set<GdlSentence> cacheContents = contents.get(varRenamedSentence);
-		if (cacheContents == null) {
-			return null;
-		}
-		Set<Substitution> results = new HashSet<Substitution>();
-		for (GdlSentence answer : cacheContents)
-		{
-			results.add(Unifier.unify(sentence, answer));
-		}
+    public List<Substitution> get(GdlSentence sentence, GdlSentence varRenamedSentence)
+    {
+        Set<GdlSentence> cacheContents = contents.get(varRenamedSentence);
+        if (cacheContents == null) {
+            return null;
+        }
+        Set<Substitution> results = new HashSet<Substitution>();
+        for (GdlSentence answer : cacheContents)
+        {
+            results.add(Unifier.unify(sentence, answer));
+        }
 
-		return new ArrayList<Substitution>(results);
-	}
+        return new ArrayList<Substitution>(results);
+    }
 
-	public void put(GdlSentence sentence, GdlSentence renamedSentence,
-			Set<Substitution> answers)
-	{
-		Set<GdlSentence> results = new HashSet<GdlSentence>();
-		for (Substitution answer : answers)
-		{
-			results.add(Substituter.substitute(sentence, answer));
-		}
+    public void put(GdlSentence sentence, GdlSentence renamedSentence,
+            Set<Substitution> answers)
+    {
+        Set<GdlSentence> results = new HashSet<GdlSentence>();
+        for (Substitution answer : answers)
+        {
+            results.add(Substituter.substitute(sentence, answer));
+        }
 
-		contents.put(renamedSentence, results);
-	}
+        contents.put(renamedSentence, results);
+    }
 
 }

@@ -43,10 +43,10 @@ public class NoTabsInRulesheetsTest extends Assert {
         writer.close();
     }
 
-	static class KifFileFilter implements FileFilter {
-	    @Override
-	    public boolean accept(File pathname) {
-	        return pathname.getName().endsWith(".kif");
-	    }
-	}
+    static class KifFileFilter implements FileFilter {
+        @Override
+        public boolean accept(File pathname) {
+            return pathname.getName().endsWith(".kif");
+        }
+    }
 }

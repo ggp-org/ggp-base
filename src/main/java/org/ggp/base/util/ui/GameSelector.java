@@ -42,7 +42,7 @@ public class GameSelector implements ActionListener {
         }
 
         @Override
-		public String toString() {
+        public String toString() {
             return theName;
         }
     }

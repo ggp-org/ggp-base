@@ -7,23 +7,23 @@ package org.ggp.base.apps.research;
  */
 public final class Counter implements Comparable<Counter>
 {
-	private double totalValue = 0;
+    private double totalValue = 0;
 
-	public void addValue(double value) {
-		totalValue += value;
-	}
+    public void addValue(double value) {
+        totalValue += value;
+    }
 
-	public double getValue() {
-		return totalValue;
-	}
+    public double getValue() {
+        return totalValue;
+    }
 
-	@Override
-	public String toString() {
-		return "" + ((int)(getValue() * 1000.0)/1000.0);
-	}
+    @Override
+    public String toString() {
+        return "" + ((int)(getValue() * 1000.0)/1000.0);
+    }
 
-	@Override
-	public int compareTo(Counter arg0) {
-		return (int)Math.signum(getValue() - arg0.getValue());
-	}
+    @Override
+    public int compareTo(Counter arg0) {
+        return (int)Math.signum(getValue() - arg0.getValue());
+    }
 }

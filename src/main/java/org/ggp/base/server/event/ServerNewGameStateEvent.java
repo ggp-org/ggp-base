@@ -6,15 +6,15 @@ import org.ggp.base.util.statemachine.MachineState;
 
 public final class ServerNewGameStateEvent extends Event
 {
-	private final MachineState state;
+    private final MachineState state;
 
-	public ServerNewGameStateEvent(MachineState state)
-	{
-		this.state = state;
-	}
+    public ServerNewGameStateEvent(MachineState state)
+    {
+        this.state = state;
+    }
 
-	public MachineState getState()
-	{
-		return state;
-	}
+    public MachineState getState()
+    {
+        return state;
+    }
 }

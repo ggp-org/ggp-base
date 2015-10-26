@@ -182,14 +182,14 @@ public class ProverStateMachineTest extends Assert {
         System.out.println(sm.getLegalMoves(state, robot));
         assertEquals(7, sm.getLegalMoves(state, robot).size());
         assertEquals(ImmutableSet.of(
-				move("reduce a 0"),
-				move("reduce a 1"),
-				move("reduce c 0"),
-				move("reduce c 1"),
-				move("reduce c 2"),
-				move("reduce c 3"),
-				move("reduce c 4")),
-				ImmutableSet.copyOf(sm.getLegalMoves(state, robot)));
+                move("reduce a 0"),
+                move("reduce a 1"),
+                move("reduce c 0"),
+                move("reduce c 1"),
+                move("reduce c 2"),
+                move("reduce c 3"),
+                move("reduce c 4")),
+                ImmutableSet.copyOf(sm.getLegalMoves(state, robot)));
     }
 
     @Test

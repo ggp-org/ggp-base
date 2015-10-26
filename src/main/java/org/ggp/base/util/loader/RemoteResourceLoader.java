@@ -19,59 +19,59 @@ import external.JSON.JSONObject;
  * @author Sam
  */
 public class RemoteResourceLoader {
-	public static JSONObject loadJSON(String theURL) throws JSONException, IOException {
-		return loadJSON(theURL, 1);
-	}
+    public static JSONObject loadJSON(String theURL) throws JSONException, IOException {
+        return loadJSON(theURL, 1);
+    }
     public static JSONObject loadJSON(String theURL, int nMaxAttempts) throws JSONException, IOException {
-		return new JSONObject(loadRaw(theURL, nMaxAttempts));
+        return new JSONObject(loadRaw(theURL, nMaxAttempts));
     }
 
     public static JSONArray loadJSONArray(String theURL) throws JSONException, IOException {
-    	return loadJSONArray(theURL, 1);
+        return loadJSONArray(theURL, 1);
     }
     public static JSONArray loadJSONArray(String theURL, int nMaxAttempts) throws JSONException, IOException {
         return new JSONArray(loadRaw(theURL, nMaxAttempts));
     }
 
     public static String loadRaw(String theURL) throws IOException {
-    	return loadRaw(theURL, 1);
+        return loadRaw(theURL, 1);
     }
     public static String loadRaw(String theURL, int nMaxAttempts) throws IOException {
-    	return loadRaw(theURL, nMaxAttempts, null);
+        return loadRaw(theURL, nMaxAttempts, null);
     }
     public static String loadRaw(String theURL, int nMaxAttempts, Map<String, String> requestProperties) throws IOException {
-    	int nAttempt = 0;
-    	while(true) {
-    		nAttempt++;
-	        try {
-		        URL url = new URL(theURL);
-		        URLConnection urlConnection = url.openConnection();
-		        urlConnection.setUseCaches(false);
-		        urlConnection.setDefaultUseCaches(false);
-		        urlConnection.addRequestProperty("Cache-Control", "no-cache,max-age=0");
-		        urlConnection.addRequestProperty("Pragma", "no-cache");
-		        if (requestProperties != null) {
-		        	for (String key : requestProperties.keySet()) {
-		        		urlConnection.addRequestProperty(key, requestProperties.get(key));
-		        	}
-		        }
-		        if (urlConnection.getContentLength() == 0)
-		            throw new IOException("Could not load URL: " + theURL);
-		        StringBuilder theRawData = new StringBuilder();
-		        try (BufferedReader br = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()))) {
-		        	do {
-		        		String nextLine = br.readLine();
-		        		if (nextLine == null) break;
-		        		theRawData.append(nextLine + "\n");
-		        	} while (true);
-		        }
-		        return theRawData.toString();
-	        } catch (IOException ie) {
-	        	if (nAttempt >= nMaxAttempts) {
-	        		throw ie;
-	        	}
-	        }
-    	}
+        int nAttempt = 0;
+        while(true) {
+            nAttempt++;
+            try {
+                URL url = new URL(theURL);
+                URLConnection urlConnection = url.openConnection();
+                urlConnection.setUseCaches(false);
+                urlConnection.setDefaultUseCaches(false);
+                urlConnection.addRequestProperty("Cache-Control", "no-cache,max-age=0");
+                urlConnection.addRequestProperty("Pragma", "no-cache");
+                if (requestProperties != null) {
+                    for (String key : requestProperties.keySet()) {
+                        urlConnection.addRequestProperty(key, requestProperties.get(key));
+                    }
+                }
+                if (urlConnection.getContentLength() == 0)
+                    throw new IOException("Could not load URL: " + theURL);
+                StringBuilder theRawData = new StringBuilder();
+                try (BufferedReader br = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()))) {
+                    do {
+                        String nextLine = br.readLine();
+                        if (nextLine == null) break;
+                        theRawData.append(nextLine + "\n");
+                    } while (true);
+                }
+                return theRawData.toString();
+            } catch (IOException ie) {
+                if (nAttempt >= nMaxAttempts) {
+                    throw ie;
+                }
+            }
+        }
     }
 
     public static String postRawWithTimeout(String theURL, String toPost, int nTimeout) throws IOException {

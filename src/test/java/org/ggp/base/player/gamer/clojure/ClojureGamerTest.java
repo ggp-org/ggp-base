@@ -15,7 +15,7 @@ import org.junit.Test;
  * @author Sam
  */
 public class ClojureGamerTest extends Assert {
-	@Test
+    @Test
     public void testClojureGamer() {
         try {
             Gamer g = new SampleClojureGamerStub();

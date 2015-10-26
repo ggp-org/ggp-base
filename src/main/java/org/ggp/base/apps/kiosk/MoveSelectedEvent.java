@@ -12,8 +12,8 @@ public class MoveSelectedEvent extends Event {
     }
 
     public MoveSelectedEvent(Move m, boolean isFinal) {
-    	theMove = m;
-    	this.isFinal = isFinal;
+        theMove = m;
+        this.isFinal = isFinal;
     }
 
     public Move getMove() {
@@ -21,6 +21,6 @@ public class MoveSelectedEvent extends Event {
     }
 
     public boolean isFinal() {
-    	return isFinal;
+        return isFinal;
     }
 }

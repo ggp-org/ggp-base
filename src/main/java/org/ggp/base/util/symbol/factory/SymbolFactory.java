@@ -29,56 +29,56 @@ public final class SymbolFactory
 
     /* Private, implementation-specific methods below here */
 
-	private static Symbol convert(LinkedList<String> tokens)
-	{
-		if (tokens.getFirst().equals("("))
-		{
-			return convertList(tokens);
-		}
-		else
-		{
-			return convertAtom(tokens);
-		}
-	}
+    private static Symbol convert(LinkedList<String> tokens)
+    {
+        if (tokens.getFirst().equals("("))
+        {
+            return convertList(tokens);
+        }
+        else
+        {
+            return convertAtom(tokens);
+        }
+    }
 
-	private static SymbolAtom convertAtom(LinkedList<String> tokens)
-	{
-		return SymbolPool.getAtom(tokens.removeFirst());
-	}
+    private static SymbolAtom convertAtom(LinkedList<String> tokens)
+    {
+        return SymbolPool.getAtom(tokens.removeFirst());
+    }
 
-	private static SymbolList convertList(LinkedList<String> tokens)
-	{
-		List<Symbol> contents = new ArrayList<Symbol>();
+    private static SymbolList convertList(LinkedList<String> tokens)
+    {
+        List<Symbol> contents = new ArrayList<Symbol>();
 
-		tokens.removeFirst();
-		while (!tokens.getFirst().equals(")"))
-		{
-			contents.add(convert(tokens));
-		}
-		tokens.removeFirst();
+        tokens.removeFirst();
+        while (!tokens.getFirst().equals(")"))
+        {
+            contents.add(convert(tokens));
+        }
+        tokens.removeFirst();
 
-		return SymbolPool.getList(contents);
-	}
+        return SymbolPool.getList(contents);
+    }
 
-	private static List<String> lex(String string)
-	{
-		List<String> tokens = new ArrayList<String>();
-		for (String token : string.split(" "))
-		{
-			tokens.add(token);
-		}
+    private static List<String> lex(String string)
+    {
+        List<String> tokens = new ArrayList<String>();
+        for (String token : string.split(" "))
+        {
+            tokens.add(token);
+        }
 
-		return tokens;
-	}
+        return tokens;
+    }
 
-	private static String preprocess(String string)
-	{
-		string = string.replaceAll("\\(", " ( ");
-		string = string.replaceAll("\\)", " ) ");
+    private static String preprocess(String string)
+    {
+        string = string.replaceAll("\\(", " ( ");
+        string = string.replaceAll("\\)", " ) ");
 
-		string = string.replaceAll("\\s+", " ");
-		string = string.trim();
+        string = string.replaceAll("\\s+", " ");
+        string = string.trim();
 
-		return string;
-	}
+        return string;
+    }
 }

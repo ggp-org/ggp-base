@@ -10,10 +10,10 @@ package org.ggp.base.apps.research;
  */
 public final class Histogram extends Aggregation<Counter>
 {
-	public void add(String key) {
-		if (!containsEntry(key)) {
-			createEntry(key, new Counter());
-		}
-		getEntryData(key).addValue(1);
-	}
+    public void add(String key) {
+        if (!containsEntry(key)) {
+            createEntry(key, new Counter());
+        }
+        getEntryData(key).addValue(1);
+    }
 }

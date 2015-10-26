@@ -8,9 +8,9 @@ import javax.swing.JPanel;
 public abstract class ConfigPanel extends JPanel
 {
 
-	public ConfigPanel(LayoutManager layoutManager)
-	{
-		super(layoutManager);
-	}
+    public ConfigPanel(LayoutManager layoutManager)
+    {
+        super(layoutManager);
+    }
 
 }

@@ -8,74 +8,74 @@ import com.google.common.collect.ImmutableList;
 public final class GdlRule extends Gdl
 {
 
-	private final ImmutableList<GdlLiteral> body;
-	private transient Boolean ground;
-	private final GdlSentence head;
+    private final ImmutableList<GdlLiteral> body;
+    private transient Boolean ground;
+    private final GdlSentence head;
 
-	GdlRule(GdlSentence head, ImmutableList<GdlLiteral> body)
-	{
-		this.head = head;
-		this.body = body;
-		ground = null;
-	}
+    GdlRule(GdlSentence head, ImmutableList<GdlLiteral> body)
+    {
+        this.head = head;
+        this.body = body;
+        ground = null;
+    }
 
-	public int arity()
-	{
-		return body.size();
-	}
+    public int arity()
+    {
+        return body.size();
+    }
 
-	private Boolean computeGround()
-	{
-		for (GdlLiteral literal : body)
-		{
-			if (!literal.isGround())
-			{
-				return false;
-			}
-		}
+    private Boolean computeGround()
+    {
+        for (GdlLiteral literal : body)
+        {
+            if (!literal.isGround())
+            {
+                return false;
+            }
+        }
 
-		return true;
-	}
+        return true;
+    }
 
-	public GdlLiteral get(int index)
-	{
-		return body.get(index);
-	}
+    public GdlLiteral get(int index)
+    {
+        return body.get(index);
+    }
 
-	public GdlSentence getHead()
-	{
-		return head;
-	}
+    public GdlSentence getHead()
+    {
+        return head;
+    }
 
-	public List<GdlLiteral> getBody()
-	{
-		return body;
-	}
+    public List<GdlLiteral> getBody()
+    {
+        return body;
+    }
 
-	@Override
-	public boolean isGround()
-	{
-		if (ground == null)
-		{
-			ground = computeGround();
-		}
+    @Override
+    public boolean isGround()
+    {
+        if (ground == null)
+        {
+            ground = computeGround();
+        }
 
-		return ground;
-	}
+        return ground;
+    }
 
-	@Override
-	public String toString()
-	{
-		StringBuilder sb = new StringBuilder();
+    @Override
+    public String toString()
+    {
+        StringBuilder sb = new StringBuilder();
 
-		sb.append("( <= " + head + " ");
-		for (GdlLiteral literal : body)
-		{
-			sb.append(literal + " ");
-		}
-		sb.append(")");
+        sb.append("( <= " + head + " ");
+        for (GdlLiteral literal : body)
+        {
+            sb.append(literal + " ");
+        }
+        sb.append(")");
 
-		return sb.toString();
-	}
+        return sb.toString();
+    }
 
 }

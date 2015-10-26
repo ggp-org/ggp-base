@@ -60,36 +60,36 @@ public final class CloudGameRepository extends GameRepository {
             theCacheHash = null;
         }
 
-    	File theCachesDirectory = new File(System.getProperty("user.home"), ".ggpserver-gamecache");
-    	theCachesDirectory.mkdir();
-    	theCacheDirectory = new File(theCachesDirectory, "repoHash" + theCacheHash);
-    	if (theCacheDirectory.exists()) {
-    		// For existing caches, only force a full refresh at most once per day
+        File theCachesDirectory = new File(System.getProperty("user.home"), ".ggpserver-gamecache");
+        theCachesDirectory.mkdir();
+        theCacheDirectory = new File(theCachesDirectory, "repoHash" + theCacheHash);
+        if (theCacheDirectory.exists()) {
+            // For existing caches, only force a full refresh at most once per day
             needsRefresh = (System.currentTimeMillis() - theCacheDirectory.lastModified()) > 86400000;
-    	} else {
-    		theCacheDirectory.mkdir();
-    		needsRefresh = true;
-    	}
+        } else {
+            theCacheDirectory.mkdir();
+            needsRefresh = true;
+        }
 
         if (needsRefresh) {
-        	Thread refreshThread = new RefreshCacheThread(theRepoURL);
-        	refreshThread.start();
-        	// Update the game cache asynchronously if there are already games.
-        	// Otherwise, force a blocking update.
-        	if (theCacheDirectory.listFiles().length == 0) {
-        		try {
-        			refreshThread.join();
-        		} catch (InterruptedException e) {
-        			;
-        		}
-        	}
-        	theCacheDirectory.setLastModified(System.currentTimeMillis());
-        	needsRefresh = false;
+            Thread refreshThread = new RefreshCacheThread(theRepoURL);
+            refreshThread.start();
+            // Update the game cache asynchronously if there are already games.
+            // Otherwise, force a blocking update.
+            if (theCacheDirectory.listFiles().length == 0) {
+                try {
+                    refreshThread.join();
+                } catch (InterruptedException e) {
+                    ;
+                }
+            }
+            theCacheDirectory.setLastModified(System.currentTimeMillis());
+            needsRefresh = false;
         }
     }
 
     @Override
-	protected Set<String> getUncachedGameKeys() {
+    protected Set<String> getUncachedGameKeys() {
         Set<String> theKeys = new HashSet<String>();
         for(File game : theCacheDirectory.listFiles()) {
             theKeys.add(game.getName().replace(".zip", ""));
@@ -98,10 +98,10 @@ public final class CloudGameRepository extends GameRepository {
     }
 
     @Override
-	protected Game getUncachedGame(String theKey) {
+    protected Game getUncachedGame(String theKey) {
         Game cachedGame = loadGameFromCache(theKey);
         if (cachedGame != null) {
-        	return cachedGame;
+            return cachedGame;
         }
         // Request the game directly on a cache miss.
         return new RemoteGameRepository(theRepoURL).getGame(theKey);
@@ -192,7 +192,7 @@ public final class CloudGameRepository extends GameRepository {
                         // Skip updating the game cache entry if the version is the same
                         // and the cache entry was written less than a week ago.
                         if (myGameVersion.getRepositoryURL().equals(remoteVersionedGameURL) &&
-                            getCacheEntryAge(theKey) < 604800000) {
+                                getCacheEntryAge(theKey) < 604800000) {
                             unchangedKeys.add(theKey);
                         }
                     } catch (Exception e) {
@@ -268,11 +268,11 @@ public final class CloudGameRepository extends GameRepository {
     }
 
     private synchronized long getCacheEntryAge(String theKey) {
-    	File theGameFile = new File(theCacheDirectory, theKey + ".zip");
-    	if (theGameFile.exists()) {
-    		return System.currentTimeMillis() - theGameFile.lastModified();
-    	}
-    	return System.currentTimeMillis();
+        File theGameFile = new File(theCacheDirectory, theKey + ".zip");
+        if (theGameFile.exists()) {
+            return System.currentTimeMillis() - theGameFile.lastModified();
+        }
+        return System.currentTimeMillis();
     }
 
     // ================================================================

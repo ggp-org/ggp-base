@@ -26,35 +26,35 @@ public class MachineState {
      * of the game being played. Two given states with identical GDL sentences
      * should be identical states of the game.
      */
-	public Set<GdlSentence> getContents()
-	{
+    public Set<GdlSentence> getContents()
+    {
         return contents;
     }
 
-	@Override
-	public MachineState clone() {
-		return new MachineState(new HashSet<GdlSentence>(contents));
-	}
-
-	/* Utility methods */
     @Override
-	public int hashCode()
+    public MachineState clone() {
+        return new MachineState(new HashSet<GdlSentence>(contents));
+    }
+
+    /* Utility methods */
+    @Override
+    public int hashCode()
     {
         return getContents().hashCode();
     }
 
     @Override
-	public String toString()
+    public String toString()
     {
-    	Set<GdlSentence> contents = getContents();
-    	if(contents == null)
-    		return "(MachineState with null contents)";
-    	else
-    		return contents.toString();
+        Set<GdlSentence> contents = getContents();
+        if(contents == null)
+            return "(MachineState with null contents)";
+        else
+            return contents.toString();
     }
 
     @Override
-	public boolean equals(Object o)
+    public boolean equals(Object o)
     {
         if ((o != null) && (o instanceof MachineState))
         {
