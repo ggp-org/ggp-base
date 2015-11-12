@@ -21,12 +21,12 @@ import clojure.lang.Var;
  *    getClojureGamerName() to indicate where the Clojure source code file is.
  *    This is the Java stub that refers to the real Clojure gamer class.
  *
- * 2) Create the Clojure source code file, in the /src_clj/ directory in the root
- *    directory for this project. Make sure that the stub points to this class,
- *    and that the Clojure class is a valid subclass of Gamer.
+ * 2) Create the Clojure source code file, in the /src/main/resources/ directory
+ *    in the root directory for this project. Make sure that the stub points to 
+ *    this class, and that the Clojure class is a valid subclass of Gamer.
  *
- * For examples where this has already been done, see @ClojureLegalGamerStub,
- * which is implemented in Clojure and hook into the Java framework using the
+ * For examples where this has already been done, see @SampleClojureGamerStub,
+ * which is implemented in Clojure and hooked into the Java framework using the
  * ClojureGamer stub.
  *
  * @author Sam Schreiber
