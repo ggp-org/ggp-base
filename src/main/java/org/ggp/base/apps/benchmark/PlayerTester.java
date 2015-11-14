@@ -126,7 +126,7 @@ public class PlayerTester {
 
     public static boolean passesTest(String hostport, TestCase theCase) throws SymbolFormatException {
         final Game theGame = getMediasResGame(theCase.gameKey, theCase.theState);
-        final Match theMatch = new Match("playerTester." + Match.getRandomString(5), -1, theCase.nStartClock, theCase.nPlayClock, theGame);
+        final Match theMatch = new Match("playerTester." + Match.getRandomString(5), -1, theCase.nStartClock, theCase.nPlayClock, theGame, "");
 
         // Set up fake players to pretend to play the game alongside the real player
         List<String> theHosts = new ArrayList<String>();

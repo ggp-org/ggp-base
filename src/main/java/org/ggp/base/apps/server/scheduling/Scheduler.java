@@ -86,7 +86,7 @@ public final class Scheduler implements Observer
 
     private synchronized void doSchedule(PendingMatch spec) {
         try {
-            Match match = new Match(spec.matchID, spec.previewClock, spec.startClock, spec.playClock, spec.theGame);
+            Match match = new Match(spec.matchID, spec.previewClock, spec.startClock, spec.playClock, spec.theGame, "");
 
             List<String> hosts = new ArrayList<String>(spec.thePlayers.size());
             List<Integer> ports = new ArrayList<Integer>(spec.thePlayers.size());

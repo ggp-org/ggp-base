@@ -54,6 +54,7 @@ public final class Match
     private final String matchId;
     private final String randomToken;
     private final String spectatorAuthToken;
+    private String tournamentNameFromHost;
     private final int playClock;
     private final int startClock;
     private final int previewClock;
@@ -74,9 +75,10 @@ public final class Match
 
     private GdlScrambler theGdlScrambler = new NoOpGdlScrambler();
 
-    public Match(String matchId, int previewClock, int startClock, int playClock, Game theGame)
+    public Match(String matchId, int previewClock, int startClock, int playClock, Game theGame, String tournamentNameFromHost)
     {
         this.matchId = matchId;
+        this.tournamentNameFromHost = tournamentNameFromHost;
         this.previewClock = previewClock;
         this.startClock = startClock;
         this.playClock = playClock;
@@ -127,6 +129,11 @@ public final class Match
             this.isAborted = theMatchObject.getBoolean("isAborted");
         } else {
             this.isAborted = false;
+        }
+        if (theMatchObject.has("tournamentNameFromHost")) {
+        	this.tournamentNameFromHost = theMatchObject.getString("tournamentNameFromHost");
+        } else {
+        	this.tournamentNameFromHost = null;
         }
 
         this.numRoles = Role.computeRoles(this.theGame.getRules()).size();
@@ -297,6 +304,9 @@ public final class Match
             if (isPlayerHuman != null) {
                 theJSON.put("isPlayerHuman", isPlayerHuman);
             }
+            if (tournamentNameFromHost != null) {
+            	theJSON.put("tournamentNameFromHost", tournamentNameFromHost);
+            }
             theJSON.put("scrambled", theGdlScrambler != null ? theGdlScrambler.scrambles() : false);
         } catch (JSONException e) {
             return null;
@@ -420,6 +430,10 @@ public final class Match
 
     public Date getStartTime() {
         return startTime;
+    }
+
+    public String getTournamentNameFromHost() {
+    	return tournamentNameFromHost;
     }
 
     public boolean isCompleted() {

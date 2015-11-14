@@ -60,7 +60,7 @@ public final class GameServerRunner
         if (hostNames.size() != expectedRoles) {
             throw new RuntimeException("Invalid number of players for game " + gameKey + ": " + hostNames.size() + " vs " + expectedRoles);
         }
-        Match match = new Match(matchName, -1, startClock, playClock, game);
+        Match match = new Match(matchName, -1, startClock, playClock, game, "");
         match.setPlayerNamesFromHost(playerNames);
 
         // Actually run the match, using the desired configuration.

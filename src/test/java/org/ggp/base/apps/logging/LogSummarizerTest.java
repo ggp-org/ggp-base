@@ -59,7 +59,7 @@ public class LogSummarizerTest extends Assert {
 
     @Before
     public void setUp() {
-        Match m = new Match("fake_match", 0, 0, 0, Game.createEphemeralGame("( (role fake_role) )"));
+        Match m = new Match("fake_match", 0, 0, 0, Game.createEphemeralGame("( (role fake_role) )"), null);
         GamerLogger.startFileLogging(m, "fake_role");
     }
 

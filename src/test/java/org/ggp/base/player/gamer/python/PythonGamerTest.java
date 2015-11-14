@@ -21,7 +21,7 @@ public class PythonGamerTest extends Assert {
             Gamer g = new SamplePythonGamerStub();
             assertEquals("SamplePythonGamer", g.getName());
 
-            Match m = new Match("", -1, 1000, 1000, GameRepository.getDefaultRepository().getGame("ticTacToe"));
+            Match m = new Match("", -1, 1000, 1000, GameRepository.getDefaultRepository().getGame("ticTacToe"), "");
             g.setMatch(m);
             g.setRoleName(GdlPool.getConstant("xplayer"));
             g.metaGame(1000);

@@ -44,7 +44,7 @@ public class SimpleGameSim {
 
     public static void main(String[] args) throws InterruptedException {
         final Game theGame = GameRepository.getDefaultRepository().getGame("nineBoardTicTacToe");
-        final Match theMatch = new Match("simpleGameSim." + Match.getRandomString(5), -1, 0, 0, theGame);
+        final Match theMatch = new Match("simpleGameSim." + Match.getRandomString(5), -1, 0, 0, theGame, "");
         try {
             // Load a sample set of cryptographic keys. These sample keys are not secure,
             // since they're checked into the public GGP Base SVN repository. They are provided
