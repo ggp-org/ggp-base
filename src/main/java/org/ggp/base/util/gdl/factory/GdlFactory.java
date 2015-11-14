@@ -41,7 +41,6 @@ public final class GdlFactory
         }
         catch (Exception e)
         {
-            createGdl(symbol);
             throw new GdlFormatException(symbol);
         }
     }
