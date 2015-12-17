@@ -1,8 +1,10 @@
 package org.ggp.base.player.gamer.statemachine.random;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Random;
 
+import org.ggp.base.player.GamePlayer;
 import org.ggp.base.player.gamer.event.GamerSelectedMoveEvent;
 import org.ggp.base.player.gamer.exception.GamePreviewException;
 import org.ggp.base.player.gamer.statemachine.StateMachineGamer;
@@ -71,5 +73,27 @@ public final class RandomGamer extends StateMachineGamer
     @Override
     public DetailPanel getDetailPanel() {
         return new SimpleDetailPanel();
+    }
+
+    // Simple main function that starts a RandomGamer on a specified port.
+    public static void main(String[] args)
+    {
+        if (args.length != 1) {
+            System.err.println("Usage: GamePlayer <port>");
+            System.exit(1);
+        }
+
+        try {
+            GamePlayer player = new GamePlayer(Integer.valueOf(args[0]), new RandomGamer());
+            player.run();
+        } catch (NumberFormatException e) {
+            System.err.println("Illegal port number: " + args[0]);
+            e.printStackTrace();
+            System.exit(2);
+        } catch (IOException e) {
+            System.err.println("IO Exception: " + e);
+            e.printStackTrace();
+            System.exit(3);
+        }
     }
 }

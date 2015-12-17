@@ -10,7 +10,6 @@ import org.ggp.base.player.event.PlayerDroppedPacketEvent;
 import org.ggp.base.player.event.PlayerReceivedMessageEvent;
 import org.ggp.base.player.event.PlayerSentMessageEvent;
 import org.ggp.base.player.gamer.Gamer;
-import org.ggp.base.player.gamer.statemachine.random.RandomGamer;
 import org.ggp.base.player.request.factory.RequestFactory;
 import org.ggp.base.player.request.grammar.Request;
 import org.ggp.base.util.http.HttpReader;
@@ -107,27 +106,5 @@ public final class GamePlayer extends Thread implements Subject
         }
     }
 
-    // Simple main function that starts a RandomGamer on a specified port.
-    // It might make sense to factor this out into a separate app sometime,
-    // so that the GamePlayer class doesn't have to import RandomGamer.
-    public static void main(String[] args)
-    {
-        if (args.length != 1) {
-            System.err.println("Usage: GamePlayer <port>");
-            System.exit(1);
-        }
 
-        try {
-            GamePlayer player = new GamePlayer(Integer.valueOf(args[0]), new RandomGamer());
-            player.run();
-        } catch (NumberFormatException e) {
-            System.err.println("Illegal port number: " + args[0]);
-            e.printStackTrace();
-            System.exit(2);
-        } catch (IOException e) {
-            System.err.println("IO Exception: " + e);
-            e.printStackTrace();
-            System.exit(3);
-        }
-    }
 }
