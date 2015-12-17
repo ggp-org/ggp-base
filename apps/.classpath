@@ -9,6 +9,7 @@
 	<classpathentry kind="src" path="/state-machines"/>
 	<classpathentry kind="src" path="/games"/>
 	<classpathentry kind="src" path="/sample-gamers"/>
+	<classpathentry kind="src" path="/gamers"/>
 	<classpathentry kind="lib" path="../lib/JUnit/junit-4.11.jar"/>
 	<classpathentry kind="lib" path="../lib/JUnit/hamcrest-core-1.3.jar"/>
 	<classpathentry kind="lib" path="../lib/Guava/guava-14.0.1.jar" sourcepath="../lib/Guava/guava-14.0.1-sources.jar"/>

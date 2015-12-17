@@ -2,10 +2,7 @@
 <classpath>
 	<classpathentry kind="output" path="bin"/>
 	<classpathentry kind="src" path="src/main/java"/>
-	<classpathentry kind="src" path="src/test/java"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="src" path="src/main/resources"/>
-	<classpathentry kind="src" path="/gamers"/>
 	<classpathentry kind="src" path="/legacy"/>
 	<classpathentry kind="src" path="/gdl-core"/>
 	<classpathentry kind="src" path="/state-machines"/>
