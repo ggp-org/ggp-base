@@ -1,1 +1,1 @@
-include 'gdl-core', 'gdl-utils', 'games', 'state-machines', 'legacy', 'gamers', 'sample-gamers', 'apps'
+include 'gdl-core', 'gdl-utils', 'games', 'state-machines', 'propnets', 'legacy', 'gamers', 'sample-gamers', 'apps'

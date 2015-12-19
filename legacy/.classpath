@@ -7,6 +7,7 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="src" path="/gdl-core"/>
 	<classpathentry kind="src" path="/gdl-utils"/>
+	<classpathentry kind="src" path="/propnets"/>
 	<classpathentry kind="src" path="/state-machines"/>
 	<classpathentry kind="src" path="/games"/>
 	<classpathentry kind="lib" path="../lib/JUnit/junit-4.11.jar"/>
