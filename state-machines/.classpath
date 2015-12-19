@@ -4,6 +4,7 @@
 	<classpathentry kind="src" path="src/main/java"/>
 	<classpathentry kind="src" path="src/test/java"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="src" path="/gdl-utils"/>
 	<classpathentry kind="src" path="/gdl-core"/>
 	<classpathentry kind="lib" path="../lib/JUnit/junit-4.11.jar"/>
 	<classpathentry kind="lib" path="../lib/JUnit/hamcrest-core-1.3.jar"/>
