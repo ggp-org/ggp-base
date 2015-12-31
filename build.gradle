@@ -2,6 +2,7 @@ apply plugin: 'java'
 apply plugin: 'eclipse'
 apply plugin: 'checkstyle'
 apply plugin: 'idea'
+apply plugin: 'scala'
 
 // We compile using Java 7.
 sourceCompatibility = 1.7
@@ -13,6 +14,7 @@ targetCompatibility = 1.7
  * during setup.
  */
 dependencies {
+    compile 'org.scala-lang:scala-library:2.11.7'
     compile files(
         'lib/Guava/guava-14.0.1.jar',
         'lib/Jython/jython.jar',
