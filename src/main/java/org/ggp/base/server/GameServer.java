@@ -5,7 +5,6 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -47,8 +46,8 @@ public final class GameServer extends Thread implements Subject
 
     private final List<String> hosts;
     private final List<Integer> ports;
-    private final Boolean[] playerGetsUnlimitedTime;
-    private final Boolean[] playerPlaysRandomly;
+    private final boolean[] playerGetsUnlimitedTime;
+    private final boolean[] playerPlaysRandomly;
 
     private final List<Observer> observers;
     private List<Move> previousMoves;
@@ -66,11 +65,8 @@ public final class GameServer extends Thread implements Subject
         this.hosts = hosts;
         this.ports = ports;
 
-        playerGetsUnlimitedTime = new Boolean[hosts.size()];
-        Arrays.fill(playerGetsUnlimitedTime, Boolean.FALSE);
-
-        playerPlaysRandomly = new Boolean[hosts.size()];
-        Arrays.fill(playerPlaysRandomly, Boolean.FALSE);
+        playerGetsUnlimitedTime = new boolean[hosts.size()];
+        playerPlaysRandomly = new boolean[hosts.size()];
 
         stateMachine = new ProverStateMachine();
         stateMachine.initialize(match.getGame().getRules());
