@@ -136,7 +136,7 @@ public class GamerLogger {
             }
 
             // Periodically check to make sure we're not writing TOO MUCH to this file.
-            if(filesToSkip.size() != 0 && filesToSkip.contains(myFilename)) {
+            if(!filesToSkip.isEmpty() && filesToSkip.contains(myFilename)) {
                 return;
             }
             if(theRandom.nextInt(1000) == 0) {

@@ -70,7 +70,7 @@ public class AssignmentsFactory {
             }
         }
 
-        if(assignmentsList.size() == 0)
+        if(assignmentsList.isEmpty())
             return new AssignmentsImpl();
         if(assignmentsList.size() == 1)
             return assignmentsList.get(0);

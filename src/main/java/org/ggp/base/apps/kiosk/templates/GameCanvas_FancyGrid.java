@@ -89,7 +89,7 @@ public abstract class GameCanvas_FancyGrid extends GameCanvas_SimpleGrid {
 
     protected void renderCellContent(Graphics g, String theFact) {};
     protected void renderCellContent(Graphics g, Set<String> theFacts){
-        if(theFacts.size() > 0) {
+        if(!theFacts.isEmpty()) {
             if(theFacts.size() > 1) {
                 System.err.println("More than one fact for a cell? Unexpected!");
             }
@@ -113,7 +113,7 @@ public abstract class GameCanvas_FancyGrid extends GameCanvas_SimpleGrid {
     protected final void handleClickOnCell(int xCell, int yCell, int xWithin, int yWithin) {
         if(selectedRow != yCell || selectedColumn != xCell || !possibleSelectedMoves.hasNext()) {
             SortedSet<String> theMoves = new TreeSet<String>(getLegalMovesForCell(xCell, yCell));
-            if(theMoves.size() == 0)
+            if(theMoves.isEmpty())
                 return;
             possibleSelectedMoves = theMoves.iterator();
         }

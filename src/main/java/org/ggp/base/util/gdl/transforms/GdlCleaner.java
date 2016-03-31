@@ -213,7 +213,7 @@ public class GdlCleaner {
         List<GdlTerm> cleanedBody = new ArrayList<GdlTerm>();
         for(GdlTerm term : sentence.getBody())
             cleanedBody.add(cleanParentheses(term));
-        if (cleanedBody.size() == 0) {
+        if (cleanedBody.isEmpty()) {
             return GdlPool.getProposition(sentence.getName());
         } else {
             return GdlPool.getRelation(sentence.getName(), cleanedBody);

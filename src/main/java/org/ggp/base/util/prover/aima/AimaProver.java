@@ -66,7 +66,7 @@ public final class AimaProver implements Prover
 
     private void ask(LinkedList<GdlLiteral> goals, KnowledgeBase context, Substitution theta, ProverCache cache, VariableRenamer renamer, boolean askOne, Set<Substitution> results, RecursionHandler recursionHandler, IsConstant isConstant)
     {
-        if (goals.size() == 0)
+        if (goals.isEmpty())
         {
             results.add(theta);
             isConstant.value = true;
@@ -128,7 +128,7 @@ public final class AimaProver implements Prover
         ask(notGoals, context, theta, cache, renamer, true, notResults, recursionHandler, isConstantRet);
         isConstant &= isConstantRet.value;
 
-        if (notResults.size() == 0)
+        if (notResults.isEmpty())
         {
             ask(goals, context, theta, cache, renamer, askOne, results, recursionHandler, isConstantRet);
             isConstant &= isConstantRet.value;
@@ -140,7 +140,7 @@ public final class AimaProver implements Prover
     public GdlSentence askOne(GdlSentence query, Set<GdlSentence> context)
     {
         Set<GdlSentence> results = ask(query, context, true);
-        return (results.size() > 0) ? results.iterator().next() : null;
+        return (!results.isEmpty()) ? results.iterator().next() : null;
     }
 
     private void askOr(GdlOr or, LinkedList<GdlLiteral> goals, KnowledgeBase context, Substitution theta, ProverCache cache, VariableRenamer renamer, boolean askOne, Set<Substitution> results, RecursionHandler recursionHandler, IsConstant isConstantRet)
@@ -153,7 +153,7 @@ public final class AimaProver implements Prover
             isConstant &= isConstantRet.value;
             goals.removeFirst();
 
-            if (askOne && (results.size() > 0))
+            if (askOne && (!results.isEmpty()))
             {
                 break;
             }
@@ -171,7 +171,7 @@ public final class AimaProver implements Prover
         {
             ask(goals, context, theta.compose(thetaPrime), cache, renamer, askOne, results, recursionHandler, isConstantRet);
             isConstant &= isConstantRet.value;
-            if (askOne && (results.size() > 0))
+            if (askOne && (!results.isEmpty()))
             {
                 break;
             }
