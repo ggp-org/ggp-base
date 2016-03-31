@@ -309,31 +309,29 @@ public final class TiltyardRequestFarm
 
     @SuppressWarnings("resource")
     public static void main(String[] args) {
-        ServerSocket listener = null;
-        try {
-            listener = new ServerSocket(SERVER_PORT);
+        try (ServerSocket listener = new ServerSocket(SERVER_PORT)) {
+            if (!testMode) {
+                if (theBackendKeys == null) {
+                    System.err.println("Could not load cryptographic keys for signing request responses.");
+                    return;
+                }
+                new TiltyardRegistration().start();
+            }
+
+            Set<String> activeRequests = new HashSet<String>();
+            while (true) {
+                try {
+                    Socket connection = listener.accept();
+                    RunBatchRequestThread handlerThread = new RunBatchRequestThread(connection, activeRequests);
+                    handlerThread.start();
+                } catch (Exception e) {
+                    System.err.println(e);
+                }
+            }
         } catch (IOException e) {
             System.err.println("Could not open server on port " + SERVER_PORT + ": " + e);
             e.printStackTrace();
             return;
-        }
-        if (!testMode) {
-            if (theBackendKeys == null) {
-                System.err.println("Could not load cryptographic keys for signing request responses.");
-                return;
-            }
-            new TiltyardRegistration().start();
-        }
-
-        Set<String> activeRequests = new HashSet<String>();
-        while (true) {
-            try {
-                Socket connection = listener.accept();
-                RunBatchRequestThread handlerThread = new RunBatchRequestThread(connection, activeRequests);
-                handlerThread.start();
-            } catch (Exception e) {
-                System.err.println(e);
-            }
         }
     }
 }

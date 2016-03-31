@@ -51,14 +51,12 @@ public class StandaloneVariableConstrainer {
 
         String newFilename = filename.substring(0, filename.lastIndexOf(".kif")) + "_VARCONST.kif";
 
-        try {
-            BufferedWriter out = new BufferedWriter(new FileWriter(new File(newFilename)));
+        try (BufferedWriter out = new BufferedWriter(new FileWriter(new File(newFilename)))) {
 
             for(Gdl gdl : transformedDescription) {
                 out.write(gdl.toString());
                 out.newLine();
             }
-            out.close();
         } catch (IOException e) {
             System.err.println("There was an error writing the translated GDL file " + newFilename + ".");
             e.printStackTrace();
