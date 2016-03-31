@@ -422,7 +422,7 @@ public final class ProxyGamePlayer extends Thread implements Subject
     private void proxyProcessRequest(Request theRequest, long receptionTime) {
         long startSleeping = System.currentTimeMillis();
         long timeToFinish = receptionTime;
-        long timeToSleep = 0L;
+        long timeToSleep;
 
         try {
             if(theRequest instanceof PlayRequest) {

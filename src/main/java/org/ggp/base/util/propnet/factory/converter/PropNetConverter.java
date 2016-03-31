@@ -269,7 +269,7 @@ public final class PropNetConverter
             {
                 i++;
 
-                Proposition disjunct = null;
+                Proposition disjunct;
                 if ( fixItem.getName() instanceof GdlProposition )
                 {
                     GdlProposition proposition = (GdlProposition) fixItem.getName();

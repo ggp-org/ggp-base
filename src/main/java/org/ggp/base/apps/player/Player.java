@@ -139,9 +139,9 @@ public final class Player extends JPanel
 
                     MatchPanel matchPanel = new MatchPanel();
                     NetworkPanel networkPanel = new NetworkPanel();
-                    DetailPanel detailPanel = null;
-                    ConfigPanel configPanel = null;
-                    Gamer gamer = null;
+                    DetailPanel detailPanel;
+                    ConfigPanel configPanel;
+                    Gamer gamer;
 
                     Class<?> gamerClass = gamers.get(typeComboBox.getSelectedIndex());
                     try {

@@ -155,7 +155,7 @@ public class HttpTest extends Assert {
         public SocketPair() {
             // Create a server socket on the first available port.
             int defaultTestingPort = 13174;
-            ServerSocket ss = null;
+            ServerSocket ss;
             do {
                 try {
                     ss = new ServerSocket(defaultTestingPort);

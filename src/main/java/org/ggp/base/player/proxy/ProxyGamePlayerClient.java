@@ -49,8 +49,8 @@ public final class ProxyGamePlayerClient extends Thread implements Subject, Obse
             return;
         }
 
-        int port = 9147;
-        Gamer gamer = null;
+        int port;
+        Gamer gamer;
         try {
             port = Integer.valueOf(args[1]);
         } catch(Exception e) {

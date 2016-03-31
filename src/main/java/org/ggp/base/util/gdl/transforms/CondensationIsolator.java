@@ -217,7 +217,7 @@ public class CondensationIsolator {
         //Save the description in a new file
         //Useful for debugging chains of condensations to see
         //which cause decreased performance
-        String filename = "ci0.kif";
+        String filename;
         int filenum = 0;
         File file = null;
         while(file == null || file.exists()) {

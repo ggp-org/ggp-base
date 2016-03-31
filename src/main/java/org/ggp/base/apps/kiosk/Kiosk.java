@@ -325,7 +325,7 @@ public final class Kiosk extends JPanel implements ActionListener, ItemListener,
 
                 // Start a new player if necessary
                 if(theComputerPlayer == null) {
-                    Gamer gamer = null;
+                    Gamer gamer;
                     if(!playerComboBox.getSelectedItem().equals(remotePlayerString)) {
                         Class<?> gamerClass = gamers.get(playerComboBox.getSelectedIndex());
                         try {
