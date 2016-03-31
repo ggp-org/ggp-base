@@ -21,8 +21,8 @@ import org.ggp.base.util.gdl.grammar.GdlVariable;
 
 //Cleans up various issues with games to make them more standardized.
 public class GdlCleaner {
-    private final static int MAX_ITERATIONS = 100;
-    private final static GdlConstant BASE = GdlPool.getConstant("base");
+    private static final int MAX_ITERATIONS = 100;
+    private static final GdlConstant BASE = GdlPool.getConstant("base");
 
     public static List<Gdl> run(List<Gdl> description) {
         for (int i = 0; i < MAX_ITERATIONS; i++) {

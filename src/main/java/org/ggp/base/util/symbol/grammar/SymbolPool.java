@@ -8,8 +8,8 @@ import java.util.concurrent.ConcurrentMap;
 public final class SymbolPool
 {
 
-    private final static ConcurrentMap<String, SymbolAtom> atomPool = new ConcurrentHashMap<String, SymbolAtom>();
-    private final static ConcurrentMap<List<Symbol>, SymbolList> listPool = new ConcurrentHashMap<List<Symbol>, SymbolList>();
+    private static final ConcurrentMap<String, SymbolAtom> atomPool = new ConcurrentHashMap<String, SymbolAtom>();
+    private static final ConcurrentMap<List<Symbol>, SymbolList> listPool = new ConcurrentHashMap<List<Symbol>, SymbolList>();
 
     /**
      * If the pool does not have a mapping for the given key, adds a mapping from key to value

@@ -17,7 +17,7 @@ import org.ggp.base.util.statemachine.Role;
 public final class ProverResultParser
 {
 
-    private final static GdlConstant TRUE = GdlPool.getConstant("true");
+    private static final GdlConstant TRUE = GdlPool.getConstant("true");
 
     public List<Move> toMoves(Set<GdlSentence> results)
     {
