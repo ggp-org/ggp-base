@@ -292,13 +292,11 @@ public class IterationOrderCandidate implements Comparable<IterationOrderCandida
             //Non-producible vars get iterated over before we start
             //deciding which functions to add
             for(GdlVariable var : varsToAssign) {
-                if(!varOrdering.contains(var)) {
-                    if(!functionsProducingVars.containsKey(var)) {
-                        //Add var to the ordering
-                        varOrdering.add(var);
-                        functionalConjunctIndices.add(-1);
-                        varSources.add(-1);
-                    }
+                if(!varOrdering.contains(var) && !functionsProducingVars.containsKey(var)) {
+                    //Add var to the ordering
+                    varOrdering.add(var);
+                    functionalConjunctIndices.add(-1);
+                    varSources.add(-1);
                 }
             }
 

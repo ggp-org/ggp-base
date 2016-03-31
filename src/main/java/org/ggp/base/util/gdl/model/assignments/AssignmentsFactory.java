@@ -48,9 +48,8 @@ public class AssignmentsFactory {
         //literals.
         List<GdlSentence> matchingLiterals = new ArrayList<GdlSentence>();
         for(GdlLiteral literal : rule.getBody())
-            if(literal instanceof GdlSentence)
-                if(form.matches((GdlSentence) literal))
-                    matchingLiterals.add((GdlSentence) literal);
+            if(literal instanceof GdlSentence && form.matches((GdlSentence) literal))
+                matchingLiterals.add((GdlSentence) literal);
 
         List<Assignments> assignmentsList = new ArrayList<Assignments>();
         for(GdlSentence matchingLiteral : matchingLiterals) {
