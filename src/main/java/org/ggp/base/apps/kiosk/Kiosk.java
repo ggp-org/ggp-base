@@ -110,7 +110,7 @@ public final class Kiosk extends JPanel implements ActionListener, ItemListener,
         NativeUI.setNativeUI();
         GamerLogger.setFileToDisplay("GamePlayer");
 
-        SortedSet<AvailableGame> theAvailableGames = new TreeSet<AvailableGame>();
+        SortedSet<AvailableGame> theAvailableGames = new TreeSet<>();
         Set<Class<? extends GameCanvas>> theAvailableCanvasList = ProjectSearcher.GAME_CANVASES.getConcreteClasses();
         for(Class<? extends GameCanvas> availableCanvas : theAvailableCanvasList) {
             try {
@@ -123,13 +123,13 @@ public final class Kiosk extends JPanel implements ActionListener, ItemListener,
 
         flipRoles = new JCheckBox("Flip roles?");
 
-        selectedGame = new JList<AvailableGame>(theAvailableGames.toArray(new AvailableGame[0]));
+        selectedGame = new JList<>(theAvailableGames.toArray(new AvailableGame[0]));
         selectedGame.setSelectedIndex(0);
         selectedGame.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         JScrollPane selectedGamePane = new JScrollPane(selectedGame);
 
         computerAddress = new JTextField("player.ggp.org:80");
-        playerComboBox = new JComboBox<String>();
+        playerComboBox = new JComboBox<>();
         playerComboBox.addItemListener(this);
 
         gamers = Lists.newArrayList(ProjectSearcher.GAMERS.getConcreteClasses());
@@ -337,9 +337,9 @@ public final class Kiosk extends JPanel implements ActionListener, ItemListener,
                     }
                 }
 
-                List<String> hosts = new ArrayList<String>();
-                List<Integer> ports = new ArrayList<Integer>();
-                List<String> playerNames = new ArrayList<String>();
+                List<String> hosts = new ArrayList<>();
+                List<Integer> ports = new ArrayList<>();
+                List<String> playerNames = new ArrayList<>();
 
                 if(!flipRoles.isSelected()) {
                     hosts.add("127.0.0.1");

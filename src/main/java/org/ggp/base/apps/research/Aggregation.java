@@ -41,7 +41,7 @@ public abstract class Aggregation<T extends Comparable<T>>
     public String toString() {
         int nMaxLength = 0;
         StringBuilder theStringRep = new StringBuilder();
-        TreeSet<Map.Entry<String,T>> theEntries = new TreeSet<Map.Entry<String,T>>(new EntryComparator());
+        TreeSet<Map.Entry<String,T>> theEntries = new TreeSet<>(new EntryComparator());
         theEntries.addAll(entryData.entrySet());
         for (Map.Entry<String,T> entry : theEntries) {
             nMaxLength = Math.max(nMaxLength, entry.getKey().length());

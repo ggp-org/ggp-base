@@ -35,7 +35,7 @@ public class StatesPanel extends JPanel implements Observer {
             // TODO: Perhaps this should run in a separate thread, as in the
             // VisualizationPanel, in case these states are very large.
             JPanel statePanel = new JPanel();
-            List<String> sentences = new ArrayList<String>();
+            List<String> sentences = new ArrayList<>();
             for(GdlSentence sentence : s.getContents())
                 sentences.add(sentence.toString());
             //The list of sentences is more useful when sorted alphabetically.

@@ -79,9 +79,9 @@ public class ImportSanchoCases {
                 flipAcceptableMoves = true;
                 theCheck.put("acceptable", theCheck.getString("acceptable").substring(2));
             }
-            Set<String> acceptableMoves = new HashSet<String>(Arrays.asList(theCheck.getString("acceptable").split(",")));
+            Set<String> acceptableMoves = new HashSet<>(Arrays.asList(theCheck.getString("acceptable").split(",")));
             {
-                Set<String> acceptableMovesClean = new HashSet<String>();
+                Set<String> acceptableMovesClean = new HashSet<>();
                 for (String move : acceptableMoves) {
                     acceptableMovesClean.add("( " + move + " )");
                 }
@@ -91,7 +91,7 @@ public class ImportSanchoCases {
                 StateMachine theMachine = new ProverStateMachine();
                 theMachine.initialize(PlayerTester.getMediasResGame(gameKey, theState).getRules());
                 List<Move> legalMoves = theMachine.getLegalMoves(theMachine.getInitialState(), theMachine.getRoles().get(thePlayerID));
-                Set<String> newAcceptableMoves = new HashSet<String>();
+                Set<String> newAcceptableMoves = new HashSet<>();
                 for (Move move : legalMoves) {
                     if (!acceptableMoves.contains(move.toString())) newAcceptableMoves.add(move.toString());
                 }

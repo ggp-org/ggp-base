@@ -79,7 +79,7 @@ public final class Player extends JPanel
         super(new GridBagLayout());
 
         portTextField = new JTextField(defaultPort.toString());
-        typeComboBox = new JComboBox<String>();
+        typeComboBox = new JComboBox<>();
         createButton = new JButton(createButtonMethod());
         playersTabbedPane = new JTabbedPane();
 
@@ -93,7 +93,7 @@ public final class Player extends JPanel
             }
         });
 
-        List<Class<? extends Gamer>> gamersCopy = new ArrayList<Class<? extends Gamer>>(gamers);
+        List<Class<? extends Gamer>> gamersCopy = new ArrayList<>(gamers);
         for(Class<? extends Gamer> gamer : gamersCopy)
         {
             Gamer g;

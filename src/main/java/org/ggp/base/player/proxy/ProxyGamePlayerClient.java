@@ -59,7 +59,7 @@ public final class ProxyGamePlayerClient extends Thread implements Subject, Obse
         }
 
         List<Class<? extends Gamer>> gamers = Lists.newArrayList(ProjectSearcher.GAMERS.getConcreteClasses());
-        List<String> gamerNames = new ArrayList<String>();
+        List<String> gamerNames = new ArrayList<>();
         if(gamerNames.size()!=gamers.size())
         {
             for(Class<?> c : gamers)
@@ -91,7 +91,7 @@ public final class ProxyGamePlayerClient extends Thread implements Subject, Obse
 
     public ProxyGamePlayerClient(int port, Gamer gamer) throws IOException
     {
-        observers = new ArrayList<Observer>();
+        observers = new ArrayList<>();
 
         theConnection = new Socket("127.0.0.1", port);
         theOutput = new PrintStream(theConnection.getOutputStream());

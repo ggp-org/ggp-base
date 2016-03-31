@@ -119,8 +119,8 @@ public final class Server extends JPanel implements ActionListener
         gamePanel = new JPanel(new GridBagLayout());
         playersPanel = new JPanel(new GridBagLayout());
 
-        roleLabels = new ArrayList<JLabel>();
-        playerFields = new ArrayList<JComboBox<String>>();
+        roleLabels = new ArrayList<>();
+        playerFields = new ArrayList<>();
         theGame = null;
 
         shouldScramble = new JCheckBox("Scramble GDL?", true);
@@ -238,7 +238,7 @@ public final class Server extends JPanel implements ActionListener
                 int startClock = (Integer)startClockSpinner.getValue();
                 int playClock = (Integer)playClockSpinner.getValue();
 
-                List<PlayerPresence> thePlayers = new ArrayList<PlayerPresence>();
+                List<PlayerPresence> thePlayers = new ArrayList<>();
                 for (JComboBox<String> playerField : playerFields) {
                     String name = playerField.getSelectedItem().toString();
                     thePlayers.add(playerSelector.getPlayerPresence(name));

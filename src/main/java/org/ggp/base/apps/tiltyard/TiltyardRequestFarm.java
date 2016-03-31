@@ -79,7 +79,7 @@ public final class TiltyardRequestFarm
     public static String generateSignedPing() {
         String zone = null;
         try {
-            Map<String, String> metadataRequestProperties = new HashMap<String, String>();
+            Map<String, String> metadataRequestProperties = new HashMap<>();
             metadataRequestProperties.put("Metadata-Flavor", "Google");
             zone = RemoteResourceLoader.loadRaw("http://metadata/computeMetadata/v1/instance/zone", 1, metadataRequestProperties);
         } catch (IOException e1) {
@@ -113,7 +113,7 @@ public final class TiltyardRequestFarm
             timeoutClock = theJSON.getInt("timeoutClock");
             forPlayerName = theJSON.getString("forPlayerName");
             requestContent = theJSON.getString("requestContent");
-            extraHeaders = new HashMap<String, String>();
+            extraHeaders = new HashMap<>();
             if (theJSON.has("extraHeaders")) {
                 JSONObject theExtraHeaders = theJSON.getJSONObject("extraHeaders");
                 for (String key : JSONObject.getNames(theExtraHeaders)) {
@@ -194,7 +194,7 @@ public final class TiltyardRequestFarm
 
                 JSONObject theBatchJSON = new JSONObject(line);
                 JSONArray theRequests = theBatchJSON.getJSONArray("requests");
-                theRequestThreads = new HashSet<RunSingleRequestThread>();
+                theRequestThreads = new HashSet<>();
                 for (int i = 0; i < theRequests.length(); i++) {
                     JSONObject aRequest = theRequests.getJSONObject(i);
                     RunSingleRequestThread aRequestThread = new RunSingleRequestThread(aRequest);
@@ -325,7 +325,7 @@ public final class TiltyardRequestFarm
             new TiltyardRegistration().start();
         }
 
-        Set<String> activeRequests = new HashSet<String>();
+        Set<String> activeRequests = new HashSet<>();
         while (true) {
             try {
                 Socket connection = listener.accept();

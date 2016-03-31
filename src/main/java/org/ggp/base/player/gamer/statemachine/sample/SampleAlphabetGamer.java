@@ -44,7 +44,7 @@ public final class SampleAlphabetGamer extends SampleGamer
         List<Move> moves = getStateMachine().getLegalMoves(getCurrentState(), getRole());
 
         // Create a copy of the list of legal moves, so we can modify it.
-        moves = new ArrayList<Move>(moves);
+        moves = new ArrayList<>(moves);
 
         // Sort the list of moves alphabetically.
         Collections.sort(moves, new Comparator<Move>(){

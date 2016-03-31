@@ -38,7 +38,7 @@ public class BiddingTicTacToeCanvas extends GameCanvas_FancyGrid {
                 return gameStateHasFactsMatching("\\( coins " + myRole + " " + nScore + " \\)");
             }
         }
-        return new HashSet<String>();
+        return new HashSet<>();
     }
 
     @Override

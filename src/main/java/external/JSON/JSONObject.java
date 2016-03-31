@@ -149,7 +149,7 @@ public class JSONObject {
      * Construct an empty JSONObject.
      */
     public JSONObject() {
-        this.map = new HashMap<Object,Object>();
+        this.map = new HashMap<>();
     }
 
 
@@ -235,7 +235,7 @@ public class JSONObject {
      *  the JSONObject.
      */
     public JSONObject(Map<?,?> map) {
-        this.map = new HashMap<Object,Object>();
+        this.map = new HashMap<>();
         if (map != null) {
             Iterator<?> i = map.entrySet().iterator();
             while (i.hasNext()) {

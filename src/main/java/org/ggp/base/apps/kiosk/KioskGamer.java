@@ -26,7 +26,7 @@ import org.ggp.base.util.statemachine.implementation.prover.ProverStateMachine;
 
 
 public class KioskGamer extends StateMachineGamer implements Observer {
-    private BlockingQueue<Move> theQueue = new ArrayBlockingQueue<Move>(25);
+    private BlockingQueue<Move> theQueue = new ArrayBlockingQueue<>(25);
 
     private GameGUI theGUI;
     private JPanel theGUIPanel;

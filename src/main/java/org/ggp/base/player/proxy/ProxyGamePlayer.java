@@ -92,7 +92,7 @@ public final class ProxyGamePlayer extends Thread implements Subject
             this.parentThread = parentThread;
 
             String command = GamerConfiguration.getCommandForJava();
-            List<String> processArgs = new ArrayList<String>();
+            List<String> processArgs = new ArrayList<>();
             processArgs.add(command);
             processArgs.add("-Xmx" + GamerConfiguration.getMemoryForGamer() + "m");
             processArgs.add("-server");
@@ -227,7 +227,7 @@ public final class ProxyGamePlayer extends Thread implements Subject
         // we need to handle a simple request (START or STOP).
         theDefaultGamer = new RandomGamer();
 
-        observers = new ArrayList<Observer>();
+        observers = new ArrayList<>();
         listener = null;
         while (listener == null) {
             try {
@@ -291,8 +291,8 @@ public final class ProxyGamePlayer extends Thread implements Subject
         theClientManager.start();
 
         // Start up the input queue listener
-        inputQueue = new ArrayBlockingQueue<ProxyMessage>(100);
-        inputConnectionQueue = new ArrayBlockingQueue<Socket>(100);
+        inputQueue = new ArrayBlockingQueue<>(100);
+        inputConnectionQueue = new ArrayBlockingQueue<>(100);
         QueueListenerThread theListener = new QueueListenerThread();
         theListener.start();
 
