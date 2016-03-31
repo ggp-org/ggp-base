@@ -34,7 +34,7 @@ public final class RandomGamer extends StateMachineGamer
         long start = System.currentTimeMillis();
 
         List<Move> moves = getStateMachine().getLegalMoves(getCurrentState(), getRole());
-        Move selection = (moves.get(new Random().nextInt(moves.size())));
+        Move selection = moves.get(new Random().nextInt(moves.size()));
 
         long stop = System.currentTimeMillis();
 

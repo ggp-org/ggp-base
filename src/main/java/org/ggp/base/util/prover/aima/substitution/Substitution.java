@@ -35,7 +35,7 @@ public final class Substitution
     @Override
     public boolean equals(Object o)
     {
-        if ((o != null) && (o instanceof Substitution))
+        if (o != null && o instanceof Substitution)
         {
             Substitution substitution = (Substitution) o;
             return substitution.contents.equals(contents);
