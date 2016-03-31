@@ -11,6 +11,9 @@ import org.ggp.base.util.statemachine.StateMachine;
 
 
 public class StateMachineVerifier {
+    private StateMachineVerifier() {
+    }
+
     public static boolean checkMachineConsistency(StateMachine theReference, StateMachine theSubject, long timeToSpend) {
         long startTime = System.currentTimeMillis();
 

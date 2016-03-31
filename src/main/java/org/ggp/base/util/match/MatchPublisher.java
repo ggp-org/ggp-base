@@ -10,6 +10,9 @@ import java.net.URL;
 import java.net.URLEncoder;
 
 public class MatchPublisher {
+    private MatchPublisher() {
+    }
+
     public static String publishToSpectatorServer(String spectatorURL, Match theMatch) throws IOException {
         if (theMatch.getGameRepositoryURL().isEmpty()) {
             throw new IOException("Match doesn't have appropriate metadata for publication to a spectator server: " + theMatch);

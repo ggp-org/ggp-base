@@ -9,6 +9,9 @@ import java.io.IOException;
 import java.io.PrintStream;
 
 public class FileUtils {
+    private FileUtils() {
+    }
+
     public static String readFileAsString(File file) {
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
             StringBuilder fileData = new StringBuilder(10000);

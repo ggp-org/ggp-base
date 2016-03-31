@@ -10,6 +10,9 @@ import org.ggp.base.util.statemachine.Role;
 
 public final class RequestBuilder
 {
+    private RequestBuilder() {
+    }
+
     public static String getPlayRequest(String matchId, List<Move> moves, GdlScrambler scrambler)
     {
         if (moves == null) {

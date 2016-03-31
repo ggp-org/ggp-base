@@ -24,6 +24,9 @@ public class GdlCleaner {
     private final static int MAX_ITERATIONS = 100;
     private final static GdlConstant BASE = GdlPool.getConstant("base");
 
+    private GdlCleaner() {
+    }
+
     public static List<Gdl> run(List<Gdl> description) {
         for (int i = 0; i < MAX_ITERATIONS; i++) {
             List<Gdl> newDescription = runOnce(description);

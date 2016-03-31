@@ -18,6 +18,9 @@ import org.ggp.base.util.statemachine.Role;
  */
 public final class LegacyPropNetFactory
 {
+    private LegacyPropNetFactory() {
+    }
+
     /**
      * Creates a PropNet from a game description using the following process:
      * <ol>

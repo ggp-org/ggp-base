@@ -33,6 +33,9 @@ import org.ggp.base.util.symbol.factory.exceptions.SymbolFormatException;
  */
 public final class GameServerRunner
 {
+    private GameServerRunner() {
+    }
+
     public static void main(String[] args) throws IOException, SymbolFormatException, GdlFormatException, InterruptedException, GoalDefinitionException
     {
         // Extract the desired configuration from the command line.

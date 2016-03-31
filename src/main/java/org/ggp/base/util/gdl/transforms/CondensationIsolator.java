@@ -79,6 +79,9 @@ import com.google.common.collect.Sets;
  *
  */
 public class CondensationIsolator {
+    private CondensationIsolator() {
+    }
+
     public static List<Gdl> run(List<Gdl> description) throws InterruptedException {
         //This class is not put together in any "optimal" way, so it's left in
         //an unpolished state for now. A better version would use estimates of
