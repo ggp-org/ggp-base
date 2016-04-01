@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- WARNING: Eclipse auto-generated file.
+              Any modifications will be overwritten.
+              To include a user specific buildfile here, simply create one in the same
+              directory with the processing instruction <?eclipse.ant.import?>
+              as the first entry and export the buildfile again. -->
+<project basedir="." default="build" name="GGP_Base">
+    <property environment="env"/>
+    <property name="ECLIPSE_HOME" value="/usr/lib/eclipse"/>
+    <property name="junit.output.dir" value="junit"/>
+    <property name="debuglevel" value="source,lines,vars"/>
+    <property name="target" value="1.7"/>
+    <property name="source" value="1.7"/>
+    <path id="GGP_Base.classpath">
+		<pathelement location="bin"/>
+		<pathelement location="lib/FlyingSaucer/core-renderer.jar"/>
+		<pathelement location="lib/JFreeChart/jfreechart-1.0.14.jar"/>
+		<pathelement location="lib/JFreeChart/jcommon-1.0.17.jar"/>
+		<pathelement location="lib/JTidy/Tidy.jar"/>
+		<pathelement location="lib/JGoodiesForms/forms-1.2.1.jar"/>
+		<pathelement location="lib/Jython/jython.jar"/>
+		<pathelement location="lib/Clojure/clojure.jar"/>
+		<pathelement location="lib/Guava/guava-14.0.1.jar"/>
+		<pathelement location="lib/JUnit/junit-4.11.jar"/>
+		<pathelement location="lib/JUnit/hamcrest-core-1.3.jar"/>
+		<pathelement location="lib/reflections/reflections-0.9.9-RC1.jar"/>
+		<pathelement location="lib/Batik/xml-apis-ext.jar"/>
+		<pathelement location="lib/Batik/batik-1.7.jar"/>
+		<pathelement location="lib/Htmlparser/htmlparser-1.4.jar"/>
+		<pathelement location="lib/javassist/javassist.jar"/>
+    </path>
+    <target name="init">
+        <mkdir dir="bin"/>
+        <copy includeemptydirs="false" todir="bin">
+            <fileset dir="src">
+                <exclude name="**/*.launch"/>
+                <exclude name="**/*.java"/>
+            </fileset>
+        </copy>
+        <copy includeemptydirs="false" todir="bin">
+            <fileset dir="src/main/resources">
+                <exclude name="**/*.launch"/>
+                <exclude name="**/*.java"/>
+            </fileset>
+        </copy>
+    </target>
+    <target name="clean">
+        <delete dir="bin"/>
+    </target>
+    <target depends="clean" name="cleanall"/>
+    <target depends="build-subprojects,build-project" name="build"/>
+    <target name="build-subprojects"/>
+    <target depends="init" name="build-project">
+        <echo message="${ant.project.name}: ${ant.file}"/>
+        <javac debug="true" debuglevel="${debuglevel}" destdir="bin" source="${source}" target="${target}">
+            <src path="src"/>
+            <classpath refid="GGP_Base.classpath"/>
+        </javac>
+        <javac debug="true" debuglevel="${debuglevel}" destdir="bin" source="${source}" target="${target}">
+            <src path="src/main/resources"/>
+            <classpath refid="GGP_Base.classpath"/>
+        </javac>
+    </target>
+    <target name="jar" depends="build">
+        <jar destfile="bin/ggp-base.jar" basedir="bin" includes="**/*.class"/>
+    </target>
+    <target description="copy Eclipse compiler jars to ant lib directory" name="init-eclipse-compiler">
+        <copy todir="${ant.library.dir}">
+            <fileset dir="${ECLIPSE_HOME}/plugins" includes="org.eclipse.jdt.core_*.jar"/>
+        </copy>
+        <unzip dest="${ant.library.dir}">
+            <patternset includes="jdtCompilerAdapter.jar"/>
+            <fileset dir="${ECLIPSE_HOME}/plugins" includes="org.eclipse.jdt.core_*.jar"/>
+        </unzip>
+    </target>
+    <target description="compile project with Eclipse compiler" name="build-eclipse-compiler">
+        <property name="build.compiler" value="org.eclipse.jdt.core.JDTCompilerAdapter"/>
+        <antcall target="build"/>
+    </target>
+    <target name="ClojureConsole">
+        <java classname="org.ggp.base.apps.consoles.ClojureConsole" failonerror="true" fork="yes">
+            <classpath refid="GGP_Base.classpath"/>
+        </java>
+    </target>
+    <target name="ClojureGamer">
+        <java classname="org.ggp.base.player.gamer.clojure.ClojureGamer" failonerror="true" fork="yes">
+            <classpath refid="GGP_Base.classpath"/>
+        </java>
+    </target>
+    <target name="GameStateRenderPanel">
+        <java classname="org.ggp.base.util.xhtml.GameStateRenderPanel" failonerror="true" fork="yes">
+            <classpath refid="GGP_Base.classpath"/>
+        </java>
+    </target>
+    <target name="PlayerRunner">
+        <java classname="org.ggp.base.apps.player.PlayerRunner" failonerror="true" fork="yes">
+            <jvmarg line="-Xmx1500m -server -XX:-DontCompileHugeMethods -XX:MinHeapFreeRatio=10 -XX:MaxHeapFreeRatio=10"/>
+            <arg value="${arg0}"/>
+            <arg value="${arg1}"/>
+            <classpath refid="GGP_Base.classpath"/>
+        </java>
+    </target>
+    <target name="Kiosk">
+        <java classname="org.ggp.base.apps.kiosk.Kiosk" failonerror="true" fork="yes">
+            <jvmarg line="-Xmx1500m -server -XX:-DontCompileHugeMethods -XX:MinHeapFreeRatio=10 -XX:MaxHeapFreeRatio=10"/>
+            <classpath refid="GGP_Base.classpath"/>
+        </java>
+    </target>
+    <target name="PythonConsole">
+        <java classname="org.ggp.base.apps.consoles.PythonConsole" failonerror="true" fork="yes">
+            <classpath refid="GGP_Base.classpath"/>
+        </java>
+    </target>
+    <target name="ServerPanel">
+        <java classname="org.ggp.base.apps.server.ServerPanel" failonerror="true" fork="yes">
+            <classpath refid="GGP_Base.classpath"/>
+        </java>
+    </target>
+    <target name="SimpleGameSim">
+        <java classname="org.ggp.base.apps.utilities.SimpleGameSim" failonerror="true" fork="yes">
+            <classpath refid="GGP_Base.classpath"/>
+        </java>
+    </target>
+    <target name="TiltyardRequestFarm">
+        <java classname="org.ggp.base.apps.tiltyard.TiltyardRequestFarm" failonerror="true" fork="yes">
+            <classpath refid="GGP_Base.classpath"/>
+        </java>
+    </target>	
+    <target name="Test_Http">
+        <mkdir dir="${junit.output.dir}"/>
+        <junit fork="yes" printsummary="withOutAndErr">
+            <formatter type="xml"/>
+            <test name="util.http.Test_Http" todir="${junit.output.dir}"/>
+            <classpath refid="GGP_Base.classpath"/>
+        </junit>
+    </target>
+    <target name="PlayerPanel">
+        <java classname="org.ggp.base.apps.player.PlayerPanel" failonerror="true" fork="yes">
+            <classpath refid="GGP_Base.classpath"/>
+        </java>
+    </target>
+    <target name="PropNetAnnotater">
+        <java classname="org.ggp.base.util.propnet.factory.annotater.PropNetAnnotater" failonerror="true" fork="yes">
+            <classpath refid="GGP_Base.classpath"/>
+        </java>
+    </target>
+    <target name="junitreport">
+        <junitreport todir="${junit.output.dir}">
+            <fileset dir="${junit.output.dir}">
+                <include name="TEST-*.xml"/>
+            </fileset>
+            <report format="frames" todir="${junit.output.dir}"/>
+        </junitreport>
+    </target>
+</project>

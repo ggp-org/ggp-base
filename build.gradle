@@ -1,0 +1,186 @@
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'checkstyle'
+apply plugin: 'idea'
+apply plugin: 'scala'
+
+// We compile using Java 7.
+sourceCompatibility = 1.7
+targetCompatibility = 1.7
+
+/*
+ * For now, instead of using an online library repository (e.g. Maven), we keep
+ * local versions of .jars to reduce the number of things that can go wrong
+ * during setup.
+ */
+dependencies {
+    compile 'org.scala-lang:scala-library:2.11.7'
+    compile files(
+        'lib/Guava/guava-14.0.1.jar',
+        'lib/Jython/jython.jar',
+        'lib/Clojure/clojure.jar',
+        'lib/Batik/batik-1.7.jar',
+        'lib/FlyingSaucer/core-renderer.jar',
+        'lib/javassist/javassist.jar',
+        'lib/reflections/reflections-0.9.9-RC1.jar',
+        'lib/Htmlparser/htmlparser-1.4.jar',
+    )
+    testCompile files(
+        'lib/JUnit/junit-4.11.jar',
+        'lib/JUnit/hamcrest-core-1.3.jar',
+    )
+}
+
+//Checkstyle does need a repository to be defined to work. This is only
+//required to check that the code works from the command line, not to run
+//applications from the command line.
+repositories {
+    mavenCentral()
+}
+
+/*
+ * Source jars can be specified here so the sources for these libraries will
+ * appear in Eclipse.
+ */
+def sourceJars = [
+    'lib/Guava/guava-14.0.1.jar' : 'lib/Guava/guava-14.0.1-sources.jar'
+];
+
+/*
+ * Unfortunately, the local-jar approach causes problems when generating a
+ * .classpath file for Eclipse. This will generate dependency entries that use
+ * absolute, rather than relative paths, and so can't be committed. To make sure
+ * committing contributions to the codebase also remains relatively easy, we
+ * apply a hack here to use relative addresses.
+ *
+ * This hasn't been tested in Windows yet; that might need special treatment if
+ * it tries to use absolute paths with backslashes.
+ */
+eclipse {
+    classpath {
+        file {
+            withXml {
+                def node = it.asNode()
+                for (classpathEntry in node) {
+                    if (classpathEntry.attribute('kind') == 'lib') {
+                        def absolutePath = classpathEntry.attribute('path')
+                        if (absolutePath.contains('/lib/')) {
+                            def startIndex = absolutePath.indexOf('/lib/') + 1
+                            def relativePath = absolutePath.substring(startIndex)
+                            classpathEntry.attributes().put('path', relativePath)
+                        }
+
+			//Add source jars to .classpath
+                        def path = classpathEntry.attribute('path')
+                        if (sourceJars.containsKey(path)) {
+                            def sourceJarPath = sourceJars.get(path)
+                            classpathEntry.attributes().put('sourcepath', sourceJarPath)
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+/*
+ * It's convenient when working in Eclipse to have a test suite containing
+ * all available tests. However, Gradle normally runs every test it can find
+ * automatically, which would cause all tests to be run twice. This bit of
+ * configuration prevents that from happening; Gradle just runs the test suite
+ * instead.
+ */
+test {
+    include 'org/ggp/base/test/AllTests.class'
+}
+
+
+//Various applications that can be run from Gradle:
+
+//Note: The clojureConsole task should be run with the -q flag to quiet Gradle's normal output.
+task clojureConsole(type: JavaExec) {
+    main = 'org.ggp.base.apps.consoles.ClojureConsole'
+    classpath = sourceSets.main.runtimeClasspath
+    standardInput = System.in
+}
+
+task pythonConsole(type: JavaExec) {
+    doFirst {
+        println classpath.getAsPath()
+    }
+    main = 'org.ggp.base.apps.consoles.PythonConsole'
+    classpath = sourceSets.main.runtimeClasspath
+}
+
+/* Not working, no main method found (ant doesn't work in Ant either):
+task clojureGamer(type: JavaExec) {
+    main='org.ggp.base.player.gamer.clojure.ClojureGamer'
+    classpath = sourceSets.main.runtimeClasspath
+}
+*/
+
+//You can tweak these JVM arguments for players run through Gradle.
+def playerJvmArgs = [
+        '-Xmx1500m', //Gives players a max heap size of 1500 MB
+        '-server',
+        '-XX:-DontCompileHugeMethods',
+        '-XX:MinHeapFreeRatio=10',
+        '-XX:MaxHeapFreeRatio=10']
+
+//See playerRunner.sh
+task playerRunner(type: JavaExec) {
+    main = 'org.ggp.base.apps.player.PlayerRunner'
+    classpath = sourceSets.main.runtimeClasspath
+    //These can be set on the command line with
+    //-Pport=9147 and -Pgamer=RandomGamer as arguments.
+    doFirst {
+        args = [port, gamer]
+    }
+    jvmArgs = playerJvmArgs
+}
+
+task kiosk(type: JavaExec) {
+    main = 'org.ggp.base.apps.kiosk.Kiosk'
+    classpath = sourceSets.main.runtimeClasspath
+    jvmArgs = playerJvmArgs
+}
+
+task server(type: JavaExec) {
+    main = 'org.ggp.base.apps.server.Server'
+    classpath = sourceSets.main.runtimeClasspath
+}
+
+task simpleGameSim(type: JavaExec) {
+    main = 'org.ggp.base.apps.utilities.SimpleGameSim'
+    classpath = sourceSets.main.runtimeClasspath
+}
+
+task tiltyardRequestFarm(type: JavaExec) {
+    main = 'org.ggp.base.apps.tiltyard.TiltyardRequestFarm'
+    classpath = sourceSets.main.runtimeClasspath
+}
+
+task player(type: JavaExec) {
+    main = 'org.ggp.base.apps.player.Player'
+    classpath = sourceSets.main.runtimeClasspath
+    jvmArgs = playerJvmArgs
+}
+
+task propNetAnnotater(type: JavaExec) {
+    main = 'org.ggp.base.util.propnet.factory.annotater.PropNetAnnotater'
+    classpath = sourceSets.main.runtimeClasspath
+}
+
+//See gameServerRunner.sh
+task gameServerRunner(type: JavaExec) {
+    main = 'org.ggp.base.apps.utilities.GameServerRunner'
+    classpath = sourceSets.main.runtimeClasspath
+    doFirst {
+        args = myargs.split().toList()
+    }
+}
+
+// This was used to generate the Gradle wrapper.
+task wrapper(type: Wrapper) {
+    gradleVersion = '2.12'
+}

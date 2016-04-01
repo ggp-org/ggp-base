@@ -1,0 +1,39 @@
+;; This tests an edge case when handling GDL.
+;; This test case ensures that a player can handle complex
+;; (yet legal) recursion. This is a regression test for the
+;; ProverStateMachine.
+
+(role you)
+(init (state 0))
+
+(r 0)
+(q 0)
+(q 1)
+
+(<= (r ?x)
+    (r ?x)
+    (q ?x))
+    
+(<= (p left)
+    (p up))
+(<= (p up)
+    (p right))
+(<= (p right)
+    (p down))
+(<= (p down)
+    (p left))
+
+
+(<= (legal you proceed)
+    (true (state 0))
+    (r 0)
+    (not (r 1))
+    (not (p left)))
+
+(<= (next (state 1))
+    (does you proceed))
+
+(<= terminal
+    (true (state 1)))
+    
+(goal you 100)
