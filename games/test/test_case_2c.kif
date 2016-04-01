@@ -1,0 +1,98 @@
+;; This tests an edge case when handling GDL.
+
+(role snake)
+
+(init (cell c1 r4 b))
+(init (cell c2 r4 b))
+(init (cell c3 r4 b))
+(init (cell c4 r4 b))
+(init (cell c5 r4 b))
+(init (cell c6 r4 b))
+(init (cell c7 r4 b))
+(init (cell c8 r4 b))
+(init (cell c9 r4 b))
+
+(init (step 0))
+(init (pos c6 r4))
+(init (tailpos c6 r4))
+
+(<= (nextcell ?x1 ?y mov_left ?x2 ?y)
+    (colinc ?x2 ?x1)
+    (row ?y))
+(<= (nextcell ?x1 ?y mov_right ?x2 ?y)
+    (colinc ?x1 ?x2)
+    (row ?y))
+
+(row r4)
+(colinc c1 c2) (colinc c2 c3) (colinc c3 c4) (colinc c4 c5) (colinc c5 c6) (colinc c6 c7) (colinc c7 c8) (colinc c8 c9) (colinc c9 c1)
+(column c1) (column c2) (column c3) (column c4) (column c5) (column c6) (column c7) (column c8) (column c9)
+
+(<= (legal snake ?move)
+    (true (pos ?x ?y))
+    (nextcell ?x ?y ?move ?xn ?yn)
+    (maymove ?xn ?yn))
+
+(<= (maymove ?x ?y)
+    (true (cell ?x ?y b)))
+
+(<= (next (step ?y))
+    (true (step ?x))
+    (succ ?x ?y))
+
+(<= (next (cell ?x ?y ?move))
+    (does snake ?move)
+    (true (pos ?x ?y)))
+
+(<= (next (pos ?xn ?yn))
+    (does snake ?move)
+    (true (pos ?x ?y))
+    (nextcell ?x ?y ?move ?xn ?yn))
+
+(<= (next evenmove)
+    (not (true evenmove)))
+
+(<= (next (tailpos ?x ?y))
+    (not (true evenmove))
+    (true (tailpos ?x ?y)))
+
+(<= (next (tailpos ?xn ?yn))
+    (true evenmove)
+    (true (tailpos ?x ?y))
+    (true (cell ?x ?y ?move))
+    (nextcell ?x ?y ?move ?xn ?yn))
+
+(<= (next (cell ?x ?y b))
+    (true evenmove)
+    (true (tailpos ?x ?y)))
+
+(<= (next (cell ?x ?y ?sym))
+    (true (cell ?x ?y ?sym))
+    (not (true (pos ?x ?y)))
+    (not (true evenmove)))
+
+(<= (next (cell ?x ?y ?sym))
+    (true (cell ?x ?y ?sym))
+    (not (true (pos ?x ?y)))
+    (not (true (tailpos ?x ?y))))
+
+(goal snake 100)
+
+(<= terminal
+    (true (step 10)))
+
+(<= terminal
+    (not exists_legal))
+
+(<= exists_legal
+    (legal snake ?move))
+
+(succ 0 1)
+(succ 1 2)
+(succ 2 3)
+(succ 3 4)
+(succ 4 5)
+(succ 5 6)
+(succ 6 7)
+(succ 7 8)
+(succ 8 9)
+(succ 9 10)

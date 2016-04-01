@@ -1,0 +1,25 @@
+;; This tests an edge case when handling GDL.
+;; This test case ensures that a player can handle complex
+;; (yet legal) recursion.
+
+(role you)
+(init (state 0))
+
+(r 0 0)
+(q 0)
+
+(<= (r ?v1 (f ?v1))
+    (r ?v2 ?v1)
+    (q ?v2))
+
+(<= (legal you proceed)
+    (true (state 0))
+    (r (f 0) (f (f 0))))
+
+(<= (next (state 1))
+    (does you proceed))
+
+(<= terminal
+    (true (state 1)))
+    
+(goal you 100)

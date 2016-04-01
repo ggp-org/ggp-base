@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<!DOCTYPE module PUBLIC
+          "-//Puppy Crawl//DTD Check Configuration 1.3//EN"
+          "http://www.puppycrawl.com/dtds/configuration_1_3.dtd">
+
+<module name = "Checker">
+    <property name="charset" value="UTF-8"/>
+
+    <property name="severity" value="warning"/>
+
+    <!-- Prevent unused or redundant imports -->
+    <module name="TreeWalker">
+        <module name="RedundantImport"/>
+        <module name="UnusedImports">
+            <property name="processJavadoc" value="true"/>
+        </module>
+    </module>
+    <!-- Use spaces, not tabs for indentation -->
+    <module name="FileTabCharacter"/>
+</module>
