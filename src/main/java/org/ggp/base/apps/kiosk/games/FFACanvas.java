@@ -81,7 +81,7 @@ public class FFACanvas extends GameCanvas_FancyGrid {
             }
 
             g.setColor(myColor);
-            CommonGraphics.fillWithString(g, "" + score, 1.5);
+            CommonGraphics.fillWithString(g, String.valueOf(score), 1.5);
         } else {
             String cellType = cellFacts[4];
             if(!cellType.equals("b")) {

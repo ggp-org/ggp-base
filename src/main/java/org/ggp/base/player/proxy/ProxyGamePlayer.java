@@ -103,7 +103,7 @@ public final class ProxyGamePlayer extends Thread implements Subject
             processArgs.add(System.getProperty("java.class.path"));
             processArgs.add("org.ggp.base.player.proxy.ProxyGamePlayerClient");
             processArgs.add(gamerName);
-            processArgs.add("" + clientListener.getLocalPort());
+            processArgs.add(String.valueOf(clientListener.getLocalPort()));
             if(GamerConfiguration.runningOnLinux()) {
                 processArgs.add(0, "nice");
             }
