@@ -1,0 +1,33 @@
+;; This tests an edge case when handling GDL.
+;; Specifically, it tests proper handling of time-invariant true sentences
+;; which are derived rather than outright stated.
+
+(role you)
+(init (state 0))
+
+(valid_state 0)
+(valid_state 1)
+(valid_state 2)
+(valid_state 3)
+(valid_state 4)
+
+(succ 0 1)
+(succ 1 2)
+(succ 2 3)
+(succ 3 4)
+
+(<= (next_state ?x ?xn move_next)
+    (valid_state ?x)
+    (succ ?x ?xn))
+
+(<= (legal you (move ?dir ?from ?to))
+    (true (state ?from))
+    (next_state ?from ?to ?dir))
+
+(<= (next (state ?to))
+    (does you (move ?dir ?from ?to)))
+
+(<= terminal
+    (true (state 4)))
+    
+(goal you 100)

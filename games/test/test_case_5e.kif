@@ -1,0 +1,32 @@
+;; This tests an edge case when handling GDL.
+;; This test case ensures that a player can handle complex
+;; (yet legal) recursion. This is a regression test for the
+;; ProverStateMachine.
+
+; The robot role should have seven legal moves.
+
+(role robot)
+
+(<= (legal robot (reduce ?x ?n))
+    (heap ?x ?m)
+    (smaller ?n ?m))
+
+(heap a 2)
+(heap b 0)
+(heap c 5)
+
+(<= (smaller ?x ?y)
+    (succ ?x ?y))
+(<= (smaller ?x ?y)
+    (smaller ?z ?y) ; This is the part being tested
+    (succ ?x ?z))
+(succ 0 1)
+(succ 1 2)
+(succ 2 3)
+(succ 3 4)
+(succ 4 5)
+
+(next done)
+(<= terminal
+    (true done))
+(goal robot 100)
