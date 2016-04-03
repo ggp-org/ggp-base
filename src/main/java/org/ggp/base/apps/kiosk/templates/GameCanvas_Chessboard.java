@@ -39,6 +39,6 @@ public abstract class GameCanvas_Chessboard extends GameCanvas_FancyGrid {
 
     // This function only works properly when coordinates start at one.
     public final static String coordinateToLetter(int x) {
-        return "" + ((char) ('a' + x - 1));
+        return String.valueOf((char) ('a' + x - 1));
     }
 }

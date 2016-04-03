@@ -43,7 +43,7 @@ public class CephalopodCanvas extends GameCanvas_FancyGrid {
             g.setColor(Color.BLACK);
         }
 
-        CommonGraphics.fillWithString(g, "" + cellValue, 1.2);
+        CommonGraphics.fillWithString(g, String.valueOf(cellValue), 1.2);
     }
 
     @Override

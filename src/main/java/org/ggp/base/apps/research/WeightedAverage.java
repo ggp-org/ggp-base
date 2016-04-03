@@ -28,7 +28,7 @@ public final class WeightedAverage implements Comparable<WeightedAverage>
 
     @Override
     public String toString() {
-        return "" + ((int)(getValue() * 1000.0)/1000.0) + " [" + getWeight() + "]";
+        return String.valueOf((int)(getValue() * 1000.0)/1000.0) + " [" + getWeight() + "]";
     }
 
     @Override

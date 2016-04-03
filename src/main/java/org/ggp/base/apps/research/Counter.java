@@ -19,7 +19,7 @@ public final class Counter implements Comparable<Counter>
 
     @Override
     public String toString() {
-        return "" + ((int)(getValue() * 1000.0)/1000.0);
+        return String.valueOf((int)(getValue() * 1000.0)/1000.0);
     }
 
     @Override

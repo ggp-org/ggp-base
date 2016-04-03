@@ -63,7 +63,7 @@ public class BiddingTicTacToeCanvas extends GameCanvas_FancyGrid {
         } else {
             int nScore = onScoreboard(xCell, yCell);
             if(nScore >= 0) {
-                CommonGraphics.fillWithString(g, "" + nScore, 1.2);
+                CommonGraphics.fillWithString(g, String.valueOf(nScore), 1.2);
             } else if(nScore == -2) {
                 CommonGraphics.fillWithString(g, "T", 1.2);
             }
