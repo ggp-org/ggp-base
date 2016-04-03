@@ -28,8 +28,8 @@ public class BlockerCanvas extends GameCanvas_FancyGrid {
         int width = g.getClipBounds().width;
         int height = g.getClipBounds().height;
 
-        boolean isBlue = (yCell == 0) || (yCell == 5);
-        boolean isBlack = ((xCell == 0) || (xCell == 5)) && !isBlue;
+        boolean isBlue = yCell == 0 || yCell == 5;
+        boolean isBlack = (xCell == 0 || xCell == 5) && !isBlue;
 
         if(isBlue) {
             CommonGraphics.drawBubbles(g, xCell*11+yCell);

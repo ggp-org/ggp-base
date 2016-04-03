@@ -56,7 +56,7 @@ public class MachineState {
     @Override
     public boolean equals(Object o)
     {
-        if ((o != null) && (o instanceof MachineState))
+        if (o != null && o instanceof MachineState)
         {
             MachineState state = (MachineState) o;
             return state.getContents().equals(getContents());

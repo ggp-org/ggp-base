@@ -33,7 +33,7 @@ public class Role implements Serializable
     @Override
     public boolean equals(Object o)
     {
-        if ((o != null) && (o instanceof Role))
+        if (o != null && o instanceof Role)
         {
             Role role = (Role) o;
             return role.name.equals(name);

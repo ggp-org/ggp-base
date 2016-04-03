@@ -25,7 +25,7 @@ public final class Unifier
     {
         if(x.equals(y))
             return true;
-        if ((x instanceof GdlConstant) && (y instanceof GdlConstant))
+        if (x instanceof GdlConstant && y instanceof GdlConstant)
         {
             if (!x.equals(y))
             {
@@ -42,7 +42,7 @@ public final class Unifier
             if (!unifyVariable((GdlVariable) y, x, theta))
                 return false;
         }
-        else if ((x instanceof GdlFunction) && (y instanceof GdlFunction))
+        else if (x instanceof GdlFunction && y instanceof GdlFunction)
         {
             GdlFunction xFunction = (GdlFunction) x;
             GdlFunction yFunction = (GdlFunction) y;
@@ -70,7 +70,7 @@ public final class Unifier
         {
             return unifyTerm(theta.get(var), x, theta);
         }
-        else if ((x instanceof GdlVariable) && theta.contains((GdlVariable) x))
+        else if (x instanceof GdlVariable && theta.contains((GdlVariable) x))
         {
             return unifyTerm(var, theta.get((GdlVariable) x), theta);
         }

@@ -35,7 +35,7 @@ public class Move implements Serializable
     @Override
     public boolean equals(Object o)
     {
-        if ((o != null) && (o instanceof Move)) {
+        if (o != null && o instanceof Move) {
             Move move = (Move) o;
             return move.contents.equals(contents);
         }

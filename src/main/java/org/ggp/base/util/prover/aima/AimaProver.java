@@ -153,7 +153,7 @@ public final class AimaProver implements Prover
             isConstant &= isConstantRet.value;
             goals.removeFirst();
 
-            if (askOne && (results.size() > 0))
+            if (askOne && results.size() > 0)
             {
                 break;
             }
@@ -171,7 +171,7 @@ public final class AimaProver implements Prover
         {
             ask(goals, context, theta.compose(thetaPrime), cache, renamer, askOne, results, recursionHandler, isConstantRet);
             isConstant &= isConstantRet.value;
-            if (askOne && (results.size() > 0))
+            if (askOne && results.size() > 0)
             {
                 break;
             }
@@ -275,7 +275,7 @@ public final class AimaProver implements Prover
         }
 
         List<Substitution> cachedResults = fixedAnswerCache.get(sentence, varRenamedSentence);
-        isConstantRet.value = (cachedResults != null);
+        isConstantRet.value = cachedResults != null;
         if (cachedResults == null) {
             cachedResults = cache.get(sentence, varRenamedSentence);
         }

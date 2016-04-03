@@ -73,7 +73,7 @@ public final class SampleSearchLightGamer extends StateMachineGamer
         long finishBy = timeout - 1000;
 
         List<Move> moves = theMachine.getLegalMoves(getCurrentState(), getRole());
-        Move selection = (moves.get(theRandom.nextInt(moves.size())));
+        Move selection = moves.get(theRandom.nextInt(moves.size()));
 
         // Shuffle the moves into a random order, so that when we find the first
         // move that doesn't give our opponent a forced win, we aren't always choosing
