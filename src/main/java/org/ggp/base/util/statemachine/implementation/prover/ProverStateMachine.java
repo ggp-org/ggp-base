@@ -87,7 +87,7 @@ public class ProverStateMachine extends StateMachine
     {
         Set<GdlSentence> results = prover.askAll(ProverQueryBuilder.getLegalQuery(role), ProverQueryBuilder.getContext(state));
 
-        if (results.size() == 0)
+        if (results.isEmpty())
         {
             throw new MoveDefinitionException(state, role);
         }

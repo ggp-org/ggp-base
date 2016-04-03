@@ -148,7 +148,7 @@ public class BlokboxSimpleCanvas extends GameCanvas_SimpleGrid {
     // the player is interacting with the pieces sidebar).
 
     protected void renderCellContent(Graphics g, Set<String> theFacts){
-        if(theFacts.size() > 0) {
+        if(!theFacts.isEmpty()) {
             if(theFacts.size() > 1) {
                 System.err.println("More than one fact for a cell? Unexpected!");
             }
@@ -171,7 +171,7 @@ public class BlokboxSimpleCanvas extends GameCanvas_SimpleGrid {
         if(xCell > 15 || yCell > 15) {
             int nPiece = pieceGrid[xCell-1][yCell-1];
             selectedPiece = -1;
-            if (nPiece > 0 && getCachedFactsAboutCell(xCell, yCell).size() > 0)
+            if (nPiece > 0 && !getCachedFactsAboutCell(xCell, yCell).isEmpty())
                 selectedPiece = nPiece;
             selectedRow = -1;
             selectedColumn = -1;
@@ -185,7 +185,7 @@ public class BlokboxSimpleCanvas extends GameCanvas_SimpleGrid {
 
         if(selectedRow != yCell || selectedColumn != xCell || !possibleSelectedMoves.hasNext()) {
             SortedSet<String> theMoves = new TreeSet<String>(getLegalMovesForCell(xCell, yCell));
-            if(theMoves.size() == 0)
+            if(theMoves.isEmpty())
                 return;
             possibleSelectedMoves = theMoves.iterator();
         }

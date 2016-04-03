@@ -260,7 +260,7 @@ public class PropNetFlattener {
                     throw new RuntimeException("Shouldn't instantiate anything to null.");
             }
 
-            if(varInstantiations.size() == 0)
+            if(varInstantiations.isEmpty())
                 rval.add(getInstantiation(r.originalRule, new HashMap<GdlVariable,GdlConstant>()));
         }
 
@@ -659,7 +659,7 @@ public class PropNetFlattener {
                             d.addAssignmentToIndex(a);
                         }
                     }
-                    if(instantiations.size() == 0)
+                    if(instantiations.isEmpty())
                     { //There might just be no variables in the rule
                         Assignment a = new Assignment();
                         findSatisfyingInstantiations(ruleRef); //just for debugging
