@@ -59,8 +59,8 @@ public class SimpleGameSim {
         }
 
         // Set up fake players to pretend to play the game
-        List<String> fakeHosts = new ArrayList<String>();
-        List<Integer> fakePorts = new ArrayList<Integer>();
+        List<String> fakeHosts = new ArrayList<>();
+        List<Integer> fakePorts = new ArrayList<>();
         for (int i = 0; i < Role.computeRoles(theGame.getRules()).size(); i++) {
             fakeHosts.add("SamplePlayer" + i);
             fakePorts.add(9147+i);
@@ -75,7 +75,7 @@ public class SimpleGameSim {
         // TODO: Allow a custom state machine to be plugged into the GameServer so that we can
         // simulate games using this tool with custom state machines, to verify they're sane.
 
-        final Set<GdlSentence> oldContents = new HashSet<GdlSentence>();
+        final Set<GdlSentence> oldContents = new HashSet<>();
         final int[] nState = new int[1];
         theServer.addObserver(new Observer() {
             @Override

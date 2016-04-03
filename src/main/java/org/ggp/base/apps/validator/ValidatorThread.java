@@ -23,7 +23,7 @@ public final class ValidatorThread extends Thread implements Subject
     {
         this.theGame = theGame;
         this.theValidator = theValidator;
-        this.observers = new ArrayList<Observer>();
+        this.observers = new ArrayList<>();
     }
 
     @Override

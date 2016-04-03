@@ -73,11 +73,11 @@ public final class GameServer extends Thread implements Subject
         currentState = stateMachine.getInitialState();
         previousMoves = null;
 
-        mostRecentErrors = new HashMap<Role,String>();
+        mostRecentErrors = new HashMap<>();
 
         match.appendState(currentState.getContents());
 
-        observers = new ArrayList<Observer>();
+        observers = new ArrayList<>();
 
         spectatorServerURL = null;
         forceUsingEntireClock = false;
@@ -98,7 +98,7 @@ public final class GameServer extends Thread implements Subject
     }
 
     public List<Integer> getGoals() throws GoalDefinitionException {
-        List<Integer> goals = new ArrayList<Integer>();
+        List<Integer> goals = new ArrayList<>();
         for (Role role : stateMachine.getRoles()) {
             goals.add(stateMachine.getGoal(currentState, role));
         }
@@ -132,7 +132,7 @@ public final class GameServer extends Thread implements Subject
     // Should be called after each move, to collect all of the errors
     // caused by players and write them into the match description.
     private void appendErrorsToMatchDescription() {
-        List<String> theErrors = new ArrayList<String>();
+        List<String> theErrors = new ArrayList<>();
         for (int i = 0; i < stateMachine.getRoles().size(); i++) {
             Role r = stateMachine.getRoles().get(i);
             if (mostRecentErrors.containsKey(r)) {
@@ -252,7 +252,7 @@ public final class GameServer extends Thread implements Subject
     }
 
     private synchronized List<Move> sendPlayRequests() throws InterruptedException, MoveDefinitionException {
-        List<PlayRequestThread> threads = new ArrayList<PlayRequestThread>(hosts.size());
+        List<PlayRequestThread> threads = new ArrayList<>(hosts.size());
         for (int i = 0; i < hosts.size(); i++) {
             List<Move> legalMoves = stateMachine.getLegalMoves(currentState, stateMachine.getRoles().get(i));
             if (playerPlaysRandomly[i]) {
@@ -269,7 +269,7 @@ public final class GameServer extends Thread implements Subject
             Thread.sleep(match.getPlayClock() * 1000);
         }
 
-        List<Move> moves = new ArrayList<Move>();
+        List<Move> moves = new ArrayList<>();
         for (PlayRequestThread thread : threads) {
             thread.join();
             moves.add(thread.getMove());
@@ -279,7 +279,7 @@ public final class GameServer extends Thread implements Subject
     }
 
     private synchronized void sendPreviewRequests() throws InterruptedException {
-        List<PreviewRequestThread> threads = new ArrayList<PreviewRequestThread>(hosts.size());
+        List<PreviewRequestThread> threads = new ArrayList<>(hosts.size());
         for (int i = 0; i < hosts.size(); i++) {
             if (!playerPlaysRandomly[i]) {
                 threads.add(new PreviewRequestThread(this, match, stateMachine.getRoles().get(i), hosts.get(i), ports.get(i), getPlayerNameFromMatchForRequest(i)));
@@ -297,7 +297,7 @@ public final class GameServer extends Thread implements Subject
     }
 
     private synchronized void sendStartRequests() throws InterruptedException {
-        List<StartRequestThread> threads = new ArrayList<StartRequestThread>(hosts.size());
+        List<StartRequestThread> threads = new ArrayList<>(hosts.size());
         for (int i = 0; i < hosts.size(); i++) {
             if (!playerPlaysRandomly[i]) {
                 threads.add(new StartRequestThread(this, match, stateMachine.getRoles().get(i), hosts.get(i), ports.get(i), getPlayerNameFromMatchForRequest(i)));
@@ -315,7 +315,7 @@ public final class GameServer extends Thread implements Subject
     }
 
     private synchronized void sendStopRequests(List<Move> previousMoves) throws InterruptedException {
-        List<StopRequestThread> threads = new ArrayList<StopRequestThread>(hosts.size());
+        List<StopRequestThread> threads = new ArrayList<>(hosts.size());
         for (int i = 0; i < hosts.size(); i++) {
             if (!playerPlaysRandomly[i]) {
                 threads.add(new StopRequestThread(this, match, previousMoves, stateMachine.getRoles().get(i), hosts.get(i), ports.get(i), getPlayerNameFromMatchForRequest(i)));
@@ -330,7 +330,7 @@ public final class GameServer extends Thread implements Subject
     }
 
     private void sendAbortRequests() throws InterruptedException {
-        List<AbortRequestThread> threads = new ArrayList<AbortRequestThread>(hosts.size());
+        List<AbortRequestThread> threads = new ArrayList<>(hosts.size());
         for (int i = 0; i < hosts.size(); i++) {
             if (!playerPlaysRandomly[i]) {
                 threads.add(new AbortRequestThread(this, match, stateMachine.getRoles().get(i), hosts.get(i), ports.get(i), getPlayerNameFromMatchForRequest(i)));

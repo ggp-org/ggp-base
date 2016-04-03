@@ -12,7 +12,7 @@ public class Pair <L, R> {
     }
 
     public static <L, R> Pair<L, R> of(L left, R right) {
-        return new Pair<L, R>(left, right);
+        return new Pair<>(left, right);
     }
 
     public static <L, R> Pair<L, R> from(Map.Entry<L, R> entry) {

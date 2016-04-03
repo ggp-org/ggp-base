@@ -52,7 +52,7 @@ public class EndgameCaseGenerator {
         // endgame backoff state that can be used to produce a test case.
         while (true) {
             // Find a state that's nBackoff steps from a terminal state
-            List<MachineState> theStates = new ArrayList<MachineState>();
+            List<MachineState> theStates = new ArrayList<>();
             MachineState theChargeState = theMachine.getInitialState();
             while (!theMachine.isTerminal(theChargeState)) {
                 theStates.add(theChargeState);
@@ -65,8 +65,8 @@ public class EndgameCaseGenerator {
             // don't return definite scores, track them separately.
             int bestScore = 0;
             int worstScore = 100;
-            List<Pair<Move, Integer>> scoredMoves = new ArrayList<Pair<Move, Integer>>();
-            Set<Move> unscoredMoves = new HashSet<Move>();
+            List<Pair<Move, Integer>> scoredMoves = new ArrayList<>();
+            Set<Move> unscoredMoves = new HashSet<>();
             for (Move ourMove : theMachine.getLegalMoves(theState, ourRole)) {
                 Pair<Integer, Integer> theScore = minimax(theMachine, nRole, ourRole, theMachine.getRandomNextState(theState, ourRole, ourMove), nMaxDepth);
                 if (theScore.left == theScore.right) {
@@ -93,7 +93,7 @@ public class EndgameCaseGenerator {
             // Select out the best moves for the "known good" answer. Also
             // include any unscored moves in this set, since they might be
             // good choices as well (we just don't know).
-            Set<Move> bestMoves = new HashSet<Move>();
+            Set<Move> bestMoves = new HashSet<>();
             for (Pair<Move, Integer> scoredMove : scoredMoves) {
                 if (scoredMove.right == bestScore) {
                     bestMoves.add(scoredMove.left);

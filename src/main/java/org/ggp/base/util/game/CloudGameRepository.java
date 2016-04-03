@@ -90,7 +90,7 @@ public final class CloudGameRepository extends GameRepository {
 
     @Override
     protected Set<String> getUncachedGameKeys() {
-        Set<String> theKeys = new HashSet<String>();
+        Set<String> theKeys = new HashSet<>();
         for(File game : theCacheDirectory.listFiles()) {
             theKeys.add(game.getName().replace(".zip", ""));
         }
@@ -178,7 +178,7 @@ public final class CloudGameRepository extends GameRepository {
             // and use it to avoid checking games that haven't gotten new versions.
             JSONObject bundledMetadata = remoteRepository.getBundledMetadata();
             if (bundledMetadata != null) {
-                Set<String> unchangedKeys = new HashSet<String>();
+                Set<String> unchangedKeys = new HashSet<>();
                 for (String theKey : theGameKeys) {
                     try {
                         Game myGameVersion = loadGameFromCache(theKey);

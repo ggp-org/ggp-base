@@ -33,7 +33,7 @@ public abstract class Gamer implements Subject
 
     public Gamer()
     {
-        observers = new ArrayList<Observer>();
+        observers = new ArrayList<>();
 
         // When not playing a match, the variables 'match'
         // and 'roleName' should be NULL. This indicates that

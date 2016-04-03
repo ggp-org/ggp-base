@@ -133,7 +133,7 @@ public abstract class StateMachineGamer extends Gamer
             // Attempt to run through the game history in the new machine
             List<List<GdlTerm>> theMoveHistory = getMatch().getMoveHistory();
             for(List<GdlTerm> nextMove : theMoveHistory) {
-                List<Move> theJointMove = new ArrayList<Move>();
+                List<Move> theJointMove = new ArrayList<>();
                 for(GdlTerm theSentence : nextMove)
                     theJointMove.add(newStateMachine.getMoveFromTerm(theSentence));
                 newCurrentState = newStateMachine.getNextStateDestructively(newCurrentState, theJointMove);
@@ -209,7 +209,7 @@ public abstract class StateMachineGamer extends Gamer
             List<GdlTerm> lastMoves = getMatch().getMostRecentMoves();
             if (lastMoves != null)
             {
-                List<Move> moves = new ArrayList<Move>();
+                List<Move> moves = new ArrayList<>();
                 for (GdlTerm sentence : lastMoves)
                 {
                     moves.add(stateMachine.getMoveFromTerm(sentence));
@@ -236,7 +236,7 @@ public abstract class StateMachineGamer extends Gamer
             List<GdlTerm> lastMoves = getMatch().getMostRecentMoves();
             if (lastMoves != null)
             {
-                List<Move> moves = new ArrayList<Move>();
+                List<Move> moves = new ArrayList<>();
                 for (GdlTerm sentence : lastMoves)
                 {
                     moves.add(stateMachine.getMoveFromTerm(sentence));
