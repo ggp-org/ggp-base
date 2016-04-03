@@ -233,8 +233,6 @@ public class OptimizingPropNetFactory {
             System.out.println("Creating component set...");
         Set<Component> componentSet = new HashSet<Component>(components.values());
         //Try saving some memory here...
-        components = null;
-        negations = null;
         completeComponentSet(componentSet);
         ConcurrencyUtils.checkForInterruption();
         if(verbose)

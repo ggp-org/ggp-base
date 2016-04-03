@@ -177,7 +177,7 @@ public final class TiltyardRequestFarm
             String line = HttpReader.readAsServer(connection);
             System.out.println(new Date().getTime() + " [" + new Date() + "] received batch request: " + line);
 
-            String response = null;
+            String response;
             if (line.equals("ping")) {
                 response = generateSignedPing();
             } else {
@@ -309,7 +309,7 @@ public final class TiltyardRequestFarm
 
     @SuppressWarnings("resource")
     public static void main(String[] args) {
-        ServerSocket listener = null;
+        ServerSocket listener;
         try {
             listener = new ServerSocket(SERVER_PORT);
         } catch (IOException e) {

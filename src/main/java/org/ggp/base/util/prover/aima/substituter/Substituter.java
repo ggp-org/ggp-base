@@ -193,7 +193,7 @@ public final class Substituter
         else
         {
             GdlTerm result = theta.get(variable);
-            GdlTerm betterResult = null;
+            GdlTerm betterResult;
 
             while (!(betterResult = substituteTerm(result, theta)).equals(result))
             {
