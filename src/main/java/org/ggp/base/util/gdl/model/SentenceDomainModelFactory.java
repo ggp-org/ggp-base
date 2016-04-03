@@ -6,6 +6,9 @@ import java.util.Map;
 import org.ggp.base.util.gdl.grammar.Gdl;
 
 public class SentenceDomainModelFactory {
+    private SentenceDomainModelFactory() {
+    }
+
     public static ImmutableSentenceDomainModel createWithCartesianDomains(List<Gdl> description) throws InterruptedException {
         ImmutableSentenceFormModel formModel = SentenceFormModelFactory.create(description);
 

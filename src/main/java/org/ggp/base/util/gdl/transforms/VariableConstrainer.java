@@ -44,6 +44,9 @@ import com.google.common.collect.Multimaps;
 import com.google.common.collect.Sets;
 
 public class VariableConstrainer {
+    private VariableConstrainer() {
+    }
+
     /**
      * Modifies a GDL description by replacing all rules in which variables could be bound to
      * functions, so that the new rules will only bind constants to variables. Also automatically

@@ -24,6 +24,9 @@ import org.ggp.base.util.gdl.grammar.GdlVariable;
 
 
 public class GdlUtils {
+    private GdlUtils() {
+    }
+
     //TODO (AL): Check if we can switch over to just having this return a set.
     public static List<GdlVariable> getVariables(Gdl gdl) {
         final List<GdlVariable> variablesList = new ArrayList<GdlVariable>();

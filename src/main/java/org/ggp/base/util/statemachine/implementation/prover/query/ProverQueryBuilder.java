@@ -28,6 +28,9 @@ public final class ProverQueryBuilder
     private final static GdlProposition TERMINAL_QUERY = GdlPool.getProposition(GdlPool.getConstant("terminal"));
     private final static GdlVariable VARIABLE = GdlPool.getVariable("?x");
 
+    private ProverQueryBuilder() {
+    }
+
     public static Set<GdlSentence> getContext(MachineState state)
     {
         return state.getContents();

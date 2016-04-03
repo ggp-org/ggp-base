@@ -32,6 +32,9 @@ public final class MatchArchiveProcessor
     // Set this to the path of the downloaded match archive file.
     public static final File ARCHIVE_FILE = new File(new File(new File(new File(System.getProperty("user.home")), "matchArchive"), "data"), "allMatches");
 
+    private MatchArchiveProcessor() {
+    }
+
     public static void main(String[] args) throws IOException, JSONException
     {
         AggregateData data = new AggregateData();
