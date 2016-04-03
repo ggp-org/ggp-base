@@ -55,7 +55,7 @@ public class CanonicalJSON {
                 while (i.hasNext()) t.add(i.next().toString());
                 Iterator<String> keys = t.iterator();
 
-                StringBuffer sb = new StringBuffer("{");
+                StringBuilder sb = new StringBuilder("{");
                 while (keys.hasNext()) {
                     if (sb.length() > 1) {
                         sb.append(',');
@@ -69,7 +69,7 @@ public class CanonicalJSON {
                 return sb.toString();
             } else if (x instanceof JSONArray) {
                 JSONArray theArray = (JSONArray)x;
-                StringBuffer sb = new StringBuffer();
+                StringBuilder sb = new StringBuilder();
                 sb.append("[");
                 int len = theArray.length();
                 for (int i = 0; i < len; i += 1) {

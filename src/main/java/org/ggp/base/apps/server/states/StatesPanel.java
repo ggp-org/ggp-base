@@ -40,7 +40,7 @@ public class StatesPanel extends JPanel implements Observer {
                 sentences.add(sentence.toString());
             //The list of sentences is more useful when sorted alphabetically.
             Collections.sort(sentences);
-            StringBuffer sentencesList = new StringBuffer();
+            StringBuilder sentencesList = new StringBuilder();
             for(String sentence : sentences)
                 sentencesList.append(sentence).append("\n");
             JTextArea statesTextArea = new JTextArea(sentencesList.toString());
