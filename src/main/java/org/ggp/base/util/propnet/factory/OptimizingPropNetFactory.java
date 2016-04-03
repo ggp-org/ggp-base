@@ -90,18 +90,18 @@ import com.google.common.collect.Multiset;
  *
  */
 public class OptimizingPropNetFactory {
-    static final private GdlConstant LEGAL = GdlPool.getConstant("legal");
-    static final private GdlConstant NEXT = GdlPool.getConstant("next");
-    static final private GdlConstant TRUE = GdlPool.getConstant("true");
-    static final private GdlConstant DOES = GdlPool.getConstant("does");
-    static final private GdlConstant GOAL = GdlPool.getConstant("goal");
-    static final private GdlConstant INIT = GdlPool.getConstant("init");
+    private static final GdlConstant LEGAL = GdlPool.getConstant("legal");
+    private static final GdlConstant NEXT = GdlPool.getConstant("next");
+    private static final GdlConstant TRUE = GdlPool.getConstant("true");
+    private static final GdlConstant DOES = GdlPool.getConstant("does");
+    private static final GdlConstant GOAL = GdlPool.getConstant("goal");
+    private static final GdlConstant INIT = GdlPool.getConstant("init");
     //TODO: This currently doesn't actually give a different constant from INIT
-    static final private GdlConstant INIT_CAPS = GdlPool.getConstant("INIT");
-    static final private GdlConstant TERMINAL = GdlPool.getConstant("terminal");
-    static final private GdlConstant BASE = GdlPool.getConstant("base");
-    static final private GdlConstant INPUT = GdlPool.getConstant("input");
-    static final private GdlProposition TEMP = GdlPool.getProposition(GdlPool.getConstant("TEMP"));
+    private static final GdlConstant INIT_CAPS = GdlPool.getConstant("INIT");
+    private static final GdlConstant TERMINAL = GdlPool.getConstant("terminal");
+    private static final GdlConstant BASE = GdlPool.getConstant("base");
+    private static final GdlConstant INPUT = GdlPool.getConstant("input");
+    private static final GdlProposition TEMP = GdlPool.getProposition(GdlPool.getConstant("TEMP"));
 
     /**
      * Creates a PropNet for the game with the given description.

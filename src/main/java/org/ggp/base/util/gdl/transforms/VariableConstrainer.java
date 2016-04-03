@@ -380,7 +380,7 @@ public class VariableConstrainer {
         return results;
     }
 
-    private static abstract class UnusedVariableGenerator {
+    private abstract static class UnusedVariableGenerator {
         public GdlFunction replaceVariablesAndConstants(GdlFunction function) {
             Map<GdlVariable, GdlVariable> assignment = Maps.newHashMap();
 
