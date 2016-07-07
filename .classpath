@@ -5,6 +5,8 @@
 	<classpathentry kind="src" path="src/test/java"/>
 	<classpathentry kind="src" path="src/main/scala"/>
 	<classpathentry kind="con" path="org.scala-ide.sdt.launching.SCALA_CONTAINER"/>
+	<classpathentry kind="output" path="bin"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="lib/JUnit/junit-4.11.jar"/>
 	<classpathentry kind="lib" path="lib/JUnit/hamcrest-core-1.3.jar"/>
 	<classpathentry kind="lib" path="lib/Guava/guava-14.0.1.jar" sourcepath="lib/Guava/guava-14.0.1-sources.jar"/>
@@ -15,6 +17,6 @@
 	<classpathentry kind="lib" path="lib/javassist/javassist.jar"/>
 	<classpathentry kind="lib" path="lib/reflections/reflections-0.9.9-RC1.jar"/>
 	<classpathentry kind="lib" path="lib/Htmlparser/htmlparser-1.4.jar"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="output" path="bin"/>
+	<classpathentry kind="lib" path="lib/gdl-validation/gdl-validation-0.2.2.jar" sourcepath="lib/gdl-validation/gdl-validation-0.2.2-sources.jar"/>
+	<classpathentry kind="lib" path="lib/gdl-validation/java-cup-11b-runtime-2015.03.26.jar"/>
 </classpath>
