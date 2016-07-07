@@ -24,6 +24,8 @@ dependencies {
         'lib/javassist/javassist.jar',
         'lib/reflections/reflections-0.9.9-RC1.jar',
         'lib/Htmlparser/htmlparser-1.4.jar',
+        'lib/gdl-validation/gdl-validation-0.2.2.jar',
+        'lib/gdl-validation/java-cup-11b-runtime-2015.03.26.jar',
     )
     testCompile files(
         'lib/JUnit/junit-4.11.jar',
@@ -43,7 +45,8 @@ repositories {
  * appear in Eclipse.
  */
 def sourceJars = [
-    'lib/Guava/guava-14.0.1.jar' : 'lib/Guava/guava-14.0.1-sources.jar'
+    'lib/Guava/guava-14.0.1.jar' : 'lib/Guava/guava-14.0.1-sources.jar',
+    'lib/gdl-validation/gdl-validation-0.2.2.jar' : 'lib/gdl-validation/gdl-validation-0.2.2-sources.jar'
 ];
 
 /*

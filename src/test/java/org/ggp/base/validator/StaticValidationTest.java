@@ -1,6 +1,9 @@
 package org.ggp.base.validator;
 
+import java.util.List;
+
 import org.ggp.base.util.game.TestGameRepository;
+import org.junit.Assert;
 import org.junit.Test;
 
 public class StaticValidationTest {
@@ -13,9 +16,10 @@ public class StaticValidationTest {
     public void testSimpleMutexValidation() throws Exception {
         validate("simpleMutex");
     }
-    @Test(expected=ValidatorException.class)
+    @Test
     public void test1AValidation() throws Exception {
-        validate("test_case_1a");
+        //Warning from empty-bodied rule
+        expectWarnings(validate("test_case_1a"));
     }
     @Test
     public void test1BValidation() throws Exception {
@@ -33,9 +37,10 @@ public class StaticValidationTest {
     public void test2CValidation() throws Exception {
         validate("test_case_2c");
     }
-    @Test(expected=ValidatorException.class)
+    @Test
     public void test3AValidation() throws Exception {
-        validate("test_case_3a");
+      //Warning from empty-bodied sentence
+        expectWarnings(validate("test_case_3a"));
     }
     @Test(expected=ValidatorException.class)
     public void test3BValidation() throws Exception {
@@ -77,13 +82,13 @@ public class StaticValidationTest {
     public void testCleanNotDistinctValidation() throws Exception {
         validate("test_clean_not_distinct");
     }
-    @Test(expected=ValidatorException.class)
+    @Test
     public void testFunctionAritiesDiffer() throws Exception {
-        validate("test_invalid_function_arities_differ");
+        expectWarnings(validate("test_invalid_function_arities_differ"));
     }
-    @Test(expected=ValidatorException.class)
+    @Test
     public void testSentenceAritiesDiffer() throws Exception {
-        validate("test_invalid_sentence_arities_differ");
+        expectWarnings(validate("test_invalid_sentence_arities_differ"));
     }
 
     @Test
@@ -91,7 +96,11 @@ public class StaticValidationTest {
         validate("ticTacToe");
     }
 
-    protected void validate(String gameName) throws Exception {
-        new StaticValidator().checkValidity(new TestGameRepository().getGame(gameName));
+    protected List<ValidatorWarning> validate(String gameName) throws Exception {
+        return new StaticValidator().checkValidity(new TestGameRepository().getGame(gameName));
+    }
+
+    private void expectWarnings(List<ValidatorWarning> warnings) {
+        Assert.assertFalse("Expected warnings, but there were none", warnings.isEmpty());
     }
 }
