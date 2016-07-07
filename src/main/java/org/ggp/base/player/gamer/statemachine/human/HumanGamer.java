@@ -42,7 +42,7 @@ public final class HumanGamer extends StateMachineGamer
         move = moves.get(0);
 
         try {
-            notifyObservers(new HumanNewMovesEvent(moves, move));
+            notifyObservers(HumanNewMovesEvent.create(moves, move));
             wait(timeout - System.currentTimeMillis() - 500);
             notifyObservers(new HumanTimeoutEvent(this));
         } catch (Exception e) {
