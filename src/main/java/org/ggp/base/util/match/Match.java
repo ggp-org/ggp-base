@@ -131,9 +131,9 @@ public final class Match
             this.isAborted = false;
         }
         if (theMatchObject.has("tournamentNameFromHost")) {
-        	this.tournamentNameFromHost = theMatchObject.getString("tournamentNameFromHost");
+            this.tournamentNameFromHost = theMatchObject.getString("tournamentNameFromHost");
         } else {
-        	this.tournamentNameFromHost = null;
+            this.tournamentNameFromHost = null;
         }
 
         this.numRoles = Role.computeRoles(this.theGame.getRules()).size();
@@ -305,7 +305,7 @@ public final class Match
                 theJSON.put("isPlayerHuman", isPlayerHuman);
             }
             if (tournamentNameFromHost != null) {
-            	theJSON.put("tournamentNameFromHost", tournamentNameFromHost);
+                theJSON.put("tournamentNameFromHost", tournamentNameFromHost);
             }
             theJSON.put("scrambled", theGdlScrambler != null ? theGdlScrambler.scrambles() : false);
         } catch (JSONException e) {
@@ -433,7 +433,7 @@ public final class Match
     }
 
     public String getTournamentNameFromHost() {
-    	return tournamentNameFromHost;
+        return tournamentNameFromHost;
     }
 
     public boolean isCompleted() {
