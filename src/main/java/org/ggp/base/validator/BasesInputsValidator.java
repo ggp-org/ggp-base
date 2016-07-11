@@ -9,7 +9,6 @@ import java.util.Set;
 import org.ggp.base.util.game.CloudGameRepository;
 import org.ggp.base.util.game.Game;
 import org.ggp.base.util.game.GameRepository;
-import org.ggp.base.util.gdl.grammar.GdlConstant;
 import org.ggp.base.util.gdl.grammar.GdlPool;
 import org.ggp.base.util.gdl.grammar.GdlSentence;
 import org.ggp.base.util.gdl.grammar.GdlTerm;
@@ -27,10 +26,6 @@ import com.google.common.collect.ImmutableList;
 
 
 public class BasesInputsValidator implements GameValidator {
-    private static final GdlConstant BASE = GdlPool.getConstant("base");
-    private static final GdlConstant INPUT = GdlPool.getConstant("input");
-    private static final GdlConstant TRUE = GdlPool.getConstant("true");
-    private static final GdlConstant LEGAL = GdlPool.getConstant("legal");
     private static final GdlVariable X = GdlPool.getVariable("?x");
     private static final GdlVariable Y = GdlPool.getVariable("?y");
 
@@ -46,9 +41,9 @@ public class BasesInputsValidator implements GameValidator {
             sm.initialize(theGame.getRules());
 
             AimaProver prover = new AimaProver(theGame.getRules());
-            GdlSentence basesQuery = GdlPool.getRelation(BASE, new GdlTerm[] {X});
+            GdlSentence basesQuery = GdlPool.getRelation(GdlPool.BASE, new GdlTerm[] {X});
             Set<GdlSentence> bases = prover.askAll(basesQuery, Collections.<GdlSentence>emptySet());
-            GdlSentence inputsQuery = GdlPool.getRelation(INPUT, new GdlTerm[] {X, Y});
+            GdlSentence inputsQuery = GdlPool.getRelation(GdlPool.INPUT, new GdlTerm[] {X, Y});
             Set<GdlSentence> inputs = prover.askAll(inputsQuery, Collections.<GdlSentence>emptySet());
 
             if (bases.isEmpty()) {
@@ -59,11 +54,11 @@ public class BasesInputsValidator implements GameValidator {
 
             Set<GdlSentence> truesFromBases = new HashSet<GdlSentence>();
             for (GdlSentence base : bases) {
-                truesFromBases.add(GdlPool.getRelation(TRUE, base.getBody()));
+                truesFromBases.add(GdlPool.getRelation(GdlPool.TRUE, base.getBody()));
             }
             Set<GdlSentence> legalsFromInputs = new HashSet<GdlSentence>();
             for (GdlSentence input : inputs) {
-                legalsFromInputs.add(GdlPool.getRelation(LEGAL, input.getBody()));
+                legalsFromInputs.add(GdlPool.getRelation(GdlPool.LEGAL, input.getBody()));
             }
 
             if (truesFromBases.isEmpty() && legalsFromInputs.isEmpty()) {
@@ -89,7 +84,7 @@ public class BasesInputsValidator implements GameValidator {
                     for (Role role : sm.getRoles()) {
                         List<Move> legalMoves = sm.getLegalMoves(state, role);
                         for (Move move : legalMoves) {
-                            legalSentences.add(GdlPool.getRelation(LEGAL, new GdlTerm[] {role.getName(), move.getContents()}));
+                            legalSentences.add(GdlPool.getRelation(GdlPool.LEGAL, new GdlTerm[] {role.getName(), move.getContents()}));
                         }
                     }
                     if (!legalsFromInputs.containsAll(legalSentences)) {

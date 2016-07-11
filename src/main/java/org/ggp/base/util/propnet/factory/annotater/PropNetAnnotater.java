@@ -160,7 +160,7 @@ public class PropNetAnnotater {
                 Collections.sort(ms2, new SortTerms());
                 body.add(GdlPool.getFunction(valConst, ms2));
             }
-            GdlRelation toAdd = GdlPool.getRelation(baseConstant, body);
+            GdlRelation toAdd = GdlPool.getRelation(GdlPool.BASE, body);
             rval.add(toAdd);
         }
 
@@ -300,8 +300,6 @@ public class PropNetAnnotater {
         }
     }
 
-    private GdlConstant baseConstant = GdlPool.getConstant("base");
-
     private void findAndInstantiateBaseProps(Gdl gdl)
     {
         if(gdl instanceof GdlRelation)
@@ -317,7 +315,7 @@ public class PropNetAnnotater {
                 {
                     List<GdlTerm> body = new ArrayList<GdlTerm>();
                     body.add(template);
-                    GdlRelation toAdd = GdlPool.getRelation(baseConstant, body);
+                    GdlRelation toAdd = GdlPool.getRelation(GdlPool.BASE, body);
                     baseRelations.add(toAdd);
                     System.err.println("Weird init of constant");
                 }
@@ -326,7 +324,7 @@ public class PropNetAnnotater {
                     System.err.println("Weird init of constant");
                     List<GdlTerm> body = new ArrayList<GdlTerm>();
                     body.add(universalDom);
-                    GdlRelation toAdd = GdlPool.getRelation(baseConstant, body);
+                    GdlRelation toAdd = GdlPool.getRelation(GdlPool.BASE, body);
                     baseRelations.add(toAdd);
                     System.err.println("Weird init of variable");
                 }
@@ -356,7 +354,7 @@ public class PropNetAnnotater {
                     {
                         List<GdlTerm> body = new ArrayList<GdlTerm>();
                         body.add(c);
-                        baseRelations.add(GdlPool.getRelation(baseConstant, body));
+                        baseRelations.add(GdlPool.getRelation(GdlPool.BASE, body));
                     }
                 }
                 else
@@ -397,7 +395,7 @@ public class PropNetAnnotater {
                 throw new RuntimeException("Don't know how to deal with functions within next/init.");
             }
         }
-        GdlRelation toAdd = GdlPool.getRelation(baseConstant, body);
+        GdlRelation toAdd = GdlPool.getRelation(GdlPool.BASE, body);
         baseRelations.add(toAdd);
     }
 
@@ -631,7 +629,7 @@ public class PropNetAnnotater {
                     if(name.equals("does"))
                     {
                         Location newLoc = new Location();
-                        newLoc.name = GdlPool.getConstant("legal");
+                        newLoc.name = GdlPool.LEGAL;
                         newLoc.idx = d.loc.idx;
                         Domain otherDom = domains.get(newLoc);
                         if(otherDom == null)
@@ -641,7 +639,7 @@ public class PropNetAnnotater {
                     else if(name.equals("true"))
                     {
                         Location newLoc = new Location();
-                        newLoc.name = GdlPool.getConstant("next");
+                        newLoc.name = GdlPool.NEXT;
                         newLoc.idx = d.loc.idx;
                         Domain otherDom = domains.get(newLoc);
                         if(otherDom == null)

@@ -455,11 +455,6 @@ public class PropNetFlattener {
         return rval;
     }
 
-    GdlConstant legalConst = GdlPool.getConstant("legal");
-    GdlConstant trueConst = GdlPool.getConstant("true");
-    GdlConstant doesConst = GdlPool.getConstant("does");
-    GdlConstant nextConst = GdlPool.getConstant("next");
-    GdlConstant initConst = GdlPool.getConstant("init");
     private GdlTerm findGenericForm(GdlTerm term) {
         if(term instanceof GdlConstant)
             return fillerVar;
@@ -471,12 +466,13 @@ public class PropNetFlattener {
         for(GdlTerm t : func.getBody())
             newBody.add(findGenericForm(t));
         GdlConstant name = func.getName();
-        if(name==legalConst)
-            name=doesConst;
-        else if(name==nextConst)
-            name=trueConst;
-        else if(name==initConst)
-            name=trueConst;
+        if (name == GdlPool.LEGAL) {
+            name = GdlPool.DOES;
+        } else if (name == GdlPool.NEXT) {
+            name = GdlPool.TRUE;
+        } else if (name == GdlPool.INIT) {
+            name = GdlPool.TRUE;
+        }
         return GdlPool.getFunction(name, newBody);
     }
 

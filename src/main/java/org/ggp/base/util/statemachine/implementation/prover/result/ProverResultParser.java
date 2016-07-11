@@ -14,10 +14,7 @@ import org.ggp.base.util.statemachine.Move;
 import org.ggp.base.util.statemachine.Role;
 
 
-public final class ProverResultParser
-{
-
-    private static final GdlConstant TRUE = GdlPool.getConstant("true");
+public final class ProverResultParser {
 
     public List<Move> toMoves(Set<GdlSentence> results)
     {
@@ -47,7 +44,7 @@ public final class ProverResultParser
         Set<GdlSentence> trues = new HashSet<GdlSentence>();
         for (GdlSentence result : results)
         {
-            trues.add(GdlPool.getRelation(TRUE, new GdlTerm[] { result.get(0) }));
+            trues.add(GdlPool.getRelation(GdlPool.TRUE, new GdlTerm[] { result.get(0) }));
         }
         return new MachineState(trues);
     }

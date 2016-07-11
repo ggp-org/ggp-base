@@ -42,10 +42,6 @@ import com.google.common.collect.Multimap;
  * @author Alex Landau
  */
 public class GameFlow {
-    private static final GdlConstant INIT = GdlPool.getConstant("init");
-    private static final GdlConstant TRUE = GdlPool.getConstant("true");
-    private static final GdlConstant NEXT = GdlPool.getConstant("next");
-
     private int turnAfterLast; //We end with a loop
     private List<Set<GdlSentence>> sentencesTrueByTurn = new ArrayList<Set<GdlSentence>>(); //The non-constant ones
     private Set<SentenceForm> formsControlledByFlow;
@@ -85,9 +81,9 @@ public class GameFlow {
         //Use "init" values
         Set<GdlSentence> trueFlowSentences = new HashSet<GdlSentence>();
         for(SentenceForm form : constantForms) {
-            if(form.getName().equals(INIT)) {
+            if(form.getName().equals(GdlPool.INIT)) {
                 for (GdlSentence initSentence : constantChecker.getTrueSentences(form)) {
-                    GdlSentence trueSentence = GdlPool.getRelation(TRUE, initSentence.getBody());
+                    GdlSentence trueSentence = GdlPool.getRelation(GdlPool.TRUE, initSentence.getBody());
                     trueFlowSentences.add(trueSentence);
                 }
             }
@@ -101,8 +97,8 @@ public class GameFlow {
             Set<GdlSentence> sentencesPreviouslyTrue = trueFlowSentences;
             trueFlowSentences = new HashSet<GdlSentence>();
             for(GdlSentence sentence : sentencesPreviouslyTrue) {
-                if(sentence.getName().equals(NEXT)) {
-                    GdlSentence trueSentence = GdlPool.getRelation(TRUE, sentence.getBody());
+                if(sentence.getName().equals(GdlPool.NEXT)) {
+                    GdlSentence trueSentence = GdlPool.getRelation(GdlPool.TRUE, sentence.getBody());
                     trueFlowSentences.add(trueSentence);
                 }
             }

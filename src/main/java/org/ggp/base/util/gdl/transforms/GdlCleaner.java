@@ -22,7 +22,6 @@ import org.ggp.base.util.gdl.grammar.GdlVariable;
 //Cleans up various issues with games to make them more standardized.
 public class GdlCleaner {
     private static final int MAX_ITERATIONS = 100;
-    private static final GdlConstant BASE = GdlPool.getConstant("base");
 
     private GdlCleaner() {
     }
@@ -96,7 +95,7 @@ public class GdlCleaner {
         for (Gdl gdl : description) {
             if (gdl instanceof GdlRelation) {
                 GdlRelation relation = (GdlRelation) gdl;
-                if (relation.getName() == BASE && relation.arity() != 1) {
+                if (relation.getName() == GdlPool.BASE && relation.arity() != 1) {
                     removeBaseSentences = true;
                     break;
                 }
@@ -107,7 +106,7 @@ public class GdlCleaner {
         for (Gdl gdl : description) {
             if (gdl instanceof GdlRelation) {
                 GdlRelation relation = (GdlRelation) gdl;
-                if (removeBaseSentences && relation.getName() == BASE) {
+                if (removeBaseSentences && relation.getName() == GdlPool.BASE) {
                     //Leave out the relation
                 } else {
                     newDescription.add(gdl);
