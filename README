@@ -75,9 +75,13 @@ non-GUI player and server applications.
 
                               === MISC NOTES ===
 
-* This is the 4/1/2010 release of GGP code for CS227B, compiled and maintained
-  by Sam Schreiber with help and support from Ethan Dreyfuss, Eric Schkufza,
-  Keith Schwarz, Steven Bills, and Mike Mintz.
+* This is based on the 4/1/2010 release of GGP code for Michael Genesereth's
+  CS227B class at Stanford University, compiled by Sam Schreiber with help
+  and support from Ethan Dreyfuss, Eric Schkufza, Keith Schwarz, Steven Bills,
+  and Mike Mintz. It is currently maintained by Sam Schreiber and Alex Landau.
+
+* This project is currently hosted on GitHub at https://github.com/ggp-org/ggp-base.
+  The most recent version of the code can be found there.
 
 * This project is licensed under the New BSD License. Licensing information for
   the project can be found in the licenses/LICENSE file. Licensing information
