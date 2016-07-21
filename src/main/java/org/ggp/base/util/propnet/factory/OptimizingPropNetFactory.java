@@ -89,6 +89,9 @@ import com.google.common.collect.Multiset;
  *   if multithreading).
  *
  */
+/**
+ * @author Alex Landau
+ */
 public class OptimizingPropNetFactory {
     //TODO: This currently doesn't actually give a different constant from INIT (usually)
     private static final GdlConstant INIT_CAPS = GdlPool.getConstant("INIT");
