@@ -13,7 +13,6 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.Stack;
 
-import org.ggp.base.util.Pair;
 import org.ggp.base.util.concurrency.ConcurrencyUtils;
 import org.ggp.base.util.gdl.GdlUtils;
 import org.ggp.base.util.gdl.grammar.Gdl;
@@ -1254,6 +1253,49 @@ public class OptimizingPropNetFactory {
         }
     }
 
+    private static class TypedComponent {
+        public final Type type;
+        public final Component component;
+
+        public TypedComponent(Component component, Type type) {
+            this.type = type;
+            this.component = component;
+        }
+
+        @Override
+        public int hashCode() {
+            final int prime = 31;
+            int result = 1;
+            result = prime * result + ((component == null) ? 0 : component.hashCode());
+            result = prime * result + ((type == null) ? 0 : type.hashCode());
+            return result;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj)
+                return true;
+            if (obj == null)
+                return false;
+            if (getClass() != obj.getClass())
+                return false;
+            TypedComponent other = (TypedComponent) obj;
+            if (component == null) {
+                if (other.component != null)
+                    return false;
+            } else if (!component.equals(other.component))
+                return false;
+            if (type != other.type)
+                return false;
+            return true;
+        }
+
+        @Override
+        public String toString() {
+            return "TypedComponent [type=" + type + ", component=" + component + "]";
+        }
+    }
+
     /**
      * Removes from the propnet all components that are discovered through type
      * inference to only ever be true or false, replacing them with their values
@@ -1271,7 +1313,7 @@ public class OptimizingPropNetFactory {
         //OR gates.
         Multiset<Component> numTrueInputs = HashMultiset.create();
         Multiset<Component> numFalseInputs = HashMultiset.create();
-        Stack<Pair<Component, Type>> toAdd = new Stack<Pair<Component, Type>>();
+        Stack<TypedComponent> toAdd = new Stack<TypedComponent>();
 
         //It's easier here if we get just the one-way version of the map
         Map<Proposition, Proposition> legalsToInputs = Maps.newHashMap();
@@ -1287,34 +1329,34 @@ public class OptimizingPropNetFactory {
             ConcurrencyUtils.checkForInterruption();
             if (c instanceof Constant) {
                 if (c.getValue()) {
-                    toAdd.add(Pair.of(c, Type.TRUE));
+                    toAdd.add(new TypedComponent(c, Type.TRUE));
                 } else {
-                    toAdd.add(Pair.of(c, Type.FALSE));
+                    toAdd.add(new TypedComponent(c, Type.FALSE));
                 }
             }
         }
 
         //Every input can be false (we assume that no player will have just one move allowed all game)
         for(Proposition p : pn.getInputPropositions().values()) {
-            toAdd.add(Pair.of((Component) p, Type.FALSE));
+            toAdd.add(new TypedComponent((Component) p, Type.FALSE));
         }
         //Every base with "init" can be true, every base without "init" can be false
         for(Proposition baseProp : pn.getBasePropositions().values()) {
             if (basesTrueByInit.contains(baseProp)) {
-                toAdd.add(Pair.of((Component) baseProp, Type.TRUE));
+                toAdd.add(new TypedComponent((Component) baseProp, Type.TRUE));
             } else {
-                toAdd.add(Pair.of((Component) baseProp, Type.FALSE));
+                toAdd.add(new TypedComponent((Component) baseProp, Type.FALSE));
             }
         }
         //Keep INIT, for those who use it
         Proposition initProposition = pn.getInitProposition();
-        toAdd.add(Pair.of((Component) initProposition, Type.BOTH));
+        toAdd.add(new TypedComponent((Component) initProposition, Type.BOTH));
 
         while (!toAdd.isEmpty()) {
             ConcurrencyUtils.checkForInterruption();
-            Pair<Component, Type> curEntry = toAdd.pop();
-            Component curComp = curEntry.left;
-            Type newInputType = curEntry.right;
+            TypedComponent curEntry = toAdd.pop();
+            Component curComp = curEntry.component;
+            Type newInputType = curEntry.type;
             Type oldType = reachability.get(curComp);
             if (oldType == null) {
                 oldType = Type.NEITHER;
@@ -1370,14 +1412,14 @@ public class OptimizingPropNetFactory {
 
             //Add all our children to the stack
             for (Component output : curComp.getOutputs()) {
-                toAdd.add(Pair.of(output, typeToAdd));
+                toAdd.add(new TypedComponent(output, typeToAdd));
             }
             if (legalsToInputs.containsKey(curComp)) {
                 Proposition inputProp = legalsToInputs.get(curComp);
                 if (inputProp == null) {
                     throw new IllegalStateException();
                 }
-                toAdd.add(Pair.of((Component) inputProp, typeToAdd));
+                toAdd.add(new TypedComponent((Component) inputProp, typeToAdd));
             }
         }
 
