@@ -12,7 +12,8 @@ targetCompatibility = 1.7
  * during setup.
  */
 dependencies {
-    compile project (':legacy')
+    compile project(':legacy')
+    compile project(':ui-utils')
     compile files(
         '../lib/Guava/guava-14.0.1.jar',
         '../lib/Jython/jython.jar',
