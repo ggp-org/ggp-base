@@ -17,6 +17,7 @@ import org.ggp.base.util.gdl.grammar.GdlLiteral;
 import org.ggp.base.util.gdl.grammar.GdlNot;
 import org.ggp.base.util.gdl.grammar.GdlOr;
 import org.ggp.base.util.gdl.grammar.GdlProposition;
+import org.ggp.base.util.gdl.grammar.GdlRelation;
 import org.ggp.base.util.gdl.grammar.GdlRule;
 import org.ggp.base.util.gdl.grammar.GdlSentence;
 import org.ggp.base.util.gdl.grammar.GdlTerm;
@@ -213,4 +214,16 @@ public class GdlUtils {
         return false;
     }
 
+    public static List<GdlConstant> computeRoles(List<Gdl> rules) {
+        List<GdlConstant> roles = new ArrayList<>();
+        for (Gdl gdl : rules) {
+            if (gdl instanceof GdlRelation) {
+                GdlRelation relation = (GdlRelation) gdl;
+                if (relation.getName().getValue().equals("role")) {
+                    roles.add((GdlConstant) relation.get(0));
+                }
+            }
+        }
+        return roles;
+    }
 }
