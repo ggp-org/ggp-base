@@ -10,6 +10,7 @@
 	<classpathentry kind="src" path="/propnets"/>
 	<classpathentry kind="src" path="/state-machines"/>
 	<classpathentry kind="src" path="/games"/>
+	<classpathentry kind="src" path="/validator"/>
 	<classpathentry kind="src" path="/sample-gamers"/>
 	<classpathentry kind="src" path="/gamers"/>
 	<classpathentry kind="lib" path="../lib/JUnit/junit-4.11.jar"/>

@@ -1338,19 +1338,19 @@ public class OptimizingPropNetFactory {
 
         //Every input can be false (we assume that no player will have just one move allowed all game)
         for(Proposition p : pn.getInputPropositions().values()) {
-            toAdd.add(new TypedComponent((Component) p, Type.FALSE));
+            toAdd.add(new TypedComponent(p, Type.FALSE));
         }
         //Every base with "init" can be true, every base without "init" can be false
         for(Proposition baseProp : pn.getBasePropositions().values()) {
             if (basesTrueByInit.contains(baseProp)) {
-                toAdd.add(new TypedComponent((Component) baseProp, Type.TRUE));
+                toAdd.add(new TypedComponent(baseProp, Type.TRUE));
             } else {
-                toAdd.add(new TypedComponent((Component) baseProp, Type.FALSE));
+                toAdd.add(new TypedComponent(baseProp, Type.FALSE));
             }
         }
         //Keep INIT, for those who use it
         Proposition initProposition = pn.getInitProposition();
-        toAdd.add(new TypedComponent((Component) initProposition, Type.BOTH));
+        toAdd.add(new TypedComponent(initProposition, Type.BOTH));
 
         while (!toAdd.isEmpty()) {
             ConcurrencyUtils.checkForInterruption();
@@ -1419,7 +1419,7 @@ public class OptimizingPropNetFactory {
                 if (inputProp == null) {
                     throw new IllegalStateException();
                 }
-                toAdd.add(new TypedComponent((Component) inputProp, typeToAdd));
+                toAdd.add(new TypedComponent(inputProp, typeToAdd));
             }
         }
 
