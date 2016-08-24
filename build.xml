@@ -28,6 +28,8 @@
 		<pathelement location="lib/Batik/batik-1.7.jar"/>
 		<pathelement location="lib/Htmlparser/htmlparser-1.4.jar"/>
 		<pathelement location="lib/javassist/javassist.jar"/>
+    	<pathelement location="lib/gdl-validation/gdl-validation-0.2.2.jar"/>
+    	<pathelement location="lib/gdl-validation/java-cup-11b-runtime-2015.03.26.jar"/>
     </path>
     <target name="init">
         <mkdir dir="bin"/>
