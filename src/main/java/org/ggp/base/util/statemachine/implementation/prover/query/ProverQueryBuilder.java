@@ -10,6 +10,7 @@ import org.ggp.base.util.gdl.grammar.GdlRelation;
 import org.ggp.base.util.gdl.grammar.GdlSentence;
 import org.ggp.base.util.gdl.grammar.GdlTerm;
 import org.ggp.base.util.gdl.grammar.GdlVariable;
+import org.ggp.base.util.ii.statemachine.IIStateView;
 import org.ggp.base.util.statemachine.MachineState;
 import org.ggp.base.util.statemachine.Move;
 import org.ggp.base.util.statemachine.Role;
@@ -40,6 +41,10 @@ public final class ProverQueryBuilder {
         return context;
     }
 
+    public static Set<GdlSentence> getContext(IIStateView stateView) {
+        return stateView.getContents();
+    }
+
     public static GdlRelation getGoalQuery(Role role)
     {
         return GdlPool.getRelation(GdlPool.GOAL, new GdlTerm[] { role.getName(), VARIABLE });
@@ -68,6 +73,10 @@ public final class ProverQueryBuilder {
     public static GdlProposition getTerminalQuery()
     {
         return TERMINAL_QUERY;
+    }
+
+    public static GdlSentence getSeesQuery(Role role) {
+        return GdlPool.getRelation(GdlPool.SEES, new GdlTerm[] { role.getName(), VARIABLE });
     }
 
     public static GdlRelation toDoes(Role role, Move move)

@@ -1,5 +1,6 @@
 package org.ggp.base.util.statemachine.exceptions;
 
+import org.ggp.base.util.ii.statemachine.IIStateView;
 import org.ggp.base.util.statemachine.MachineState;
 import org.ggp.base.util.statemachine.Role;
 
@@ -9,11 +10,19 @@ public final class MoveDefinitionException extends Exception
 
     private final Role role;
     private final MachineState state;
+    private final IIStateView stateView;
 
     public MoveDefinitionException(MachineState state, Role role)
     {
         this.state = state;
         this.role = role;
+        this.stateView = null;
+    }
+
+    public MoveDefinitionException(IIStateView stateView) {
+        this.state = null;
+        this.role = stateView.getRole();
+        this.stateView = stateView;
     }
 
     public Role getRole()
@@ -29,7 +38,7 @@ public final class MoveDefinitionException extends Exception
     @Override
     public String toString()
     {
-        return "There are no legal moves defined for " + role + " in " + state;
+        return "There are no legal moves defined for " + role + " in " + (state != null ? state : stateView);
     }
 
 }
