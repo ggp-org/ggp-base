@@ -52,7 +52,7 @@ public final class GdlPool
     // game-specific constants are case-sensitive or not. These special keywords are never
     // sent over the network in PLAY requests and responses, so this should be safe.
     public static final ImmutableSet<String> KEYWORDS = ImmutableSet.of(
-            "init","true","next","role","does","goal","legal","terminal","base","input","_");
+            "init","true","next","role","does","goal","legal","terminal","base","input","random","_");
     public static final GdlConstant BASE = getConstant("base");
     public static final GdlConstant DOES = getConstant("does");
     public static final GdlConstant GOAL = getConstant("goal");
@@ -60,6 +60,7 @@ public final class GdlPool
     public static final GdlConstant INPUT = getConstant("input");
     public static final GdlConstant LEGAL = getConstant("legal");
     public static final GdlConstant NEXT = getConstant("next");
+    public static final GdlConstant RANDOM = getConstant("random");
     public static final GdlConstant ROLE = getConstant("role");
     public static final GdlConstant TERMINAL = getConstant("terminal");
     public static final GdlConstant TRUE = getConstant("true");

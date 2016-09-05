@@ -25,6 +25,7 @@ import org.ggp.base.server.threads.PreviewRequestThread;
 import org.ggp.base.server.threads.RandomPlayRequestThread;
 import org.ggp.base.server.threads.StartRequestThread;
 import org.ggp.base.server.threads.StopRequestThread;
+import org.ggp.base.util.gdl.grammar.GdlPool;
 import org.ggp.base.util.match.Match;
 import org.ggp.base.util.match.MatchPublisher;
 import org.ggp.base.util.observer.Event;
@@ -67,6 +68,12 @@ public final class GameServer extends Thread implements Subject
 
         playerGetsUnlimitedTime = new boolean[hosts.size()];
         playerPlaysRandomly = new boolean[hosts.size()];
+        List<Role> roles = Role.computeRoles(match.getGame().getRules());
+        for (int r = 0; r < roles.size(); r++) {
+            if (roles.get(r).getName() == GdlPool.RANDOM) {
+                playerPlaysRandomly[r] = true;
+            }
+        }
 
         stateMachine = new ProverStateMachine();
         stateMachine.initialize(match.getGame().getRules());
