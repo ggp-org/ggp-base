@@ -17,7 +17,7 @@ StateMachineGamer class. StateMachineGamer is based on the state machine view
 of general game playing, in which playing a game is represented as proceeding
 through a state machine. The underlying state machine, which you can access via
 getStateMachine() when inheriting from StateMachineGamer, provides methods that
-you can use to investigate the game being player:
+you can use to investigate the game being played:
 
     * Each game has a starting state.
         getInitialState() is the starting state.
