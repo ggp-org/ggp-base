@@ -531,7 +531,9 @@ public final class Match
         for (List<GdlTerm> move : moveHistory) {
             theXML.append("<move>");
             for (GdlTerm action : move) {
-                theXML.append(renderLeafXML("action", renderGdlToXML(action)));
+                theXML.append("<action>");
+                renderGdlToXML(action, theXML);
+                theXML.append("</action>");
             }
             theXML.append("</move>");
         }
@@ -567,7 +569,7 @@ public final class Match
         StringBuilder theXML = new StringBuilder();
         theXML.append("<state>");
         for (GdlSentence sentence : state) {
-            theXML.append(renderGdlToXML(sentence));
+            renderGdlToXML(sentence, theXML);
         }
         theXML.append("</state>");
         return theXML.toString();
@@ -581,40 +583,52 @@ public final class Match
         return theXML.toString();
     }
 
-    private static final String renderGdlToXML(Gdl gdl) {
-        String rval = "";
-        if(gdl instanceof GdlConstant) {
-            GdlConstant c = (GdlConstant)gdl;
-            return c.getValue();
-        } else if(gdl instanceof GdlFunction) {
-            GdlFunction f = (GdlFunction)gdl;
-            if(f.getName().toString().equals("true"))
-            {
-                return "<fact>"+renderGdlToXML(f.get(0))+"</fact>";
-            }
-            else
-            {
-                rval += "<relation>"+f.getName()+"</relation>";
-                for(int i=0; i<f.arity(); i++)
-                    rval += "<argument>"+renderGdlToXML(f.get(i))+"</argument>";
-                return rval;
+    private static final void renderGdlToXML(Gdl gdl, StringBuilder sb) {
+        if (gdl instanceof GdlConstant) {
+            GdlConstant constant = (GdlConstant) gdl;
+            sb.append(constant.getValue());
+            return;
+        } else if (gdl instanceof GdlFunction) {
+            GdlFunction function = (GdlFunction) gdl;
+            if (function.getName().toString().equals("true")) {
+                sb.append("<fact>");
+                renderGdlToXML(function.get(0), sb);
+                sb.append("</fact>");
+                return;
+            } else {
+                sb.append("<relation>")
+                  .append(function.getName())
+                  .append("</relation>");
+                for (int i = 0; i < function.arity(); i++) {
+                    sb.append("<argument>");
+                    renderGdlToXML(function.get(i), sb);
+                    sb.append("</argument>");
+                }
+                return;
             }
         } else if (gdl instanceof GdlRelation) {
             GdlRelation relation = (GdlRelation) gdl;
-            if(relation.getName().toString().equals("true"))
-            {
-                for(int i=0; i<relation.arity(); i++)
-                    rval+="<fact>"+renderGdlToXML(relation.get(i))+"</fact>";
-                return rval;
+            if (relation.getName().toString().equals("true")) {
+                for (int i = 0; i < relation.arity(); i++) {
+                    sb.append("<fact>");
+                    renderGdlToXML(relation.get(i), sb);
+                    sb.append("</fact>");
+                }
+                return;
             } else {
-                rval+="<relation>"+relation.getName()+"</relation>";
-                for(int i=0; i<relation.arity(); i++)
-                    rval+="<argument>"+renderGdlToXML(relation.get(i))+"</argument>";
-                return rval;
+                sb.append("<relation>")
+                  .append(relation.getName())
+                  .append("</relation>");
+                for (int i = 0; i < relation.arity(); i++) {
+                    sb.append("<argument>");
+                    renderGdlToXML(relation.get(i), sb);
+                    sb.append("</argument>");
+                }
+                return;
             }
         } else {
-            System.err.println("gdlToXML Error: could not handle "+gdl.toString());
-            return null;
+            System.err.println("gdlToXML Error: could not handle " + gdl.toString());
+            return;
         }
     }
 }
