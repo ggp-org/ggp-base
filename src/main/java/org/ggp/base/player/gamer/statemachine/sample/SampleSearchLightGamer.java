@@ -3,7 +3,7 @@ package org.ggp.base.player.gamer.statemachine.sample;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 import org.ggp.base.apps.player.detail.DetailPanel;
 import org.ggp.base.apps.player.detail.SimpleDetailPanel;
@@ -52,8 +52,6 @@ public final class SampleSearchLightGamer extends StateMachineGamer
         // Do nothing.
     }
 
-    private Random theRandom = new Random();
-
     /**
      * Employs a simple sample "Search Light" algorithm.  First selects a default legal move.
      * It then iterates through all of the legal moves in random order, updating the current move selection
@@ -73,7 +71,7 @@ public final class SampleSearchLightGamer extends StateMachineGamer
         long finishBy = timeout - 1000;
 
         List<Move> moves = theMachine.getLegalMoves(getCurrentState(), getRole());
-        Move selection = (moves.get(theRandom.nextInt(moves.size())));
+        Move selection = (moves.get(ThreadLocalRandom.current().nextInt(moves.size())));
 
         // Shuffle the moves into a random order, so that when we find the first
         // move that doesn't give our opponent a forced win, we aren't always choosing

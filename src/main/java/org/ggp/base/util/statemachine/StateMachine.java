@@ -5,8 +5,8 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.Set;
+import java.util.concurrent.ThreadLocalRandom;
 
 import org.ggp.base.util.gdl.grammar.Gdl;
 import org.ggp.base.util.gdl.grammar.GdlConstant;
@@ -324,7 +324,7 @@ public abstract class StateMachine
     public Move getRandomMove(MachineState state, Role role) throws MoveDefinitionException
     {
         List<Move> legals = getLegalMoves(state, role);
-        return legals.get(new Random().nextInt(legals.size()));
+        return legals.get(ThreadLocalRandom.current().nextInt(legals.size()));
     }
 
     /**

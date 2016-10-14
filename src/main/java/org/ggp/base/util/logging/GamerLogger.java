@@ -9,8 +9,8 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Date;
 import java.util.HashSet;
-import java.util.Random;
 import java.util.Set;
+import java.util.concurrent.ThreadLocalRandom;
 
 import org.ggp.base.util.match.Match;
 
@@ -103,7 +103,6 @@ public class GamerLogger {
     // Private Implementation
     private static boolean writeLogsToFile = false;
 
-    private static final Random theRandom = new Random();
     private static final Set<String> filesToSkip = new HashSet<String>();
     private static final long maximumLogfileSize = 25 * 1024 * 1024;
 
@@ -139,7 +138,7 @@ public class GamerLogger {
             if(!filesToSkip.isEmpty() && filesToSkip.contains(myFilename)) {
                 return;
             }
-            if(theRandom.nextInt(1000) == 0) {
+            if(ThreadLocalRandom.current().nextInt(1000) == 0) {
                 // Verify that the file is not too large.
                 if(new File(myFilename).length() > maximumLogfileSize) {
                     System.err.println("Adding " + myFilename + " to filesToSkip.");

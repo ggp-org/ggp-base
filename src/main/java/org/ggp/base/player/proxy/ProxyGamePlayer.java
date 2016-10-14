@@ -10,9 +10,9 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ThreadLocalRandom;
 
 import org.ggp.base.player.event.PlayerDroppedPacketEvent;
 import org.ggp.base.player.event.PlayerReceivedMessageEvent;
@@ -275,7 +275,6 @@ public final class ProxyGamePlayer extends Thread implements Subject
         }
     }
 
-    private Random theRandomGenerator = new Random();
     private long currentMoveCode = 0L;
     private boolean receivedClientMove = false;
     private boolean needRestart = false;
@@ -325,7 +324,7 @@ public final class ProxyGamePlayer extends Thread implements Subject
                 if (!(request instanceof InfoRequest)) {
                     // Update the move codes and prepare to send the request on to the client.
                     receivedClientMove = false;
-                    currentMoveCode = 1 + theRandomGenerator.nextLong();
+                    currentMoveCode = 1 + ThreadLocalRandom.current().nextLong();
                     if(request instanceof StopRequest || request instanceof AbortRequest)
                         theClientManager.expectStop = true;
 

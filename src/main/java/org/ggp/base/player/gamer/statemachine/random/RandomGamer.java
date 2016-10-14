@@ -1,7 +1,7 @@
 package org.ggp.base.player.gamer.statemachine.random;
 
 import java.util.List;
-import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 import org.ggp.base.apps.player.detail.DetailPanel;
 import org.ggp.base.apps.player.detail.SimpleDetailPanel;
@@ -34,7 +34,7 @@ public final class RandomGamer extends StateMachineGamer
         long start = System.currentTimeMillis();
 
         List<Move> moves = getStateMachine().getLegalMoves(getCurrentState(), getRole());
-        Move selection = (moves.get(new Random().nextInt(moves.size())));
+        Move selection = (moves.get(ThreadLocalRandom.current().nextInt(moves.size())));
 
         long stop = System.currentTimeMillis();
 

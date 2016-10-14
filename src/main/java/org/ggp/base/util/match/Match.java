@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
+import java.util.concurrent.ThreadLocalRandom;
 
 import org.ggp.base.util.crypto.BaseCryptography.EncodedKeyPair;
 import org.ggp.base.util.crypto.SignableJSON;
@@ -455,7 +456,7 @@ public final class Match
     /* Static methods */
 
     public static final String getRandomString(int nLength) {
-        Random theGenerator = new Random();
+        Random theGenerator = ThreadLocalRandom.current();
         String theString = "";
         for (int i = 0; i < nLength; i++) {
             int nVal = theGenerator.nextInt(62);

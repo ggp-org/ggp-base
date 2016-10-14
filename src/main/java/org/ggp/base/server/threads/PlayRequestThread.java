@@ -2,7 +2,7 @@ package org.ggp.base.server.threads;
 
 import java.util.HashSet;
 import java.util.List;
-import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 import org.ggp.base.server.GameServer;
 import org.ggp.base.server.event.ServerIllegalMoveEvent;
@@ -32,7 +32,7 @@ public class PlayRequestThread extends RequestThread
         this.match = match;
         this.role = role;
 
-        move = legalMoves.get(new Random().nextInt(legalMoves.size()));
+        move = legalMoves.get(ThreadLocalRandom.current().nextInt(legalMoves.size()));
     }
 
     public Move getMove()
