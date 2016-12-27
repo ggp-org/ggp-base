@@ -3,12 +3,17 @@ package org.ggp.base.util.gdl.scrambler;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.ggp.base.util.game.Game;
 import org.ggp.base.util.game.GameRepository;
+import org.ggp.base.util.gdl.GdlVisitor;
+import org.ggp.base.util.gdl.GdlVisitors;
 import org.ggp.base.util.gdl.factory.GdlFactory;
 import org.ggp.base.util.gdl.factory.exceptions.GdlFormatException;
 import org.ggp.base.util.gdl.grammar.Gdl;
+import org.ggp.base.util.gdl.grammar.GdlConstant;
+import org.ggp.base.util.gdl.grammar.GdlVariable;
 import org.ggp.base.util.statemachine.implementation.prover.ProverStateMachine;
 import org.ggp.base.util.symbol.factory.exceptions.SymbolFormatException;
 import org.junit.Assert;
@@ -94,8 +99,8 @@ public class GdlScramblerTest extends Assert {
                 // If the scrambler claims that it scrambles the game, then the
                 // scrambled rules should be different than the original rules.
                 // Otherwise they should be identical.
-                if (scrambler.scrambles()) {
-                    assertTrue(gameKey, !renderedRule.equals(renderedScrambledRule));
+                if (scrambler.scrambles() && !isNeverScrambled(rule)) {
+                    assertNotEquals(gameKey, renderedRule, renderedScrambledRule);
                 } else {
                     assertEquals(gameKey, renderedRule, renderedScrambledRule);
                 }
@@ -119,5 +124,23 @@ public class GdlScramblerTest extends Assert {
             assertEquals(gameKey, pNormal.getRoles().size(), pScrambled.getRoles().size());
             assertEquals(gameKey, pNormal.getInitialState().getContents().size(), pScrambled.getInitialState().getContents().size());
         }
+    }
+
+    private boolean isNeverScrambled(Gdl gdl) {
+        final AtomicBoolean containsMappedConstant = new AtomicBoolean(false);
+        GdlVisitors.visitAll(gdl, new GdlVisitor() {
+            @Override
+            public void visitConstant(GdlConstant constant) {
+                if (MappingGdlScrambler.shouldMap(constant.getValue())) {
+                    containsMappedConstant.set(true);
+                }
+            }
+            @Override
+            public void visitVariable(GdlVariable variable) {
+                //Right now, these are (effectively) always mapped
+                containsMappedConstant.set(true);
+            }
+        });
+        return !containsMappedConstant.get();
     }
 }

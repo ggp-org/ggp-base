@@ -108,7 +108,7 @@ public class MappingGdlScrambler implements GdlScrambler {
         return scrambledTokens.pop();
     }
 
-    private static boolean shouldMap(String token) {
+    public static boolean shouldMap(String token) {
         if (GdlPool.KEYWORDS.contains(token.toLowerCase())) {
             return false;
         }
