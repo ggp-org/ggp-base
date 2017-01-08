@@ -136,12 +136,10 @@ public class GameGUI extends JPanel implements Subject, Observer, ActionListener
 
         if(e.getSource() == clearSelectionButton) {
             theCanvas.clearMoveSelection();
-        } else if(e.getSource() == submitMoveButton) {
-            if(workingMove != null) {
-                moveBeingSubmitted = true;
-                updateControls();
-                notifyObservers(new MoveSelectedEvent(workingMove));
-            }
+        } else if(e.getSource() == submitMoveButton && workingMove != null) {
+            moveBeingSubmitted = true;
+            updateControls();
+            notifyObservers(new MoveSelectedEvent(workingMove));
         }
     }
 

@@ -208,9 +208,8 @@ public class GdlUtils {
         for(GdlTerm curTerm : body) {
             if(curTerm.equals(term))
                 return true;
-            if(curTerm instanceof GdlFunction) {
-                if(containsTerm(((GdlFunction) curTerm).getBody(), term))
-                    return true;
+            if(curTerm instanceof GdlFunction && containsTerm(((GdlFunction) curTerm).getBody(), term)) {
+                return true;
             }
         }
         return false;

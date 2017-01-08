@@ -468,10 +468,8 @@ public class OptimizingPropNetFactory {
                     if (pn != null) {
                         pn.removeComponent(or);
                     }
-                } else if (or.getInputs().size() == 0) {
-                    if (pn != null) {
-                        pn.removeComponent(or);
-                    }
+                } else if (or.getInputs().size() == 0 && pn != null) {
+                    pn.removeComponent(or);
                 }
             } else if(output instanceof Not) {
                 Not not = (Not) output;
@@ -578,10 +576,8 @@ public class OptimizingPropNetFactory {
                     if (pn != null) {
                         pn.removeComponent(and);
                     }
-                } else if (and.getInputs().size() == 0) {
-                    if (pn != null) {
-                        pn.removeComponent(and);
-                    }
+                } else if (and.getInputs().size() == 0 && pn != null) {
+                    pn.removeComponent(and);
                 }
             } else if(output instanceof Not) {
                 Not not = (Not) output;

@@ -139,11 +139,9 @@ public final class Scheduler implements Observer
                 File matchFile = new File(matchesDir, match.getMatchId() + ".json");
                 gameServer.startSavingToFilename(matchFile.getAbsolutePath());
             }
-            if (spec.shouldPublish) {
-                if (!match.getGame().getRepositoryURL().contains("127.0.0.1")) {
-                    gameServer.startPublishingToSpectatorServer("http://matches.ggp.org/");
-                    gameServer.setForceUsingEntireClock();
-                }
+            if (spec.shouldPublish && !match.getGame().getRepositoryURL().contains("127.0.0.1")) {
+                gameServer.startPublishingToSpectatorServer("http://matches.ggp.org/");
+                gameServer.setForceUsingEntireClock();
             }
 
             gameServers.put(spec.matchID, new WeakReference<GameServer>(gameServer));

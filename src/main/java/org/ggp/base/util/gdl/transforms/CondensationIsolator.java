@@ -363,9 +363,8 @@ public class CondensationIsolator {
             for(GdlVariable varNeeded : varsNeeded) {
                 Set<GdlLiteral> suppliers = new HashSet<GdlLiteral>();
                 for(GdlLiteral literal : rule.getBody())
-                    if(literal instanceof GdlRelation)
-                        if(GdlUtils.getVariables(literal).contains(varNeeded))
-                            suppliers.add(literal);
+                    if(literal instanceof GdlRelation && GdlUtils.getVariables(literal).contains(varNeeded)) 
+                        suppliers.add(literal);
                 candidateSuppliersList.add(suppliers);
             }
 
