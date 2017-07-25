@@ -1,0 +1,7 @@
+LocalGameRepository#completeMetadataFromRulesheet: Replace Role#computeRoles with Gdl version (either put in gdl-core or add dependency on gdl-utils)
+
+Lots of GamerLogger: figure something out
+
+Propnets using GameRepository in main() methods/tests
+
+OPNF using Pair (done)
