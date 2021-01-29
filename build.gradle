@@ -163,6 +163,16 @@ task tiltyardRequestFarm(type: JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
 }
 
+task batchValidator(type: JavaExec) {
+    main = 'org.ggp.base.apps.validator.BatchValidator'
+    classpath = sourceSets.main.runtimeClasspath
+}
+
+task validator(type: JavaExec) {
+    main = 'org.ggp.base.apps.validator.Validator'
+    classpath = sourceSets.main.runtimeClasspath
+}
+
 task player(type: JavaExec) {
     main = 'org.ggp.base.apps.player.Player'
     classpath = sourceSets.main.runtimeClasspath
