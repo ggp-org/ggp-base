@@ -11,20 +11,15 @@ import java.awt.event.ItemListener;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 import javax.swing.JTextField;
-import javax.swing.ListSelectionModel;
 import javax.swing.border.TitledBorder;
 
 import org.ggp.base.player.GamePlayer;
@@ -34,10 +29,7 @@ import org.ggp.base.server.GameServer;
 import org.ggp.base.server.event.ServerConnectionErrorEvent;
 import org.ggp.base.server.event.ServerIllegalMoveEvent;
 import org.ggp.base.server.event.ServerTimeoutEvent;
-import org.ggp.base.util.game.CloudGameRepository;
-import org.ggp.base.util.game.LocalGameRepository;
 import org.ggp.base.util.game.Game;
-import org.ggp.base.util.game.GameRepository;
 import org.ggp.base.util.gdl.grammar.GdlPool;
 import org.ggp.base.util.logging.GamerLogger;
 import org.ggp.base.util.match.Match;
@@ -45,9 +37,10 @@ import org.ggp.base.util.observer.Event;
 import org.ggp.base.util.observer.Observer;
 import org.ggp.base.util.reflection.ProjectSearcher;
 import org.ggp.base.util.symbol.grammar.SymbolPool;
+import org.ggp.base.util.ui.GameSelector;
+import org.ggp.base.util.ui.GameSelector.NamedItem;
 import org.ggp.base.util.ui.NativeUI;
 import org.ggp.base.util.ui.PublishButton;
-import org.ggp.base.util.ui.GameSelector;
 
 import com.google.common.collect.Lists;
 
@@ -91,7 +84,10 @@ public final class Kiosk extends JPanel implements ActionListener, ItemListener,
     private final JTextField startClockTextField;
 
     private final JButton runButton;
-    private final JList<AvailableGame> selectedGame;
+    private final java.util.Map<String,AvailableGame> name2availableGame;
+    private final java.util.Map<String,String> canvasNameToGameKey;
+    private final GameSelector gameSelector;
+
     private final JCheckBox flipRoles;
 
     private final PublishButton publishButton;
@@ -102,8 +98,6 @@ public final class Kiosk extends JPanel implements ActionListener, ItemListener,
     private List<Class<? extends Gamer>> gamers = null;
     private final JTextField computerAddress;
 
-    private final GameRepository theRepository;
-
     public Kiosk()
     {
         super(new GridBagLayout());
@@ -112,35 +106,25 @@ public final class Kiosk extends JPanel implements ActionListener, ItemListener,
         NativeUI.setNativeUI();
         GamerLogger.setFileToDisplay("GamePlayer");
 
-        GameSelector gameSelector = new GameSelector();
-        JComboBox<String> repositoryList = gameSelector.getRepositoryList();
-        // This is where we get the rulesheets from. Each game has a corresponding
-        // game (with rulesheet) stored on this repository server. Changing this is
-        // likely to break things unless you know what you're doing.
-        //theRepository = new CloudGameRepository("http://games.ggp.org/base/");
-        theRepository = new LocalGameRepository();
-        Set<String> gameKeys = theRepository.getGameKeys();
+        name2availableGame = new java.util.HashMap<String,AvailableGame>();
+        canvasNameToGameKey = new java.util.HashMap<String,String>();
 
-        SortedSet<AvailableGame> theAvailableGames = new TreeSet<AvailableGame>();
+        flipRoles = new JCheckBox("Flip roles?");
         Set<Class<? extends GameCanvas>> theAvailableCanvasList = ProjectSearcher.GAME_CANVASES.getConcreteClasses();
         for(Class<? extends GameCanvas> availableCanvas : theAvailableCanvasList) {
             try {
                 GameCanvas theCanvas = availableCanvas.newInstance();
                 String gameKey = theCanvas.getGameKey();
-                if (gameKeys.contains(gameKey)) {
-                    theAvailableGames.add(new AvailableGame(theCanvas.getGameName(), theCanvas.getGameKey(), availableCanvas));
-                }
+                String canvasName = theCanvas.getGameName();
+            	AvailableGame availableGame = new AvailableGame(canvasName, gameKey, availableCanvas);
+            	name2availableGame.put(canvasName, availableGame);
+            	canvasNameToGameKey.put(canvasName, gameKey);
             } catch(Exception e) {
                 ;
             }
         }
 
-        flipRoles = new JCheckBox("Flip roles?");
-
-        selectedGame = new JList<AvailableGame>(theAvailableGames.toArray(new AvailableGame[0]));
-        selectedGame.setSelectedIndex(0);
-        selectedGame.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        JScrollPane selectedGamePane = new JScrollPane(selectedGame);
+        gameSelector = new GameSelector(canvasNameToGameKey);
 
         computerAddress = new JTextField("player.ggp.org:80");
         playerComboBox = new JComboBox<String>();
@@ -186,9 +170,9 @@ public final class Kiosk extends JPanel implements ActionListener, ItemListener,
         managerPanel.add(playClockTextField, new GridBagConstraints(1, nRowCount++, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 5, 5));
         managerPanel.add(flipRoles, new GridBagConstraints(1, nRowCount++, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 5, 5));
         managerPanel.add(new JLabel("Game Repository:"), new GridBagConstraints(0, nRowCount, 1, 1, 0.0, 0.0, GridBagConstraints.NORTH, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 5, 5));
-        managerPanel.add(repositoryList, new GridBagConstraints(1, nRowCount++, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 5, 5));
+        managerPanel.add(gameSelector.getRepositoryList(), new GridBagConstraints(1, nRowCount++, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 5, 5));
         managerPanel.add(new JLabel("Game:"), new GridBagConstraints(0, nRowCount, 1, 1, 0.0, 0.0, GridBagConstraints.NORTH, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 5, 5));
-        managerPanel.add(selectedGamePane, new GridBagConstraints(1, nRowCount++, 1, 1, 0.0, 5.0, GridBagConstraints.CENTER, GridBagConstraints.VERTICAL, new Insets(5, 5, 5, 5), 5, 5));
+        managerPanel.add(gameSelector.getGameList(), new GridBagConstraints(1, nRowCount++, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 5, 5));
         managerPanel.add(new JLabel("Publishing:"), new GridBagConstraints(0, nRowCount, 1, 1, 0.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 5, 5));
         managerPanel.add(publishButton, new GridBagConstraints(1, nRowCount++, 1, 1, 0.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 5, 5));
         //managerPanel.add(new ConsolePanel(), new GridBagConstraints(0, nRowCount++, 2, 1, 0.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 5, 5));
@@ -312,8 +296,8 @@ public final class Kiosk extends JPanel implements ActionListener, ItemListener,
                 GdlPool.drainPool();
                 SymbolPool.drainPool();
 
-                AvailableGame theGame = selectedGame.getSelectedValue();
-                Game game = theRepository.getGame(theGame.kifFile);
+                AvailableGame theGame = name2availableGame.get(((NamedItem)gameSelector.getGameList().getSelectedItem()).theName);
+                Game game = gameSelector.getSelectedGameRepository().getGame(theGame.kifFile);
 
                 if (game == null) {
                     JOptionPane.showMessageDialog(this, "Cannot load game data for " + theGame.kifFile, "Error", JOptionPane.ERROR_MESSAGE);

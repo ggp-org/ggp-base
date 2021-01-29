@@ -32,7 +32,9 @@ public class GameSelector implements ActionListener {
     GameRepository theSelectedRepository;
     Map<String, GameRepository> theCachedRepositories;
 
-    class NamedItem {
+    java.util.Map<String,String> restrictionNameToKey = null;
+
+    public static class NamedItem {
         public final String theKey;
         public final String theName;
 
@@ -47,7 +49,7 @@ public class GameSelector implements ActionListener {
         }
     }
 
-    public GameSelector() {
+    void init() {
         theGameList = new JComboBox<NamedItem>();
         theGameList.addActionListener(this);
 
@@ -59,6 +61,14 @@ public class GameSelector implements ActionListener {
         theRepositoryList.addItem("games.ggp.org/dresden");
         theRepositoryList.addItem("games.ggp.org/stanford");
         theRepositoryList.addItem("Local Game Repository");
+    }
+    public GameSelector() {
+    	init();
+    }
+
+    public GameSelector(java.util.Map<String,String> restrictionNameToKey) {
+    	this.restrictionNameToKey = restrictionNameToKey;
+    	init();
     }
 
     @Override
@@ -85,10 +95,14 @@ public class GameSelector implements ActionListener {
 
     public void repopulateGameList() {
         GameRepository theRepository = getSelectedGameRepository();
-        List<String> theKeyList = new ArrayList<String>(theRepository.getGameKeys());
+        List<String> theKeyList;
+      	theKeyList = new ArrayList<String>(theRepository.getGameKeys());
         Collections.sort(theKeyList);
         theGameList.removeAllItems();
         for (String theKey : theKeyList) {
+        	if ( restrictionNameToKey != null && ! restrictionNameToKey.containsValue(theKey)) {
+        		continue;
+        	}
             Game theGame = theRepository.getGame(theKey);
             if (theGame == null) {
                 continue;
@@ -99,7 +113,20 @@ public class GameSelector implements ActionListener {
             }
             if (theName.length() > 24)
                 theName = theName.substring(0, 24) + "...";
-            theGameList.addItem(new NamedItem(theKey, theName));
+
+            if ( restrictionNameToKey == null) {
+            	theGameList.addItem(new NamedItem(theKey, theName));
+            }
+            else {
+            	for (String name: restrictionNameToKey.keySet()) {
+            		String key = restrictionNameToKey.get(name);
+            		//System.out.println("theKey: "+theKey+", theName: "+theName+", name:"+name + ", key: " + key);
+            		if ( theKey.equals(key)) {
+            			//System.out.println("key: " + key + ", name" + name);
+            			theGameList.addItem(new NamedItem(theKey, name));
+            		}
+            	}
+            }
         }
     }
 
