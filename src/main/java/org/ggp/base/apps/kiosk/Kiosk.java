@@ -35,6 +35,7 @@ import org.ggp.base.server.event.ServerConnectionErrorEvent;
 import org.ggp.base.server.event.ServerIllegalMoveEvent;
 import org.ggp.base.server.event.ServerTimeoutEvent;
 import org.ggp.base.util.game.CloudGameRepository;
+import org.ggp.base.util.game.LocalGameRepository;
 import org.ggp.base.util.game.Game;
 import org.ggp.base.util.game.GameRepository;
 import org.ggp.base.util.gdl.grammar.GdlPool;
@@ -46,6 +47,7 @@ import org.ggp.base.util.reflection.ProjectSearcher;
 import org.ggp.base.util.symbol.grammar.SymbolPool;
 import org.ggp.base.util.ui.NativeUI;
 import org.ggp.base.util.ui.PublishButton;
+import org.ggp.base.util.ui.GameSelector;
 
 import com.google.common.collect.Lists;
 
@@ -110,12 +112,24 @@ public final class Kiosk extends JPanel implements ActionListener, ItemListener,
         NativeUI.setNativeUI();
         GamerLogger.setFileToDisplay("GamePlayer");
 
+        GameSelector gameSelector = new GameSelector();
+        JComboBox<String> repositoryList = gameSelector.getRepositoryList();
+        // This is where we get the rulesheets from. Each game has a corresponding
+        // game (with rulesheet) stored on this repository server. Changing this is
+        // likely to break things unless you know what you're doing.
+        //theRepository = new CloudGameRepository("http://games.ggp.org/base/");
+        theRepository = new LocalGameRepository();
+        Set<String> gameKeys = theRepository.getGameKeys();
+
         SortedSet<AvailableGame> theAvailableGames = new TreeSet<AvailableGame>();
         Set<Class<? extends GameCanvas>> theAvailableCanvasList = ProjectSearcher.GAME_CANVASES.getConcreteClasses();
         for(Class<? extends GameCanvas> availableCanvas : theAvailableCanvasList) {
             try {
                 GameCanvas theCanvas = availableCanvas.newInstance();
-                theAvailableGames.add(new AvailableGame(theCanvas.getGameName(), theCanvas.getGameKey(), availableCanvas));
+                String gameKey = theCanvas.getGameKey();
+                if (gameKeys.contains(gameKey)) {
+                    theAvailableGames.add(new AvailableGame(theCanvas.getGameName(), theCanvas.getGameKey(), availableCanvas));
+                }
             } catch(Exception e) {
                 ;
             }
@@ -171,6 +185,8 @@ public final class Kiosk extends JPanel implements ActionListener, ItemListener,
         managerPanel.add(new JLabel("Play Clock:"), new GridBagConstraints(0, nRowCount, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 5, 5));
         managerPanel.add(playClockTextField, new GridBagConstraints(1, nRowCount++, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 5, 5));
         managerPanel.add(flipRoles, new GridBagConstraints(1, nRowCount++, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 5, 5));
+        managerPanel.add(new JLabel("Game Repository:"), new GridBagConstraints(0, nRowCount, 1, 1, 0.0, 0.0, GridBagConstraints.NORTH, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 5, 5));
+        managerPanel.add(repositoryList, new GridBagConstraints(1, nRowCount++, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 5, 5));
         managerPanel.add(new JLabel("Game:"), new GridBagConstraints(0, nRowCount, 1, 1, 0.0, 0.0, GridBagConstraints.NORTH, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 5, 5));
         managerPanel.add(selectedGamePane, new GridBagConstraints(1, nRowCount++, 1, 1, 0.0, 5.0, GridBagConstraints.CENTER, GridBagConstraints.VERTICAL, new Insets(5, 5, 5, 5), 5, 5));
         managerPanel.add(new JLabel("Publishing:"), new GridBagConstraints(0, nRowCount, 1, 1, 0.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 5, 5));
@@ -195,11 +211,6 @@ public final class Kiosk extends JPanel implements ActionListener, ItemListener,
         } catch(Exception e) {
             e.printStackTrace();
         }
-
-        // This is where we get the rulesheets from. Each game has a corresponding
-        // game (with rulesheet) stored on this repository server. Changing this is
-        // likely to break things unless you know what you're doing.
-        theRepository = new CloudGameRepository("http://games.ggp.org/base/");
     }
 
     class AvailableGame implements Comparable<AvailableGame> {
