@@ -20,6 +20,7 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.JTextPane;
 import javax.swing.border.TitledBorder;
 
 import org.ggp.base.player.GamePlayer;
@@ -82,6 +83,7 @@ public final class Kiosk extends JPanel implements ActionListener, ItemListener,
 
     private final JTextField playClockTextField;
     private final JTextField startClockTextField;
+    private final JTextPane gameDescription;
 
     private final JButton runButton;
     private final java.util.Map<String,AvailableGame> name2availableGame;
@@ -154,6 +156,11 @@ public final class Kiosk extends JPanel implements ActionListener, ItemListener,
 
         startClockTextField = new JTextField("30");
         playClockTextField = new JTextField("10");
+
+        gameDescription = new JTextPane();
+        gameDescription.setPreferredSize(new Dimension(0, 0));
+        gameSelector.getGameList().addItemListener(this);
+
         managerPanel = new JPanel(new GridBagLayout());
 
         startClockTextField.setColumns(15);
@@ -169,10 +176,12 @@ public final class Kiosk extends JPanel implements ActionListener, ItemListener,
         managerPanel.add(new JLabel("Play Clock:"), new GridBagConstraints(0, nRowCount, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 5, 5));
         managerPanel.add(playClockTextField, new GridBagConstraints(1, nRowCount++, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 5, 5));
         managerPanel.add(flipRoles, new GridBagConstraints(1, nRowCount++, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 5, 5));
-        managerPanel.add(new JLabel("Game Repository:"), new GridBagConstraints(0, nRowCount, 1, 1, 0.0, 0.0, GridBagConstraints.NORTH, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 5, 5));
+        managerPanel.add(new JLabel("Repository:"), new GridBagConstraints(0, nRowCount, 1, 1, 0.0, 0.0, GridBagConstraints.NORTH, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 5, 5));
         managerPanel.add(gameSelector.getRepositoryList(), new GridBagConstraints(1, nRowCount++, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 5, 5));
         managerPanel.add(new JLabel("Game:"), new GridBagConstraints(0, nRowCount, 1, 1, 0.0, 0.0, GridBagConstraints.NORTH, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 5, 5));
         managerPanel.add(gameSelector.getGameList(), new GridBagConstraints(1, nRowCount++, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 5, 5));
+        managerPanel.add(new JLabel("Description:"), new GridBagConstraints(0, nRowCount++, 1, 1, 0.0, 0.0, GridBagConstraints.NORTH, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 5, 5));
+        managerPanel.add(gameDescription, new GridBagConstraints(0, nRowCount++, 2, 1, 1.0, 5.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 5, 5));
         managerPanel.add(new JLabel("Publishing:"), new GridBagConstraints(0, nRowCount, 1, 1, 0.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 5, 5));
         managerPanel.add(publishButton, new GridBagConstraints(1, nRowCount++, 1, 1, 0.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 5, 5));
         //managerPanel.add(new ConsolePanel(), new GridBagConstraints(0, nRowCount++, 2, 1, 0.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 5, 5));
@@ -392,6 +401,12 @@ public final class Kiosk extends JPanel implements ActionListener, ItemListener,
                 computerAddress.setVisible(false);
             }
             validate();
+        }
+        if(e.getSource() == gameSelector.getGameList()) {
+            Game selectedGame = gameSelector.getSelectedGame();
+            if ( selectedGame != null) {
+                gameDescription.setText(selectedGame.getDescription());
+            }
         }
     }
 
